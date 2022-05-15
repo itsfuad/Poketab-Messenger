@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/chat.css">
+    <link rel="stylesheet" href="/message.css">
+    <script async src="fontawesome.js"></script>
+    <script defer src="/logger.js"></script>
+    <script defer src="./textBox.js"></script>
+    <script defer src="/libs/mustache.js"></script>
+ 
+    <script defer src="/autoScroller.js"></script>
+    <script defer src="/app.js"></script>
+
+    <script defer src="/optionsMenu.js"></script>
+
+
+    <title>Chat</title>
+</head>
+<body>
+    <div class="chatBox">
+        <!-- Navigation -->
+        <div class="navbar">
+            <div class="currentlyActive">1/2</div>
+            <div class="more">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+            </div>
+        </div>
+        <!-- Chat Messages will append here -->
+        <ul id="messages">
+            <li class="welcomeText">
+                <img src="/images/msg.png" width="100px" height="100px" alt="Message Icon">
+                <h1>Start typing messages!</h1>
+                <p>This app is under development. So please report any bugs you see on our github.</p>
+                <!-- All messages will be added here -->
+            </li>
+        </ul>
+        
+    
+        <!-- Reply toast popup-->
+        <div id="replyToast">
+            <div class="content">
+                <div class="title"><i class="fa-solid fa-reply"></i> Replying to <span id="text">Fuad</span></div>
+                <div class="replyText">Lorem ipsum dolor sit amet.</div>
+            </div>
+            <div class="close">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+        </div>
+
+        <!-- All inputs -->
+        <div class="footer">
+            <div id="typingIndicator"></div>
+            <div class="chatInput">
+                <!-- Location input -->
+                <div class="location" id="send-location"><i class="fa-solid fa-location-crosshairs"></i></div>
+                <!-- Image Choose -->
+                <div class="upload_image">
+                <label for="photo"><i class="fa-solid fa-image"></i></label>
+                <input type="file" name="photo" id="photo" accept="image/png, image/jpg, image/jpeg, image/gif">
+                </div>
+                <!-- Text input -->
+                <textarea name="chatInputBox" id="textbox" rows="1" placeholder="Type message..."></textarea>
+                <!-- Send Button-->
+                <button id="send"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Container-->
+    <div id="popupMessage"></div>
+
+    <!-- Options container for reacts and other functionalities -->
+    <div id="optionsContainer">
+        <ul id="reactOptions" class="options">
+            <div class="💙">💙</div>
+            <div class="😂">😂</div>
+            <div class="😮">😮</div>
+            <div class="😢">😢</div>
+            <div class="😠">😠</div>
+            <div class="👍🏻">👍🏻</div>
+            <div class="👎🏻">👎🏻</div>
+        </ul>
+        <ul id="normalOptions" class="options">
+            <div class="replyOption"><i class="fa-solid fa-reply"></i> <span>Reply</span></div>
+            <div class="copyOption" style="display: none;"><i class="fa-solid fa-clone"></i> <span>Copy</span></div>
+            <div class="downloadOption" style="display: none;"><i class="fa-solid fa-download"></i> <span>Download</span></div>
+            <div class="deleteOption"><i class="fa-solid fa-trash"></i> <span>Delete</span></div>
+            <div class="closeOption"><i class="fa-solid fa-xmark"></i></div>
+        </ul>
+    </div>
+
+
+    <div id="previewImage">
+        <div id="selectedImage"></div>
+        <div class="option">
+            <div class="close"><i class="fa-solid fa-xmark"></i></div>
+            <div id="imageSend"><i class="fa-solid fa-paper-plane"></i></div>
+        </div>
+    </div>
+
+    <!--Image will be viewed here-->
+    <div id="lightbox">
+        <div class="tool">
+          <div id="lightbox__save"><i class="fa-solid fa-download"></i></div>
+          <div id="lightbox__close"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+        <div id="lightbox__image"></div>
+    </div>
+
+
+    <template id="messageTemplate">
+        <li class="message {{classList}}" id="{{messageId}}" data-uid="{{uid}}"> <!-- noreply notitle delevered start end self react -->
+            <div class="sent"></div>
+            <div class="avatar"></div>
+            <div class="messageBody">
+                <div class="messageTitle">{{title}}</div>
+                <div class="messageReply">{{replyMsg}}</div>
+                <div class="messageMain">{{{message}}}</div>
+                <div class="reactsOfMessage"></div>
+            </div>
+            <div class="messageTime">{{time}}</div>
+        </li>
+    </template>
+
+
+</body>
+</html>

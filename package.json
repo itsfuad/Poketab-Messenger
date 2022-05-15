@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "g": "^2.0.1",
+    "http": "^0.0.1-security",
+    "socket.io": "^4.5.0"
+  },
+  "devDependencies": {
+    "express": "^4.18.1"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "name": "chattingapp",
+  "version": "1.0.0",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itsfuad/ChattingApp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/itsfuad/ChattingApp/issues"
+  },
+  "homepage": "https://github.com/itsfuad/ChattingApp#readme",
+  "description": ""
+}
