@@ -305,4 +305,29 @@ i[class^=fa-] {
 }
 .options:is(#normalOptions) > div:is(.closeOption, .deleteOption) > * {
   color: var(--red) !important;
+}
+
+.reactorContainer {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--focus);
+  padding: 20px;
+  width: 300px;
+  height: 220px;
+  overflow-y: scroll;
+  border-radius: 10px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  z-index: 10;
+  backdrop-filter: blur(2px);
+  filter: drop-shadow(2px 4px 6px black);
+}
+.reactorContainer ul {
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
 }/*# sourceMappingURL=chat.css.map */

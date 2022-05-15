@@ -22,7 +22,13 @@ let targetMessage = {
     id: '',
 };
 
-const myId = 1234;
+let finalTarget = {
+    sender: '',
+    message: '',
+    id: '',
+};
+
+const myId = '1234';
 const myName = 'Fuad';
 const maxUsers = 2;
 
@@ -147,12 +153,15 @@ function optionsMainEvent(e){
         switch (target){
             case 'copyOption':
                 log('copy');
+                clearTargetMessage();
                 break;
             case 'downloadOption':
                 log('download');
+                clearTargetMessage();
                 break;
             case 'deleteOption':
                 log('delete');
+                clearTargetMessage();
                 break;
             case 'replyOption':
                 log('reply');
@@ -173,9 +182,7 @@ function optionsReactEvent(e){
         if (reactArray.includes(target)){
             getReact(target, messageId, myId);
             hideOptions();
-            targetMessage.message = '';
-            targetMessage.sender = '';
-            targetMessage.id = '';
+            clearTargetMessage();
         }
     }
 }
@@ -195,8 +202,9 @@ function hideOptions(){
 function showReplyToast(){
     updateScroll();
     textbox.focus();
-    replyToast.querySelector('.replyText').textContent = targetMessage.message?.substring(0, 50);
-    replyToast.querySelector('#text').textContent = targetMessage.sender;
+    finalTarget = Object.assign({}, targetMessage);
+    replyToast.querySelector('.replyText').textContent = finalTarget.message?.substring(0, 50);
+    replyToast.querySelector('#text').textContent = finalTarget.sender;
     replyToast.classList.add('active');
 }
 
@@ -204,10 +212,63 @@ function hideReplyToast(){
     replyToast.classList.remove('active');
     replyToast.querySelector('.replyText').textContent = '';
     replyToast.querySelector('#text').textContent = '';
-    targetMessage.message = '';
-    targetMessage.sender = '';
+    clearTargetMessage();
 }
 
+function arrayToMap(array) {
+    let map = new Map();
+    array.forEach(element => {
+        map.set(element.innerText, map.get(element.innerText) + 1 || 1);
+    });
+    return map;
+}
+
+function getReact(type, messageId, uid){
+    let target = document.getElementById(messageId).querySelector('.reactedUsers');
+    let exists = target?.querySelector('.list') ?? false;
+    if (exists){
+        let list = target.querySelector('.list[data-uid="'+uid+'"]');
+        if (list){
+            if (list.innerText == type){
+                list.remove();
+            }else{
+                list.innerText = type;
+            }
+        }else{
+            target.innerHTML += `<div class='list' data-uid='${uid}'>${type}</div>`;
+        }
+        console.log(list);
+    }
+    else{
+        target.innerHTML += `<div class='list' data-uid='${uid}'>${type}</div>`;
+    }
+
+    let map = new Map();
+    let list = Array.from(target.querySelectorAll('.list'));
+    map = arrayToMap(list);
+
+    console.log(map);
+
+    let reactsOfMessage = document.getElementById(messageId).querySelector('.reactsOfMessage');
+    if (reactsOfMessage && map.size > 0){
+        reactsOfMessage.innerHTML = '';
+        let count = 0;
+        map.forEach((value, key) => {
+            if (count >= 2){
+                console.log(count);
+                reactsOfMessage.querySelector('span').remove();
+            }
+            reactsOfMessage.innerHTML += `<span>${key}${value}</span>`;
+            count ++;
+        });
+        document.getElementById(messageId).classList.add('react');
+    }else{
+        document.getElementById(messageId).classList.remove('react');
+    }
+    updateScroll();
+}
+
+/*
 function getReact(type, messageId, uid){
     log('added react');
     let react = {
@@ -215,12 +276,49 @@ function getReact(type, messageId, uid){
         messageId: messageId,
         uid: uid
     };
+
+    let target = document.getElementById(messageId);
+    let reactedUsers = target?.querySelector('.reactedUsers');
+    let map = new Map();
+    let rList = [];
+    console.log(reactedUsers?.querySelectorAll('.items')?.length);
+    if (reactedUsers?.querySelectorAll('.items')?.length != 0){
+        let items = reactedUsers?.querySelectorAll('.items');
+
+    }
+    console.log(rList);
+    map.set(uid, type);
+
+    console.log(map);
+
+    reactedUsers.innerHTML = '';
+    for (let [key, value] of map){
+        reactedUsers.innerHTML += `<div class='items' data-uid='${key}'>${value}</div>`;
+    }
+
+    let reactMap = arrayToMap(Array.from(reactedUsers.querySelectorAll('.items')));
+    console.log(reactMap);
+    target.querySelector('.reactsOfMessage').innerHTML = '';
+    document.getElementById(react.messageId)?.classList.remove('react');
+    let count = 0;
+    for (let [key, value] of reactMap) {
+        if (count >= 3){
+            target.querySelector('.reactsOfMessage span:last-child').remove();
+        }
+        console.log(key, value);
+        target.querySelector('.reactsOfMessage').innerHTML += `<span>${key}${value}</span>`;
+        document.getElementById(react.messageId)?.classList.add('react');
+    }
+/*  
     log(`${uid} reacted to ${messageId} : ${type}`);
     let target = document.getElementById(react.messageId)?.querySelector('.reactsOfMessage');
     target.textContent = react.type;
     document.getElementById(react.messageId)?.classList.add('react');
+    addReact(type, messageId, uid);
     updateScroll();
 }
+*/
+
 
 
 appHeight();
@@ -361,6 +459,12 @@ if (isMobile){
 }
 
 
+function clearTargetMessage(){
+    targetMessage.sender = '';
+    targetMessage.message = '';
+    targetMessage.id = '';
+}
+
 function OptionEventHandler(evt){
     let type;
     let sender = evt.target?.closest('.message')?.classList?.contains('self')? true : false;
@@ -439,6 +543,7 @@ window.addEventListener('resize',()=>{
 });
 
 document.querySelector('.closeOption').addEventListener('click', () => {
+    clearTargetMessage();
     hideOptions();
 });
 
@@ -464,7 +569,7 @@ sendButton.addEventListener('click', () => {
     message?.replace(/\n/g, '¶')?.replace(/>/gi, "&gt;")?.replace(/</gi, "&lt;");
     message?.replace(/¶/g, '<br/>');
     resizeTextbox();
-    if (message.length) {insertNewMessage(message, 'text', makeId(), 1234, targetMessage?.message, targetMessage?.sender ? `You replied to ${targetMessage.sender}` : 'Fuad', {reply: (targetMessage.message ? true : false), title: (targetMessage.message ? true : false)});}
+    if (message.length) {insertNewMessage(message, 'text', makeId(), 1234, finalTarget?.message, finalTarget?.sender ? `You replied to ${finalTarget.sender}` : 'Fuad', {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});}
     textbox.focus();
     hideOptions();
     hideReplyToast();

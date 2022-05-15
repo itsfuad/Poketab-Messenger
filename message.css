@@ -88,6 +88,7 @@
   padding: 0 5px;
   z-index: 15;
   display: none;
+  width: max-content;
 }
 
 .message:is(.noreply) .messageReply {
@@ -176,9 +177,9 @@
 }
 .message:is(.self) .messageBody .messageMain p {
   padding: 8px 8px 8px 15px;
+  background: var(--secondary-dark);
 }
 .message:is(.self) .messageBody .messageMain > * {
-  background: var(--secondary-dark);
   border-radius: 15px 3px 3px 15px;
 }
 .message:is(.self):is(.start) .messageMain > * {

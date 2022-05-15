@@ -110,6 +110,12 @@
         <div id="lightbox__image"></div>
     </div>
 
+    <div class="reactorContainer" style="display: none;">Reactions 
+        <ul>
+
+        </ul>
+    </div>
+
 
     <template id="messageTemplate">
         <li class="message {{classList}}" id="{{messageId}}" data-uid="{{uid}}"> <!-- noreply notitle delevered start end self react -->
@@ -122,6 +128,7 @@
                 <div class="reactsOfMessage"></div>
             </div>
             <div class="messageTime">{{time}}</div>
+            <div class="reactedUsers" style="display: none;"></div>
         </li>
     </template>
 
