@@ -28,8 +28,14 @@ let finalTarget = {
     id: '',
 };
 
-const myId = '1234';
-const myName = 'Fuad';
+let userList = [
+    {uid: '1', name: 'John Doe', avatar: 'squirtle'},
+    {uid: '2', name: 'Jane Doe', avatar: 'charmander'},
+    {uid: '3', name: 'Jack Doe', avatar: 'bulbasaur'},
+];
+
+const myId = '1';
+const myName = 'John Doe';
 const maxUsers = 2;
 
 function appHeight () {
@@ -100,6 +106,7 @@ function insertNewMessage(message, type, id, uid, reply, title, options){
 
     let html = Mustache.render(template, {
         classList: classList,
+        avatar: `<img src='/images/avatars/${userList.find(user => user.uid == uid)?.avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
         messageId: id,
         uid: uid,
         title: title,
@@ -133,8 +140,11 @@ let copyOption = document.querySelector('.copyOption');
 let downloadOption = document.querySelector('.downloadOption');
 let deleteOption = document.querySelector('.deleteOption');
 
-function showOptions(type, sender){
+function showOptions(type, sender, target){
     document.querySelector('.reactorContainer').classList.remove('active');
+    document.querySelectorAll(`#reactOptions div`).forEach(
+        option => option.style.background = 'none'
+    )
     if (type == 'text'){
         copyOption.style.display = 'flex';
     }else if (type == 'image'){
@@ -143,6 +153,13 @@ function showOptions(type, sender){
     if (sender){
         deleteOption.style.display = 'flex';
     }
+    let clicked = target?.closest('.message')?.querySelector('.reactedUsers .list')?.dataset.uid == myId;
+    console.log(clicked);
+    if (clicked){
+        let clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.innerText;
+        document.querySelector(`#reactOptions .${clickedElement}`).style.background = '#000000aa';
+    }
+    console.log(clicked);
     let options = document.getElementById('optionsContainer');
     options.classList.add('active');
     options.addEventListener('click', optionsMainEvent);
@@ -181,12 +198,7 @@ function optionsReactEvent(e){
 
     if (target){
         if (reactArray.includes(target)){
-            document.getElementById('reactOptions').querySelectorAll('div').forEach(
-                (el) => {
-                    el.style.background = 'none';
-                }
-            );
-            e.target.style.background = '#00000073';
+            //e.target.style.background = '#00000073';
             getReact(target, messageId, myId, e.target);
             hideOptions();
             clearTargetMessage();
@@ -231,7 +243,7 @@ function arrayToMap(array) {
     return map;
 }
 
-function getReact(type, messageId, uid, el){
+function getReact(type, messageId, uid){
     let target = document.getElementById(messageId).querySelector('.reactedUsers');
     let exists = target?.querySelector('.list') ?? false;
     if (exists){
@@ -239,7 +251,6 @@ function getReact(type, messageId, uid, el){
         if (list){
             if (list.innerText == type){
                 list.remove();
-                el.style.background = 'none';
             }else{
                 list.innerText = type;
             }
@@ -283,7 +294,7 @@ function getReact(type, messageId, uid, el){
 appHeight();
 
 document.querySelector('.more').addEventListener('click', ()=>{
-    insertNewMessage(getRandomTextFromWeb(), 'text', makeId, 1122, '', 'Laam', {reply: false, title: (maxUsers > 2) || targetMessage.sender != '' ? true : false});
+    insertNewMessage(getRandomTextFromWeb(), 'text', makeId, 2, '', 'Laam', {reply: false, title: (maxUsers > 2) || targetMessage.sender != '' ? true : false});
 });
 
 updateScroll();
@@ -393,7 +404,7 @@ function OptionEventHandler(evt){
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
     if (type == 'text' || type == 'image'){
-        showOptions(type, sender);
+        showOptions(type, sender, evt.target);
     }
 }
 
@@ -425,10 +436,12 @@ messages.addEventListener('click', (evt) => {
       container.innerHTML = '';
       if (target.length > 0){
         target.forEach(element => {
+            let avatar = userList.find(user => user.uid == element.dataset.uid).avatar;
+            console.log(avatar);
             if (element.dataset.uid == myId){
-                container.innerHTML = `<li><img src='./images/avatars/pikachu(custom).png' height='30px' width='30px'><span class='uname'>${element.dataset.uid}</span><span class='r'>${element.innerText}</span></li>` + container.innerHTML;
+                container.innerHTML = `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${element.dataset.uid}</span><span class='r'>${element.innerText}</span></li>` + container.innerHTML;
             }else{
-                container.innerHTML += `<li><img src='./images/avatars/pikachu(custom).png' height='30px' width='30px'><span class='uname'>${element.dataset.uid}</span><span class='r'>${element.innerText}</span></li>`;
+                container.innerHTML += `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${element.dataset.uid}</span><span class='r'>${element.innerText}</span></li>`;
             }
         });
       }
@@ -499,7 +512,7 @@ sendButton.addEventListener('click', () => {
     message?.replace(/\n/g, '¶')?.replace(/>/gi, "&gt;")?.replace(/</gi, "&lt;");
     message?.replace(/¶/g, '<br/>');
     resizeTextbox();
-    if (message.length) {insertNewMessage(message, 'text', makeId(), 1234, finalTarget?.message, finalTarget?.sender ? `You replied to ${finalTarget.sender}` : 'Fuad', {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});}
+    if (message.length) {insertNewMessage(message, 'text', makeId(), myId, finalTarget?.message, finalTarget?.sender ? `You replied to ${finalTarget.sender}` : 'Fuad', {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});}
     textbox.focus();
     hideOptions();
     hideReplyToast();

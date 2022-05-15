@@ -51,8 +51,11 @@
         height: 30px;
         width: 30px;
         border-radius: 50%;
-        background: #dadada;
+        background: #dadada00;
         visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     .messageBody{
         position: relative;
