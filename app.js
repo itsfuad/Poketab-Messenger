@@ -511,8 +511,10 @@ sendButton.addEventListener('click', () => {
         text += '... (message too long)';
     }
     //replace spaces with unusual characters
-    message?.replace(/\n/g, '¶')?.replace(/>/gi, "&gt;")?.replace(/</gi, "&lt;");
-    message?.replace(/¶/g, '<br/>');
+    message = message.replace(/\n/g, '¶');
+    message = message.replace(/>/g, '&gt;');
+    message = message.replace(/</g, '&lt;');
+    message = message.replace(/¶/g, '<br/>');
     resizeTextbox();
     if (message.length) {insertNewMessage(message, 'text', makeId(), myId, finalTarget?.message, finalTarget?.sender ? `You replied to ${finalTarget.sender}` : myName, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});}
     finalTarget.message = '';
@@ -543,7 +545,7 @@ document.getElementById('previewImage').querySelector('.close')?.addEventListene
 
 document.getElementById('previewImage').querySelector('#imageSend')?.addEventListener('click', ()=>{
     let message = document.getElementById('selectedImage').querySelector('img')?.src;
-    insertNewMessage(message, 'image', makeId(), 1234, targetMessage?.message, targetMessage?.sender ? `You replied to ${targetMessage.sender}` : myName, {reply: (targetMessage.message ? true : false), title: (targetMessage.message ? true : false)});
+    insertNewMessage(message, 'image', makeId(), myId, targetMessage?.message, targetMessage?.sender ? `You replied to ${targetMessage.sender}` : myName, {reply: (targetMessage.message ? true : false), title: (targetMessage.message ? true : false)});
     document.getElementById('previewImage')?.classList?.remove('active');
     document.getElementById('selectedImage').innerHTML = '';
 });
