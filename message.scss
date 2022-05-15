@@ -118,8 +118,11 @@
     }
     p{
         background: #516696;
-        padding: 8px 15px 8px 8px;
+        padding: 8px;
         min-width: 32px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     img{
         width: 100%;
@@ -200,7 +203,7 @@
         }
         .messageMain{
             p{
-                padding: 8px 8px 8px 15px;
+                padding: 8px;
                 background: var(--secondary-dark);
             }
             & > *{

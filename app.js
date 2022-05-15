@@ -29,14 +29,14 @@ let finalTarget = {
 };
 
 let userList = [
-    {uid: '1', name: 'John Doe', avatar: 'squirtle'},
-    {uid: '2', name: 'Jane Doe', avatar: 'charmander'},
-    {uid: '3', name: 'Jack Doe', avatar: 'bulbasaur'},
+    {uid: '1', name: 'JohnDoe', avatar: 'squirtle'},
+    {uid: '2', name: 'JaneDoe', avatar: 'charmander'},
+    {uid: '3', name: 'JackDoe', avatar: 'bulbasaur'},
 ];
 
 const myId = '1';
-const myName = 'John Doe';
-const maxUsers = 2;
+const myName = 'JohnDoe';
+const maxUsers = 5;
 
 function appHeight () {
     const doc = document.documentElement;
@@ -222,6 +222,7 @@ function hideOptions(){
 function showReplyToast(){
     updateScroll();
     textbox.focus();
+    console.log(targetMessage);
     finalTarget = Object.assign({}, targetMessage);
     replyToast.querySelector('.replyText').textContent = finalTarget.message?.substring(0, 50);
     replyToast.querySelector('#text').textContent = finalTarget.sender;
@@ -294,7 +295,7 @@ function getReact(type, messageId, uid){
 appHeight();
 
 document.querySelector('.more').addEventListener('click', ()=>{
-    insertNewMessage(getRandomTextFromWeb(), 'text', makeId, 2, '', 'Laam', {reply: false, title: (maxUsers > 2) || targetMessage.sender != '' ? true : false});
+    insertNewMessage(getRandomTextFromWeb(), 'text', makeId(10), 2, '', 'Laam', {reply: false, title: (maxUsers > 2) || targetMessage.sender != '' ? true : false});
 });
 
 updateScroll();
@@ -387,19 +388,20 @@ function clearTargetMessage(){
 
 function OptionEventHandler(evt){
     let type;
-    let sender = evt.target?.closest('.message')?.classList?.contains('self')? true : false;
-    if (evt.target?.classList.contains('text')){
+    let sender = evt.target.closest('.message').classList.contains('self')?  true : false;
+    if (evt.target.classList.contains('text')){
         type = 'text';
-        targetMessage.sender = evt.target?.closest('.message')?.querySelector('.messageTitle')?.innerText?.split(' ')?.shift();
+        targetMessage.sender = evt.target.closest('.message').querySelector('.messageTitle').innerText.trim().split(' ')[0];
+        console.log(targetMessage.sender);
         if (targetMessage.sender == myName){
             targetMessage.sender = 'You';
         }
-        targetMessage.message = evt.target?.closest('.message')?.querySelector('.messageMain .text')?.textContent?.substring(0, 100);
+        targetMessage.message = evt.target.closest('.message').querySelector('.messageMain .text').textContent.substring(0, 100);
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
-    else if (evt.target?.classList.contains('image')){
+    else if (evt.target.classList.contains('image')){
         type = 'image';
-        targetMessage.sender = evt.target?.closest('.message')?.querySelector('.messageTitle')?.textContent?.split(' ')?.shift();
+        targetMessage.sender = evt.target?.closest('.message').querySelector('.messageTitle').textContent.trim().split(' ')[0];
         targetMessage.message = 'Image';
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
@@ -512,7 +514,9 @@ sendButton.addEventListener('click', () => {
     message?.replace(/\n/g, '¶')?.replace(/>/gi, "&gt;")?.replace(/</gi, "&lt;");
     message?.replace(/¶/g, '<br/>');
     resizeTextbox();
-    if (message.length) {insertNewMessage(message, 'text', makeId(), myId, finalTarget?.message, finalTarget?.sender ? `You replied to ${finalTarget.sender}` : 'Fuad', {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});}
+    if (message.length) {insertNewMessage(message, 'text', makeId(), myId, finalTarget?.message, finalTarget?.sender ? `You replied to ${finalTarget.sender}` : myName, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});}
+    finalTarget.message = '';
+    finalTarget.sender = '';
     textbox.focus();
     hideOptions();
     hideReplyToast();
@@ -539,7 +543,7 @@ document.getElementById('previewImage').querySelector('.close')?.addEventListene
 
 document.getElementById('previewImage').querySelector('#imageSend')?.addEventListener('click', ()=>{
     let message = document.getElementById('selectedImage').querySelector('img')?.src;
-    insertNewMessage(message, 'image', makeId(), 1234, targetMessage?.message, targetMessage?.sender ? `You replied to ${targetMessage.sender}` : 'Fuad', {reply: (targetMessage.message ? true : false), title: (targetMessage.message ? true : false)});
+    insertNewMessage(message, 'image', makeId(), 1234, targetMessage?.message, targetMessage?.sender ? `You replied to ${targetMessage.sender}` : myName, {reply: (targetMessage.message ? true : false), title: (targetMessage.message ? true : false)});
     document.getElementById('previewImage')?.classList?.remove('active');
     document.getElementById('selectedImage').innerHTML = '';
 });

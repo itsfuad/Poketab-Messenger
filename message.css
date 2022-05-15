@@ -114,8 +114,11 @@
 }
 .messageMain p {
   background: #516696;
-  padding: 8px 15px 8px 8px;
+  padding: 8px;
   min-width: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .messageMain img {
   width: 100%;
@@ -182,7 +185,7 @@
   border-radius: 15px 15px 3px 15px;
 }
 .message:is(.self) .messageBody .messageMain p {
-  padding: 8px 8px 8px 15px;
+  padding: 8px;
   background: var(--secondary-dark);
 }
 .message:is(.self) .messageBody .messageMain > * {
