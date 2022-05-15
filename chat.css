@@ -114,16 +114,25 @@ input[type=file] {
   max-height: 45vh;
   max-width: 80vw;
 }
-#previewImage .option {
+
+.option {
   position: absolute;
   top: 0;
   right: 0;
-  padding: 10px;
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
+}
+.option > div {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+}
+.option > div:hover {
+  cursor: pointer;
 }
 
 i[class^=fa-] {
@@ -218,6 +227,9 @@ i[class^=fa-] {
   visibility: hidden;
   opacity: 0;
   transition: opacity 100ms ease-in-out;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
 }
 #lightbox.active {
   visibility: visible;
@@ -229,6 +241,9 @@ i[class^=fa-] {
   justify-content: space-between;
   align-items: center;
   padding: 10px;
+  position: fixed;
+  top: 0;
+  width: 100%;
 }
 #lightbox .tool > div {
   padding: 10px;
@@ -245,6 +260,17 @@ i[class^=fa-] {
 #lightbox #lightbox__image {
   max-width: 90%;
   max-height: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#lightbox #lightbox__image img {
+  width: 100%;
+  height: 100%;
+}
+
+.fa-xmark {
+  color: var(--red) !important;
 }
 
 #optionsContainer {
@@ -265,7 +291,7 @@ i[class^=fa-] {
 
 .options {
   position: fixed;
-  bottom: 10vh;
+  bottom: 90px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -289,9 +315,12 @@ i[class^=fa-] {
   transform: scale(1.1);
 }
 .options:is(#reactOptions) {
-  bottom: 20vh;
+  bottom: 150px;
   gap: 10px;
   font-size: 1.3rem;
+}
+.options:is(#reactOptions) > div {
+  border-radius: 10px;
 }
 .options:is(#normalOptions) > div {
   display: flex;
@@ -314,7 +343,7 @@ i[class^=fa-] {
   bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--focus);
+  background: var(--focus-dark);
   padding: 20px;
   width: 300px;
   height: 220px;
@@ -324,10 +353,28 @@ i[class^=fa-] {
   justify-content: flex-start;
   z-index: 10;
   backdrop-filter: blur(2px);
+  visibility: hidden;
+  opacity: 0;
   filter: drop-shadow(2px 4px 6px black);
+  transition: opacity 200ms ease-in-out;
+}
+.reactorContainer.active {
+  visibility: visible;
+  opacity: 1;
 }
 .reactorContainer ul {
   display: flex;
   flex-direction: column;
   list-style-type: none;
+  width: 100%;
+}
+.reactorContainer ul li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.reactorContainer ul li .uname {
+  width: 100%;
+  padding-left: 8px;
 }/*# sourceMappingURL=chat.css.map */

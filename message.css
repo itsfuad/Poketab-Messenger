@@ -90,6 +90,9 @@
   display: none;
   width: max-content;
 }
+.message .messageBody .reactsOfMessage:hover {
+  cursor: pointer;
+}
 
 .message:is(.noreply) .messageReply {
   background: aquamarine;

@@ -89,6 +89,9 @@
             z-index: 15;
             display: none;
             width: max-content;
+            &:hover{
+                cursor: pointer;
+            }
         }
     }
 }

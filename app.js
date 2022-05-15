@@ -134,6 +134,7 @@ let downloadOption = document.querySelector('.downloadOption');
 let deleteOption = document.querySelector('.deleteOption');
 
 function showOptions(type, sender){
+    document.querySelector('.reactorContainer').classList.remove('active');
     if (type == 'text'){
         copyOption.style.display = 'flex';
     }else if (type == 'image'){
@@ -180,7 +181,13 @@ function optionsReactEvent(e){
 
     if (target){
         if (reactArray.includes(target)){
-            getReact(target, messageId, myId);
+            document.getElementById('reactOptions').querySelectorAll('div').forEach(
+                (el) => {
+                    el.style.background = 'none';
+                }
+            );
+            e.target.style.background = '#00000073';
+            getReact(target, messageId, myId, e.target);
             hideOptions();
             clearTargetMessage();
         }
@@ -195,6 +202,7 @@ function hideOptions(){
         downloadOption.style.display = 'none';
         deleteOption.style.display = 'none';
     }, 100);
+    document.querySelector('.reactorContainer').classList.remove('active');
     options.removeEventListener('click', optionsMainEvent);
 }
 
@@ -223,7 +231,7 @@ function arrayToMap(array) {
     return map;
 }
 
-function getReact(type, messageId, uid){
+function getReact(type, messageId, uid, el){
     let target = document.getElementById(messageId).querySelector('.reactedUsers');
     let exists = target?.querySelector('.list') ?? false;
     if (exists){
@@ -231,6 +239,7 @@ function getReact(type, messageId, uid){
         if (list){
             if (list.innerText == type){
                 list.remove();
+                el.style.background = 'none';
             }else{
                 list.innerText = type;
             }
@@ -268,56 +277,6 @@ function getReact(type, messageId, uid){
     updateScroll();
 }
 
-/*
-function getReact(type, messageId, uid){
-    log('added react');
-    let react = {
-        type: type,
-        messageId: messageId,
-        uid: uid
-    };
-
-    let target = document.getElementById(messageId);
-    let reactedUsers = target?.querySelector('.reactedUsers');
-    let map = new Map();
-    let rList = [];
-    console.log(reactedUsers?.querySelectorAll('.items')?.length);
-    if (reactedUsers?.querySelectorAll('.items')?.length != 0){
-        let items = reactedUsers?.querySelectorAll('.items');
-
-    }
-    console.log(rList);
-    map.set(uid, type);
-
-    console.log(map);
-
-    reactedUsers.innerHTML = '';
-    for (let [key, value] of map){
-        reactedUsers.innerHTML += `<div class='items' data-uid='${key}'>${value}</div>`;
-    }
-
-    let reactMap = arrayToMap(Array.from(reactedUsers.querySelectorAll('.items')));
-    console.log(reactMap);
-    target.querySelector('.reactsOfMessage').innerHTML = '';
-    document.getElementById(react.messageId)?.classList.remove('react');
-    let count = 0;
-    for (let [key, value] of reactMap) {
-        if (count >= 3){
-            target.querySelector('.reactsOfMessage span:last-child').remove();
-        }
-        console.log(key, value);
-        target.querySelector('.reactsOfMessage').innerHTML += `<span>${key}${value}</span>`;
-        document.getElementById(react.messageId)?.classList.add('react');
-    }
-/*  
-    log(`${uid} reacted to ${messageId} : ${type}`);
-    let target = document.getElementById(react.messageId)?.querySelector('.reactsOfMessage');
-    target.textContent = react.type;
-    document.getElementById(react.messageId)?.classList.add('react');
-    addReact(type, messageId, uid);
-    updateScroll();
-}
-*/
 
 
 
@@ -396,57 +355,7 @@ class ClickAndHold{
     }
 }
 
-/*
-function ClickAndDrag(target){
-    let isHeld = false;
-    let dx = 0;
-    let x1 = 0;
-    let x2 = 0;
-    let y1 = 0;
-    let y2 = 0;
-    let dy = 0;
-    let element;
-    target.addEventListener('mousedown', (evt) => {
-        if (evt.target?.classList?.contains('message')){
-            element = evt.target;
-            isHeld = true;
-            x1 = evt.clientX;
-            y1 = evt.clientY;
-            console.log(x1, y1, element);
-        }
-    });
-    target.addEventListener('mousemove', (evt) => {
-        if (evt.target?.classList?.contains('message')){
-            element = evt.target;
-            if (isHeld && Math.abs(y2 - y1) < 100) {
-                x2 = evt.clientX;
-                y2 = evt.clientY;
-                dx = x2 - x1;
-                dy = y2 - y1;
-                console.log(dx, dy);
-                if (element?.classList?.contains('self')){
-                    if (element.style.right < 0) return;
-                    element.style.right = -dx + 'px';
-                }else{
-                    if (element.style.left < 0) return;
-                    element.style.left = dx + 'px';
-                }
-            }
-        }
-    });
-    target.addEventListener('mouseup', () => {
-        isHeld = false;
-        if (element?.classList?.contains('self')){
-            element.style.right = 0 + 'px';
-        }else{
-            element.style.left = 0 + 'px';
-        }
-    });
-}
 
-
-ClickAndDrag(messages);
-*/
 
 //if user device is mobile
 let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -502,14 +411,35 @@ if(!isMobile){
 }
 
 messages.addEventListener('click', (evt) => {
-  if (evt.target?.classList?.contains('image-message')){
+  if (evt.target?.classList?.contains('image')){
     evt.preventDefault();
     evt.stopPropagation();
     document.getElementById('lightbox__image').innerHTML = `<img src=${evt.target?.src} class='lb'>`;
     log('click on image');
     document.getElementById('lightbox').classList.add('active');
   }
+  else if (evt.target?.classList?.contains('reactsOfMessage') || evt.target?.parentNode?.classList?.contains('reactsOfMessage')){
+      let target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
+      console.log(target);
+      let container = document.querySelector('.reactorContainer ul');
+      container.innerHTML = '';
+      if (target.length > 0){
+        target.forEach(element => {
+            if (element.dataset.uid == myId){
+                container.innerHTML = `<li><img src='./images/avatars/pikachu(custom).png' height='30px' width='30px'><span class='uname'>${element.dataset.uid}</span><span class='r'>${element.innerText}</span></li>` + container.innerHTML;
+            }else{
+                container.innerHTML += `<li><img src='./images/avatars/pikachu(custom).png' height='30px' width='30px'><span class='uname'>${element.dataset.uid}</span><span class='r'>${element.innerText}</span></li>`;
+            }
+        });
+      }
+      hideOptions();
+      document.querySelector('.reactorContainer').classList.add('active');
+  }
+  else{
+    hideOptions();
+  }
 });
+
 
 lightboxClose.addEventListener('click', () => {
     document.getElementById('lightbox').classList.remove('active');

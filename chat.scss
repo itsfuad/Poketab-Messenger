@@ -121,16 +121,24 @@ input[type=file] {
         }
     }
     
-    .option{
-        position: absolute;
-        top: 0;
-        right: 0;
-        padding: 10px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
+}
+.option{
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    & > div{
+        width: 50px;
+        height: 50px;
+        display: grid;
+        place-items: center;
+        &:hover{
+            cursor: pointer;
+        }
     }
 }
 
@@ -228,6 +236,9 @@ i[class^=fa-]{
     visibility: hidden;
     opacity: 0;
     transition: opacity 100ms ease-in-out;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
     &.active{
         visibility: visible;
         opacity: 1;
@@ -238,6 +249,9 @@ i[class^=fa-]{
         justify-content: space-between;
         align-items: center;
         padding: 10px;
+        position: fixed;
+        top: 0;
+        width: 100%;
         & > div{
             padding: 10px;
             border-radius: 25px;
@@ -254,7 +268,18 @@ i[class^=fa-]{
     #lightbox__image{
         max-width: 90%;
         max-height: 90%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        img{
+            width: 100%;
+            height: 100%;
+        }
     }
+}
+
+.fa-xmark{
+    color: var(--red) !important;
 }
 
 
@@ -276,7 +301,7 @@ i[class^=fa-]{
 
 .options{
     position: fixed;
-    bottom: 10vh;
+    bottom: 90px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -299,9 +324,12 @@ i[class^=fa-]{
         }
     }
     &:is(#reactOptions){
-        bottom: 20vh;
+        bottom: 150px;
         gap: 10px;
         font-size: 1.3rem;
+        & > div{
+            border-radius: 10px;
+        }
     }
     &:is(#normalOptions){
         & > div{
@@ -327,7 +355,7 @@ i[class^=fa-]{
     bottom: 80px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--focus);
+    background: var(--focus-dark);
     padding: 20px;
     width: 300px;
     height: 220px;
@@ -337,10 +365,28 @@ i[class^=fa-]{
     justify-content: flex-start;
     z-index: 10;
     backdrop-filter: blur(2px);
+    visibility: hidden;
+    opacity: 0;
     filter: drop-shadow(2px 4px 6px black);
-    ul{
-      display: flex;
-      flex-direction: column;
-      list-style-type: none;
+    transition: opacity 200ms ease-in-out;
+    &.active{
+        visibility: visible;
+        opacity: 1;
     }
-  }
+    ul{
+        display: flex;
+        flex-direction: column;
+        list-style-type: none;
+        width: 100%;
+        li{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            .uname{
+                width: 100%;
+                padding-left: 8px;
+            }
+        }
+    }
+}
