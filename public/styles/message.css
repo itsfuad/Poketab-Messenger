@@ -1,6 +1,6 @@
 @font-face {
   font-family: Comic;
-  src: url("/public/fonts/comic-webfont.woff2");
+  src: url("/fonts/comic-webfont.woff2");
 }
 * {
   padding: 0;

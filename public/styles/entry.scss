@@ -1,0 +1,225 @@
+@font-face {
+    font-family: Comic;
+    src: url('/fonts/comic-webfont.woff2');
+}
+
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: Comic;
+    caret-color: #4598ff;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+*::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.errLog{
+    font-size: 0.7em;
+    color: orangered;
+    width: 100%;
+    word-wrap: break-word;
+    padding-top: 10px;
+}
+
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  border: 2px solid var(--blue);
+  -webkit-text-fill-color: white;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+  box-shadow: 0 0 0px 1000px transparent inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+input[type='number']::-webkit-inner-spin-button{
+  -webkit-appearance: none;
+}
+
+body{
+    background: #111d2a;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100vh;
+}
+
+.title{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+}
+
+.form{
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding-top: 40px;
+}
+
+.redirect{
+    width: 100%;
+}
+
+fieldset{
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-top: 2px solid #ffffff17;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    legend{
+        padding: 5px;
+        color: #bababa;
+    }
+    a{
+        color: #4598ff;
+    }
+}
+
+
+
+.subform{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: max-content;
+    height: max-content;
+    gap: 15px;
+    background: #26313d;
+    padding: 15px;
+    border-radius: 10px;
+    min-width: 280px;
+    .form-field{
+        width: 100%;
+    }
+    input[type='text'], button{
+        width: 100%;
+        height: 44px;
+        border: none;
+        outline: none;
+        border-radius: 10px;
+        padding: 15px;
+        background: #333d48;
+        color: white;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    button{
+        background: #4598ff;
+        color: white;
+        cursor: pointer;
+    }
+}
+
+.avatar-container{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.avatars{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    height: 138px !important;
+    width: 200px !important;
+    align-items: center;
+    justify-content: center;
+    align-content: flex-start;
+    overflow: scroll;
+    img{
+        width: 40px;
+        height: 40px;
+        filter: saturate(0);
+        &:hover{
+        cursor: pointer;
+        filter: saturate(100%);
+        }
+    }
+}
+
+input[type="radio"] {
+    display: none;
+    &:checked + label img{
+        filter: saturate(100%);
+    }
+}
+
+.footer{
+    font-size: 0.6em;
+    color: rgb(186, 186, 186);
+    padding: 10px;
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.source-code {
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+    a{
+        color: white;
+    }
+}
+
+#form-2{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: 200ms ease-in-out;
+    display: none;
+    visibility: hidden;
+    opacity: 0;
+    &.active{
+        display: flex;
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+.howtouse{
+    .h1{
+        font-size: 1em;
+        padding: 5px;
+        text-align: center;
+    }
+    width: 100vw;
+    padding: 30px;
+    padding-bottom: 80px;
+    text-align: justify;
+    font-size: .6em;
+    max-width: max-content;
+    color: rgb(186, 186, 186);
+}
