@@ -5,7 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script async src="/libs/fontawesome.js"></script>
+    <script defer src="/socket.io/socket.io.js"></script>
     <script defer src="/scripts/common.js"></script>
+    <script defer src="/scripts/create.js"></script>
     <script defer src="/scripts/login.js"></script>
     <link rel="stylesheet" href="/styles/entry.css">
     <title>Login</title>
@@ -19,9 +21,9 @@
                     <img src="/images/pokeball.png" height="40px" width="40px" alt="logo">
                 </div>
                 <div class="form-field">
-                    <label for="key">Tap to copy <i class="fa-regular fa-clone"></i></label>
+                    <label for="key" id="label">Tap to copy <i class="fa-regular fa-clone"></i></label>
                     <div id="keyErr" class="errLog"></div>
-                    <input type="text" name="key" id="key" placeholder="xxx-xxx-xxx-xxx">
+                    <input type="text" name="key" id="key" placeholder="xxx-xxx-xxx-xxx" readonly value="<%=key_%>">
                 </div>
                 <div class="form-field">
                     <button id="next">Next</button>
@@ -33,7 +35,7 @@
                     </fieldset>
                 </div>
             </div>
-            <div class="subform" id="form-2">
+            <div class="subform" id="form2">
                 <div class="form-field">
                     <label for="username">Choose username <i class="fa-solid fa-id-card-clip"></i></label>
                     <div id="usernameErr" class="errLog"></div>
@@ -45,6 +47,10 @@
                     <div class="avatar-container">
                         <%- include ('layout/avatars.ejs') %>
                     </div>
+                </div>
+                <div class="form-field range">
+                    <label for="max-user">Select max user (<span id="rangeValue">2</span>)</label>
+                    <input type="range" id="maxuser" name="maxuser" max="15" min="2" value="2">
                 </div>
                 <div class="form-field">
                     <button id="enter">Enter Chat</button>

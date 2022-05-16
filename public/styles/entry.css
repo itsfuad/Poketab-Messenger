@@ -192,7 +192,7 @@ input[type=radio]:checked + label img {
   color: white;
 }
 
-#form-2 {
+#form2 {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -202,7 +202,7 @@ input[type=radio]:checked + label img {
   visibility: hidden;
   opacity: 0;
 }
-#form-2.active {
+#form2.active {
   display: flex;
   visibility: visible;
   opacity: 1;
@@ -221,4 +221,16 @@ input[type=radio]:checked + label img {
   font-size: 1em;
   padding: 5px;
   text-align: center;
+}
+
+.form-field:is(.range) {
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
 }/*# sourceMappingURL=entry.css.map */
