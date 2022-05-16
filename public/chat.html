@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/chat.css">
-    <link rel="stylesheet" href="/message.css">
-    <script async src="fontawesome.js"></script>
-    <script defer src="/logger.js"></script>
-    <script defer src="./textBox.js"></script>
-    <script defer src="/libs/mustache.js"></script>
+    <link rel="stylesheet" href="styles/chat.css">
+    <link rel="stylesheet" href="styles/message.css">
+    <script async src="/public/libs/fontawesome.js"></script>
+    <script defer src="scripts/logger.js"></script>
+    <script defer src="scripts/textBox.js"></script>
+    <script defer src="/public/libs/mustache.js"></script>
  
-    <script defer src="/autoScroller.js"></script>
-    <script defer src="/app.js"></script>
+    <script defer src="scripts/autoScroller.js"></script>
+    <script defer src="scripts/app.js"></script>
 
-    <script defer src="/optionsMenu.js"></script>
+    <script defer src="scripts/optionsMenu.js"></script>
 
 
     <title>Chat</title>
@@ -31,7 +31,7 @@
         <!-- Chat Messages will append here -->
         <ul id="messages">
             <li class="welcomeText">
-                <img src="/images/msg.png" width="100px" height="100px" alt="Message Icon">
+                <img src="/public/images/msg.png" width="100px" height="100px" alt="Message Icon">
                 <h1>Start typing messages!</h1>
                 <p>This app is under development. So please report any bugs you see on our github.</p>
                 <!-- All messages will be added here -->
@@ -123,7 +123,7 @@
             <div class="avatar">{{{avatar}}}</div>
             <div class="messageBody">
                 <div class="messageTitle">{{title}}</div>
-                <div class="messageReply">{{replyMsg}}</div>
+                <div class="messageReply" data-repid="{{repId}}">{{replyMsg}}</div>
                 <div class="messageMain">{{{message}}}</div>
                 <div class="reactsOfMessage"></div>
             </div>

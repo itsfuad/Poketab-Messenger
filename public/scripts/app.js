@@ -31,11 +31,11 @@ let finalTarget = {
 let userList = [
     {uid: '1', name: 'JohnDoe', avatar: 'squirtle'},
     {uid: '2', name: 'JaneDoe', avatar: 'charmander'},
-    {uid: '3', name: 'JackDoe', avatar: 'bulbasaur'},
+    {uid: '3', name: 'JackDoe', avatar: 'bullbasaur'},
 ];
 
-const myId = '1';
-const myName = 'JohnDoe';
+let myId = '1';
+let myName = 'JohnDoe';
 const maxUsers = 5;
 
 function appHeight () {
@@ -59,7 +59,7 @@ function makeId(length = 10){
     return result;
 }
 
-function insertNewMessage(message, type, id, uid, reply, title, options){
+function insertNewMessage(message, type, id, uid, reply, replyId, options){
     if (!options){
         options = {
             reply: false,
@@ -104,12 +104,18 @@ function insertNewMessage(message, type, id, uid, reply, title, options){
         classList += ' notitle';
     }
 
+    let username = userList.find(user => user.uid == uid)?.name;
+    if (username == myName){username = 'You';}
+    let repliedTo = userList.find(user => user.uid == document.getElementById(replyId)?.dataset?.uid)?.name;
+    if (repliedTo == myName){repliedTo = 'You';}
+    console.log(repliedTo);
     let html = Mustache.render(template, {
         classList: classList,
         avatar: `<img src='/images/avatars/${userList.find(user => user.uid == uid)?.avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
         messageId: id,
         uid: uid,
-        title: title,
+        repId: replyId,
+        title: options.reply? `${username} replied to ${repliedTo}` : username,
         message: message,
         replyMsg: reply,
         time: getCurrentTime()
@@ -224,15 +230,15 @@ function showReplyToast(){
     textbox.focus();
     console.log(targetMessage);
     finalTarget = Object.assign({}, targetMessage);
-    replyToast.querySelector('.replyText').textContent = finalTarget.message?.substring(0, 50);
-    replyToast.querySelector('#text').textContent = finalTarget.sender;
+    replyToast.querySelector('.replyText').innerText = finalTarget.message?.substring(0, 50);
+    replyToast.querySelector('#text').innerText = finalTarget.sender;
     replyToast.classList.add('active');
 }
 
 function hideReplyToast(){
     replyToast.classList.remove('active');
-    replyToast.querySelector('.replyText').textContent = '';
-    replyToast.querySelector('#text').textContent = '';
+    replyToast.querySelector('.replyText').innerText = '';
+    replyToast.querySelector('#text').innerText = '';
     clearTargetMessage();
 }
 
@@ -295,7 +301,7 @@ function getReact(type, messageId, uid){
 appHeight();
 
 document.querySelector('.more').addEventListener('click', ()=>{
-    insertNewMessage(getRandomTextFromWeb(), 'text', makeId(10), 2, '', 'Laam', {reply: false, title: (maxUsers > 2) || targetMessage.sender != '' ? true : false});
+    insertNewMessage(getRandomTextFromWeb(), 'text', makeId(10), 2, 'Hello World', 'You replied to John', {reply: true, title: (maxUsers > 2) || targetMessage.sender != '' ? true : false});
 });
 
 updateScroll();
@@ -391,17 +397,20 @@ function OptionEventHandler(evt){
     let sender = evt.target.closest('.message').classList.contains('self')?  true : false;
     if (evt.target.classList.contains('text')){
         type = 'text';
-        targetMessage.sender = evt.target.closest('.message').querySelector('.messageTitle').innerText.trim().split(' ')[0];
+        targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
         console.log(targetMessage.sender);
         if (targetMessage.sender == myName){
             targetMessage.sender = 'You';
         }
-        targetMessage.message = evt.target.closest('.message').querySelector('.messageMain .text').textContent.substring(0, 100);
+        targetMessage.message = evt.target.closest('.message').querySelector('.messageMain .text').innerText.substring(0, 100);
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
     else if (evt.target.classList.contains('image')){
         type = 'image';
-        targetMessage.sender = evt.target?.closest('.message').querySelector('.messageTitle').textContent.trim().split(' ')[0];
+        targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
+        if (targetMessage.sender == myName){
+            targetMessage.sender = 'You';
+        }
         targetMessage.message = 'Image';
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
@@ -449,6 +458,22 @@ messages.addEventListener('click', (evt) => {
       }
       hideOptions();
       document.querySelector('.reactorContainer').classList.add('active');
+  }
+  else if (evt.target?.classList?.contains('messageReply')){
+        let target = evt.target.dataset.repid;
+        document.querySelectorAll('.message').forEach(element => {
+            if (element.id != target){
+                element.style.filter = 'saturate(0.5)';
+            }
+        });
+        setTimeout(() => {
+            document.querySelectorAll('.message').forEach(element => {
+                if (element.id != target){
+                    element.style.filter = '';
+                }
+            });
+        }, 1000);
+        document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'center'});
   }
   else{
     hideOptions();
@@ -516,9 +541,10 @@ sendButton.addEventListener('click', () => {
     message = message.replace(/</g, '&lt;');
     message = message.replace(/¶/g, '<br/>');
     resizeTextbox();
-    if (message.length) {insertNewMessage(message, 'text', makeId(), myId, finalTarget?.message, finalTarget?.sender ? `You replied to ${finalTarget.sender}` : myName, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});}
+    if (message.length) {insertNewMessage(message, 'text', makeId(), myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});}
     finalTarget.message = '';
     finalTarget.sender = '';
+    finalTarget.id = '';
     textbox.focus();
     hideOptions();
     hideReplyToast();
@@ -545,7 +571,8 @@ document.getElementById('previewImage').querySelector('.close')?.addEventListene
 
 document.getElementById('previewImage').querySelector('#imageSend')?.addEventListener('click', ()=>{
     let message = document.getElementById('selectedImage').querySelector('img')?.src;
-    insertNewMessage(message, 'image', makeId(), myId, targetMessage?.message, targetMessage?.sender ? `You replied to ${targetMessage.sender}` : myName, {reply: (targetMessage.message ? true : false), title: (targetMessage.message ? true : false)});
+    //insertNewMessage(message, 'image', makeId(), myId, targetMessage?.message, targetMessage?.sender ? `You replied to ${targetMessage.sender}` : myName, {reply: (targetMessage.message ? true : false), title: (targetMessage.message ? true : false)});
+    insertNewMessage(message, 'image', makeId(), myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
     document.getElementById('previewImage')?.classList?.remove('active');
     document.getElementById('selectedImage').innerHTML = '';
 });
