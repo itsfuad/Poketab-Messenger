@@ -18,6 +18,8 @@ const lightboxClose = document.getElementById('lightbox__close');
 
 
 const reactArray = ['💙', '😂','😮','😢','😠','👍🏻','👎🏻'];
+const userMap = new Map();
+
 
 let targetMessage = {
     sender: '',
@@ -69,7 +71,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
         if(emo_test(message)){
             message = `<p class='text' style='background: none; font-size:30px; padding: 0;'>${linkify(message)}</p>`;
         }else{
-            message = `<p class='text'>${message}</p>`;
+            message = `<p class='text'>${linkify(message)}</p>`;
         }
     }else if(type === 'image'){
         message = `<img class='image' src='${message}' alt='image' />`;
@@ -147,17 +149,21 @@ let downloadOption = document.querySelector('.downloadOption');
 let deleteOption = document.querySelector('.deleteOption');
 
 function showOptions(type, sender, target){
+    console.log(type, sender, target);
     document.querySelector('.reactorContainer').classList.remove('active');
     document.querySelectorAll(`#reactOptions div`).forEach(
         option => option.style.background = 'none'
     )
+    
     if (type == 'text'){
         copyOption.style.display = 'flex';
     }else if (type == 'image'){
         downloadOption.style.display = 'flex';
     }
-    if (sender){
+    if (sender == true){
         deleteOption.style.display = 'flex';
+    }else{
+        deleteOption.style.display = 'none';
     }
     let clicked = target?.closest('.message')?.querySelector('.reactedUsers .list')?.dataset.uid == myId;
     
@@ -177,15 +183,21 @@ function optionsMainEvent(e){
         switch (target){
             case 'copyOption':
                 log('copy');
-                clearTargetMessage();
+                //clearTargetMessage();
                 break;
             case 'downloadOption':
                 log('download');
-                clearTargetMessage();
+                //clearTargetMessage();
                 break;
             case 'deleteOption':
                 log('delete');
-                clearTargetMessage();
+                console.log(targetMessage.id);
+                let uid = document.getElementById(targetMessage.id)?.dataset?.uid;
+                console.log(uid);
+                if (uid){
+                    socket.emit('deletemessage', targetMessage.id, uid, myName, myId);
+                }
+                //clearTargetMessage();
                 break;
             case 'replyOption':
                 log('reply');
@@ -197,17 +209,48 @@ function optionsMainEvent(e){
     optionsReactEvent(e);
 }
 
+function deleteMessage(messageId, user){
+    let message = document.getElementById(messageId);
+    if (message){
+        message.querySelector('.text').innerHTML = 'Deleted message';
+        message.classList.add('deleted');
+        message.dataset.deleted = true;
+        message.querySelector('.messageTitle').innerText = user;
+
+        message.querySelector('.messageTitle').style.transform = '';
+    
+        if (maxUser == 2 || (message.dataset.uid == myId)) {
+          message.querySelector('.messageTitle').style.visibility = 'hidden';
+        }
+        if (message.querySelector('.messageReply') != null) {
+            message.querySelector('.messageReply').remove();
+        }
+        let replyMsg = document.querySelectorAll(`[data-repid='${messageId}']`);
+        if (replyMsg != null) {
+          replyMsg.forEach(element => {
+            element.style.background = '#000000c4';
+            element.style.color = '#7d858c';
+            element.innerText = `${user == myname ? 'You': user} deleted this message`;
+          });
+        }
+
+
+        log('Deleted message');
+    }
+}
+
 function optionsReactEvent(e){
     log('Clicked on '+e.target.classList);
     let target = e.target?.classList[0];
     let messageId = targetMessage.id;
-
+    console.log(targetMessage);
+    console.log(finalTarget);
     if (target){
         if (reactArray.includes(target)){
             //e.target.style.background = '#00000073';
-            getReact(target, messageId, myId, e.target);
+            //getReact(target, messageId, myId, e.target);
+            socket.emit('react', target, messageId, myId);
             hideOptions();
-            clearTargetMessage();
         }
     }
 }
@@ -251,6 +294,7 @@ function arrayToMap(array) {
 }
 
 function getReact(type, messageId, uid){
+    console.log(type, messageId, uid);
     let target = document.getElementById(messageId).querySelector('.reactedUsers');
     let exists = target?.querySelector('.list') ?? false;
     if (exists){
@@ -371,18 +415,6 @@ class ClickAndHold{
 }
 
 
-
-//if user device is mobile
-let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-if (isMobile){
-    ClickAndHold.applyTo(messages, 300, (evt)=>{
-        //console.log('held');
-        OptionEventHandler(evt);
-    });
-}
-
-
 function clearTargetMessage(){
     targetMessage.sender = '';
     targetMessage.message = '';
@@ -391,7 +423,7 @@ function clearTargetMessage(){
 
 function OptionEventHandler(evt){
     let type;
-    let sender = evt.target.closest('.message').classList.contains('self')?  true : false;
+    let sender = evt.target.closest('.message').classList.contains('self')? true : false;
     if (evt.target.classList.contains('text')){
         type = 'text';
         targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
@@ -455,6 +487,18 @@ replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>
 return replacedText;
 }
 
+//if user device is mobile
+let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+if (isMobile){
+    ClickAndHold.applyTo(messages, 300, (evt)=>{
+        console.log(evt);
+        let isDeleted = evt.target.closest('.message').dataset.deleted == 'true' ? true : false;
+        if (!isDeleted){
+            OptionEventHandler(evt);
+        }
+    });
+}
 
 //make a mouse right click event
 if(!isMobile){
@@ -462,8 +506,11 @@ if(!isMobile){
         evt.preventDefault();
         evt.stopPropagation();
         if (evt.which == 3){
-            //console.log('right click');
-            OptionEventHandler(evt);
+            console.log(evt);
+            let isDeleted = evt.target.closest('.message').dataset.deleted == 'true' ? true : false;
+            if (!isDeleted){
+                OptionEventHandler(evt);
+            }
         }
     });
 }
@@ -494,20 +541,28 @@ messages.addEventListener('click', (evt) => {
       document.querySelector('.reactorContainer').classList.add('active');
   }
   else if (evt.target?.classList?.contains('messageReply')){
-        let target = evt.target.dataset.repid;
-        document.querySelectorAll('.message').forEach(element => {
-            if (element.id != target){
-                element.style.filter = 'saturate(0.5)';
-            }
-        });
-        setTimeout(() => {
-            document.querySelectorAll('.message').forEach(element => {
-                if (element.id != target){
-                    element.style.filter = '';
-                }
-            });
-        }, 1000);
-        document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'center'});
+      if (evt.target.dataset.deleted != 'true'){
+          try{
+              let target = evt.target.dataset.repid;
+              document.querySelectorAll('.message').forEach(element => {
+                  if (element.id != target){
+                      element.style.filter = 'saturate(0.5)';
+                  }
+              });
+              setTimeout(() => {
+                  document.querySelectorAll('.message').forEach(element => {
+                      if (element.id != target){
+                          element.style.filter = '';
+                      }
+                  });
+              }, 1000);
+              document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'center'});
+          }catch(e){
+                console.log('Deleted message0');
+          }
+      }else{
+            console.log('Deleted message1');
+      }
   }
   else{
     hideOptions();
@@ -586,6 +641,7 @@ sendButton.addEventListener('click', () => {
     textbox.focus();
     hideOptions();
     hideReplyToast();
+    //socket.emit('stoptyping');
 });
 
 
@@ -621,7 +677,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             let resized = resizeImage(image, file.mimetype);
             let tempId = makeId();
             insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
-            socket.emit('message', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
+            socket.volatile.emit('message', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
             document.getElementById('previewImage')?.classList?.remove('active');
             document.getElementById('selectedImage').innerHTML = '';
         }
@@ -658,6 +714,9 @@ socket.on('connect', () => {
             log(err);
         } else {
             log('no error');
+            if (userMap.size > 0){
+                document.getElementById('typingIndicator').innerText = getTypingString(userMap);
+            }
         }
     });
 });
@@ -679,6 +738,30 @@ socket.on('messageSent', (messageId, id) => {
     console.log('Message sent');
     document.getElementById(messageId).classList.add('delevered');
     document.getElementById(messageId).id = id;
+});
+
+socket.on('getReact', (target, messageId, myId) => {
+    getReact(target, messageId, myId);
+});
+
+socket.on('deleteMessage', (messageId, userName) => {
+    console.log('Message deleted for', messageId, userName);
+    deleteMessage(messageId, userName);
+});
+
+socket.on('typing', (user, id) => {
+    //typingsound.play();
+    userMap.set(id, user);
+    document.getElementById('typingIndicator').innerText = getTypingString(userMap);
+  });
+  
+socket.on('stoptyping', (id) => {
+    userMap.delete(id);
+    if (userMap.size == 0) {
+        document.getElementById('typingIndicator').innerText = '';
+    }else{
+        document.getElementById('typingIndicator').innerText = getTypingString(userMap);
+    }
 });
 
 

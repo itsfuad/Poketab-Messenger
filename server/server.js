@@ -156,6 +156,40 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('react', (target, messageId, myId) => {
+    console.log('Received react request', target, messageId, myId);
+    let user = users.getUser(uids.get(socket.id));
+    if (user) {
+      //send to all including sender
+      io.to(user.key).emit('getReact', target, messageId, myId);
+    }
+  });
+
+
+  socket.on('deletemessage', (messageId, msgUid, userName, userId) => {
+    console.log('Received delete message request');
+    let user = users.getUser(uids.get(socket.id));
+    if (user) {
+      if (msgUid == userId){
+        io.to(user.key).emit('deleteMessage', messageId, userName);
+      }
+    }
+  });
+
+
+  socket.on('typing', () => {
+    let user = users.getUser(uids.get(socket.id));
+    if (user) {
+      socket.broadcast.to(user.key).emit('typing', user.name, user.id + '-typing');
+    }
+  });
+  socket.on('stoptyping', () => {
+    let user = users.getUser(uids.get(socket.id));
+    if (user) {
+      socket.broadcast.to(user.key).emit('stoptyping', user.id + '-typing');
+    }
+  });
+
 
   socket.on('disconnect', () => {
     let user = users.removeUser(uids.get(socket.id));
