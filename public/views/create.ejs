@@ -14,7 +14,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="form">
+        <form class="form" method="post" action="/chat" onsubmit="return check();">
             <div class="subform" id="form1">
                 <div class="title">
                     <div>Create chat</div>
@@ -26,7 +26,7 @@
                     <input type="text" name="key" id="key" placeholder="xxx-xxx-xxx-xxx" readonly value="<%=key_%>">
                 </div>
                 <div class="form-field">
-                    <button id="next">Next</button>
+                    <button id="next" type="button">Next</button>
                 </div>
                 <div class="redirect">
                     <fieldset>
@@ -53,10 +53,10 @@
                     <input type="range" id="maxuser" name="maxuser" max="15" min="2" value="2">
                 </div>
                 <div class="form-field">
-                    <button id="enter">Enter Chat</button>
+                    <button id="enter" type="submit">Enter Chat</button>
                 </div>
             </div>
-        </div>
+        </>
     </div>
     <%- include ('layout/entryfooter.ejs') %> 
 </body>

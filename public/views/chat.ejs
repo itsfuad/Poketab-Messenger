@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/styles/chat.css">
     <link rel="stylesheet" href="/styles/message.css">
     <script async src="/libs/fontawesome.js"></script>
+    <script defer src="/socket.io/socket.io.js"></script>
     <script defer src="/scripts/logger.js"></script>
     <script defer src="/scripts/textBox.js"></script>
     <script defer src="/libs/mustache.js"></script>
@@ -20,6 +21,13 @@
     <title>Chat</title>
 </head>
 <body>
+    <script>
+        const myId = "<%=myId_%>";
+        const myName = "<%=myName_%>";
+        const myAvatar = "<%=myAvatar_%>";
+        const myKey = "<%=myKey_%>";
+        let maxUser = "<%=maxUser_%>";
+    </script>
     <div class="chatBox">
         <!-- Navigation -->
         <div class="navbar">
@@ -131,7 +139,6 @@
             <div class="reactedUsers" style="display: none;"></div>
         </li>
     </template>
-
 
 </body>
 </html>

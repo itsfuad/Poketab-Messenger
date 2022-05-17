@@ -1,3 +1,8 @@
+"use strict";
+
+const socket = io();
+let e_users = [], e_avatars = [];
+
 let nextbtn = document.getElementById('next');
 
 let form1 = document.getElementById('form1');
@@ -39,15 +44,31 @@ function validateUser(){
         errlog('usernameErr', '*Username is required');
         return false;
     }
+    if(username.length < 3 || username.length > 20){
+        errlog('usernameErr', '*Name must be between 3 and 20 characters');
+        return false;
+    }
     if(!usernameformat.test(username)){
-        errlog('usernameErr', '*Username is not valid (Cannot contain special charecters or space');
+        errlog('usernameErr', '*Cannot contain special charecters or space');
+        return false;
+    }
+    if (e_users.includes(username)){
+        errlog('usernameErr', 'Username exists <i class="fa-solid fa-triangle-exclamation" style="color: orange;"></i>');
         return false;
     }
     if (!checked){
         errlog('avatarErr', '*Avatar is required');
         return false;
     }
-    return true;
+    return checked;
+}
+
+function check(){
+    document.querySelectorAll('.errLog')
+    .forEach(elem => {
+        elem.innerText = '';
+    });
+    return validateKey() && validateUser();
 }
 
 function errlog(id, msg){

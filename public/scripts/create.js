@@ -1,6 +1,4 @@
-const socket = io();
-
-let e_users = [], e_avatars = [];
+"use strict";
 
 maxuser.addEventListener('input', ()=>{
     //$('#rangeValue').text($('#maxuser').val());
@@ -9,38 +7,11 @@ maxuser.addEventListener('input', ()=>{
 
 nextbtn.addEventListener('click', nextbtnEvent);
 
-enter.addEventListener('click', function(e){
-    e.preventDefault();
-    document.querySelectorAll('.errLog')
-    .forEach(elem => {
-        elem.innerText = '';
-    });
-    if (validateKey() && validateUser()){
-        let username = document.getElementById('username').value;
-        let avatar = document.querySelector('input[name="avatar"]:checked').value;
-        let key = document.getElementById('key').value;
-        let maxuser = document.getElementById('maxuser').value;
-        let xhr = new XMLHttpRequest();
-        xhr.open('POST', '/chat');
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({
-            username: username,
-            avatar: avatar,
-            key: key,
-            maxuser: maxuser
-        }));
-        enter.innerHTML = 'Please wait <i class="fa-solid fa-circle-notch fa-spin"></i>';
-    }
-});
-
 function nextbtnEvent(e){
     e.preventDefault();
-    document.querySelectorAll('.errLog')
-    .forEach(elem => {
-        elem.innerText = '';
-    });
     if (validateKey()){   
         console.log('validateKey');
+        let key = document.getElementById('key').value;
         socket.emit('createRequest', key, function(err){
             if (err){
                 document.getElementById('label').innerHTML = 'Chat Key <i class="fa-solid fa-key"></i>';

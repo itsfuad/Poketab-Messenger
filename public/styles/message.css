@@ -203,4 +203,10 @@
 }
 .message:is(.self):is(.end) .avatar {
   visibility: visible;
+}
+
+.serverMessage {
+  font-size: 0.7rem;
+  text-align: center;
+  width: 100%;
 }/*# sourceMappingURL=message.css.map */

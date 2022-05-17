@@ -3,22 +3,22 @@ class Users {
       this.users = [];
       this.MaxUser = new Map();
     }
-    addUser (id, name, key, avatar, maxuser) {
+    addUser (uid, name, key, avatar, maxuser) {
       this.MaxUser.set(key, maxuser);
       //console.log(`Maxuser: ${maxuser}`);
-      let user = {id, name, key, avatar};
+      let user = {uid, name, key, avatar};
       this.users.push(user);
       return user;
     }
-    removeUser (id) {
-      let user = this.getUser(id);
+    removeUser (uid) {
+      let user = this.getUser(uid);
       if (user) {
-        this.users = this.users.filter((user) => user.id !== id);
+        this.users = this.users.filter((user) => user.uid !== uid);
       }
       return user;
     }
-    getUser (id) {
-      return this.users.filter((user) => user.id === id)[0]
+    getUser (uid) {
+      return this.users.filter((user) => user.uid === uid)[0]
     }
     getUserList (key) {
       let users = this.users.filter((user) => user.key === key);
@@ -42,8 +42,8 @@ class Users {
     }
     getUserId(key){
       let users = this.users.filter((user) => user.key === key);
-      let idArray = users.map((user) => user.id);
-      return idArray;
+      let uidArray = users.map((user) => user.uid);
+      return uidArray;
     }
 }
 module.exports = {Users};

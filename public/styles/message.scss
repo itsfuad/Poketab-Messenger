@@ -150,9 +150,10 @@
 
 .message:is(.notitle){
     .messageTitle{
-        display: none !important;
+        display: none!important;
     }
 }
+
 .message:is(.start){
     .messageMain{
         & > *{
@@ -232,4 +233,10 @@
             visibility: visible;
         }
     }
+}
+
+.serverMessage{
+    font-size: 0.7rem;
+    text-align: center;
+    width: 100%;
 }

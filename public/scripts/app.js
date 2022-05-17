@@ -1,6 +1,9 @@
 //enable strict mode
 'use strict';
 //console log in green color
+
+const socket = io();
+
 log('%capp.js loaded', 'color: green');
 
 const messages = document.getElementById('messages');
@@ -28,15 +31,7 @@ let finalTarget = {
     id: '',
 };
 
-let userList = [
-    {uid: '1', name: 'JohnDoe', avatar: 'squirtle'},
-    {uid: '2', name: 'JaneDoe', avatar: 'charmander'},
-    {uid: '3', name: 'JackDoe', avatar: 'bullbasaur'},
-];
-
-let myId = '1';
-let myName = 'JohnDoe';
-const maxUsers = 5;
+let userList = [];
 
 function appHeight () {
     const doc = document.documentElement;
@@ -66,13 +61,13 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
             title: false
         };
     }
-    log(options);
+
     let template = document.getElementById('messageTemplate').innerHTML;
     let classList = '';
     let lastMsg = messages.querySelector('.message:last-child');
     if (type === 'text'){
         if(emo_test(message)){
-            message = `<p class='text' style='background: none; font-size:30px; padding: 0;'>${message}</p>`;
+            message = `<p class='text' style='background: none; font-size:30px; padding: 0;'>${linkify(message)}</p>`;
         }else{
             message = `<p class='text'>${message}</p>`;
         }
@@ -100,18 +95,23 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     if(!options.reply){
         classList += ' noreply';
     }
-    if (!options.title || !classList.includes('start')){
+    if ((!options.title || !classList.includes('start'))){
         classList += ' notitle';
     }
-
-    let username = userList.find(user => user.uid == uid)?.name;
+    else if (classList.includes('self') && classList.includes('noreply')){
+        classList += ' notitle';
+    }
+    let username = userList.find(user => user.uid === uid)?.name;
+    let avatar = userList.find(user => user.uid === uid)?.avatar;
+    
     if (username == myName){username = 'You';}
     let repliedTo = userList.find(user => user.uid == document.getElementById(replyId)?.dataset?.uid)?.name;
     if (repliedTo == myName){repliedTo = 'You';}
-    console.log(repliedTo);
+    if (repliedTo == username){repliedTo = 'self';}
+    
     let html = Mustache.render(template, {
         classList: classList,
-        avatar: `<img src='/images/avatars/${userList.find(user => user.uid == uid)?.avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
+        avatar: `<img src='/images/avatars/${avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
         messageId: id,
         uid: uid,
         repId: replyId,
@@ -160,12 +160,12 @@ function showOptions(type, sender, target){
         deleteOption.style.display = 'flex';
     }
     let clicked = target?.closest('.message')?.querySelector('.reactedUsers .list')?.dataset.uid == myId;
-    console.log(clicked);
+    
     if (clicked){
         let clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.innerText;
         document.querySelector(`#reactOptions .${clickedElement}`).style.background = '#000000aa';
     }
-    console.log(clicked);
+   
     let options = document.getElementById('optionsContainer');
     options.classList.add('active');
     options.addEventListener('click', optionsMainEvent);
@@ -228,7 +228,7 @@ function hideOptions(){
 function showReplyToast(){
     updateScroll();
     textbox.focus();
-    console.log(targetMessage);
+
     finalTarget = Object.assign({}, targetMessage);
     replyToast.querySelector('.replyText').innerText = finalTarget.message?.substring(0, 50);
     replyToast.querySelector('#text').innerText = finalTarget.sender;
@@ -264,7 +264,7 @@ function getReact(type, messageId, uid){
         }else{
             target.innerHTML += `<div class='list' data-uid='${uid}'>${type}</div>`;
         }
-        console.log(list);
+
     }
     else{
         target.innerHTML += `<div class='list' data-uid='${uid}'>${type}</div>`;
@@ -274,15 +274,12 @@ function getReact(type, messageId, uid){
     let list = Array.from(target.querySelectorAll('.list'));
     map = arrayToMap(list);
 
-    console.log(map);
-
     let reactsOfMessage = document.getElementById(messageId).querySelector('.reactsOfMessage');
     if (reactsOfMessage && map.size > 0){
         reactsOfMessage.innerHTML = '';
         let count = 0;
         map.forEach((value, key) => {
             if (count >= 2){
-                console.log(count);
                 reactsOfMessage.querySelector('span').remove();
             }
             reactsOfMessage.innerHTML += `<span>${key}${value}</span>`;
@@ -301,7 +298,7 @@ function getReact(type, messageId, uid){
 appHeight();
 
 document.querySelector('.more').addEventListener('click', ()=>{
-    insertNewMessage(getRandomTextFromWeb(), 'text', makeId(10), 2, 'Hello World', 'You replied to John', {reply: true, title: (maxUsers > 2) || targetMessage.sender != '' ? true : false});
+    insertNewMessage(getRandomTextFromWeb(), 'text', makeId(10), 2, 'Hello World', 'You replied to John', {reply: true, title: (maxUser > 2) || targetMessage.sender != '' ? true : false});
 });
 
 updateScroll();
@@ -398,7 +395,6 @@ function OptionEventHandler(evt){
     if (evt.target.classList.contains('text')){
         type = 'text';
         targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
-        console.log(targetMessage.sender);
         if (targetMessage.sender == myName){
             targetMessage.sender = 'You';
         }
@@ -417,6 +413,46 @@ function OptionEventHandler(evt){
     if (type == 'text' || type == 'image'){
         showOptions(type, sender, evt.target);
     }
+}
+
+
+
+function resizeImage(img, mimetype) {
+    let canvas = document.createElement('canvas');
+    let width = img.width;
+    let height = img.height;
+    let max_height = 480;
+    let max_width = 480;
+    // calculate the width and height, constraining the proportions
+    if (width > height) {
+        if (width > max_width) {
+        //height *= max_width / width;
+        height = Math.round(height *= max_width / width);
+        width = max_width;
+        }
+    } else {
+        if (height > max_height) {
+        //width *= max_height / height;
+        width = Math.round(width *= max_height / height);
+        height = max_height;
+        }
+}
+canvas.width = width;
+canvas.height = height;
+let ctx = canvas.getContext("2d");
+ctx.drawImage(img, 0, 0, width, height);
+return canvas.toDataURL(mimetype, 0.7); 
+}
+  
+function linkify(inputText) {
+let replacedText, replacePattern1, replacePattern2, replacePattern3;
+replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
+replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
+replacePattern3 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
+replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
+return replacedText;
 }
 
 
@@ -442,13 +478,11 @@ messages.addEventListener('click', (evt) => {
   }
   else if (evt.target?.classList?.contains('reactsOfMessage') || evt.target?.parentNode?.classList?.contains('reactsOfMessage')){
       let target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
-      console.log(target);
       let container = document.querySelector('.reactorContainer ul');
       container.innerHTML = '';
       if (target.length > 0){
         target.forEach(element => {
             let avatar = userList.find(user => user.uid == element.dataset.uid).avatar;
-            console.log(avatar);
             if (element.dataset.uid == myId){
                 container.innerHTML = `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${element.dataset.uid}</span><span class='r'>${element.innerText}</span></li>` + container.innerHTML;
             }else{
@@ -541,7 +575,11 @@ sendButton.addEventListener('click', () => {
     message = message.replace(/</g, '&lt;');
     message = message.replace(/¶/g, '<br/>');
     resizeTextbox();
-    if (message.length) {insertNewMessage(message, 'text', makeId(), myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});}
+    if (message.length) {
+        let tempId = makeId();
+        insertNewMessage(message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+        socket.emit('message', message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+    }
     finalTarget.message = '';
     finalTarget.sender = '';
     finalTarget.id = '';
@@ -570,11 +608,24 @@ document.getElementById('previewImage').querySelector('.close')?.addEventListene
 });
 
 document.getElementById('previewImage').querySelector('#imageSend')?.addEventListener('click', ()=>{
-    let message = document.getElementById('selectedImage').querySelector('img')?.src;
-    //insertNewMessage(message, 'image', makeId(), myId, targetMessage?.message, targetMessage?.sender ? `You replied to ${targetMessage.sender}` : myName, {reply: (targetMessage.message ? true : false), title: (targetMessage.message ? true : false)});
-    insertNewMessage(message, 'image', makeId(), myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
-    document.getElementById('previewImage')?.classList?.remove('active');
-    document.getElementById('selectedImage').innerHTML = '';
+    let file = photoButton.files[0];
+    let reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+    reader.onload = function(e){
+        let blob = new Blob([e.target.result]);
+        window.URL = window.URL || window.webkitURL;
+        let blobURL = window.URL.createObjectURL(blob);
+        let image = new Image();
+        image.src = blobURL;
+        image.onload = function() {
+            let resized = resizeImage(image, file.mimetype);
+            let tempId = makeId();
+            insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
+            socket.emit('message', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
+            document.getElementById('previewImage')?.classList?.remove('active');
+            document.getElementById('selectedImage').innerHTML = '';
+        }
+    }
 });
 
 
@@ -583,4 +634,55 @@ textbox.addEventListener('keydown', (evt) => {
       //$('.send').trigger('click');
       sendButton.click();
     }
+});
+
+function serverMessage(message) {
+    let html = `<li class="serverMessage" style="color: ${message.color};">${message.text}</li>`;
+    messages.innerHTML += html;
+    updateScroll();
+}
+
+//start socket connection
+
+socket.on('connect', () => {
+    log('connected');
+    const params = {
+        name: myName,
+        id: myId,
+        avatar: myAvatar,
+        key: myKey,
+        maxuser: maxUser,
+    }
+    socket.emit('join', params, function(err){
+        if (err) {
+            log(err);
+        } else {
+            log('no error');
+        }
+    });
+});
+
+socket.on('updateUserList', users => {
+    userList = users;
+});
+
+socket.on('server_message', message => {
+    serverMessage(message);
+});
+
+socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
+    console.log('Message received: ', type);
+    insertNewMessage(message, type, id, uid, reply, replyId, options);
+});
+
+socket.on('messageSent', (messageId, id) => {
+    console.log('Message sent');
+    document.getElementById(messageId).classList.add('delevered');
+    document.getElementById(messageId).id = id;
+});
+
+
+//on disconnect
+socket.on('disconnect', () => {
+    log('disconnected');
 });

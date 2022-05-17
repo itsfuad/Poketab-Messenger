@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script async src="/libs/fontawesome.js"></script>
+    <script defer src="/socket.io/socket.io.js"></script>
     <script defer src="/scripts/common.js"></script>
     <script defer src="/scripts/login.js"></script>
     <link rel="stylesheet" href="/styles/entry.css">
@@ -12,7 +13,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="form">
+        <form class="form" action="/chat" method="post" onsubmit="return check();">
             <div class="subform" id="form1">
                 <div class="title">
                     <div>Join a chat</div>
@@ -24,7 +25,7 @@
                     <input type="text" name="key" id="key" placeholder="xxx-xxx-xxx-xxx">
                 </div>
                 <div class="form-field">
-                    <button id="next">Next</button>
+                    <button id="next" type="button">Next</button>
                 </div>
                 <div class="redirect">
                     <fieldset>
@@ -47,10 +48,10 @@
                     </div>
                 </div>
                 <div class="form-field">
-                    <button id="enter">Enter Chat</button>
+                    <button id="enter" type="submit">Enter Chat</button>
                 </div>
             </div>
-        </div>
+        </>
     </div>
     <%- include ('layout/entryfooter.ejs') %>
 </body>
