@@ -4,8 +4,6 @@
 
 const socket = io();
 
-log('%capp.js loaded', 'color: green');
-
 const messages = document.getElementById('messages');
 
 const emoji_regex = /^(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|[\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|[\ud83c[\ude32-\ude3a]|[\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])+$/;
@@ -122,7 +120,6 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
         replyMsg: reply,
         time: getCurrentTime()
     });
-    log('Added new message');
     messages.innerHTML += html;
     updateScroll();
 }
@@ -200,7 +197,6 @@ function optionsMainEvent(e){
                 //clearTargetMessage();
                 break;
             case 'replyOption':
-                log('reply');
                 showReplyToast();
                 break;
         }
@@ -234,12 +230,10 @@ function deleteMessage(messageId, user){
             element.innerText = `${user == myName ? 'You': user} deleted this message`;
           });
         }
-        log('Deleted message');
     }
 }
 
 function optionsReactEvent(e){
-    log('Clicked on '+e.target.classList);
     let target = e.target?.classList[0];
     let messageId = targetMessage.id;
     //console.log(targetMessage);
@@ -414,6 +408,66 @@ class ClickAndHold{
 }
 
 
+function pinchZoom (imageElement) {
+    let imageElementScale = 1;
+  
+    let start = {};
+  
+    // Calculate distance between two fingers
+    const distance = (event) => {
+      return Math.hypot(event.touches[0].pageX - event.touches[1].pageX, event.touches[0].pageY - event.touches[1].pageY);
+    };
+  
+    imageElement.addEventListener('touchstart', (event) => {
+      // console.log('touchstart', event);
+      if (event.touches.length === 2) {
+        event.preventDefault(); // Prevent page scroll
+  
+        // Calculate where the fingers have started on the X and Y axis
+        start.x = (event.touches[0].pageX + event.touches[1].pageX) / 2;
+        start.y = (event.touches[0].pageY + event.touches[1].pageY) / 2;
+        start.distance = distance(event);
+      }
+    });
+  
+    imageElement.addEventListener('touchmove', (event) => {
+      // console.log('touchmove', event);
+      if (event.touches.length === 2) {
+        event.preventDefault(); // Prevent page scroll
+  
+        // Safari provides event.scale as two fingers move on the screen
+        // For other browsers just calculate the scale manually
+        let scale;
+        if (event.scale) {
+          scale = event.scale;
+        } else {
+          const deltaDistance = distance(event);
+          scale = deltaDistance / start.distance;
+        }
+        imageElementScale = Math.min(Math.max(1, scale), 4);
+  
+        // Calculate how much the fingers have moved on the X and Y axis
+        const deltaX = (((event.touches[0].pageX + event.touches[1].pageX) / 2) - start.x) * 2; // x2 for accelarated movement
+        const deltaY = (((event.touches[0].pageY + event.touches[1].pageY) / 2) - start.y) * 2; // x2 for accelarated movement
+  
+        // Transform the image to make it grow and move with fingers
+        const transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${imageElementScale})`;
+        imageElement.style.transform = transform;
+        imageElement.style.WebkitTransform = transform;
+        imageElement.style.zIndex = "9999";
+      }
+    });
+  
+    imageElement.addEventListener('touchend', (event) => {
+      // console.log('touchend', event);
+      // Reset image to it's original format
+      imageElement.style.transform = "";
+      imageElement.style.WebkitTransform = "";
+      imageElement.style.zIndex = "";
+    });
+  }
+
+
 function clearTargetMessage(){
     targetMessage.sender = '';
     targetMessage.message = '';
@@ -517,7 +571,7 @@ messages.addEventListener('click', (evt) => {
     evt.preventDefault();
     evt.stopPropagation();
     document.getElementById('lightbox__image').innerHTML = `<img src=${evt.target?.src} class='lb'>`;
-    log('click on image');
+    pinchZoom(document.getElementById('lightbox__image').querySelector('img'));
     document.getElementById('lightbox').classList.add('active');
   }
   else if (evt.target?.classList?.contains('reactsOfMessage') || evt.target?.parentNode?.classList?.contains('reactsOfMessage')){
@@ -616,7 +670,6 @@ const sendButton = document.getElementById('send');
 const photoButton = document.getElementById('photo');
 
 sendButton.addEventListener('click', () => {
-    log('send');
     let message = textbox.value?.trim();
     textbox.value = '';
     if (message.length > 10000) {
@@ -648,6 +701,42 @@ sendButton.addEventListener('click', () => {
     isTyping = false;
     socket.emit('stoptyping');
 });
+
+
+//Event listeners
+window.addEventListener('offline', function(e) { 
+    console.log('offline'); 
+    document.querySelector('.offline').innerText = 'You are offline!';
+    document.querySelector('.offline').classList.add('active');
+    document.querySelector('.offline').style.background = 'orangered';
+});
+
+window.addEventListener('online', function(e) {
+    console.log('Back to online');
+    document.querySelector('.offline').innerText = 'Back to online!';
+    document.querySelector('.offline').style.background = 'limegreen';
+    setTimeout(() => {
+        document.querySelector('.offline').classList.remove('active');
+    }, 1500);
+});
+
+
+function copyText(text){
+    navigator.clipboard.writeText(text);
+    popupMessage(`Copied to clipboard`);
+}
+
+
+function popupMessage(text){
+    //$('.popup-message').text(text);
+    document.querySelector('.popup-message').innerText = text;
+    //$('.popup-message').fadeIn(500);
+    document.querySelector('.popup-message').classList.add('active');
+    setTimeout(function () {
+        //$('.popup-message').fadeOut(500);
+        document.querySelector('.popup-message').classList.remove('active');
+    }, 1000);
+}
 
 
 photoButton.addEventListener('change', ()=>{
@@ -706,7 +795,6 @@ function serverMessage(message) {
 //start socket connection
 
 socket.on('connect', () => {
-    log('connected');
     const params = {
         name: myName,
         id: myId,
@@ -722,6 +810,7 @@ socket.on('connect', () => {
             if (userMap.size > 0){
                 document.getElementById('typingIndicator').innerText = getTypingString(userMap);
             }
+            document.getElementById('preload').style.display = 'none';
         }
     });
 });

@@ -13,6 +13,7 @@
     --secondary-dark: #2585fd;
     --focus-dark: #192838bd;
     --app-height: 100vh;
+    --pattern: url('/images/a.png');
 }
 
 //disable user select
@@ -20,23 +21,71 @@
     -webkit-user-select: none;
 }
 
+body{
+    background: var(--primary-dark) var(--pattern);
+    background-blend-mode: multiply;
+    user-select: none;
+    overscroll-behavior-y: contain;
+}
+
+.popup-message{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    background: #000000bb;
+    padding: 10px;
+    border-radius: 15px;
+    font-size: .6rem;
+    transform: translateX(-50%);
+    z-index: 100;
+    backdrop-filter: blur(2px);
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    transition: 200ms ease-in-out;
+    &.active{
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+.offline{
+    position: absolute;
+    visibility: hidden;
+    opacity: 0; 
+    width: 100%;
+    text-align: center;
+    position: fixed;
+    top: -20px; 
+    font-size: 0.7rem;
+    transition: 300ms ease-in-out;
+    color: white;
+    &.active{
+        visibility: visible;
+        opacity: 1;
+        top: 0;
+    }
+}
 
 .chatBox{
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     width: 100%;
+    position: relative;
     height: var(--app-height);
-    background: var(--primary-dark);
     .navbar{
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        position: absolute;
+        position: relative;
         top: 0;
         width: 100%;
-        background: #192838;
         z-index: 15;
         color: var(--foreground-dark);
         & > div{
@@ -75,7 +124,7 @@
     justify-content: center;
     align-items: center;
     .upload_image, #send{
-        padding: 10px;
+        padding: 5px;
     }
 }
 
@@ -152,6 +201,13 @@ input[type=file] {
     }
 }
 
+.fa-image, .fa-location-crosshairs, .fa-paper-plane {
+    font-size: 1.5rem;
+    padding: 5px;
+    color: var(--secondary-dark);
+    cursor: pointer;
+}
+
 i[class^=fa-]{
     font-size: 1.2rem;
     color: var(--secondary-dark);
@@ -178,24 +234,6 @@ i[class^=fa-]{
 
 .footer{
     padding-bottom: 10px;
-}
-
-#popupMessage{
-    position: fixed;
-    visibility: hidden;
-    bottom: 8vh;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--secondary-dark);
-    border-radius: 25px;
-    padding: 10px;
-    transition: 200ms ease-in-out;
-    z-index: 20;
-    backdrop-filter: drop-shadow(0px 0px 10px rgb(0, 0, 0));
-    &.active{
-        visibility: visible;
-        bottom: 10vh;
-    }
 }
 
 #replyToast{
@@ -400,5 +438,11 @@ i[class^=fa-]{
                 padding-left: 8px;
             }
         }
+    }
+}
+
+@media (orientation: landscape) and (min-device-aspect-ratio: 1 / 1){
+    .chatBox {
+        padding: 0 25%;
     }
 }
