@@ -235,6 +235,21 @@
     }
 }
 
+.deleted{
+    .messageTitle{
+        transform: none !important;
+    }
+    .messageReply{
+        display: none !important;
+    }
+    p{
+        background: none !important;
+        border: 2px solid #7d858c !important;
+        color: #7d858c !important;
+        height: 34px !important;
+    }
+}
+
 .serverMessage{
     font-size: 0.7rem;
     text-align: center;

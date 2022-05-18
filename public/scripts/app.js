@@ -149,7 +149,7 @@ let downloadOption = document.querySelector('.downloadOption');
 let deleteOption = document.querySelector('.deleteOption');
 
 function showOptions(type, sender, target){
-    console.log(type, sender, target);
+    //console.log(type, sender, target);
     document.querySelector('.reactorContainer').classList.remove('active');
     document.querySelectorAll(`#reactOptions div`).forEach(
         option => option.style.background = 'none'
@@ -191,9 +191,9 @@ function optionsMainEvent(e){
                 break;
             case 'deleteOption':
                 log('delete');
-                console.log(targetMessage.id);
+                //console.log(targetMessage.id);
                 let uid = document.getElementById(targetMessage.id)?.dataset?.uid;
-                console.log(uid);
+                //console.log(uid);
                 if (uid){
                     socket.emit('deletemessage', targetMessage.id, uid, myName, myId);
                 }
@@ -212,29 +212,28 @@ function optionsMainEvent(e){
 function deleteMessage(messageId, user){
     let message = document.getElementById(messageId);
     if (message){
-        message.querySelector('.text').innerHTML = 'Deleted message';
+        message.querySelector('.messageMain').innerHTML = '<p>Deleted message</p>';
         message.classList.add('deleted');
         message.dataset.deleted = true;
         message.querySelector('.messageTitle').innerText = user;
-
-        message.querySelector('.messageTitle').style.transform = '';
     
         if (maxUser == 2 || (message.dataset.uid == myId)) {
           message.querySelector('.messageTitle').style.visibility = 'hidden';
         }
         if (message.querySelector('.messageReply') != null) {
             message.querySelector('.messageReply').remove();
+            message.querySelector('.reactsOfMessage').remove();
+            message.classList.remove('reply');
+            message.classList.remove('react');
         }
         let replyMsg = document.querySelectorAll(`[data-repid='${messageId}']`);
         if (replyMsg != null) {
           replyMsg.forEach(element => {
             element.style.background = '#000000c4';
             element.style.color = '#7d858c';
-            element.innerText = `${user == myname ? 'You': user} deleted this message`;
+            element.innerText = `${user == myName ? 'You': user} deleted this message`;
           });
         }
-
-
         log('Deleted message');
     }
 }
@@ -243,8 +242,8 @@ function optionsReactEvent(e){
     log('Clicked on '+e.target.classList);
     let target = e.target?.classList[0];
     let messageId = targetMessage.id;
-    console.log(targetMessage);
-    console.log(finalTarget);
+    //console.log(targetMessage);
+    //console.log(finalTarget);
     if (target){
         if (reactArray.includes(target)){
             //e.target.style.background = '#00000073';
@@ -294,7 +293,7 @@ function arrayToMap(array) {
 }
 
 function getReact(type, messageId, uid){
-    console.log(type, messageId, uid);
+    //console.log(type, messageId, uid);
     let target = document.getElementById(messageId).querySelector('.reactedUsers');
     let exists = target?.querySelector('.list') ?? false;
     if (exists){
@@ -506,7 +505,6 @@ if(!isMobile){
         evt.preventDefault();
         evt.stopPropagation();
         if (evt.which == 3){
-            console.log(evt);
             let isDeleted = evt.target.closest('.message').dataset.deleted == 'true' ? true : false;
             if (!isDeleted){
                 OptionEventHandler(evt);
@@ -541,7 +539,7 @@ messages.addEventListener('click', (evt) => {
       document.querySelector('.reactorContainer').classList.add('active');
   }
   else if (evt.target?.classList?.contains('messageReply')){
-      if (evt.target.dataset.deleted != 'true'){
+      if (document.getElementById(evt.target.dataset.repid).dataset.deleted != 'true'){
           try{
               let target = evt.target.dataset.repid;
               document.querySelectorAll('.message').forEach(element => {
@@ -558,10 +556,10 @@ messages.addEventListener('click', (evt) => {
               }, 1000);
               document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'center'});
           }catch(e){
-                console.log('Deleted message0');
+                //console.log('Deleted message0');
           }
       }else{
-            console.log('Deleted message1');
+            //console.log('Deleted message1');
       }
   }
   else{
@@ -641,7 +639,13 @@ sendButton.addEventListener('click', () => {
     textbox.focus();
     hideOptions();
     hideReplyToast();
-    //socket.emit('stoptyping');
+    try{
+        clearTimeout(timeout);
+    }catch(e){
+        console.log('timeout not set');
+    }
+    isTyping = false;
+    socket.emit('stoptyping');
 });
 
 
@@ -730,12 +734,12 @@ socket.on('server_message', message => {
 });
 
 socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
-    console.log('Message received: ', type);
+    //console.log('Message received: ', type);
     insertNewMessage(message, type, id, uid, reply, replyId, options);
 });
 
 socket.on('messageSent', (messageId, id) => {
-    console.log('Message sent');
+    //console.log('Message sent');
     document.getElementById(messageId).classList.add('delevered');
     document.getElementById(messageId).id = id;
 });
@@ -745,7 +749,7 @@ socket.on('getReact', (target, messageId, myId) => {
 });
 
 socket.on('deleteMessage', (messageId, userName) => {
-    console.log('Message deleted for', messageId, userName);
+    //console.log('Message deleted for', messageId, userName);
     deleteMessage(messageId, userName);
 });
 

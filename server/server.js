@@ -74,14 +74,14 @@ app.get('/login', (req, res) => {
 app.get('/create', (req, res) => {
   const key = makeid(12);
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null;
-  console.log(`${ip} created key ${key}`);
+  //console.log(`${ip} created key ${key}`);
   keys.set(key, {using: false, created: Date.now(), ip: ip});
   res.render('create', {version: `v.${version}`, key: key});
 });
 
 app.post('/chat', (req, res) => {
 
-  console.log('Received chat request');
+  //console.log('Received chat request');
 
   let username = req.body.username;
   let key = req.body.key;
@@ -119,7 +119,7 @@ app.post('/chat', (req, res) => {
 io.on('connection', (socket) => {
 
   socket.on('join', (params, callback) => {
-    console.log('Received join request');
+    //console.log('Received join request');
     if (!isRealString(params.name) || !isRealString(params.key)) {
       return callback('empty');
     }
@@ -140,24 +140,24 @@ io.on('connection', (socket) => {
     io.to(params.key).emit('updateUserList', users.getAllUsersDetails(params.key));
     socket.emit('server_message', {color: 'limegreen', text: 'You joined the chat.🔥'});
     socket.broadcast.to(params.key).emit('server_message', {color: 'limegreen', text: `${params.name} joined the chat.🔥`});
-    console.log(`New user ${params.name} connected on key ${params.key} with avatar ${params.avatar} and maxuser ${params.maxuser || users.getMaxUser(params.key)}`);
+    //console.log(`New user ${params.name} connected on key ${params.key} with avatar ${params.avatar} and maxuser ${params.maxuser || users.getMaxUser(params.key)}`);
   });
 
 
   socket.on('message', (message, type, messageId, uId, reply, replyId, options) => {
-    console.log('Received new message request');
+    //console.log('Received new message request');
     let user = users.getUser(uids.get(socket.id));
     if (user && isRealString(message)) {
       let id = uuid.v4();
       message = message.replace(/>/gi, "&gt;").replace(/</gi, "&lt;");
       socket.emit('messageSent', messageId, id);
       socket.broadcast.to(user.key).emit('newMessage', message, type, id, uId, reply, replyId, options);
-      console.log('Message sent');
+      //console.log('Message sent');
     }
   });
 
   socket.on('react', (target, messageId, myId) => {
-    console.log('Received react request', target, messageId, myId);
+    //console.log('Received react request', target, messageId, myId);
     let user = users.getUser(uids.get(socket.id));
     if (user) {
       //send to all including sender
@@ -167,7 +167,7 @@ io.on('connection', (socket) => {
 
 
   socket.on('deletemessage', (messageId, msgUid, userName, userId) => {
-    console.log('Received delete message request');
+    //console.log('Received delete message request');
     let user = users.getUser(uids.get(socket.id));
     if (user) {
       if (msgUid == userId){
