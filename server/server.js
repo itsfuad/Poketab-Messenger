@@ -29,7 +29,7 @@ let app = express();
 let server = http.createServer(app);
 let io = socketIO(server);
 let users = new Users();
-
+const devMode = true;
 
 const keys = new Map();
 const uids = new Map();
@@ -94,7 +94,7 @@ app.post('/chat', (req, res) => {
     });
   }
   //get current users list on key
-  if (keys.has(key)){
+  if (keys.has(key) || devMode){
     let user = users.getUserList(key);
     let max_users = users.getMaxUser(key) ?? maxuser;
     let uid = uuid.v4();

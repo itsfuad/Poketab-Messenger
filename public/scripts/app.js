@@ -491,7 +491,6 @@ let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.
 
 if (isMobile){
     ClickAndHold.applyTo(messages, 300, (evt)=>{
-        console.log(evt);
         let isDeleted = evt.target.closest('.message').dataset.deleted == 'true' ? true : false;
         if (!isDeleted){
             OptionEventHandler(evt);
@@ -528,10 +527,12 @@ messages.addEventListener('click', (evt) => {
       if (target.length > 0){
         target.forEach(element => {
             let avatar = userList.find(user => user.uid == element.dataset.uid).avatar;
+            let name = userList.find(user => user.uid == element.dataset.uid).name;
+            if (name == myName){name = 'You';}
             if (element.dataset.uid == myId){
-                container.innerHTML = `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${element.dataset.uid}</span><span class='r'>${element.innerText}</span></li>` + container.innerHTML;
+                container.innerHTML = `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.innerText}</span></li>` + container.innerHTML;
             }else{
-                container.innerHTML += `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${element.dataset.uid}</span><span class='r'>${element.innerText}</span></li>`;
+                container.innerHTML += `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.innerText}</span></li>`;
             }
         });
       }

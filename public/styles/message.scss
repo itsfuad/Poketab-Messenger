@@ -71,7 +71,7 @@
             display: block;
         }
         .messageReply{
-            background: rgb(166, 166, 166);
+            background: #213a54;
             border-radius: 15px 15px 15px 3px;
             padding: 8px;
             padding-bottom: 25px;
@@ -102,7 +102,6 @@
 
 .message:is(.noreply){
     .messageReply{
-        background: aquamarine;
         display: none !important;
     }
     .messageTitle{
@@ -197,7 +196,7 @@
     .messageBody{
         align-items: flex-end;
         .messageReply{
-            background: rgb(2, 144, 191);
+            background: #264770;
             padding: 8px;
             padding-bottom: 25px;
             border-radius: 15px 15px 3px 15px;

@@ -76,3 +76,8 @@ function errlog(id, msg){
     err.innerHTML = msg;
 }
 
+//set css variables
+document.documentElement.style.setProperty('--height', window.innerHeight + 'px');
+
+
+

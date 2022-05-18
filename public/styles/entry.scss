@@ -11,6 +11,10 @@
     caret-color: #4598ff;
 }
 
+:root{
+    --height: 90vh;
+}
+
 /* Hide scrollbar for Chrome, Safari and Opera */
 *::-webkit-scrollbar {
     display: none;
@@ -57,8 +61,8 @@ body{
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    height: 100vh;
+    justify-content: space-around;
+    height: var(--height);
 }
 
 .title{
@@ -179,25 +183,18 @@ input[type="radio"] {
     font-size: 0.6em;
     color: rgb(186, 186, 186);
     padding: 10px;
-    position: absolute;
-    bottom: 5px;
-    left: 50%;
-    transform: translateX(-50%);
 }
 .source-code {
     text-align: center;
     width: 100%;
-    padding: 10px;
+    padding-bottom: 10px;
+    position: relative;
     a{
         color: white;
     }
 }
 
 #form2{
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     transition: 200ms ease-in-out;
     display: none;
     visibility: hidden;
@@ -217,7 +214,7 @@ input[type="radio"] {
     }
     width: 100vw;
     padding: 30px;
-    padding-bottom: 80px;
+    padding-bottom: 0;
     text-align: justify;
     font-size: .6em;
     max-width: max-content;
