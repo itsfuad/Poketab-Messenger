@@ -345,7 +345,7 @@ function getReact(type, messageId, uid){
 appHeight();
 
 document.getElementById('more').addEventListener('click', ()=>{
-    
+    document.getElementById('sidebar').classList.add('active');
 });
 
 updateScroll();
@@ -556,8 +556,7 @@ messages.addEventListener('scroll', () => {
       removeNewMessagePopup();
       scrolling = false;
     }
-    console.log(scrolling);
-  });
+});
 
 
 function removeNewMessagePopup() {
@@ -568,6 +567,12 @@ document.querySelector('.newmessagepopup').addEventListener('click', function ()
     scrolling = false;
     updateScroll();
     removeNewMessagePopup();
+});
+
+document.getElementById('logout').addEventListener('click', () => {
+    document.getElementById('preload').querySelector('.text').innerText = 'Logging out';
+    document.getElementById('preload').style.display = 'flex';
+    window.location.href = '/';
 });
 
 closeOption.addEventListener('click', () => {
@@ -606,12 +611,10 @@ function typingStatus(){
     if (!isTyping) {
         isTyping = true;
         socket.emit('typing');
-        log('typing');
     }
     timeout = setTimeout(function () {
         isTyping = false;
         socket.emit('stoptyping');
-        log('stoptyping');
     }, 1000);
 }
 
@@ -692,60 +695,70 @@ if(!isMobile){
     });
 }
 
+document.querySelector('.chatBox').addEventListener('click', (evt) => {
+    try{
+        if (evt.target?.id != 'more' && !evt.target.classList.contains('fa-ellipsis-vertical')){
+            document.getElementById('sidebar').classList.remove('active');
+        }
+    }catch(e){
+        console.log(e);
+    }
+});
+
 messages.addEventListener('click', (evt) => {
-  if (evt.target?.classList?.contains('image')){
-    evt.preventDefault();
-    evt.stopPropagation();
-    document.getElementById('lightbox__image').innerHTML = `<img src=${evt.target?.src} class='lb'>`;
-    pinchZoom(document.getElementById('lightbox__image').querySelector('img'));
-    document.getElementById('lightbox').classList.add('active');
-  }
-  else if (evt.target?.classList?.contains('reactsOfMessage') || evt.target?.parentNode?.classList?.contains('reactsOfMessage')){
-      let target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
-      let container = document.querySelector('.reactorContainer ul');
-      container.innerHTML = '';
-      if (target.length > 0){
-        target.forEach(element => {
-            let avatar = userList.find(user => user.uid == element.dataset.uid).avatar;
-            let name = userList.find(user => user.uid == element.dataset.uid).name;
-            if (name == myName){name = 'You';}
-            if (element.dataset.uid == myId){
-                container.innerHTML = `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.innerText}</span></li>` + container.innerHTML;
-            }else{
-                container.innerHTML += `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.innerText}</span></li>`;
+    if (evt.target?.classList?.contains('image')){
+        evt.preventDefault();
+        evt.stopPropagation();
+        document.getElementById('lightbox__image').innerHTML = `<img src=${evt.target?.src} class='lb'>`;
+        pinchZoom(document.getElementById('lightbox__image').querySelector('img'));
+        document.getElementById('lightbox').classList.add('active');
+    }
+    else if (evt.target?.classList?.contains('reactsOfMessage') || evt.target?.parentNode?.classList?.contains('reactsOfMessage')){
+        let target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
+        let container = document.querySelector('.reactorContainer ul');
+        container.innerHTML = '';
+        if (target.length > 0){
+            target.forEach(element => {
+                let avatar = userList.find(user => user.uid == element.dataset.uid).avatar;
+                let name = userList.find(user => user.uid == element.dataset.uid).name;
+                if (name == myName){name = 'You';}
+                if (element.dataset.uid == myId){
+                    container.innerHTML = `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.innerText}</span></li>` + container.innerHTML;
+                }else{
+                    container.innerHTML += `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.innerText}</span></li>`;
+                }
+            });
+        }
+        hideOptions();
+        document.querySelector('.reactorContainer').classList.add('active');
+    }
+    else if (evt.target?.classList?.contains('messageReply')){
+        if (document.getElementById(evt.target.dataset.repid).dataset.deleted != 'true'){
+            try{
+                let target = evt.target.dataset.repid;
+                document.querySelectorAll('.message').forEach(element => {
+                    if (element.id != target){
+                        element.style.filter = 'brightness(0.5)';
+                    }
+                });
+                setTimeout(() => {
+                    document.querySelectorAll('.message').forEach(element => {
+                        if (element.id != target){
+                            element.style.filter = '';
+                        }
+                    });
+                }, 1000);
+                document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'center'});
+            }catch(e){
+                    //console.log('Deleted message0');
             }
-        });
-      }
-      hideOptions();
-      document.querySelector('.reactorContainer').classList.add('active');
-  }
-  else if (evt.target?.classList?.contains('messageReply')){
-      if (document.getElementById(evt.target.dataset.repid).dataset.deleted != 'true'){
-          try{
-              let target = evt.target.dataset.repid;
-              document.querySelectorAll('.message').forEach(element => {
-                  if (element.id != target){
-                      element.style.filter = 'brightness(0.5)';
-                  }
-              });
-              setTimeout(() => {
-                  document.querySelectorAll('.message').forEach(element => {
-                      if (element.id != target){
-                          element.style.filter = '';
-                      }
-                  });
-              }, 1000);
-              document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'center'});
-          }catch(e){
-                //console.log('Deleted message0');
-          }
-      }else{
-            //console.log('Deleted message1');
-      }
-  }
-  else{
-    hideOptions();
-  }
+        }else{
+                //console.log('Deleted message1');
+        }
+    }
+    else{
+        hideOptions();
+    }
 });
 
 
@@ -909,6 +922,21 @@ textbox.addEventListener('keydown', (evt) => {
     }
 });
 
+document.getElementById('send-location').addEventListener('click', () => {
+    if (!navigator.geolocation) {
+        popupMessage('Geolocation not supported by your browser.');
+        return;
+    }
+    navigator.geolocation.getCurrentPosition( (position) => {
+        socket.emit('createLocationMessage', {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        });
+    }, (error) => {
+        popupMessage('Unable to fetch location.');
+    });
+});
+
 function serverMessage(message) {
     let html = `<li class="serverMessage" style="color: ${message.color};">${message.text}</li>`;
     messages.innerHTML += html;
@@ -941,7 +969,16 @@ socket.on('connect', () => {
 
 socket.on('updateUserList', users => {
     userList = users;
-    document.getElementById('currentlyActive').innerText = `${userList.length}/${maxUser}`;
+    document.getElementById('currentlyActive').innerText = `Active: ${userList.length}/${maxUser}`;
+    document.getElementById('userlist').innerHTML = '';
+    userList.forEach(user => {
+        let html = `<li class="user" data-uid="${user.uid}"><img src="/images/avatars/${user.avatar}(custom).png" height="30px" width="30px"/>${user.uid == myId ? user.name + ' (You)' : user.name}</li>`;
+        if (user.uid == myId){
+            document.getElementById('userlist').innerHTML = html + document.getElementById('userlist').innerHTML;
+        }else{
+            document.getElementById('userlist').innerHTML += html;
+        }
+    });
 });
 
 socket.on('server_message', message => {

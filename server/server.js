@@ -115,7 +115,6 @@ app.post('/chat', (req, res) => {
   }
 });
 
-
 io.on('connection', (socket) => {
 
   socket.on('join', (params, callback) => {
@@ -173,6 +172,14 @@ io.on('connection', (socket) => {
       if (msgUid == userId){
         io.to(user.key).emit('deleteMessage', messageId, userName);
       }
+    }
+  });
+
+  socket.on('createLocationMessage', (coord) => {
+    //console.log('Received create location message request');
+    let user = users.getUser(uids.get(socket.id));
+    if (user) {
+      io.to(user.key).emit('server_message', {color: 'limegreen', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`});
     }
   });
 

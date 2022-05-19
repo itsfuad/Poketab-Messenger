@@ -53,6 +53,68 @@ body {
   opacity: 1;
 }
 
+#sidebar {
+  position: fixed;
+  top: 0;
+  height: 100%;
+  width: 70%;
+  padding: 10px;
+  border-radius: 0 20px 20px 0;
+  background: var(--option-color);
+  backdrop-filter: blur(10px);
+  z-index: 90;
+  transition: 200ms ease-in-out;
+  left: -100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#sidebar.active {
+  left: 0;
+}
+#sidebar #keyname {
+  padding-bottom: 20px;
+  font-weight: 300;
+}
+#sidebar #keyname, #sidebar #keyname * {
+  color: var(--secondary-dark);
+  padding: 5px;
+  cursor: pointer;
+}
+#sidebar #userlist {
+  overflow: scroll;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  height: 100%;
+  width: 100%;
+  padding: 10px;
+  list-style: none;
+  gap: 5px;
+  border-radius: 10px;
+}
+#sidebar #userlist .user {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+  font-weight: 900;
+}
+#sidebar #logout {
+  padding-top: 20px;
+  border-radius: 10px;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+#sidebar #logout, #sidebar #logout i {
+  color: orangered;
+  padding: 5px;
+}
+
 .offline {
   position: absolute;
   visibility: hidden;

@@ -54,6 +54,68 @@ body{
     }
 }
 
+#sidebar{
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 70%;
+    padding: 10px;
+    border-radius: 0 20px 20px 0;
+    background: var(--option-color);
+    backdrop-filter: blur(10px);
+    z-index: 90;
+    transition: 200ms ease-in-out;
+    left: -100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    &.active{
+        left: 0;
+    }
+    #keyname{
+        padding-bottom: 20px;
+        font-weight: 300;
+    }
+    #keyname, #keyname *{
+        color: var(--secondary-dark);
+        padding: 5px;
+        cursor: pointer;
+    }
+    #userlist{
+        overflow: scroll;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        height: 100%;
+        width: 100%;
+        padding: 10px;
+        list-style: none;
+        gap: 5px;
+        border-radius: 10px;
+        .user{
+            display: flex;
+            flex-direction: row;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 5px;
+            font-weight: 900;
+        }
+    }
+    #logout{
+        padding-top: 20px;
+        border-radius: 10px;
+        font-weight: 900;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    #logout, #logout i{
+        color: orangered;
+        padding: 5px;
+    }
+}
+
 .offline{
     position: absolute;
     visibility: hidden;
@@ -73,12 +135,6 @@ body{
 }
 
 .chatBox{
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    width: 100%;
-    position: relative;
-    height: var(--app-height);
     .navbar{
         display: flex;
         flex-direction: row;
@@ -96,6 +152,12 @@ body{
             color: inherit;
         }
     }
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 100%;
+    position: relative;
+    height: var(--app-height);
     .welcomeText{
         display: flex;
         flex-direction: column;
