@@ -35,7 +35,7 @@
     flex-direction: row;
     list-style: none;
     align-items: flex-end;
-    gap: 35px;
+    gap: 3px;
     font-size: 0.8rem;
     width: 100%;
     position: relative;
@@ -137,6 +137,7 @@
 .messageTime{
     color: gray;
     font-size: 0.6rem;
+    padding: 0 15px;
 }
 
 .message:is(.react){
