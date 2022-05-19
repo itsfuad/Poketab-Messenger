@@ -108,7 +108,7 @@ app.post('/chat', (req, res) => {
     let user = users.getUserList(key);
     let max_users = users.getMaxUser(key) ?? maxuser;
     let uid = uuid.v4();
-    console.log(user.length >= max_users);
+    //console.log(user.length >= max_users);
     if (user.length >= max_users){
       //send unauthorized access message
       res.status(401).send({
