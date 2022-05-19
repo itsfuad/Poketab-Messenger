@@ -1,15 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <script async src="/libs/fontawesome.js"></script>
-    <script defer src="/socket.io/socket.io.js"></script>
-    <script defer src="/scripts/common.js"></script>
-    <script defer src="/scripts/login.js"></script>
-    <link rel="stylesheet" href="/styles/entry.css">
-    <title>Login</title>
+    <%- include('layout/entryheader.ejs') %> 
+    <script defer src="/scripts/login.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -20,9 +13,13 @@
                     <img src="/images/pokeball.png" height="40px" width="40px" alt="logo">
                 </div>
                 <div class="form-field">
-                    <label for="key" id="label">Enter key <i class="fa-solid fa-key"></i></label>
+                    <label for="key" id="label"><%-key_label%> </label>
                     <div id="keyErr" class="errLog"></div>
-                    <input type="text" name="key" id="key" placeholder="xxx-xxx-xxx-xxx">
+                    <% if (key) { %>
+                        <input type="text" autocomplete="off" name="key" id="key" placeholder="xxx-xxx-xxx-xxx" value="<%=key_%>">
+                    <% } else { %>
+                        <input type="text" autocomplete="off" name="key" id="key" placeholder="xxx-xxx-xxx-xxx">
+                    <% } %>
                 </div>
                 <div class="form-field">
                     <button id="next" type="button">Next</button>
@@ -30,7 +27,7 @@
                 <div class="redirect">
                     <fieldset>
                         <legend>Or</legend>
-                        <a id="redirect" href="/create">Create chat</a>
+                        <a id="redirect" href="/create" onclick="return wait();">Create chat</a>
                     </fieldset>
                 </div>
             </div>
@@ -38,7 +35,7 @@
                 <div class="form-field">
                     <label for="username">Choose username <i class="fa-solid fa-id-card-clip"></i></label>
                     <div id="usernameErr" class="errLog"></div>
-                    <input type="text" name="username" id="username" placeholder="Username">
+                    <input type="text" autocomplete="off" name="username" id="username" placeholder="Username">
                 </div>
                 <div class="form-field avatar-field">
                     <label for="avatar">Choose avatar <i class="fa-solid fa-user-astronaut"></i></label>
@@ -54,5 +51,12 @@
         </>
     </div>
     <%- include ('layout/entryfooter.ejs') %>
+    <% if (key) { %>
+        <script>
+            window.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('next').click();
+            });
+        </script>
+    <% } %>
 </body>
 </html>

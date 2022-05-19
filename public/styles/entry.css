@@ -27,12 +27,39 @@
   /* Firefox */
 }
 
+.offline {
+  position: absolute;
+  visibility: hidden;
+  opacity: 0;
+  width: 100%;
+  text-align: center;
+  position: fixed;
+  top: -20px;
+  font-size: 0.7rem;
+  transition: 300ms ease-in-out;
+  color: white;
+}
+.offline.active {
+  visibility: visible;
+  opacity: 1;
+  top: 0;
+}
+
 .errLog {
   font-size: 0.7em;
   color: orangered;
   width: 100%;
   word-wrap: break-word;
   padding-top: 10px;
+}
+
+img {
+  user-drag: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 input:-webkit-autofill,
@@ -193,6 +220,11 @@ input[type=radio]:checked + label img {
   color: white;
 }
 
+.copy {
+  cursor: pointer;
+  border: 2px dashed !important;
+}
+
 #form2 {
   transition: 200ms ease-in-out;
   display: none;
@@ -230,4 +262,18 @@ button {
   gap: 5px;
   align-items: center;
   justify-content: center;
+}
+
+#wait {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.5019607843);
+  backdrop-filter: blur(5px);
 }/*# sourceMappingURL=entry.css.map */

@@ -60,7 +60,7 @@ body{
     height: 100%;
     width: 70%;
     padding: 10px;
-    border-radius: 0 20px 20px 0;
+    border-radius: 0 5px 5px 0;
     background: var(--option-color);
     backdrop-filter: blur(10px);
     z-index: 90;
@@ -116,6 +116,15 @@ body{
     }
 }
 
+img{
+    user-drag: none;
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
 .offline{
     position: absolute;
     visibility: hidden;
@@ -144,12 +153,21 @@ body{
         top: 0;
         width: 100%;
         z-index: 15;
+        font-size: 0.9rem;
         color: var(--foreground-dark);
         & > div{
-            padding: 15px;
+            padding: 10px 20px;
         }
         i{
             color: inherit;
+            font-size: 0.9rem;
+        }
+        #currentlyActive{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
     }
     display: flex;
@@ -550,5 +568,8 @@ i[class^=fa-]{
 @media (orientation: landscape) and (min-device-aspect-ratio: 1 / 1){
     .chatBox {
         padding: 0 25%;
+    }
+    #sidebar{
+        width: 30%;
     }
 }

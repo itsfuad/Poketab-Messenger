@@ -1,16 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <script async src="/libs/fontawesome.js"></script>
-    <script defer src="/socket.io/socket.io.js"></script>
-    <script defer src="/scripts/common.js"></script>
-    <script defer src="/scripts/create.js"></script>
-    <script defer src="/scripts/login.js"></script>
-    <link rel="stylesheet" href="/styles/entry.css">
-    <title>Login</title>
+    <%- include('layout/entryheader.ejs') %> 
+    <script defer src="/scripts/create.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -23,7 +15,7 @@
                 <div class="form-field">
                     <label for="key" id="label">Tap to copy <i class="fa-regular fa-clone"></i></label>
                     <div id="keyErr" class="errLog"></div>
-                    <input type="text" name="key" id="key" placeholder="xxx-xxx-xxx-xxx" readonly value="<%=key_%>">
+                    <input autocomplete="off" type="text" name="key" class="copy" id="key" placeholder="xxx-xxx-xxx-xxx" readonly value="<%=key_%>">
                 </div>
                 <div class="form-field">
                     <button id="next" type="button">Next</button>
@@ -31,7 +23,7 @@
                 <div class="redirect">
                     <fieldset>
                         <legend>Or</legend>
-                        <a id="redirect" href="/join">Join chat</a>
+                        <a id="redirect" href="/login" onclick="return wait();">Join chat</a>
                     </fieldset>
                 </div>
             </div>
@@ -39,7 +31,7 @@
                 <div class="form-field">
                     <label for="username">Choose username <i class="fa-solid fa-id-card-clip"></i></label>
                     <div id="usernameErr" class="errLog"></div>
-                    <input type="text" name="username" id="username" placeholder="Username">
+                    <input autocomplete="off" type="text" name="username" id="username" placeholder="Username">
                 </div>
                 <div class="form-field avatar-field">
                     <label for="avatar">Choose avatar <i class="fa-solid fa-user-astronaut"></i></label>

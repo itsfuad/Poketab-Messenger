@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Page not found</title>
+	<link rel="preload" as="image" type="image/gif" href="/images/not-found.gif">
+	<link rel="preload" as="font" type="font/woff2" href="/fonts/comic-webfont.woff2">
+	<link rel="preload" as="font" type="font/woff2" href="/fonts/comforter.woff2">
+	<link type="text/css" rel="stylesheet" href="/css/404.css" />
+</head>
+
+<body>
+	<style>
+		@font-face {
+		font-family: 'Comforter';
+		src: url("/fonts/comforter.woff2");
+		}
+		@font-face {
+		font-family: 'Now';
+		src: url('/fonts/comic.woff');
+		}
+
+		*{
+		box-sizing: border-box;
+		padding: 0;
+		margin: 0;
+		}
+
+		.container{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 100vw;
+		height: 100vh;
+		background: #fefefd;
+		overflow: hidden;
+		font-family: Montserat;
+		}
+		.text{
+		font-family: Comforter;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		}
+		h2{
+		font-size: 30px;
+		position: absolute;
+		color: #000;
+		}
+		h1{
+		font-size: 150px;
+		position: absolute;
+		color: #5ecdfb;
+		}
+
+		a{
+		text-decoration: none;
+		color: #000;
+		border: 2px solid;
+		font-family: Now;
+		position: relative;
+		top: 50px;
+		padding: 10px;
+		}
+		a:hover{
+		cursor: pointer;
+		}
+
+		img{
+		height: 50vw;
+		}
+
+		@media (orientation: landscape) and (min-device-aspect-ratio: 1/1) {
+		img{
+		height: 50vh;
+		}
+		}
+	</style>
+	<div class="container">
+		<img src="/images/not-found.gif">
+		<div class="text">
+			<h1>404</h1>
+			<h2>Page not found</h2>
+		</div>
+		<a href="/">Return main page</a>
+	</div>
+
+</body>
+
+</html>

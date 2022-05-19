@@ -10,7 +10,6 @@ nextbtn.addEventListener('click', nextbtnEvent);
 function nextbtnEvent(e){
     e.preventDefault();
     if (validateKey()){   
-        console.log('validateKey');
         let key = document.getElementById('key').value;
         socket.emit('createRequest', key, function(err){
             if (err){
@@ -25,8 +24,19 @@ function nextbtnEvent(e){
         });
         document.getElementById('label').innerHTML = 'Checking <i class="fa-solid fa-circle-notch fa-spin"></i>';
     }
-    console.log('next');
 }
+
+document.querySelector('.copy').addEventListener('click', ()=>{
+    let key = document.getElementById('key').value;
+    navigator.clipboard.writeText(`${location.origin}/login/${key}`);
+    document.getElementById('label').style.color = 'limegreen';
+    document.getElementById('label').innerHTML = 'Copied <i class="fa-solid fa-clipboard-check"></i>';
+    setTimeout(()=>{
+        document.getElementById('label').style.color = '#fff';
+        document.getElementById('label').innerHTML = 'Tap to copy <i class="fa-regular fa-clone"></i>';
+    }, 1000);
+
+});
 
 socket.on('createResponse', (data) => {
     document.getElementById('label').innerHTML = 'Chat Key <i class="fa-solid fa-key"></i>';

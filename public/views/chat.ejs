@@ -1,33 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" href="/styles/chat.css">
-    <link rel="stylesheet" href="/styles/message.css">
-    <script async src="/libs/fontawesome.js"></script>
-    <script defer src="/socket.io/socket.io.js"></script>
-    <script defer src="/scripts/logger.js"></script>
-    <script defer src="/scripts/textBox.js"></script>
-    <script defer src="/libs/mustache.js"></script>
- 
-    <script defer src="/scripts/autoScroller.js"></script>
-    <script defer src="/scripts/app.js"></script>
-
-    <script defer src="/scripts/optionsMenu.js"></script>
-
-
-    <title>Chat</title>
+    <%- include('layout/mainheader.ejs') %>
 </head>
 <body>
-    <script>
-        const myId = "<%=myId_%>";
-        const myName = "<%=myName_%>";
-        const myAvatar = "<%=myAvatar_%>";
-        const myKey = "<%=myKey_%>";
-        let maxUser = "<%=maxUser_%>";
-    </script>
+
     <div id="preload" style="z-index: 100; position: fixed; top: 0; left: 0; bottom: 0; right: 0; display:flex; flex-direction:row; gap: 5px; align-items:center; justify-content:center; background: #111d2a; ">
         <div class="text" style="color: #2585fd;">Logging in</div><i class="fa-solid fa-circle-notch fa-spin" style="color: #2585fd;"></i>
     </div>
@@ -44,7 +21,7 @@
     <div class="chatBox">
         <!-- Navigation -->
         <div class="navbar">
-            <div id="currentlyActive"></div>
+            <div id="currentlyActive"><i class="fa-solid fa-user"></i> Active: <div id="count"></div></div>
             <div id="more">
                 <i class="fa-solid fa-ellipsis-vertical"></i>
             </div>
@@ -145,6 +122,19 @@
             <div class="reactedUsers" style="display: none;"></div>
         </li>
     </template>
-
+    <script>
+        const myId = "<%=myId_%>";
+        const myName = "<%=myName_%>";
+        const myAvatar = "<%=myAvatar_%>";
+        const myKey = "<%=myKey_%>";
+        const maxUser = "<%=maxUser_%>";
+        document.addEventListener('click', ()=> {
+          history.pushState({}, '', "#init");
+          history.pushState({}, '', "#inbox");
+          window.onpopstate = ()=>{
+            history.forward();
+          }
+        }, {once: true});
+    </script>
 </body>
 </html>

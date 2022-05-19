@@ -29,7 +29,7 @@ let app = express();
 let server = http.createServer(app);
 let io = socketIO(server);
 let users = new Users();
-const devMode = true;
+const devMode = false;
 
 const keys = new Map();
 const uids = new Map();
@@ -63,12 +63,22 @@ app.use(express.urlencoded({
 
 app.use(apiRequestLimiter);
 
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
     res.redirect('/login');
 });
 
-app.get('/login', (req, res) => {
-  res.render('login', {version: `v.${version}`, key: null});
+app.get('/login', (_, res) => {
+  res.render('login', {title: 'Login', version: `v.${version}`, key: null, key_label: `Enter key <i class="fa-solid fa-key"></i>`});
+});
+
+app.get('/login/:key', (req, res)=>{
+  const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
+  if (key_format.test(req.params.key)){
+    res.render('login', {title: 'Login', key_label: `Checking <i class="fa-solid fa-circle-notch fa-spin"></i>` , version: `v.${version}`, key: req.params.key});
+  }
+  else{
+    res.redirect('/');
+  }
 });
 
 app.get('/create', (req, res) => {
@@ -76,7 +86,7 @@ app.get('/create', (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null;
   //console.log(`${ip} created key ${key}`);
   keys.set(key, {using: false, created: Date.now(), ip: ip});
-  res.render('create', {version: `v.${version}`, key: key});
+  res.render('create', {title: 'Create', version: `v.${version}`, key: key});
 });
 
 app.post('/chat', (req, res) => {
@@ -115,6 +125,14 @@ app.post('/chat', (req, res) => {
   }
 });
 
+app.get('/offline', (_, res) => {
+  res.render('offline');
+});
+
+app.get('*', (_, res) => {
+  res.redirect('/');
+});
+
 io.on('connection', (socket) => {
 
   socket.on('join', (params, callback) => {
@@ -137,8 +155,8 @@ io.on('connection', (socket) => {
     uids.set(socket.id, params.id);
     users.addUser(params.id, params.name, params.key, params.avatar, params.maxuser || users.getMaxUser(params.key));
     io.to(params.key).emit('updateUserList', users.getAllUsersDetails(params.key));
-    socket.emit('server_message', {color: 'limegreen', text: 'You joined the chat.🔥'});
-    socket.broadcast.to(params.key).emit('server_message', {color: 'limegreen', text: `${params.name} joined the chat.🔥`});
+    socket.emit('server_message', {color: 'limegreen', text: 'You joined the chat.🔥'}, 'join');
+    socket.broadcast.to(params.key).emit('server_message', {color: 'limegreen', text: `${params.name} joined the chat.🔥`}, 'join');
     //console.log(`New user ${params.name} connected on key ${params.key} with avatar ${params.avatar} and maxuser ${params.maxuser || users.getMaxUser(params.key)}`);
   });
 
@@ -179,7 +197,7 @@ io.on('connection', (socket) => {
     //console.log('Received create location message request');
     let user = users.getUser(uids.get(socket.id));
     if (user) {
-      io.to(user.key).emit('server_message', {color: 'limegreen', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`});
+      io.to(user.key).emit('server_message', {color: 'limegreen', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`}, 'location');
     }
   });
 
@@ -203,7 +221,7 @@ io.on('connection', (socket) => {
     uids.delete(socket.id);
     if (user) {
       io.to(user.key).emit('updateUserList', users.getAllUsersDetails(user.key));
-      io.to(user.key).emit('server_message', {color: 'orangered', text: `${user.name} left the chat.🐸`});
+      io.to(user.key).emit('server_message', {color: 'orangered', text: `${user.name} left the chat.🐸`}, 'leave');
       console.log(`User ${user.name} disconnected from key ${user.key}`);
       let usercount = users.users.filter(datauser => datauser.key === user.key);
       if (usercount.length === 0) {
