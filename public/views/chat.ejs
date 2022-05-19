@@ -32,12 +32,15 @@
         <div class="text" style="color: #2585fd;">Logging in</div><i class="fa-solid fa-circle-notch fa-spin" style="color: #2585fd;"></i>
     </div>
     <div class="offline"></div>
-    <div class="popup-message">Connected to server</div>
+    <div class="popup-message"></div>
+    <div class="newmessagepopup">
+        <img src="" alt=""><div class="msg"></div>
+    </div>
     <div class="chatBox">
         <!-- Navigation -->
         <div class="navbar">
-            <div class="currentlyActive">1/2</div>
-            <div class="more">
+            <div id="currentlyActive"></div>
+            <div id="more">
                 <i class="fa-solid fa-ellipsis-vertical"></i>
             </div>
         </div>
@@ -120,16 +123,12 @@
         <div id="lightbox__image"></div>
     </div>
 
-    <div class="reactorContainer">Reactions 
-        <ul>
-
-        </ul>
-    </div>
+    <div class="reactorContainer">Reactions <ul></ul></div>
 
 
     <template id="messageTemplate">
         <li class="message {{classList}}" id="{{messageId}}" data-uid="{{uid}}"> <!-- noreply notitle delevered start end self react -->
-            <div class="sent"></div>
+            <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
             <div class="avatar">{{{avatar}}}</div>
             <div class="messageBody">
                 <div class="messageTitle">{{title}}</div>

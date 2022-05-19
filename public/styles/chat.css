@@ -12,6 +12,7 @@
   --foreground-dark: #e1eeff;
   --secondary-dark: #2585fd;
   --focus-dark: #192838bd;
+  --option-color: #213142;
   --app-height: 100vh;
   --pattern: url("/images/a.png");
 }
@@ -116,13 +117,13 @@ body {
   display: none;
 }
 
-.chatInput {
+current .chatInput {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
 }
-.chatInput .upload_image, .chatInput #send {
+current .chatInput .upload_image, current .chatInput #send {
   padding: 5px;
 }
 
@@ -231,6 +232,11 @@ i[class^=fa-] {
 .footer {
   padding-bottom: 10px;
 }
+.footer .chatInput {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 #replyToast {
   display: none;
@@ -265,6 +271,42 @@ i[class^=fa-] {
 #replyToast .close i:hover {
   cursor: pointer;
   transform: rotate(360deg) scale(1.2);
+}
+
+.newmessagepopup {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  background: var(--focus-dark);
+  padding: 5px 10px;
+  border-radius: 25px;
+  backdrop-filter: blur(2px);
+  font-size: 0.8rem;
+  transform: translateX(-50%);
+  z-index: 100;
+  gap: 5px;
+  width: max-content;
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+  cursor: pointer;
+  filter: drop-shadow(2px 4px 6px #000);
+}
+.newmessagepopup.active {
+  display: flex;
+  visibility: visible;
+  opacity: 1;
+}
+.newmessagepopup img {
+  height: 30px;
+  width: 30px;
+}
+.newmessagepopup .msg {
+  font-size: 0.8rem;
 }
 
 #lightbox {

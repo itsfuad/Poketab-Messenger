@@ -14,10 +14,21 @@ const replyToast = document.getElementById('replyToast');
 
 const lightboxClose = document.getElementById('lightbox__close');
 
+const textbox = document.getElementById('textbox');
+
+const options = document.querySelector('.options');
+
+const closeOption = document.querySelector('.closeOption');
+
+let isTyping = false, timeout = undefined;
 
 const reactArray = ['💙', '😂','😮','😢','😠','👍🏻','👎🏻'];
 const userMap = new Map();
 
+let softKeyIsUp = false;
+let scrolling = false;
+let lastPageLength = messages.scrollTop;
+let scroll = 0;
 
 let targetMessage = {
     sender: '',
@@ -65,6 +76,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     let template = document.getElementById('messageTemplate').innerHTML;
     let classList = '';
     let lastMsg = messages.querySelector('.message:last-child');
+    let popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message;
     if (type === 'text'){
         if(emo_test(message)){
             message = `<p class='text' style='background: none; font-size:30px; padding: 0;'>${linkify(message)}</p>`;
@@ -121,7 +133,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
         time: getCurrentTime()
     });
     messages.innerHTML += html;
-    updateScroll();
+    updateScroll(userList.find(user => user.uid === uid)?.avatar, popupmsg);
 }
 
 function getCurrentTime(){
@@ -212,6 +224,7 @@ function deleteMessage(messageId, user){
         message.classList.add('deleted');
         message.dataset.deleted = true;
         message.querySelector('.messageTitle').innerText = user;
+        popupMessage(`${user == myName ? 'You': user} deleted a message`);
     
         if (maxUser == 2 || (message.dataset.uid == myId)) {
           message.querySelector('.messageTitle').style.visibility = 'hidden';
@@ -329,20 +342,13 @@ function getReact(type, messageId, uid){
     updateScroll();
 }
 
-
-
-
 appHeight();
 
-document.querySelector('.more').addEventListener('click', ()=>{
-    insertNewMessage(getRandomTextFromWeb(), 'text', makeId(10), 2, 'Hello World', 'You replied to John', {reply: true, title: (maxUser > 2) || targetMessage.sender != '' ? true : false});
+document.getElementById('more').addEventListener('click', ()=>{
+    
 });
 
 updateScroll();
-
-
-
-
 
 
 class ClickAndHold{
@@ -501,6 +507,125 @@ function OptionEventHandler(evt){
 }
 
 
+function updateScroll(avatar = null, text = ''){
+
+
+    if (scrolling) {
+        if (text.length > 0 && avatar != null) {
+
+          document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).png`;
+
+          document.querySelector('.newmessagepopup .msg').innerText = text;
+
+          document.querySelector('.newmessagepopup').classList.add('active');
+        }else if(text.length > 0 && avatar == null){
+
+          document.querySelector('.newmessagepopup img').src = `/images/icons8-location-80.png`;
+
+          document.querySelector('.newmessagepopup .msg').innerText = text;
+
+          document.querySelector('.newmessagepopup').classList.add('active');
+        }
+        return;
+      }
+
+
+    setTimeout(() => {
+        let messages = document.getElementById('messages');
+        messages.scrollTo(0, messages.scrollHeight);
+        lastPageLength = messages.scrollTop;
+    }, 100);
+}
+
+
+messages.addEventListener('scroll', () => {
+    scroll = messages.scrollTop;
+    //console.log(scroll + ' : ' + lastPageLength + ' : ' + scrolling);
+    //console.log(lastPageLength-scroll);
+    let scrolled = lastPageLength-scroll;
+    if (scroll <= lastPageLength) {
+      if (scrolled >= 50){   
+        scrolling = true;
+      }
+      if (scrolled == 0){
+        scrolling = false;
+      }
+    } 
+    else {
+      lastPageLength = scroll;
+      removeNewMessagePopup();
+      scrolling = false;
+    }
+    console.log(scrolling);
+  });
+
+
+function removeNewMessagePopup() {
+    document.querySelector('.newmessagepopup').classList.remove('active');
+}
+
+document.querySelector('.newmessagepopup').addEventListener('click', function () {
+    scrolling = false;
+    updateScroll();
+    removeNewMessagePopup();
+});
+
+closeOption.addEventListener('click', () => {
+    options.classList.remove('active');
+});
+
+
+function getTypingString(userMap){
+    const array = Array.from(userMap.values());
+    let string = '';
+  
+    if (array.length >= 1){
+        if (array.length == 1){
+            string = array[0];
+        }
+        else if (array.length == 2){
+            string = `${array[0]} and ${array[1]}`;
+        }
+        else if (array.length ==  3){
+            string = `${array[0]}, ${array[1]} and ${array[2]}`;
+        }
+        else{
+            string = `${array[0]}, ${array[1]}, ${array[2]} and ${array.length - 3} other${array.length - 3 > 1 ? 's' : ''}`;
+        }
+    }
+    string += `${array.length > 1 ? ' are ': ' is '} typing...`
+    return string;
+}
+
+
+function typingStatus(){
+    if (timeout) {
+        clearTimeout(timeout);
+        timeout = undefined;
+    }
+    if (!isTyping) {
+        isTyping = true;
+        socket.emit('typing');
+        log('typing');
+    }
+    timeout = setTimeout(function () {
+        isTyping = false;
+        socket.emit('stoptyping');
+        log('stoptyping');
+    }, 1000);
+}
+
+function resizeTextbox(){
+    textbox.style.height = 'auto';
+    textbox.style.height = textbox.scrollHeight + 'px';
+}
+
+textbox.addEventListener('input' , function () {
+    resizeTextbox();
+    //isTyping = true;
+    typingStatus();
+});
+
 
 function resizeImage(img, mimetype) {
     let canvas = document.createElement('canvas');
@@ -558,8 +683,9 @@ if(!isMobile){
         evt.preventDefault();
         evt.stopPropagation();
         if (evt.which == 3){
-            let isDeleted = evt.target.closest('.message').dataset.deleted == 'true' ? true : false;
-            if (!isDeleted){
+            let isMessage = evt.target.closest('.message') ?? false;
+            let isDeleted = evt.target.closest('.message')?.dataset.deleted == 'true' ? true : false;
+            if (isMessage && !isDeleted){
                 OptionEventHandler(evt);
             }
         }
@@ -599,7 +725,7 @@ messages.addEventListener('click', (evt) => {
               let target = evt.target.dataset.repid;
               document.querySelectorAll('.message').forEach(element => {
                   if (element.id != target){
-                      element.style.filter = 'saturate(0.5)';
+                      element.style.filter = 'brightness(0.5)';
                   }
               });
               setTimeout(() => {
@@ -632,9 +758,6 @@ lightboxClose.addEventListener('click', () => {
 textbox.addEventListener('focus', function () {
     updateScroll();
 });
-
-let softKeyIsUp = false;
-let scrolling = false;
 
 textbox.addEventListener('blur', ()=>{
   if (softKeyIsUp){
@@ -811,12 +934,14 @@ socket.on('connect', () => {
                 document.getElementById('typingIndicator').innerText = getTypingString(userMap);
             }
             document.getElementById('preload').style.display = 'none';
+            popupMessage('Connected to server');
         }
     });
 });
 
 socket.on('updateUserList', users => {
     userList = users;
+    document.getElementById('currentlyActive').innerText = `${userList.length}/${maxUser}`;
 });
 
 socket.on('server_message', message => {

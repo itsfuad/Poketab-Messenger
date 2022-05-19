@@ -40,11 +40,12 @@
   position: relative;
 }
 .message .sent {
-  background: #dadada;
-  border-radius: 50%;
-  height: 10px;
-  width: 10px;
   display: none;
+}
+.message .sent i {
+  font-size: 0.7rem;
+  padding: 0;
+  color: var(--foreground-dark);
 }
 .message .avatar {
   height: 30px;
