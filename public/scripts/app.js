@@ -678,10 +678,14 @@ function popupMessage(text){
     }, 1000);
 }
 
-function serverMessage(message) {
+function serverMessage(message, type) {
     let html = `<li class="serverMessage" style="color: ${message.color};">${message.text}</li>`;
     messages.innerHTML += html;
-    updateScroll('location', `${message.user}'s location`);
+    if (type == 'location'){
+        updateScroll('location', `${message.user}'s location`);
+    }else{
+        updateScroll();
+    }
 }
 
 //Event listeners

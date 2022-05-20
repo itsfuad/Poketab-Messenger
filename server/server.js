@@ -29,7 +29,7 @@ let app = express();
 let server = http.createServer(app);
 let io = socketIO(server);
 let users = new Users();
-const devMode = true;
+const devMode = false;
 
 const keys = new Map();
 const uids = new Map();
