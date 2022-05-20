@@ -63,6 +63,69 @@ let userList = [];
 //if user device is mobile
 let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+//class
+class ClickAndHold{
+    /**
+     * @param {EventTarget} target The html elemnt to target
+     * @param {TimeOut} timeOut The time out in milliseconds
+     * @param {Function} callback The callback to call when the user clicks and holds
+     */
+    constructor(target, timeOut, callback){
+        this.target = target;
+        this.callback = callback;
+        this.isHeld = false;
+        this.activeHoldTimeoutId = null;
+        this.timeOut = timeOut;
+        ["touchstart", "mousedown"].forEach(eventName => {
+          try{
+            this.target.addEventListener(eventName, this._onHoldStart.bind(this));
+          }
+          catch(e){
+            console.log(e);
+          }
+        });
+        ["touchmove", "mousemove"].forEach(eventName => {
+          try{
+            this.target.addEventListener(eventName, this._onHoldMove.bind(this));
+          }
+          catch(e){
+            console.log(e);
+          }
+        });
+        ["mouseup", "touchend", "mouseleave", "mouseout", "touchcancel"].forEach(eventName => {
+          try{
+            this.target.addEventListener(eventName, this._onHoldEnd.bind(this));
+          }
+          catch(e){
+            console.log(e);
+          }
+        });
+    }
+    _onHoldStart(evt){
+        this.isHeld = true;
+        this.activeHoldTimeoutId = setTimeout(() => {
+            if (this.isHeld) {
+                this.callback(evt);
+            }
+        }, this.timeOut);
+    }
+    _onHoldMove(){
+        this.isHeld = false;
+    }
+    _onHoldEnd(){
+        this.isHeld = false;
+        clearTimeout(this.activeHoldTimeoutId);
+    }
+    static applyTo(target, timeOut, callback){
+      try{
+        new ClickAndHold(target, timeOut, callback);
+      }
+      catch(e){
+        console.log(e);
+      }
+    }
+}
+
 if (isMobile){
     ClickAndHold.applyTo(messages, 300, (evt)=>{
         let isDeleted = evt.target.closest('.message').dataset.deleted == 'true' ? true : false;
@@ -372,75 +435,6 @@ function getReact(type, messageId, uid){
     updateScroll();
 }
 
-appHeight();
-
-
-updateScroll();
-
-//class
-
-class ClickAndHold{
-    /**
-     * @param {EventTarget} target The html elemnt to target
-     * @param {TimeOut} timeOut The time out in milliseconds
-     * @param {Function} callback The callback to call when the user clicks and holds
-     */
-    constructor(target, timeOut, callback){
-        this.target = target;
-        this.callback = callback;
-        this.isHeld = false;
-        this.activeHoldTimeoutId = null;
-        this.timeOut = timeOut;
-        ["touchstart", "mousedown"].forEach(eventName => {
-          try{
-            this.target.addEventListener(eventName, this._onHoldStart.bind(this));
-          }
-          catch(e){
-            console.log(e);
-          }
-        });
-        ["touchmove", "mousemove"].forEach(eventName => {
-          try{
-            this.target.addEventListener(eventName, this._onHoldMove.bind(this));
-          }
-          catch(e){
-            console.log(e);
-          }
-        });
-        ["mouseup", "touchend", "mouseleave", "mouseout", "touchcancel"].forEach(eventName => {
-          try{
-            this.target.addEventListener(eventName, this._onHoldEnd.bind(this));
-          }
-          catch(e){
-            console.log(e);
-          }
-        });
-    }
-    _onHoldStart(evt){
-        this.isHeld = true;
-        this.activeHoldTimeoutId = setTimeout(() => {
-            if (this.isHeld) {
-                this.callback(evt);
-            }
-        }, this.timeOut);
-    }
-    _onHoldMove(){
-        this.isHeld = false;
-    }
-    _onHoldEnd(){
-        this.isHeld = false;
-        clearTimeout(this.activeHoldTimeoutId);
-    }
-    static applyTo(target, timeOut, callback){
-      try{
-        new ClickAndHold(target, timeOut, callback);
-      }
-      catch(e){
-        console.log(e);
-      }
-    }
-}
-
 // util functions
 function pinchZoom (imageElement) {
     let imageElementScale = 1;
@@ -496,7 +490,7 @@ function pinchZoom (imageElement) {
       imageElement.style.WebkitTransform = "";
       imageElement.style.zIndex = "";
     });
-  }
+}
 
 
 function clearTargetMessage(){
@@ -535,22 +529,14 @@ function OptionEventHandler(evt){
 
 
 function updateScroll(avatar = null, text = ''){
-
-
     if (scrolling) {
         if (text.length > 0 && avatar != null) {
-
           document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).png`;
-
           document.querySelector('.newmessagepopup .msg').innerText = text;
-
           document.querySelector('.newmessagepopup').classList.add('active');
         }else if(text.length > 0 && avatar == null){
-
           document.querySelector('.newmessagepopup img').src = `/images/icons8-location-80.png`;
-
           document.querySelector('.newmessagepopup .msg').innerText = text;
-
           document.querySelector('.newmessagepopup').classList.add('active');
         }
         return;
@@ -565,13 +551,9 @@ function updateScroll(avatar = null, text = ''){
 }
 
 
-
-
-
 function removeNewMessagePopup() {
     document.querySelector('.newmessagepopup').classList.remove('active');
 }
-
 
 
 function censorBadWords(text) {
@@ -641,8 +623,6 @@ function resizeTextbox(){
 }
 
 
-
-
 function resizeImage(img, mimetype) {
     let canvas = document.createElement('canvas');
     let width = img.width;
@@ -680,13 +660,6 @@ replacePattern3 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
 replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
 return replacedText;
 }
-
-
-
-
-
-
-
 
 
 function copyText(text){
@@ -1097,3 +1070,8 @@ socket.on('disconnect', () => {
     console.log('disconnected');
     popupMessage('Disconnected from server');
 });
+
+
+appHeight();
+
+updateScroll();

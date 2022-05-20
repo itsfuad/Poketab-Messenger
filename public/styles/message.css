@@ -43,7 +43,7 @@
   display: none;
 }
 .message .sent i {
-  font-size: 0.7rem;
+  font-size: 0.5rem;
   padding: 0;
   color: var(--foreground-dark);
 }

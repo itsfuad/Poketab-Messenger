@@ -89,6 +89,10 @@ app.get('/create', (req, res) => {
   res.render('create', {title: 'Create', version: `v.${version}`, key: key});
 });
 
+app.get('/chat', (_, res) => {
+  res.redirect('/');
+});
+
 app.post('/chat', (req, res) => {
 
   //console.log('Received chat request');
@@ -130,7 +134,7 @@ app.get('/offline', (_, res) => {
 });
 
 app.get('*', (_, res) => {
-  res.redirect('/');
+  res.render('404');
 });
 
 io.on('connection', (socket) => {

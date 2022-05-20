@@ -22,6 +22,7 @@ function nextbtnEvent(e){
                 });
             }
         });
+        document.getElementById('label').style.color = '#fff';
         document.getElementById('label').innerHTML = 'Checking <i class="fa-solid fa-circle-notch fa-spin"></i>';
     }
 }

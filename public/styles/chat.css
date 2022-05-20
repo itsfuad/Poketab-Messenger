@@ -4,6 +4,12 @@
   box-sizing: border-box;
   color: var(--foreground-dark);
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 :root {
@@ -19,6 +25,20 @@
 
 *::-webkit-user-select {
   -webkit-user-select: none;
+}
+
+.noSelect {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.noSelect:focus {
+  outline: none !important;
 }
 
 body {
@@ -183,7 +203,7 @@ img {
   align-items: center;
   text-align: center;
   padding: 50px;
-  padding-top: 300px;
+  padding-top: 330px;
 }
 .chatBox .welcomeText h1 {
   font-size: 1.5rem;
@@ -208,7 +228,7 @@ current .chatInput .upload_image, current .chatInput #send {
 }
 
 #send-location {
-  padding-left: 10px;
+  padding-left: 5px;
 }
 #send-location:hover {
   cursor: pointer;
@@ -216,6 +236,7 @@ current .chatInput .upload_image, current .chatInput #send {
 
 .upload_image {
   position: relative;
+  padding-right: 5px;
 }
 
 input[type=file] {
@@ -225,6 +246,7 @@ input[type=file] {
 #send {
   border: none;
   background: none;
+  padding-right: 5px;
 }
 
 #previewImage {

@@ -15,7 +15,7 @@
                 <div class="form-field">
                     <label for="key" id="label">Tap to copy <i class="fa-regular fa-clone"></i></label>
                     <div id="keyErr" class="errLog"></div>
-                    <input autocomplete="off" type="text" name="key" class="copy" id="key" placeholder="xxx-xxx-xxx-xxx" readonly value="<%=key_%>">
+                    <input autocomplete="off" type="text" name="key" class="copy noSelect" id="key" placeholder="xxx-xxx-xxx-xxx" readonly value="<%=key_%>">
                 </div>
                 <div class="form-field">
                     <button id="next" type="button">Next</button>
@@ -23,7 +23,7 @@
                 <div class="redirect">
                     <fieldset>
                         <legend>Or</legend>
-                        <a id="redirect" href="/login" onclick="return wait();">Join chat</a>
+                        <a id="redirect" href="/login" class="noSelect" onclick="return wait();">Join chat</a>
                     </fieldset>
                 </div>
             </div>
