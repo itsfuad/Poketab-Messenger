@@ -333,7 +333,7 @@ function saveImage()
   try{
     let a = document.createElement('a');
     a.href = document.querySelector('#lightbox__image img').src;
-    a.download = `poketab-${Date.now()}.png`;
+    a.download = `poketab-${Date.now()}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -937,7 +937,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             let tempId = makeId();
             scrolling = false;
             insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
-            socket.volatile.emit('message', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
+            socket.emit('message', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
             document.getElementById('previewImage')?.classList?.remove('active');
             document.getElementById('selectedImage').innerHTML = '';
         }
