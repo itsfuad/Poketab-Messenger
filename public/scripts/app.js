@@ -190,7 +190,6 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
         }
     }else if(type === 'image'){
         popupmsg = 'Image';
-        console.log(message);
         message = `<img class='image' src='${message}' alt='image' />`;
     }else{
         throw new Error('Unknown message type');
@@ -938,7 +937,6 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         image.src = blobURL;
         image.onload = function() {
             let resized = resizeImage(image, file.mimetype);
-            console.log(resized);
             let tempId = makeId();
             scrolling = false;
             insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
