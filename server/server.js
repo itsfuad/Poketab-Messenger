@@ -37,7 +37,7 @@ const uids = new Map();
 function deleteKeys(){
   for (let [key, value] of keys){
     //console.dir(`${key} ${value.using}, ${value.created}, ${Date.now()}`);
-    if (value.using != true && Date.now() - value.created > 60000){
+    if (value.using != true && Date.now() - value.created > 120000){
       keys.delete(key);
       console.log(`Key ${key} deleted`);
     }
@@ -201,7 +201,7 @@ io.on('connection', (socket) => {
     //console.log('Received create location message request');
     let user = users.getUser(uids.get(socket.id));
     if (user) {
-      io.to(user.key).emit('server_message', {color: 'limegreen', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`}, 'location');
+      io.to(user.key).emit('server_message', {color: 'limegreen', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`, user: user.name}, 'location');
     }
   });
 

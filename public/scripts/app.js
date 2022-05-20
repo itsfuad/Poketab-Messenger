@@ -179,14 +179,16 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     let template = document.getElementById('messageTemplate').innerHTML;
     let classList = '';
     let lastMsg = messages.querySelector('.message:last-child');
-    let popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message;
+    let popupmsg = '';
     if (type === 'text'){
+        popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message;
         if(emo_test(message)){
             message = `<p class='text' style='background: none; font-size:30px; padding: 0;'>${linkify(message)}</p>`;
         }else{
             message = `<p class='text'>${linkify(message)}</p>`;
         }
     }else if(type === 'image'){
+        popupmsg = 'Image';
         message = `<img class='image' src='${message}' alt='image' />`;
     }else{
         throw new Error('Unknown message type');
@@ -534,15 +536,9 @@ function updateScroll(avatar = null, text = ''){
           document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).png`;
           document.querySelector('.newmessagepopup .msg').innerText = text;
           document.querySelector('.newmessagepopup').classList.add('active');
-        }else if(text.length > 0 && avatar == null){
-          document.querySelector('.newmessagepopup img').src = `/images/icons8-location-80.png`;
-          document.querySelector('.newmessagepopup .msg').innerText = text;
-          document.querySelector('.newmessagepopup').classList.add('active');
         }
         return;
       }
-
-
     setTimeout(() => {
         let messages = document.getElementById('messages');
         messages.scrollTo(0, messages.scrollHeight);
@@ -642,12 +638,12 @@ function resizeImage(img, mimetype) {
         width = Math.round(width *= max_height / height);
         height = max_height;
         }
-}
-canvas.width = width;
-canvas.height = height;
-let ctx = canvas.getContext("2d");
-ctx.drawImage(img, 0, 0, width, height);
-return canvas.toDataURL(mimetype, 0.7); 
+    }
+    canvas.width = width;
+    canvas.height = height;
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, width, height);
+    return canvas.toDataURL(mimetype, 0.7); 
 }
   
 function linkify(inputText) {
@@ -685,7 +681,7 @@ function popupMessage(text){
 function serverMessage(message) {
     let html = `<li class="serverMessage" style="color: ${message.color};">${message.text}</li>`;
     messages.innerHTML += html;
-    updateScroll();
+    updateScroll('location', `${message.user}'s location`);
 }
 
 //Event listeners
@@ -901,6 +897,7 @@ sendButton.addEventListener('click', () => {
     resizeTextbox();
     if (message.length) {
         let tempId = makeId();
+        scrolling = false;
         insertNewMessage(message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         socket.emit('message', message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
     }
@@ -938,6 +935,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         image.onload = function() {
             let resized = resizeImage(image, file.mimetype);
             let tempId = makeId();
+            scrolling = false;
             insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
             socket.volatile.emit('message', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
             document.getElementById('previewImage')?.classList?.remove('active');
@@ -1027,7 +1025,7 @@ socket.on('server_message', (message, type) => {
             locationsound.play();
             break;
     }
-    serverMessage(message);
+    serverMessage(message, type);
 });
 
 socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
