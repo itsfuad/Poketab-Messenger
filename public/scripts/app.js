@@ -185,10 +185,12 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
         if(emo_test(message)){
             message = `<p class='text' style='background: none; font-size:30px; padding: 0;'>${linkify(message)}</p>`;
         }else{
+            message = censorBadWords(message);
             message = `<p class='text'>${linkify(message)}</p>`;
         }
     }else if(type === 'image'){
         popupmsg = 'Image';
+        console.log(message);
         message = `<img class='image' src='${message}' alt='image' />`;
     }else{
         throw new Error('Unknown message type');
@@ -226,8 +228,6 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     if (repliedTo == myName){repliedTo = 'You';}
     if (repliedTo == username){repliedTo = 'self';}
     
-    message = censorBadWords(message);
-
     let html = Mustache.render(template, {
         classList: classList,
         avatar: `<img src='/images/avatars/${avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
