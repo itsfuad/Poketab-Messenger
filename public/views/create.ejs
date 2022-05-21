@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <%- include('layout/entryheader.ejs') %> 
+    <script defer src="/libs/qrcode.js"></script>
     <script defer src="/scripts/create.min.js"></script>
 </head>
 <body>
@@ -16,6 +17,10 @@
                     <label for="key" id="label">Tap to copy <i class="fa-regular fa-clone"></i></label>
                     <div id="keyErr" class="errLog"></div>
                     <input autocomplete="off" type="text" name="key" class="copy noSelect" id="key" placeholder="xxx-xxx-xxx-xxx" readonly value="<%=key_%>">
+                    <fieldset class="line">
+                        <legend>Or scan QR Code</legend>
+                        <canvas id="qrcode" style="border-radius: 5px;" width="125px" height="125px"></canvas>
+                    </fieldset>
                 </div>
                 <div class="form-field">
                     <button id="next" type="button">Next</button>
