@@ -6,7 +6,7 @@ function nextbtnEvent(e){
     e.preventDefault();
     document.querySelectorAll('.errLog')
     .forEach(elem => {
-        elem.innerText = '';
+        elem.textContent = '';
     });
     if (validateKey()){   
         let key = document.getElementById('key').value;

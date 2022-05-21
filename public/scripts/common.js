@@ -66,7 +66,7 @@ function validateUser(){
 function check(){
     document.querySelectorAll('.errLog')
     .forEach(elem => {
-        elem.innerText = '';
+        elem.textContent = '';
     });
     if (validateKey() && validateUser()){
         document.getElementById('enter').innerHTML = `Please Wait <i class="fa-solid fa-circle-notch fa-spin"></i>`;
@@ -89,7 +89,7 @@ document.documentElement.style.setProperty('--height', window.innerHeight + 'px'
 
 window.addEventListener('offline', function(e) { 
     console.log('offline'); 
-    document.querySelector('.offline').innerText = 'You are offline!';
+    document.querySelector('.offline').textContent = 'You are offline!';
     document.querySelector('.offline').classList.add('active');
     document.querySelector('.offline').style.background = 'orangered';
 });
@@ -100,7 +100,7 @@ window.addEventListener('contextmenu', (e) => {
 
 window.addEventListener('online', function() {
     console.log('Back to online');
-    document.querySelector('.offline').innerText = 'Back to online!';
+    document.querySelector('.offline').textContent = 'Back to online!';
     document.querySelector('.offline').style.background = 'limegreen';
     setTimeout(() => {
         document.querySelector('.offline').classList.remove('active');
@@ -108,10 +108,9 @@ window.addEventListener('online', function() {
 });
 
 if ('serviceWorker' in navigator){
-    
     window.addEventListener('load', () => {
         navigator.serviceWorker
-        .register('./serviceWorkerPoketabS.js')
+        .register('./serviceWorkerPoketabS.min.js')
         .then(reg => console.log("Service Worker Registered"))
         .catch(err => console.log(`Service Worker: Error ${err}`));
     });
