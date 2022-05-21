@@ -310,8 +310,9 @@ function deleteMessage(messageId, user){
     let message = document.getElementById(messageId);
     if (message){
         //message.querySelector('.messageMain').innerHTML = '<p>Deleted message</p>';
-        while (message.firstChild){
-            message.removeChild(message.firstChild);
+        //delete all content inside message .messageMain
+        while (message.querySelector('.messageMain').firstChild){
+            message.querySelector('.messageMain').removeChild(message.querySelector('.messageMain').firstChild);
         }
         const fragment = document.createDocumentFragment();
         const p = document.createElement('p');
