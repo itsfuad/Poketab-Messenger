@@ -2,7 +2,7 @@
 
 maxuser.addEventListener('input', ()=>{
     //$('#rangeValue').text($('#maxuser').val());
-    document.getElementById('rangeValue').innerText = maxuser.value;
+    document.getElementById('rangeValue').textContent = maxuser.value;
 });
 
 nextbtn.addEventListener('click', nextbtnEvent);

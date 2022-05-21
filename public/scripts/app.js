@@ -238,7 +238,12 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
         replyMsg: reply,
         time: getCurrentTime()
     });
+    /*
     messages.innerHTML += html;
+    */
+    const fragment = document.createDocumentFragment();
+    fragment.append(document.createRange().createContextualFragment(html));
+    messages.append(fragment);
     updateScroll(userList.find(user => user.uid === uid)?.avatar, popupmsg);
 }
 
@@ -277,10 +282,13 @@ function showOptions(type, sender, target){
     }else{
         deleteOption.style.display = 'none';
     }
-    let clicked = target?.closest('.message')?.querySelector('.reactedUsers .list')?.dataset.uid == myId;
-    
+    //let clicked = target?.closest('.message')?.querySelectorAll('.reactedUsers .list')?.dataset.uid == myId;
+    let clicked = Array.from(target?.closest('.message')?.querySelectorAll('.reactedUsers .list')).reduce((acc, curr) => {
+        return acc || curr.dataset.uid == myId;
+    }, false);
     if (clicked){
-        let clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.innerText;
+        let clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
+        console.log(clickedElement);
         document.querySelector(`#reactOptions .${clickedElement}`).style.background = '#000000aa';
     }
    
@@ -301,10 +309,18 @@ function optionsMainEvent(e){
 function deleteMessage(messageId, user){
     let message = document.getElementById(messageId);
     if (message){
-        message.querySelector('.messageMain').innerHTML = '<p>Deleted message</p>';
+        //message.querySelector('.messageMain').innerHTML = '<p>Deleted message</p>';
+        while (message.firstChild){
+            message.removeChild(message.firstChild);
+        }
+        const fragment = document.createDocumentFragment();
+        const p = document.createElement('p');
+        p.textContent = 'Deleted message';
+        fragment.append(p);
+        message.querySelector('.messageMain').append(fragment);
         message.classList.add('deleted');
         message.dataset.deleted = true;
-        message.querySelector('.messageTitle').innerText = user;
+        message.querySelector('.messageTitle').textContent = user;
         popupMessage(`${user == myName ? 'You': user} deleted a message`);
     
         if (maxUser == 2 || (message.dataset.uid == myId)) {
@@ -321,7 +337,7 @@ function deleteMessage(messageId, user){
           replyMsg.forEach(element => {
             element.style.background = '#000000c4';
             element.style.color = '#7d858c';
-            element.innerText = `${user == myName ? 'You': user} deleted this message`;
+            element.textContent = `${user == myName ? 'You': user} deleted this message`;
           });
         }
     }
@@ -373,22 +389,22 @@ function showReplyToast(){
     textbox.focus();
 
     finalTarget = Object.assign({}, targetMessage);
-    replyToast.querySelector('.replyText').innerText = finalTarget.message?.substring(0, 50);
-    replyToast.querySelector('#text').innerText = finalTarget.sender;
+    replyToast.querySelector('.replyText').textContent = finalTarget.message?.substring(0, 50);
+    replyToast.querySelector('#text').textContent = finalTarget.sender;
     replyToast.classList.add('active');
 }
 
 function hideReplyToast(){
     replyToast.classList.remove('active');
-    replyToast.querySelector('.replyText').innerText = '';
-    replyToast.querySelector('#text').innerText = '';
+    replyToast.querySelector('.replyText').textContent = '';
+    replyToast.querySelector('#text').textContent = '';
     clearTargetMessage();
 }
 
 function arrayToMap(array) {
     let map = new Map();
     array.forEach(element => {
-        map.set(element.innerText, map.get(element.innerText) + 1 || 1);
+        map.set(element.textContent, map.get(element.textContent) + 1 || 1);
     });
     return map;
 }
@@ -399,18 +415,32 @@ function getReact(type, messageId, uid){
     if (exists){
         let list = target.querySelector('.list[data-uid="'+uid+'"]');
         if (list){
-            if (list.innerText == type){
+            if (list.textContent == type){
                 list.remove();
             }else{
-                list.innerText = type;
+                list.textContent = type;
             }
         }else{
-            target.innerHTML += `<div class='list' data-uid='${uid}'>${type}</div>`;
+            //target.innerHTML += `<div class='list' data-uid='${uid}'>${type}</div>`;
+            const fragment = document.createDocumentFragment();
+            const div = document.createElement('div');
+            div.classList.add('list');
+            div.dataset.uid = uid;
+            div.textContent = type;
+            fragment.append(div);
+            target.append(fragment);
         }
 
     }
     else{
-        target.innerHTML += `<div class='list' data-uid='${uid}'>${type}</div>`;
+        //target.innerHTML += `<div class='list' data-uid='${uid}'>${type}</div>`;
+        const fragment = document.createDocumentFragment();
+        const div = document.createElement('div');
+        div.classList.add('list');
+        div.dataset.uid = uid;
+        div.textContent = type;
+        fragment.append(div);
+        target.append(fragment);
     }
 
     let map = new Map();
@@ -419,13 +449,22 @@ function getReact(type, messageId, uid){
 
     let reactsOfMessage = document.getElementById(messageId).querySelector('.reactsOfMessage');
     if (reactsOfMessage && map.size > 0){
-        reactsOfMessage.innerHTML = '';
+        //reactsOfMessage.innerHTML = '';
+        //delete reactsOfMessage all child nodes
+        while (reactsOfMessage.firstChild) {
+            reactsOfMessage.removeChild(reactsOfMessage.firstChild);
+        }
         let count = 0;
         map.forEach((value, key) => {
             if (count >= 2){
                 reactsOfMessage.querySelector('span').remove();
             }
-            reactsOfMessage.innerHTML += `<span>${key}${value}</span>`;
+            //reactsOfMessage.innerHTML += `<span>${key}${value}</span>`;
+            const fragment = document.createDocumentFragment();
+            const span = document.createElement('span');
+            span.textContent = `${key}${value}`;
+            fragment.append(span);
+            reactsOfMessage.append(fragment);
             count ++;
         });
         document.getElementById(messageId).classList.add('react');
@@ -509,13 +548,22 @@ function OptionEventHandler(evt){
         if (targetMessage.sender == myName){
             targetMessage.sender = 'You';
         }
-        targetMessage.message = evt.target.closest('.message').querySelector('.messageMain .text').innerText.substring(0, 100);
+        targetMessage.message = evt.target.closest('.message').querySelector('.messageMain .text').textContent.substring(0, 100);
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
     else if (evt.target.classList.contains('image')){
         type = 'image';
-        document.querySelector('#lightbox__image').innerHTML = "";
-        document.querySelector('#lightbox__image').innerHTML = `<img src="${evt.target.closest('.message').querySelector('.image').src}" alt="Image">`;
+        //document.querySelector('#lightbox__image').innerHTML = "";
+        while (document.querySelector('#lightbox__image').firstChild) {
+            document.querySelector('#lightbox__image').removeChild(document.querySelector('#lightbox__image').firstChild);
+        }
+        //document.querySelector('#lightbox__image').innerHTML = `<img src="${evt.target.closest('.message').querySelector('.image').src}" alt="Image">`;
+        const fragment = document.createDocumentFragment();
+        const img = document.createElement('img');
+        img.src = evt.target.closest('.message').querySelector('.image').src;
+        img.alt = 'Image';
+        fragment.append(img);
+        document.querySelector('#lightbox__image').append(fragment);
         targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
         if (targetMessage.sender == myName){
             targetMessage.sender = 'You';
@@ -533,7 +581,7 @@ function updateScroll(avatar = null, text = ''){
     if (scrolling) {
         if (text.length > 0 && avatar != null) {
           document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).png`;
-          document.querySelector('.newmessagepopup .msg').innerText = text;
+          document.querySelector('.newmessagepopup .msg').textContent = text;
           document.querySelector('.newmessagepopup').classList.add('active');
         }
         return;
@@ -668,7 +716,7 @@ function copyText(text){
 
 function popupMessage(text){
     //$('.popup-message').text(text);
-    document.querySelector('.popup-message').innerText = text;
+    document.querySelector('.popup-message').textContent = text;
     //$('.popup-message').fadeIn(500);
     document.querySelector('.popup-message').classList.add('active');
     setTimeout(function () {
@@ -679,7 +727,9 @@ function popupMessage(text){
 
 function serverMessage(message, type) {
     let html = `<li class="serverMessage" style="color: ${message.color};">${message.text}</li>`;
-    messages.innerHTML += html;
+    //messages.innerHTML += html;
+    const fragment = document.createRange().createContextualFragment(html);
+    messages.append(fragment);
     if (type == 'location'){
         updateScroll('location', `${message.user}'s location`);
     }else{
@@ -729,7 +779,7 @@ document.querySelector('.newmessagepopup').addEventListener('click', function ()
 });
 
 document.getElementById('logout').addEventListener('click', () => {
-    document.getElementById('preload').querySelector('.text').innerText = 'Logging out';
+    document.getElementById('preload').querySelector('.text').textContent = 'Logging out';
     document.getElementById('preload').style.display = 'flex';
     window.location.href = '/';
 });
@@ -753,7 +803,10 @@ document.addEventListener('contextmenu', event => event.preventDefault());
 
 lightboxClose.addEventListener('click', () => {
     document.getElementById('lightbox').classList.remove('active');
-    document.getElementById('lightbox__image').innerHTML = '';
+    //document.getElementById('lightbox__image').innerHTML = '';
+    while (document.getElementById('lightbox__image').firstChild) {
+        document.getElementById('lightbox__image').removeChild(document.getElementById('lightbox__image').firstChild);
+    }
 });
 
 
@@ -782,23 +835,35 @@ messages.addEventListener('click', (evt) => {
     if (evt.target?.classList?.contains('image')){
         evt.preventDefault();
         evt.stopPropagation();
-        document.getElementById('lightbox__image').innerHTML = `<img src=${evt.target?.src} class='lb'>`;
+        //document.getElementById('lightbox__image').innerHTML = `<img src=${evt.target?.src} class='lb'>`;
+        while (document.getElementById('lightbox__image').firstChild) {
+            document.getElementById('lightbox__image').removeChild(document.getElementById('lightbox__image').firstChild);
+        }
+        const fragment = document.createRange().createContextualFragment(`<img src=${evt.target?.src} class='lb'>`);
+        document.getElementById('lightbox__image').append(fragment);
         pinchZoom(document.getElementById('lightbox__image').querySelector('img'));
         document.getElementById('lightbox').classList.add('active');
     }
     else if (evt.target?.classList?.contains('reactsOfMessage') || evt.target?.parentNode?.classList?.contains('reactsOfMessage')){
         let target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
         let container = document.querySelector('.reactorContainer ul');
-        container.innerHTML = '';
+        //container.innerHTML = '';
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
         if (target.length > 0){
             target.forEach(element => {
                 let avatar = userList.find(user => user.uid == element.dataset.uid).avatar;
                 let name = userList.find(user => user.uid == element.dataset.uid).name;
                 if (name == myName){name = 'You';}
                 if (element.dataset.uid == myId){
-                    container.innerHTML = `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.innerText}</span></li>` + container.innerHTML;
+                    //container.innerHTML = `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>` + container.innerHTML;
+                    const fragment = document.createRange().createContextualFragment(`<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>`);
+                    container.prepend(fragment);
                 }else{
-                    container.innerHTML += `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.innerText}</span></li>`;
+                    //container.innerHTML += `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>`;
+                    const fragment = document.createRange().createContextualFragment(`<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>`);
+                    container.append(fragment);
                 }
             });
         }
@@ -858,27 +923,37 @@ deleteOption.addEventListener('click', ()=>{
 });
 
 photoButton.addEventListener('change', ()=>{
-    document.getElementById('selectedImage').innerHTML = `Loading image <i class="fa-solid fa-circle-notch fa-spin"></i>`;
+    //document.getElementById('selectedImage').innerHTML = `Loading image <i class="fa-solid fa-circle-notch fa-spin"></i>`;
+    while (document.getElementById('selectedImage').firstChild) {
+        document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+    }
+    const fragment = document.createRange().createContextualFragment(`Loading image <i class="fa-solid fa-circle-notch fa-spin"></i>`);
+    document.getElementById('selectedImage').append(fragment);
     let file = photoButton.files[0];
     let reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (e) => {
         let data = e.target.result;
-        document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
+        //document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
+        while (document.getElementById('selectedImage').firstChild) {
+            document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+        }
+        const fragment = document.createRange().createContextualFragment(`<img src="${data}" alt="image" class="image-message" />`);
+        document.getElementById('selectedImage').append(fragment);
     }
     document.getElementById('previewImage')?.classList?.add('active');
 });
 
 window.addEventListener('offline', function(e) { 
     console.log('offline'); 
-    document.querySelector('.offline').innerText = 'You are offline!';
+    document.querySelector('.offline').textContent = 'You are offline!';
     document.querySelector('.offline').classList.add('active');
     document.querySelector('.offline').style.background = 'orangered';
 });
 
 window.addEventListener('online', function(e) {
     console.log('Back to online');
-    document.querySelector('.offline').innerText = 'Back to online!';
+    document.querySelector('.offline').textContent = 'Back to online!';
     document.querySelector('.offline').style.background = 'limegreen';
     setTimeout(() => {
         document.querySelector('.offline').classList.remove('active');
@@ -889,8 +964,8 @@ sendButton.addEventListener('click', () => {
     let message = textbox.value?.trim();
     textbox.value = '';
     if (message.length > 10000) {
-        text = text.substring(0, 10000);
-        text += '... (message too long)';
+        message = message.substring(0, 10000);
+        message += '... (message too long)';
     }
     //replace spaces with unusual characters
     message = message.replace(/\n/g, '¶');
@@ -922,7 +997,10 @@ sendButton.addEventListener('click', () => {
 
 document.getElementById('previewImage').querySelector('.close')?.addEventListener('click', ()=>{
     document.getElementById('previewImage')?.classList?.remove('active');
-    document.getElementById('selectedImage').innerHTML = '';
+    //document.getElementById('selectedImage').innerHTML = '';
+    while (document.getElementById('selectedImage').firstChild) {
+        document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+    }
 });
 
 document.getElementById('previewImage').querySelector('#imageSend')?.addEventListener('click', ()=>{
@@ -942,7 +1020,10 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
             socket.emit('message', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
             document.getElementById('previewImage')?.classList?.remove('active');
-            document.getElementById('selectedImage').innerHTML = '';
+            //document.getElementById('selectedImage').innerHTML = '';
+            while (document.getElementById('selectedImage').firstChild) {
+                document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+            }
         }
     }
 });
@@ -994,7 +1075,7 @@ socket.on('connect', () => {
         } else {
             console.log('no error');
             if (userMap.size > 0){
-                document.getElementById('typingIndicator').innerText = getTypingString(userMap);
+                document.getElementById('typingIndicator').textContent = getTypingString(userMap);
             }
             document.getElementById('preload').style.display = 'none';
             popupMessage('Connected to server');
@@ -1004,14 +1085,21 @@ socket.on('connect', () => {
 
 socket.on('updateUserList', users => {
     userList = users;
-    document.getElementById('count').innerText = `${userList.length}/${maxUser}`;
-    document.getElementById('userlist').innerHTML = '';
+    document.getElementById('count').textContent = `${userList.length}/${maxUser}`;
+    //document.getElementById('userlist').innerHTML = '';
+    while (document.getElementById('userlist').firstChild) {
+        document.getElementById('userlist').removeChild(document.getElementById('userlist').firstChild);
+    }
     userList.forEach(user => {
         let html = `<li class="user" data-uid="${user.uid}"><img src="/images/avatars/${user.avatar}(custom).png" height="30px" width="30px"/>${user.uid == myId ? user.name + ' (You)' : user.name}</li>`;
         if (user.uid == myId){
-            document.getElementById('userlist').innerHTML = html + document.getElementById('userlist').innerHTML;
+            //document.getElementById('userlist').innerHTML = html + document.getElementById('userlist').innerHTML;
+            const fragment = document.createRange().createContextualFragment(html);
+            document.getElementById('userlist').prepend(fragment);
         }else{
-            document.getElementById('userlist').innerHTML += html;
+            //document.getElementById('userlist').innerHTML += html;
+            const fragment = document.createRange().createContextualFragment(html);
+            document.getElementById('userlist').append(fragment);
         }
     });
 });
@@ -1053,15 +1141,15 @@ socket.on('deleteMessage', (messageId, userName) => {
 socket.on('typing', (user, id) => {
     typingsound.play();
     userMap.set(id, user);
-    document.getElementById('typingIndicator').innerText = getTypingString(userMap);
+    document.getElementById('typingIndicator').textContent = getTypingString(userMap);
   });
   
 socket.on('stoptyping', (id) => {
     userMap.delete(id);
     if (userMap.size == 0) {
-        document.getElementById('typingIndicator').innerText = '';
+        document.getElementById('typingIndicator').textContent = '';
     }else{
-        document.getElementById('typingIndicator').innerText = getTypingString(userMap);
+        document.getElementById('typingIndicator').textContent = getTypingString(userMap);
     }
 });
 
