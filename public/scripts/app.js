@@ -928,7 +928,7 @@ photoButton.addEventListener('change', ()=>{
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
-    const fragment = document.createRange().createContextualFragment(`Loading image <i class="fa-solid fa-circle-notch fa-spin"></i>`);
+    const fragment = document.createRange().createContextualFragment(`Loading image&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
     document.getElementById('selectedImage').append(fragment);
     let file = photoButton.files[0];
     let reader = new FileReader();
@@ -1165,3 +1165,7 @@ socket.on('disconnect', () => {
 appHeight();
 
 updateScroll();
+
+setTimeout(() => {
+    document.getElementById('preload').querySelector('.text').textContent = 'Slow internet';
+}, 3000);
