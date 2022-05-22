@@ -1,4 +1,4 @@
-const OFFLINE_VERSION = 1105;
+const OFFLINE_VERSION = 1106;
 const CACHE_NAME = "offline";
 const OFFLINE_URL = "/offline";
 
