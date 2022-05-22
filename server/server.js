@@ -12,6 +12,7 @@ const version = process.env.npm_package_version;
 const {Users} = require('./utils/users');
 const {isRealString, validateUserName} = require('./utils/validation');
 const {makeid, keyformat} = require('./utils/functions');
+const {Response403, Response404} = require('./utils/errorRes');
 
 
 const apiRequestLimiter = rateLimit({
@@ -134,7 +135,7 @@ app.get('/offline', (_, res) => {
 });
 
 app.get('*', (_, res) => {
-  res.render('404');
+  res.send(Response404);
 });
 
 io.on('connection', (socket) => {
@@ -274,7 +275,7 @@ io.on('connection', (socket) => {
       let user = users.getUserList(key);
       let max_users = users.getMaxUser(key) ?? 2;
       if (user.length >= max_users){
-        callback('Max user reached');
+        callback(Response403);
       }else{
         socket.emit('joinResponse', {exists: keyExists, userlist: users.getUserList(key), avatarlist: users.getAvatarList(key)});
       }

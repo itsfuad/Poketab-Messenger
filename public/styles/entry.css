@@ -228,7 +228,7 @@ input[type=radio]:checked + label img {
 .footer {
   font-size: 0.6em;
   color: rgb(186, 186, 186);
-  padding: 10px;
+  padding: 30px;
 }
 
 .source-code {
@@ -260,7 +260,7 @@ input[type=radio]:checked + label img {
 
 .howtouse {
   width: 100vw;
-  padding: 30px;
+  padding: 0 30px;
   padding-bottom: 0;
   text-align: justify;
   font-size: 0.6em;
@@ -269,7 +269,7 @@ input[type=radio]:checked + label img {
 }
 .howtouse .h1 {
   font-size: 1em;
-  padding: 5px;
+  padding: 30px 5px;
   text-align: center;
 }
 

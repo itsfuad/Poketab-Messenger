@@ -48,12 +48,4 @@ socket.on('createResponse', (data) => {
     }else{
         errlog('keyErr', 'Key does already exists <i class="fa-solid fa-triangle-exclamation" style="color: orange;"></i>');
     }
-})
-
-new QRious({
-    element: document.getElementById("qrcode"),
-    background: '#fff',
-    foreground: '#000',
-    size: 125,
-    value: `${location.origin}/login/${document.getElementById('key').value}`
 });
