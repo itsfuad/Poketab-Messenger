@@ -109,8 +109,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
   height: var(--height);
+  overscroll-behavior: contain;
 }
 
 .title {
@@ -154,6 +155,12 @@ fieldset a {
   color: #4598ff;
 }
 
+.remainingTime {
+  position: absolute;
+  right: 0;
+  color: #4598ff;
+}
+
 .subform {
   display: flex;
   flex-direction: column;
@@ -169,6 +176,7 @@ fieldset a {
 }
 .subform .form-field {
   width: 100%;
+  position: relative;
 }
 .subform input[type=text], .subform button {
   width: 100%;
@@ -228,7 +236,7 @@ input[type=radio]:checked + label img {
 .footer {
   font-size: 0.6em;
   color: rgb(186, 186, 186);
-  padding: 30px;
+  padding: 70px 0 10px 0;
 }
 
 .source-code {

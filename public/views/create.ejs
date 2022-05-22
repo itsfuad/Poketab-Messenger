@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <%- include('layout/entryheader.ejs') %> 
-    <script defer src="/scripts/create.min.js"></script>
+    <script defer src="/scripts/create.min.js?v=1110"></script>
 </head>
 <body>
     <div class="container">
@@ -13,7 +13,7 @@
                     <img src="/images/pokeball.png" height="40px" width="40px" alt="logo">
                 </div>
                 <div class="form-field">
-                    <label for="key" id="label">Tap to copy <i class="fa-regular fa-clone"></i></label>
+                    <label for="key" id="label">Tap to copy <i id="lb__icon" class="fa-regular fa-clone"></i> <span class="remainingTime">02:00</span> </label>
                     <div id="keyErr" class="errLog"></div>
                     <input autocomplete="off" type="text" name="key" class="copy noSelect" id="key" placeholder="xxx-xxx-xxx-xxx" readonly value="<%=key_%>">
                 </div>
@@ -29,7 +29,7 @@
             </div>
             <div class="subform" id="form2">
                 <div class="form-field">
-                    <label for="username">Choose username <i class="fa-solid fa-id-card-clip"></i></label>
+                    <label for="username">Choose username <i class="fa-solid fa-id-card-clip"></i> <span class="remainingTime">02:00</span></label>
                     <div id="usernameErr" class="errLog"></div>
                     <input autocomplete="off" type="text" name="username" id="username" placeholder="Username">
                 </div>

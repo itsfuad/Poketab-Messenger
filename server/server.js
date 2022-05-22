@@ -69,13 +69,13 @@ app.get('/', (_, res) => {
 });
 
 app.get('/login', (_, res) => {
-  res.render('login', {title: 'Login', version: `v.${version}`, key: null, key_label: `Enter key <i class="fa-solid fa-key"></i>`});
+  res.render('login', {title: 'Login', version: `v.${version}`, key: null, key_label: `Enter key <i id='lb__icon' class="fa-solid fa-key"></i>`});
 });
 
 app.get('/login/:key', (req, res)=>{
   const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
   if (key_format.test(req.params.key)){
-    res.render('login', {title: 'Login', key_label: `Checking <i class="fa-solid fa-circle-notch fa-spin"></i>` , version: `v.${version}`, key: req.params.key});
+    res.render('login', {title: 'Login', key_label: `Checking <i id='lb__icon' class="fa-solid fa-circle-notch fa-spin"></i>` , version: `v.${version}`, key: req.params.key});
   }
   else{
     res.redirect('/');

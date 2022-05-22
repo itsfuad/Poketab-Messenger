@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <%- include('layout/entryheader.ejs') %> 
-    <script defer src="/scripts/login.min.js"></script>
+    <script defer src="/scripts/login.min.js?v=1110"></script>
 </head>
 <body>
     <div class="container">
@@ -13,7 +13,7 @@
                     <img src="/images/pokeball.png" height="40px" width="40px" alt="logo">
                 </div>
                 <div class="form-field">
-                    <label for="key" id="label"><%-key_label%> </label>
+                    <label for="key" id="label"><%-key_label%></label>
                     <div id="keyErr" class="errLog"></div>
                     <% if (key) { %>
                         <input type="text" autocomplete="off" name="key" id="key" placeholder="xxx-xxx-xxx-xxx" value="<%=key_%>">

@@ -108,8 +108,9 @@ body{
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: flex-end;
     height: var(--height);
+    overscroll-behavior: contain;
 }
 
 .title{
@@ -153,7 +154,11 @@ fieldset{
     }
 }
 
-
+.remainingTime{
+    position: absolute;
+    right: 0;
+    color: #4598ff;
+}
 
 .subform{
     display: flex;
@@ -169,6 +174,7 @@ fieldset{
     min-width: 280px;
     .form-field{
         width: 100%;
+        position: relative;
     }
     input[type='text'], button{
         width: 100%;
@@ -229,7 +235,7 @@ input[type="radio"] {
 .footer{
     font-size: 0.6em;
     color: rgb(186, 186, 186);
-    padding: 30px;
+    padding: 70px 0 10px 0;
 }
 .source-code {
     text-align: center;

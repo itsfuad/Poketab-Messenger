@@ -17,13 +17,15 @@ function nextbtnEvent(e){
                 document.close();
             }
         });
-        document.getElementById('label').innerHTML = 'Checking <i class="fa-solid fa-circle-notch fa-spin"></i>';
+        document.getElementById('label').childNodes[0].textContent = 'Checking ';
+        document.getElementById('lb__icon').className =  'fa-solid fa-circle-notch fa-spin';
     }
 }
 
 
 socket.on('joinResponse', (data) => {
-    document.getElementById('label').innerHTML = 'Chat Key <i class="fa-solid fa-key"></i>';
+    document.getElementById('label').childNodes[0].textContent = 'Chat Key ';
+    document.getElementById('lb__icon').className =  'fa-solid fa-key';
     if (!data.exists){
         errlog('keyErr', 'Key does not exists <i class="fa-solid fa-ghost" style="color: whitesmoke;"></i>');
     }else{
@@ -38,5 +40,7 @@ socket.on('joinResponse', (data) => {
         form1.style.display = 'none';
         form2.classList.add('active');
         howto.style.display = 'none';
+        document.querySelector('.footer').style.display = 'none';
+        document.getElementsByTagName('body')[0].style.justifyContent = 'center';
     }
 })
