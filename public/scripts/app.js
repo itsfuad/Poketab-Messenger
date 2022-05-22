@@ -887,7 +887,9 @@ messages.addEventListener('click', (evt) => {
                         }
                     });
                 }, 1000);
-                document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'center'});
+		setTimeout(() => {
+                    document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'center'});
+		}, 100);
             }catch(e){
                     popupMessage('Deleted message');
             }
