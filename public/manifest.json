@@ -27,11 +27,18 @@
            "description": "Creates a new chat",
            "url": "/create",
            "icons": [
-              {
-                 "src": "icons/create.png",
-                 "type": "image/png",
-                 "purpose": "any"
-              }
+            {
+              "src": "icons/create-512.png",
+              "sizes": "192x192",
+              "type": "image/png",
+              "purpose": "maskable any"
+            },
+            {
+              "src": "icons/create-512.png",
+              "sizes": "512x512",
+              "type": "image/png",
+              "purpose": "maskable any"
+            }
            ]
         },
         {
@@ -39,11 +46,18 @@
            "description": "Joins an existing chat",
            "url": "/login",
            "icons": [
-              {
-                 "src": "icons/join.png",
-                 "type": "image/png",
-                 "purpose": "any"
-              }
+            {
+              "src": "icons/join-192.png",
+              "sizes": "192x192",
+              "type": "image/png",
+              "purpose": "maskable any"
+            },
+            {
+              "src": "icons/join-512.png",
+              "sizes": "512x512",
+              "type": "image/png",
+              "purpose": "maskable any"
+            }
            ]
         }
      ]
