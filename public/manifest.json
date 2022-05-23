@@ -28,7 +28,7 @@
            "url": "/create",
            "icons": [
               {
-                 "src": "/icons/create.png",
+                 "src": "icons/create.png",
                  "type": "image/png",
                  "purpose": "any"
               }
@@ -40,7 +40,7 @@
            "url": "/login",
            "icons": [
               {
-                 "src": "/icons/join.png",
+                 "src": "icons/join.png",
                  "type": "image/png",
                  "purpose": "any"
               }
