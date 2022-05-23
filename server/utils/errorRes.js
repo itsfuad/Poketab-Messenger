@@ -1,4 +1,7 @@
 const Response403 = `
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
+</head>
 <body>
 <style>
     @font-face {
@@ -59,6 +62,9 @@ const Response403 = `
 `;
 
 const Response404 = `
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0">
+</head>
 <body>
 <style>
     @font-face {
