@@ -10,7 +10,7 @@ const uuid = require("uuid");
 const version = process.env.npm_package_version;
 
 const {Users} = require('./utils/users');
-const {isRealString, validateUserName} = require('./utils/validation');
+const {isRealString, validateUserName, avList} = require('./utils/validation');
 const {makeid, keyformat} = require('./utils/functions');
 const {Response403, Response404} = require('./utils/errorRes');
 
@@ -30,7 +30,7 @@ let app = express();
 let server = http.createServer(app);
 let io = socketIO(server);
 let users = new Users();
-const devMode = false;
+const devMode = true;
 
 const keys = new Map();
 const uids = new Map();
@@ -106,6 +106,11 @@ app.post('/chat', (req, res) => {
   if (!validateUserName(username)){
     res.status(400).send({
       error: 'Invalid username format. Please use only alphanumeric characters'
+    });
+  }
+  if (!avList.includes(avatar)){
+    res.status(400).send({
+      error: 'Don\'t try to be oversmart. Choose avatar from the list'
     });
   }
   //get current users list on key

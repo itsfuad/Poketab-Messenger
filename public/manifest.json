@@ -20,5 +20,31 @@
           "type": "image/png",
           "purpose": "maskable any"
         }
-      ]
+      ],
+      "shortcuts": [
+        {
+           "name": "Create Chat",
+           "description": "Creates a new chat",
+           "url": "/create",
+           "icons": [
+              {
+                 "src": "/icons/create.png",
+                 "type": "image/png",
+                 "purpose": "any"
+              }
+           ]
+        },
+        {
+           "name": "Join Chat",
+           "description": "Joins an existing chat",
+           "url": "/login",
+           "icons": [
+              {
+                 "src": "/icons/join.png",
+                 "type": "image/png",
+                 "purpose": "any"
+              }
+           ]
+        }
+     ]
   }
