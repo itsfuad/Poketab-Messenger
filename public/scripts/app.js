@@ -182,8 +182,8 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     let popupmsg = '';
     if (type === 'text'){
         popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message;
-        if(emo_test(message)){
-            message = `<p class='text' style='background: none; font-size:30px; padding: 0;'>${linkify(message)}</p>`;
+        if(isEmoji(message)){
+            message = `<p class='text' style='background: none; font-size:30px; padding: 0;'>${message}</p>`;
         }else{
             message = censorBadWords(message);
             message = `<p class='text'>${linkify(message)}</p>`;
