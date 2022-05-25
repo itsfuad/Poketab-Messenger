@@ -12,18 +12,18 @@
                     <div>Create chat</div>
                     <img src="/images/pokeball.png" height="40px" width="40px" alt="logo">
                 </div>
-                <div class="form-field">
+                <div class="form-field clickable">
                     <label for="key" id="label">Tap to copy <i id="lb__icon" class="fa-regular fa-clone"></i> <span class="remainingTime">02:00</span> </label>
                     <div id="keyErr" class="errLog"></div>
                     <input autocomplete="off" type="text" name="key" class="copy noSelect" id="key" placeholder="xxx-xxx-xxx-xxx" readonly value="<%=key_%>">
                 </div>
-                <div class="form-field">
+                <div class="form-field clickable">
                     <button id="next" type="button">Next</button>
                 </div>
                 <div class="redirect">
                     <fieldset>
                         <legend>Or</legend>
-                        <a id="redirect" href="/login" class="noSelect" onclick="return wait();">Join chat</a>
+                        <a id="redirect" href="/login" class="noSelect clickable" onclick="return wait();">Join chat</a>
                     </fieldset>
                 </div>
             </div>
@@ -42,10 +42,10 @@
                 </div>
                 <div class="form-field range">
                     <label for="max-user">Select max user (<span id="rangeValue">2</span>)</label>
-                    <input type="range" id="maxuser" name="maxuser" max="15" min="2" value="2">
+                    <input type="range" class="clickable" id="maxuser" name="maxuser" max="15" min="2" value="2">
                 </div>
                 <div class="form-field">
-                    <button id="enter" type="submit">Enter Chat</button>
+                    <button id="enter" class="clickable" type="submit">Enter Chat</button>
                 </div>
             </div>
         </>

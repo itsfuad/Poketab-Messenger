@@ -1,14 +1,15 @@
 "use strict";
 
 const socket = io();
-let e_users = [], e_avatars = [];
+const e_users = [], e_avatars = [];
 
-let nextbtn = document.getElementById('next');
+const nextbtn = document.getElementById('next');
+const clickSound = new Audio('/sounds/click.wav');
 
-let form1 = document.getElementById('form1');
-let form2 = document.getElementById('form2');
-let howto = document.querySelector('.howtouse');
-let enter = document.getElementById('enter');
+const form1 = document.getElementById('form1');
+const form2 = document.getElementById('form2');
+const howto = document.querySelector('.howtouse');
+const enter = document.getElementById('enter');
 
 const key = document.getElementById('key').value;
 
@@ -117,4 +118,9 @@ if ('serviceWorker' in navigator){
 }
 
 
-
+document.querySelectorAll('.clickable').forEach(elem => {
+    elem.addEventListener('click', () => {
+        clickSound.currentTime = 0;
+        clickSound.play();
+    });
+});

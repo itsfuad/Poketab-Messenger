@@ -30,6 +30,7 @@ const leavesound = new Audio('/sounds/leave.wav');
 const typingsound = new Audio('/sounds/typing.wav');
 const locationsound = new Audio('/sounds/location.wav');
 const reactsound = new Audio('/sounds/react.wav');
+const clickSound = new Audio('/sounds/click.wav');
 
 const sendButton = document.getElementById('send');
 const photoButton = document.getElementById('photo');
@@ -1063,7 +1064,12 @@ document.getElementById('send-location').addEventListener('click', () => {
     });
 });
 
-
+document.querySelectorAll('.clickable').forEach(elem => {
+    elem.addEventListener('click', () => {
+        clickSound.currentTime = 0;
+        clickSound.play();
+    });
+});
 
 
 
