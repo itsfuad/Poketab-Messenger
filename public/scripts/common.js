@@ -4,7 +4,7 @@ const socket = io();
 const e_users = [], e_avatars = [];
 
 const nextbtn = document.getElementById('next');
-const clickSound = new Audio('/sounds/click.wav');
+const clickSound = new Audio('/sounds/click.mp3');
 
 const form1 = document.getElementById('form1');
 const form2 = document.getElementById('form2');

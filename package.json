@@ -1,6 +1,6 @@
 {
   "name": "poketab_messanger",
-  "version": "11.1.8",
+  "version": "11.1.9",
   "description": "Realtime messaging application",
   "main": "server/server.js",
   "scripts": {

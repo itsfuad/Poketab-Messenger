@@ -23,14 +23,14 @@ const downloadOption = document.querySelector('.downloadOption');
 const deleteOption = document.querySelector('.deleteOption');
 const replyOption = document.querySelector('.replyOption');
 
-const incommingmessage = new Audio('/sounds/incommingmessage.wav');
-const outgoingmessage = new Audio('/sounds/outgoingmessage.wav');
-const joinsound = new Audio('/sounds/join.wav');
-const leavesound = new Audio('/sounds/leave.wav');
-const typingsound = new Audio('/sounds/typing.wav');
-const locationsound = new Audio('/sounds/location.wav');
-const reactsound = new Audio('/sounds/react.wav');
-const clickSound = new Audio('/sounds/click.wav');
+const incommingmessage = new Audio('/sounds/incommingmessage.mp3');
+const outgoingmessage = new Audio('/sounds/outgoingmessage.mp3');
+const joinsound = new Audio('/sounds/join.mp3');
+const leavesound = new Audio('/sounds/leave.mp3');
+const typingsound = new Audio('/sounds/typing.mp3');
+const locationsound = new Audio('/sounds/location.mp3');
+const reactsound = new Audio('/sounds/react.mp3');
+const clickSound = new Audio('/sounds/click.mp3');
 
 const sendButton = document.getElementById('send');
 const photoButton = document.getElementById('photo');
@@ -62,15 +62,10 @@ let userList = [];
 
 //first load functions 
 //if user device is mobile
-let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 //class
 class ClickAndHold{
-    /**
-     * @param {EventTarget} target The html elemnt to target
-     * @param {TimeOut} timeOut The time out in milliseconds
-     * @param {Function} callback The callback to call when the user clicks and holds
-     */
     constructor(target, timeOut, callback){
         this.target = target;
         this.callback = callback;
@@ -272,6 +267,7 @@ function isEmoji(text) {
 }
 
 function showOptions(type, sender, target){
+    vibrate();
     //console.log(type, sender, target);
     document.querySelector('.reactorContainer').classList.remove('active');
     document.querySelectorAll(`#reactOptions div`).forEach(
@@ -741,6 +737,12 @@ function serverMessage(message, type) {
         updateScroll('location', `${message.user}'s location`);
     }else{
         updateScroll();
+    }
+}
+
+function vibrate(){
+    if (navigator.vibrate) {
+        navigator.vibrate([0, 250, 250, 250]);
     }
 }
 

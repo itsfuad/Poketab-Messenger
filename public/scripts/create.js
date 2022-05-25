@@ -1,5 +1,7 @@
 "use strict";
 
+const errorSound = new Audio('/sounds/error.mp3');
+
 maxuser.addEventListener('input', ()=>{
     //$('#rangeValue').text($('#maxuser').val());
     document.getElementById('rangeValue').textContent = maxuser.value;
@@ -57,8 +59,11 @@ function countDown(){
             sec = '00';
             clearInterval(interval);
             expiredEvent('Key expired');
+            errorSound.currentTime = 0;
+            errorSound.play();
+            navigator.vibrate(1000);
             document.getElementsByClassName('remainingTime')[0].style.color = '#e33937';
-        document.getElementsByClassName('remainingTime')[1].style.color = '#e33937';
+            document.getElementsByClassName('remainingTime')[1].style.color = '#e33937';
         }else{
             //convert to mm:ss
             min = Math.floor(count/60);
