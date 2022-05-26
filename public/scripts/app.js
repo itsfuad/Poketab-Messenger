@@ -58,7 +58,7 @@ let finalTarget = {
     id: '',
 };
 
-let userList = [];
+const userInfoMap = new Map();
 
 //first load functions 
 //if user device is mobile
@@ -215,11 +215,14 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     else if (classList.includes('self') && classList.includes('noreply')){
         classList += ' notitle';
     }
-    let username = userList.find(user => user.uid === uid)?.name;
-    let avatar = userList.find(user => user.uid === uid)?.avatar;
+    //let username = userList.find(user => user.uid === uid)?.name;
+    let username = userInfoMap.get(uid)?.name;
+    //let avatar = userList.find(user => user.uid === uid)?.avatar;
+    let avatar = userInfoMap.get(uid)?.avatar;
     
     if (username == myName){username = 'You';}
-    let repliedTo = userList.find(user => user.uid == document.getElementById(replyId)?.dataset?.uid)?.name;
+    //let repliedTo = userList.find(user => user.uid == document.getElementById(replyId)?.dataset?.uid)?.name;
+    let repliedTo = userInfoMap.get(document.getElementById(replyId)?.dataset?.uid)?.name;
     if (repliedTo == myName){repliedTo = 'You';}
     if (repliedTo == username){repliedTo = 'self';}
     
@@ -240,7 +243,8 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     const fragment = document.createDocumentFragment();
     fragment.append(document.createRange().createContextualFragment(html));
     messages.append(fragment);
-    updateScroll(userList.find(user => user.uid === uid)?.avatar, popupmsg);
+    //updateScroll(userList.find(user => user.uid === uid)?.avatar, popupmsg);
+    updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
 }
 
 function getCurrentTime(){
@@ -412,18 +416,31 @@ function arrayToMap(array) {
 }
 
 function getReact(type, messageId, uid){
-    let target = document.getElementById(messageId).querySelector('.reactedUsers');
-    let exists = target?.querySelector('.list') ?? false;
-    if (exists){
-        let list = target.querySelector('.list[data-uid="'+uid+'"]');
-        if (list){
-            if (list.textContent == type){
-                list.remove();
+    try{
+        let target = document.getElementById(messageId).querySelector('.reactedUsers');
+        let exists = target?.querySelector('.list') ?? false;
+        if (exists){
+            let list = target.querySelector('.list[data-uid="'+uid+'"]');
+            if (list){
+                if (list.textContent == type){
+                    list.remove();
+                }else{
+                    list.textContent = type;
+                }
             }else{
-                list.textContent = type;
+                reactsound.play();
+                //target.innerHTML += `<div class='list' data-uid='${uid}'>${type}</div>`;
+                const fragment = document.createDocumentFragment();
+                const div = document.createElement('div');
+                div.classList.add('list');
+                div.dataset.uid = uid;
+                div.textContent = type;
+                fragment.append(div);
+                target.append(fragment);
             }
-        }else{
-            reactsound.play();
+    
+        }
+        else{
             //target.innerHTML += `<div class='list' data-uid='${uid}'>${type}</div>`;
             const fragment = document.createDocumentFragment();
             const div = document.createElement('div');
@@ -432,50 +449,41 @@ function getReact(type, messageId, uid){
             div.textContent = type;
             fragment.append(div);
             target.append(fragment);
+            reactsound.play();
         }
-
-    }
-    else{
-        //target.innerHTML += `<div class='list' data-uid='${uid}'>${type}</div>`;
-        const fragment = document.createDocumentFragment();
-        const div = document.createElement('div');
-        div.classList.add('list');
-        div.dataset.uid = uid;
-        div.textContent = type;
-        fragment.append(div);
-        target.append(fragment);
-        reactsound.play();
-    }
-
-    let map = new Map();
-    let list = Array.from(target.querySelectorAll('.list'));
-    map = arrayToMap(list);
-
-    let reactsOfMessage = document.getElementById(messageId).querySelector('.reactsOfMessage');
-    if (reactsOfMessage && map.size > 0){
-        //reactsOfMessage.innerHTML = '';
-        //delete reactsOfMessage all child nodes
-        while (reactsOfMessage.firstChild) {
-            reactsOfMessage.removeChild(reactsOfMessage.firstChild);
-        }
-        let count = 0;
-        map.forEach((value, key) => {
-            if (count >= 2){
-                reactsOfMessage.querySelector('span').remove();
+    
+        let map = new Map();
+        let list = Array.from(target.querySelectorAll('.list'));
+        map = arrayToMap(list);
+    
+        let reactsOfMessage = document.getElementById(messageId).querySelector('.reactsOfMessage');
+        if (reactsOfMessage && map.size > 0){
+            //reactsOfMessage.innerHTML = '';
+            //delete reactsOfMessage all child nodes
+            while (reactsOfMessage.firstChild) {
+                reactsOfMessage.removeChild(reactsOfMessage.firstChild);
             }
-            //reactsOfMessage.innerHTML += `<span>${key}${value}</span>`;
-            const fragment = document.createDocumentFragment();
-            const span = document.createElement('span');
-            span.textContent = `${key}${value}`;
-            fragment.append(span);
-            reactsOfMessage.append(fragment);
-            count ++;
-        });
-        document.getElementById(messageId).classList.add('react');
-    }else{
-        document.getElementById(messageId).classList.remove('react');
+            let count = 0;
+            map.forEach((value, key) => {
+                if (count >= 2){
+                    reactsOfMessage.querySelector('span').remove();
+                }
+                //reactsOfMessage.innerHTML += `<span>${key}${value}</span>`;
+                const fragment = document.createDocumentFragment();
+                const span = document.createElement('span');
+                span.textContent = `${key}${value}`;
+                fragment.append(span);
+                reactsOfMessage.append(fragment);
+                count ++;
+            });
+            document.getElementById(messageId).classList.add('react');
+        }else{
+            document.getElementById(messageId).classList.remove('react');
+        }
+        updateScroll();
+    }catch(e){
+        console.log("Message not exists");
     }
-    updateScroll();
 }
 
 // util functions
@@ -547,7 +555,8 @@ function OptionEventHandler(evt){
     let sender = evt.target.closest('.message').classList.contains('self')? true : false;
     if (evt.target.classList.contains('text')){
         type = 'text';
-        targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
+        //targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
+        targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
         if (targetMessage.sender == myName){
             targetMessage.sender = 'You';
         }
@@ -567,7 +576,8 @@ function OptionEventHandler(evt){
         img.alt = 'Image';
         fragment.append(img);
         document.querySelector('#lightbox__image').append(fragment);
-        targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
+        //targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
+        targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
         if (targetMessage.sender == myName){
             targetMessage.sender = 'You';
         }
@@ -841,72 +851,78 @@ document.querySelector('.chatBox').addEventListener('click', (evt) => {
 });
 
 messages.addEventListener('click', (evt) => {
-    if (evt.target?.classList?.contains('image')){
-        evt.preventDefault();
-        evt.stopPropagation();
-        //document.getElementById('lightbox__image').innerHTML = `<img src=${evt.target?.src} class='lb'>`;
-        while (document.getElementById('lightbox__image').firstChild) {
-            document.getElementById('lightbox__image').removeChild(document.getElementById('lightbox__image').firstChild);
+    try {
+        if (evt.target?.classList?.contains('image')){
+            evt.preventDefault();
+            evt.stopPropagation();
+            //document.getElementById('lightbox__image').innerHTML = `<img src=${evt.target?.src} class='lb'>`;
+            while (document.getElementById('lightbox__image').firstChild) {
+                document.getElementById('lightbox__image').removeChild(document.getElementById('lightbox__image').firstChild);
+            }
+            const fragment = document.createRange().createContextualFragment(`<img src=${evt.target?.src} class='lb'>`);
+            document.getElementById('lightbox__image').append(fragment);
+            pinchZoom(document.getElementById('lightbox__image').querySelector('img'));
+            document.getElementById('lightbox').classList.add('active');
         }
-        const fragment = document.createRange().createContextualFragment(`<img src=${evt.target?.src} class='lb'>`);
-        document.getElementById('lightbox__image').append(fragment);
-        pinchZoom(document.getElementById('lightbox__image').querySelector('img'));
-        document.getElementById('lightbox').classList.add('active');
-    }
-    else if (evt.target?.classList?.contains('reactsOfMessage') || evt.target?.parentNode?.classList?.contains('reactsOfMessage')){
-        let target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
-        let container = document.querySelector('.reactorContainer ul');
-        //container.innerHTML = '';
-        while (container.firstChild) {
-            container.removeChild(container.firstChild);
-        }
-        if (target.length > 0){
-            target.forEach(element => {
-                let avatar = userList.find(user => user.uid == element.dataset.uid).avatar;
-                let name = userList.find(user => user.uid == element.dataset.uid).name;
-                if (name == myName){name = 'You';}
-                if (element.dataset.uid == myId){
-                    //container.innerHTML = `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>` + container.innerHTML;
-                    const fragment = document.createRange().createContextualFragment(`<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>`);
-                    container.prepend(fragment);
-                }else{
-                    //container.innerHTML += `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>`;
-                    const fragment = document.createRange().createContextualFragment(`<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>`);
-                    container.append(fragment);
-                }
-            });
-        }
-        hideOptions();
-        document.querySelector('.reactorContainer').classList.add('active');
-    }
-    else if (evt.target?.classList?.contains('messageReply')){
-        if (document.getElementById(evt.target.dataset.repid).dataset.deleted != 'true'){
-            try{
-                let target = evt.target.dataset.repid;
-                document.querySelectorAll('.message').forEach(element => {
-                    if (element.id != target){
-                        element.style.filter = 'brightness(0.5)';
+        else if (evt.target?.classList?.contains('reactsOfMessage') || evt.target?.parentNode?.classList?.contains('reactsOfMessage')){
+            let target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
+            let container = document.querySelector('.reactorContainer ul');
+            //container.innerHTML = '';
+            while (container.firstChild) {
+                container.removeChild(container.firstChild);
+            }
+            if (target.length > 0){
+                target.forEach(element => {
+                    //let avatar = userList.find(user => user.uid == element.dataset.uid).avatar;
+                    let avatar = userInfoMap.get(element.dataset.uid).avatar;
+                    //let name = userList.find(user => user.uid == element.dataset.uid).name;
+                    let name = userInfoMap.get(element.dataset.uid).name;
+                    if (name == myName){name = 'You';}
+                    if (element.dataset.uid == myId){
+                        //container.innerHTML = `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>` + container.innerHTML;
+                        const fragment = document.createRange().createContextualFragment(`<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>`);
+                        container.prepend(fragment);
+                    }else{
+                        //container.innerHTML += `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>`;
+                        const fragment = document.createRange().createContextualFragment(`<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>`);
+                        container.append(fragment);
                     }
                 });
-                setTimeout(() => {
+            }
+            hideOptions();
+            document.querySelector('.reactorContainer').classList.add('active');
+        }
+        else if (evt.target?.classList?.contains('messageReply')){
+            if (document.getElementById(evt.target.dataset.repid).dataset.deleted != 'true'){
+                try{
+                    let target = evt.target.dataset.repid;
                     document.querySelectorAll('.message').forEach(element => {
                         if (element.id != target){
-                            element.style.filter = '';
+                            element.style.filter = 'brightness(0.5)';
                         }
                     });
-                }, 1000);
-		setTimeout(() => {
-                    document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'center'});
-		}, 100);
-            }catch(e){
+                    setTimeout(() => {
+                        document.querySelectorAll('.message').forEach(element => {
+                            if (element.id != target){
+                                element.style.filter = '';
+                            }
+                        });
+                    }, 1000);
+            setTimeout(() => {
+                        document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'center'});
+            }, 100);
+                }catch(e){
+                        popupMessage('Deleted message');
+                }
+            }else{
                     popupMessage('Deleted message');
             }
-        }else{
-                popupMessage('Deleted message');
         }
-    }
-    else{
-        hideOptions();
+        else{
+            hideOptions();
+        }
+    }catch(e){
+        console.log("Message does not exist");
     }
 });
 
@@ -1100,13 +1116,15 @@ socket.on('connect', () => {
 });
 
 socket.on('updateUserList', users => {
-    userList = users;
-    document.getElementById('count').textContent = `${userList.length}/${maxUser}`;
+    users.forEach(user => {
+        userInfoMap.set(user.uid, user);
+    });
+    document.getElementById('count').textContent = `${users.length}/${maxUser}`;
     //document.getElementById('userlist').innerHTML = '';
     while (document.getElementById('userlist').firstChild) {
         document.getElementById('userlist').removeChild(document.getElementById('userlist').firstChild);
     }
-    userList.forEach(user => {
+    users.forEach(user => {
         let html = `<li class="user" data-uid="${user.uid}"><img src="/images/avatars/${user.avatar}(custom).png" height="30px" width="30px"/>${user.uid == myId ? user.name + ' (You)' : user.name}</li>`;
         if (user.uid == myId){
             //document.getElementById('userlist').innerHTML = html + document.getElementById('userlist').innerHTML;
