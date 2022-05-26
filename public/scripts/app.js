@@ -2,7 +2,6 @@
 'use strict';
 
 //bundles
-
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 
@@ -10,6 +9,7 @@ console.log('loaded');
 
 //variables
 const socket = io();
+//main message Element where all messages are inserted
 const messages = document.getElementById('messages');
 //const emoji_regex = /^(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|[\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|[\ud83c[\ude32-\ude3a]|[\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])+$/;
 const maxWindowHeight = window.innerHeight;
@@ -39,39 +39,44 @@ const photoButton = document.getElementById('photo');
 let isTyping = false, timeout = undefined;
 
 const reactArray = ['💙', '😂','😮','😢','😠','👍🏻','👎🏻'];
-const userMap = new Map();
+//here we add the usernames who are typing
+const userTypingMap = new Map();
+//all the user and their info is stored in this map
+const userInfoMap = new Map();
 
-let softKeyIsUp = false;
-let scrolling = false;
-let lastPageLength = messages.scrollTop;
-let scroll = 0;
+let softKeyIsUp = false; //to check if soft keyboard of phone is up or not
+let scrolling = false; //to check if user is scrolling or not
+let lastPageLength = messages.scrollTop; // after adding a new message the page size gets updated
+let scroll = 0; //total scrolled up or down by pixel
 
+//the message which fires the event
 let targetMessage = {
     sender: '',
     message: '',
     id: '',
 };
 
+//after the message is varified we store the message info here
 let finalTarget = {
     sender: '',
     message: '',
     id: '',
 };
 
-const userInfoMap = new Map();
 
 //first load functions 
 //if user device is mobile
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-//class
+//This class is used to detect the long press on messages and fire the callback function
 class ClickAndHold{
     constructor(target, timeOut, callback){
-        this.target = target;
-        this.callback = callback;
-        this.isHeld = false;
-        this.activeHoldTimeoutId = null;
-        this.timeOut = timeOut;
+        this.target = target; //the target element
+        this.callback = callback; //the callback function
+        this.isHeld = false; //is the hold active
+        this.activeHoldTimeoutId = null;  //the timeout id
+        this.timeOut = timeOut; //the time out for the hold [in ms] eg: if timeOut = 1000 then the hold will be active for 1 second
+        //start event listeners
         ["touchstart", "mousedown"].forEach(eventName => {
           try{
             this.target.addEventListener(eventName, this._onHoldStart.bind(this));
@@ -80,6 +85,7 @@ class ClickAndHold{
             console.log(e);
           }
         });
+        //event added to detect if the user is moving the finger or mouse
         ["touchmove", "mousemove"].forEach(eventName => {
           try{
             this.target.addEventListener(eventName, this._onHoldMove.bind(this));
@@ -88,6 +94,7 @@ class ClickAndHold{
             console.log(e);
           }
         });
+        // event added to detect if the user is releasing the finger or mouse
         ["mouseup", "touchend", "mouseleave", "mouseout", "touchcancel"].forEach(eventName => {
           try{
             this.target.addEventListener(eventName, this._onHoldEnd.bind(this));
@@ -97,6 +104,7 @@ class ClickAndHold{
           }
         });
     }
+    //this function is called when the user starts to hold the finger or mouse
     _onHoldStart(evt){
         this.isHeld = true;
         this.activeHoldTimeoutId = setTimeout(() => {
@@ -105,13 +113,16 @@ class ClickAndHold{
             }
         }, this.timeOut);
     }
+    //this function is called when the user is moving the finger or mouse
     _onHoldMove(){
         this.isHeld = false;
     }
+    //this function is called when the user releases the finger or mouse
     _onHoldEnd(){
         this.isHeld = false;
         clearTimeout(this.activeHoldTimeoutId);
     }
+    //a static function to use the class utility without creating an instance
     static applyTo(target, timeOut, callback){
       try{
         new ClickAndHold(target, timeOut, callback);
@@ -121,7 +132,7 @@ class ClickAndHold{
       }
     }
 }
-
+//detect if user is using a mobile device, if yes then use the click and hold class
 if (isMobile){
     ClickAndHold.applyTo(messages, 300, (evt)=>{
         let isDeleted = evt.target.closest('.message').dataset.deleted == 'true' ? true : false;
@@ -131,7 +142,7 @@ if (isMobile){
     });
 }
 
-//make a mouse right click event
+//is user is not using a mobile device then we use the mouse click event
 if(!isMobile){
     messages.addEventListener('contextmenu', (evt) => {
         evt.preventDefault();
@@ -149,11 +160,13 @@ if(!isMobile){
 
 //functions
 
+//sets the app height to the max height of the window
 function appHeight () {
     const doc = document.documentElement;
     doc.style.setProperty('--app-height', `${window.innerHeight}px`);
 }
 
+//this function generates a random id
 function makeId(length = 10){
     let result = '';
     let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -164,7 +177,9 @@ function makeId(length = 10){
     return result;
 }
 
+//this function inserts a message in the chat box
 function insertNewMessage(message, type, id, uid, reply, replyId, options){
+    //detect if the message has a reply or not
     if (!options){
         options = {
             reply: false,
@@ -172,34 +187,38 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
         };
     }
 
-    let template = document.getElementById('messageTemplate').innerHTML;
-    let classList = '';
-    let lastMsg = messages.querySelector('.message:last-child');
-    let popupmsg = '';
-    if (type === 'text'){
-        popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message;
-        if(isEmoji(message)){
+    let template = document.getElementById('messageTemplate').innerHTML; //loads the template from the html
+    let classList = ''; //the class list for the message. Initially empty. 
+    let lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
+    let popupmsg = ''; //the message to be displayed in the popup if user scrolled up 
+    if (type === 'text'){ //if the message is a text message
+        popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
+        if(isEmoji(message)){ //if the message contains only emoji
+            //remove background color and scale the font size
             message = `<p class='text' style='background: none; font-size:30px; padding: 0;'>${message}</p>`;
-        }else{
-            message = censorBadWords(message);
-            message = `<p class='text'>${linkify(message)}</p>`;
+        }else{ //if its a normal text message
+            message = censorBadWords(message); //check if the message contains bad words
+            message = `<p class='text'>${linkify(message)}</p>`; //if the message contains links then linkify the message
         }
-    }else if(type === 'image'){
-        popupmsg = 'Image';
-        message = `<img class='image' src='${message}' alt='image' />`;
+    }else if(type === 'image'){ //if the message is an image
+        popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
+        message = `<img class='image' src='${message}' alt='image' />`; //insert the image
     }else{
         throw new Error('Unknown message type');
     }
 
-    if(uid == myId){
-        classList += ' self';
+    if(uid == myId){ //if the message is sent by the user is me
+        classList += ' self'; 
     }
 
-    if (lastMsg?.dataset?.uid != uid){
-        classList += ' start end';
-    }else  if (lastMsg?.dataset?.uid == uid){
-        if (!options.reply){
-            lastMsg?.classList.remove('end');
+    if (lastMsg?.dataset?.uid != uid){ // if the last message is not from the same user
+        //set the message as it is the first and last message of the user
+        //first message has the top corner rounded
+        //last message has the bottom corner rounded
+        classList += ' start end'; 
+    }else  if (lastMsg?.dataset?.uid == uid){ //if the last message is from the same user
+        if (!options.reply){ //and the message is not a reply
+            lastMsg?.classList.remove('end'); //then remove the bottom corner rounded from the last message
         }else{
             classList += ' start';
         }
@@ -215,13 +234,9 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     else if (classList.includes('self') && classList.includes('noreply')){
         classList += ' notitle';
     }
-    //let username = userList.find(user => user.uid === uid)?.name;
     let username = userInfoMap.get(uid)?.name;
-    //let avatar = userList.find(user => user.uid === uid)?.avatar;
     let avatar = userInfoMap.get(uid)?.avatar;
-    
     if (username == myName){username = 'You';}
-    //let repliedTo = userList.find(user => user.uid == document.getElementById(replyId)?.dataset?.uid)?.name;
     let repliedTo = userInfoMap.get(document.getElementById(replyId)?.dataset?.uid)?.name;
     if (repliedTo == myName){repliedTo = 'You';}
     if (repliedTo == username){repliedTo = 'self';}
@@ -240,10 +255,10 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     /*
     messages.innerHTML += html;
     */
+   //similar to the above but a bit secured
     const fragment = document.createDocumentFragment();
     fragment.append(document.createRange().createContextualFragment(html));
     messages.append(fragment);
-    //updateScroll(userList.find(user => user.uid === uid)?.avatar, popupmsg);
     updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
 }
 
@@ -266,37 +281,40 @@ function emo_test(str) {
 }
 */
 
+//returns true if the message contains only emoji
 function isEmoji(text) {
     return /^([\uD800-\uDBFF][\uDC00-\uDFFF])*$/.test(text);   
 }
 
 function showOptions(type, sender, target){
     vibrate();
-    //console.log(type, sender, target);
+    //removes all showing options first if any
     document.querySelector('.reactorContainer').classList.remove('active');
     document.querySelectorAll(`#reactOptions div`).forEach(
         option => option.style.background = 'none'
     )
     
+    //if the message is a text message
     if (type == 'text'){
         copyOption.style.display = 'flex';
-    }else if (type == 'image'){
+    }else if (type == 'image'){ //if the message is an image
         downloadOption.style.display = 'flex';
     }
-    if (sender == true){
-        deleteOption.style.display = 'flex';
-    }else{
+    if (sender == true){ //if the message is sent by me
+        deleteOption.style.display = 'flex'; //then shgell the delete option
+    }else{ //else dont show the delete option
         deleteOption.style.display = 'none';
     }
-    //let clicked = target?.closest('.message')?.querySelectorAll('.reactedUsers .list')?.dataset.uid == myId;
+    //get if the message has my reaction or not
     let clicked = Array.from(target?.closest('.message')?.querySelectorAll('.reactedUsers .list')).reduce((acc, curr) => {
         return acc || curr.dataset.uid == myId;
     }, false);
-    if (clicked){
+    if (clicked){ //if the message has my reaction
+        //get how many reactions the message has
         let clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
         document.querySelector(`#reactOptions .${clickedElement}`).style.background = '#000000aa';
     }
-   
+    //show the options
     let options = document.getElementById('optionsContainer');
     options.classList.add('active');
     options.addEventListener('click', optionsMainEvent);
@@ -310,11 +328,9 @@ function optionsMainEvent(e){
     optionsReactEvent(e);
 }
 
-
 function deleteMessage(messageId, user){
     let message = document.getElementById(messageId);
-    if (message){
-        //message.querySelector('.messageMain').innerHTML = '<p>Deleted message</p>';
+    if (message){ //if the message exists
         //delete all content inside message .messageMain
         while (message.querySelector('.messageMain').firstChild){
             message.querySelector('.messageMain').removeChild(message.querySelector('.messageMain').firstChild);
@@ -368,8 +384,6 @@ function optionsReactEvent(e){
     let messageId = targetMessage.id;
     if (target){
         if (reactArray.includes(target)){
-            //e.target.style.background = '#00000073';
-            //getReact(target, messageId, myId, e.target);
             socket.emit('react', target, messageId, myId);
             hideOptions();
         }
@@ -635,8 +649,8 @@ function censorBadWords(text) {
 }
 
 
-function getTypingString(userMap){
-    const array = Array.from(userMap.values());
+function getTypingString(userTypingMap){
+    const array = Array.from(userTypingMap.values());
     let string = '';
   
     if (array.length >= 1){
@@ -752,7 +766,7 @@ function serverMessage(message, type) {
 
 function vibrate(){
     if (navigator.vibrate) {
-        navigator.vibrate([0, 250, 250, 250]);
+        navigator.vibrate(50);
     }
 }
 
@@ -1106,8 +1120,8 @@ socket.on('connect', () => {
             console.log(err);
         } else {
             console.log('no error');
-            if (userMap.size > 0){
-                document.getElementById('typingIndicator').textContent = getTypingString(userMap);
+            if (userTypingMap.size > 0){
+                document.getElementById('typingIndicator').textContent = getTypingString(userTypingMap);
             }
             document.getElementById('preload').style.display = 'none';
             popupMessage('Connected to server');
@@ -1174,16 +1188,16 @@ socket.on('deleteMessage', (messageId, userName) => {
 
 socket.on('typing', (user, id) => {
     typingsound.play();
-    userMap.set(id, user);
-    document.getElementById('typingIndicator').textContent = getTypingString(userMap);
+    userTypingMap.set(id, user);
+    document.getElementById('typingIndicator').textContent = getTypingString(userTypingMap);
   });
   
 socket.on('stoptyping', (id) => {
-    userMap.delete(id);
-    if (userMap.size == 0) {
+    userTypingMap.delete(id);
+    if (userTypingMap.size == 0) {
         document.getElementById('typingIndicator').textContent = '';
     }else{
-        document.getElementById('typingIndicator').textContent = getTypingString(userMap);
+        document.getElementById('typingIndicator').textContent = getTypingString(userTypingMap);
     }
 });
 
