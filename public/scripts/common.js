@@ -1,7 +1,6 @@
 "use strict";
 
 const socket = io();
-const e_users = [], e_avatars = [];
 
 const nextbtn = document.getElementById('next');
 const clickSound = new Audio('/sounds/click.mp3');
@@ -11,12 +10,12 @@ const form2 = document.getElementById('form2');
 const howto = document.querySelector('.howtouse');
 const enter = document.getElementById('enter');
 
-const key = document.getElementById('key').value;
 
 //key format xxx-xxx-xxx-xxx
 const keyformat = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/;
 const usernameformat = /^[a-zA-Z0-9]{3,20}$/;
 
+let e_users = [];
 
 function validateKey(){
     let key = document.getElementById('key').value;

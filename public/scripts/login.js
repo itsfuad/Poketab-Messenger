@@ -29,8 +29,8 @@ socket.on('joinResponse', (data) => {
     if (!data.exists){
         errlog('keyErr', 'Key does not exists <i class="fa-solid fa-ghost" style="color: whitesmoke;"></i>');
     }else{
-        e_users = data.userlist;
-        e_avatars = data.avatarlist;
+        e_users = data.userlist || [];
+        const e_avatars = data.avatarlist || [];
         if (e_avatars){
             e_avatars.forEach(avatar => {
                 //* delete if works
