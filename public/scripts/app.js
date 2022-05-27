@@ -240,14 +240,15 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     let repliedTo = userInfoMap.get(document.getElementById(replyId)?.dataset?.uid)?.name;
     if (repliedTo == myName){repliedTo = 'You';}
     if (repliedTo == username){repliedTo = 'self';}
-    
+
+
     let html = Mustache.render(template, {
         classList: classList,
         avatar: `<img src='/images/avatars/${avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
         messageId: id,
         uid: uid,
         repId: replyId,
-        title: options.reply? `${username} replied to ${repliedTo}` : username,
+        title: options.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
         message: message,
         replyMsg: reply,
         time: getCurrentTime()
@@ -1009,10 +1010,10 @@ sendButton.addEventListener('click', () => {
         message += '... (message too long)';
     }
     //replace spaces with unusual characters
-    message = message.replace(/\n/g, '¶');
+    //message = message.replace(/\n/g, '¶');
     message = message.replace(/>/g, '&gt;');
     message = message.replace(/</g, '&lt;');
-    message = message.replace(/¶/g, '<br/>');
+    //message = message.replace(/\n/g, '<br/>');
     resizeTextbox();
     if (message.length) {
         let tempId = makeId();
