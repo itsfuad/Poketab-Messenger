@@ -84,7 +84,7 @@ app.get('/login/:key', (req, res)=>{
 
 app.get('/create', (req, res) => {
   const key = makeid(12);
-  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null;
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null; //currently ip has nothing to do with our server. May be we can use it for user validation or attacts. 
   //console.log(`${ip} created key ${key}`);
   keys.set(key, {using: false, created: Date.now(), ip: ip});
   res.render('create', {title: 'Create', version: `v.${version}`, key: key});
@@ -130,7 +130,7 @@ app.post('/chat', (req, res) => {
   }else{
     //send invalid key message
     res.status(401).send({
-      message: "Invalid or Expired key"
+      message: "Key no longer available"
     });
   }
 });
@@ -291,7 +291,6 @@ io.on('connection', (socket) => {
   });
 
 });
-
 
 
 server.listen(port, () => {
