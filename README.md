@@ -7,5 +7,3 @@ Features -
 * Image sending.
 * Reply to messages.
 * Share your current location.
-
-Hosted on https://openode.io/
