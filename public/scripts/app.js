@@ -344,6 +344,7 @@ function deleteMessage(messageId, user){
         message.classList.add('deleted');
         message.dataset.deleted = true;
         message.querySelector('.messageTitle').textContent = user;
+        lastPageLength = messages.scrollTop;
         popupMessage(`${user == myName ? 'You': user} deleted a message`);
     
         if (maxUser == 2 || (message.dataset.uid == myId)) {
