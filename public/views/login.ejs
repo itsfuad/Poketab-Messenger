@@ -18,7 +18,7 @@
                     <% if (key) { %>
                         <input type="text" autocomplete="off" name="key" id="key" placeholder="xxx-xxx-xxx-xxx" value="<%=key_%>">
                     <% } else { %>
-                        <input type="text" autocomplete="off" name="key" id="key" placeholder="xxx-xxx-xxx-xxx">
+                        <input type="text" class="select" autocomplete="off" name="key" id="key" placeholder="xxx-xxx-xxx-xxx">
                     <% } %>
                 </div>
                 <div class="form-field">
@@ -35,7 +35,7 @@
                 <div class="form-field">
                     <label for="username">Choose username <i class="fa-solid fa-id-card-clip"></i></label>
                     <div id="usernameErr" class="errLog"></div>
-                    <input type="text" autocomplete="off" name="username" id="username" placeholder="Username">
+                    <input type="text" class="select" autocomplete="off" name="username" id="username" placeholder="Username">
                 </div>
                 <div class="form-field avatar-field">
                     <label for="avatar">Choose avatar <i class="fa-solid fa-user-astronaut"></i></label>
