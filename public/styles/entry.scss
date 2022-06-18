@@ -16,7 +16,7 @@
     --height: 90vh;
 }
 
-*{
+*:not(input, textarea){
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
     -webkit-user-select: none;

@@ -16,7 +16,7 @@
   --pattern: url("/images/a.png");
 }
 
-* {
+*:not(input, textarea) {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
