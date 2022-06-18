@@ -3,13 +3,6 @@
     margin: 0;
     box-sizing: border-box;
     color: var(--foreground-dark);
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
 }
 
 :root{
@@ -23,10 +16,6 @@
     --pattern: url('/images/a.png');
 }
 
-//disable user select
-*::-webkit-user-select {
-    -webkit-user-select: none;
-}
 
 .noSelect {
     -webkit-tap-highlight-color: transparent;
@@ -44,7 +33,6 @@
 body{
     background: var(--primary-dark) var(--pattern);
     background-blend-mode: multiply;
-    user-select: none;
     overscroll-behavior-y: contain;
 }
 
@@ -224,7 +212,7 @@ img{
 ::-webkit-scrollbar {
     display: none;
 }
-current
+
 .chatInput{
     display: flex;
     flex-direction: row;

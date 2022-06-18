@@ -3,13 +3,6 @@
   margin: 0;
   box-sizing: border-box;
   color: var(--foreground-dark);
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
 }
 
 :root {
@@ -21,10 +14,6 @@
   --option-color: #213142;
   --app-height: 100vh;
   --pattern: url("/images/a.png");
-}
-
-*::-webkit-user-select {
-  -webkit-user-select: none;
 }
 
 .noSelect {
@@ -44,7 +33,6 @@
 body {
   background: var(--primary-dark) var(--pattern);
   background-blend-mode: multiply;
-  user-select: none;
   overscroll-behavior-y: contain;
 }
 
@@ -224,13 +212,13 @@ img {
   display: none;
 }
 
-current .chatInput {
+.chatInput {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
 }
-current .chatInput .upload_image, current .chatInput #send {
+.chatInput .upload_image, .chatInput #send {
   padding: 5px;
 }
 
