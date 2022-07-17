@@ -81,25 +81,36 @@ body{
     }
 }
 
-#sidebar{
-    position: fixed;
+#sidebar_wrapper{
+    width: 100%;
     top: 0;
     height: 100%;
-    width: 70%;
+    position: fixed;
+    display: grid;
+    grid-template-columns: 70% 1fr;
+    transition: 200ms ease-in-out;
+    left: -100%;
+    z-index: 90;
+    &.active{
+        left: 0;
+    }
+}
+
+.close_area{
+    //background: rgba(255, 0, 0, 0.5);
+}
+
+
+#sidebar{
     padding: 10px;
     border-radius: 0 5px 5px 0;
     background: var(--option-color);
     backdrop-filter: blur(10px);
     z-index: 90;
-    transition: 200ms ease-in-out;
-    left: -100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    &.active{
-        left: 0;
-    }
     #keyname{
         padding-bottom: 20px;
         font-weight: 300;
@@ -167,6 +178,23 @@ img{
         visibility: visible;
         opacity: 1;
         top: 0;
+    }
+}
+
+#focus_glass{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 20;
+    visibility: hidden;
+    opacity: 0;
+    &.active{
+        visibility: visible;
+        opacity: 1;
     }
 }
 
@@ -490,37 +518,63 @@ i[class^=fa-]{
     color: var(--red) !important;
 }
 
-
-#optionsContainer{
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+#optionsContainerWrapper{
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    display: grid;
+    grid-template-rows: 1fr 30%;
     visibility: hidden;
     opacity: 0;
-    transition: 100ms ease-in-out;
-    z-index: 15;
+    transition: .1s ease-in-out;
+    z-index: 25;
     &.active{
         visibility: visible;
         opacity: 1;
     }
 }
 
+#optionsContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    bottom: 0;
+}
+
+.normalOptionWrapper{
+    position: relative;
+    width: 100%;
+    padding: 10px;
+    border-radius: 20px 20px 0 0;
+    background: #192838;
+    place-content: center;
+    display: grid;
+}
+
+.reactOptionsWrapper{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    //background: #5e93cc;
+    place-content: center;
+    display: grid;
+}
+
 .options{
-    position: fixed;
-    bottom: 90px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     gap: 5px;
+    width: max-content;
     align-items: center;
     border-radius: 10px;
     background: var(--focus-dark);
-    backdrop-filter: drop-shadow(0px 0px 10px rgb(0, 0, 0));
-    transition: 200ms ease-in-out;
+    backdrop-filter: drop-shadow(0 0 10px rgb(0, 0, 0));
+    transition: .2s ease-in-out;
     & > *{
         transition: 100ms ease-in;
     }
@@ -531,7 +585,6 @@ i[class^=fa-]{
         }
     }
     &:is(#reactOptions){
-        bottom: 150px;
         gap: 5px;
         font-size: 1.3rem;
         padding: 3px 10px;
@@ -558,13 +611,30 @@ i[class^=fa-]{
     }
 }
 
+
+.reactorContainerWrapper{
+    height: 100%;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      display: grid;
+      place-content: center;
+      z-index: 90;
+      visibility: hidden;
+      opacity: 0;
+      backdrop-filter: blur(2px);
+      &.active{
+        visibility: visible;
+        opacity: 1;
+      }
+  }
+
 .reactorContainer{
     display: flex;
     flex-direction: column;
-    position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
     background: var(--focus-dark);
     padding: 20px;
     width: 300px;
@@ -574,15 +644,9 @@ i[class^=fa-]{
     align-items: flex-start;
     justify-content: flex-start;
     z-index: 10;
-    backdrop-filter: blur(2px);
-    visibility: hidden;
-    opacity: 0;
+    backdrop-filter: blur(5px);
     filter: drop-shadow(2px 4px 6px black);
     transition: opacity 200ms ease-in-out;
-    &.active{
-        visibility: visible;
-        opacity: 1;
-    }
     ul{
         display: flex;
         flex-direction: column;
@@ -605,7 +669,7 @@ i[class^=fa-]{
     .chatBox {
         padding: 0 25%;
     }
-    #sidebar{
-        width: 30%;
+    #sidebar_wrapper{
+        grid-template-columns: 30% 1fr;
     }
 }

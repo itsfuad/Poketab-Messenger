@@ -125,7 +125,7 @@ app.post('/chat', (req, res) => {
         message: "Unauthorized access",
       });
     }else{
-      res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users});
+      res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`});
     }
   }else{
     //send invalid key message

@@ -20,7 +20,6 @@
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
@@ -30,7 +29,6 @@
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
@@ -40,7 +38,6 @@
   -webkit-tap-highlight-color: initial;
   -webkit-touch-callout: initial;
   -webkit-user-select: initial;
-  -khtml-user-select: initial;
   -moz-user-select: initial;
   -ms-user-select: initial;
   user-select: initial;
@@ -70,7 +67,8 @@ body {
   font-size: 0.6rem;
   transform: translateX(-50%);
   z-index: 100;
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
   z-index: 1000;
   visibility: hidden;
   opacity: 0;
@@ -81,25 +79,32 @@ body {
   opacity: 1;
 }
 
-#sidebar {
-  position: fixed;
+#sidebar_wrapper {
+  width: 100%;
   top: 0;
   height: 100%;
-  width: 70%;
+  position: fixed;
+  display: grid;
+  grid-template-columns: 70% 1fr;
+  transition: 200ms ease-in-out;
+  left: -100%;
+  z-index: 90;
+}
+#sidebar_wrapper.active {
+  left: 0;
+}
+
+#sidebar {
   padding: 10px;
   border-radius: 0 5px 5px 0;
   background: var(--option-color);
-  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
   z-index: 90;
-  transition: 200ms ease-in-out;
-  left: -100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-#sidebar.active {
-  left: 0;
 }
 #sidebar #keyname {
   padding-bottom: 20px;
@@ -168,6 +173,24 @@ img {
   visibility: visible;
   opacity: 1;
   top: 0;
+}
+
+#focus_glass {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
+  z-index: 20;
+  visibility: hidden;
+  opacity: 0;
+}
+#focus_glass.active {
+  visibility: visible;
+  opacity: 1;
 }
 
 .chatBox {
@@ -400,11 +423,14 @@ i[class^=fa-] {
   background: var(--focus-dark);
   padding: 5px 10px;
   border-radius: 25px;
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
   font-size: 0.8rem;
   transform: translateX(-50%);
   z-index: 100;
   gap: 5px;
+  width: -webkit-max-content;
+  width: -moz-max-content;
   width: max-content;
   display: none;
   visibility: hidden;
@@ -485,36 +511,65 @@ i[class^=fa-] {
   color: var(--red) !important;
 }
 
-#optionsContainer {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+#optionsContainerWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: grid;
+  grid-template-rows: 1fr 30%;
   visibility: hidden;
   opacity: 0;
-  transition: 100ms ease-in-out;
-  z-index: 15;
+  transition: 0.1s ease-in-out;
+  z-index: 25;
 }
-#optionsContainer.active {
+#optionsContainerWrapper.active {
   visibility: visible;
   opacity: 1;
 }
 
+#optionsContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  bottom: 0;
+}
+
+.normalOptionWrapper {
+  position: relative;
+  width: 100%;
+  padding: 10px;
+  border-radius: 20px 20px 0 0;
+  background: #192838;
+  place-content: center;
+  display: grid;
+}
+
+.reactOptionsWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  place-content: center;
+  display: grid;
+}
+
 .options {
-  position: fixed;
-  bottom: 90px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   gap: 5px;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
   align-items: center;
   border-radius: 10px;
   background: var(--focus-dark);
-  backdrop-filter: drop-shadow(0px 0px 10px rgb(0, 0, 0));
-  transition: 200ms ease-in-out;
+  -webkit-backdrop-filter: drop-shadow(0 0 10px rgb(0, 0, 0));
+          backdrop-filter: drop-shadow(0 0 10px rgb(0, 0, 0));
+  transition: 0.2s ease-in-out;
 }
 .options > * {
   transition: 100ms ease-in;
@@ -526,7 +581,6 @@ i[class^=fa-] {
   transform: scale(1.1);
 }
 .options:is(#reactOptions) {
-  bottom: 150px;
   gap: 5px;
   font-size: 1.3rem;
   padding: 3px 10px;
@@ -550,13 +604,30 @@ i[class^=fa-] {
   color: var(--red) !important;
 }
 
+.reactorContainerWrapper {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: grid;
+  place-content: center;
+  z-index: 90;
+  visibility: hidden;
+  opacity: 0;
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
+}
+.reactorContainerWrapper.active {
+  visibility: visible;
+  opacity: 1;
+}
+
 .reactorContainer {
   display: flex;
   flex-direction: column;
-  position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
   background: var(--focus-dark);
   padding: 20px;
   width: 300px;
@@ -566,15 +637,10 @@ i[class^=fa-] {
   align-items: flex-start;
   justify-content: flex-start;
   z-index: 10;
-  backdrop-filter: blur(2px);
-  visibility: hidden;
-  opacity: 0;
+  -webkit-backdrop-filter: blur(5px);
+          backdrop-filter: blur(5px);
   filter: drop-shadow(2px 4px 6px black);
   transition: opacity 200ms ease-in-out;
-}
-.reactorContainer.active {
-  visibility: visible;
-  opacity: 1;
 }
 .reactorContainer ul {
   display: flex;
@@ -597,8 +663,7 @@ i[class^=fa-] {
   .chatBox {
     padding: 0 25%;
   }
-
-  #sidebar {
-    width: 30%;
+  #sidebar_wrapper {
+    grid-template-columns: 30% 1fr;
   }
 }/*# sourceMappingURL=chat.css.map */

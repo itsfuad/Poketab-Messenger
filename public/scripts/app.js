@@ -2,6 +2,7 @@
 'use strict';
 
 //bundles
+
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 
@@ -17,7 +18,6 @@ const replyToast = document.getElementById('replyToast');
 const lightboxClose = document.getElementById('lightbox__close');
 const textbox = document.getElementById('textbox');
 const options = document.querySelector('.options');
-const closeOption = document.querySelector('.closeOption');
 const copyOption = document.querySelector('.copyOption');
 const downloadOption = document.querySelector('.downloadOption');
 const deleteOption = document.querySelector('.deleteOption');
@@ -290,7 +290,7 @@ function isEmoji(text) {
 function showOptions(type, sender, target){
     vibrate();
     //removes all showing options first if any
-    document.querySelector('.reactorContainer').classList.remove('active');
+    document.querySelector('.reactorContainerWrapper').classList.remove('active');
     document.querySelectorAll(`#reactOptions div`).forEach(
         option => option.style.background = 'none'
     )
@@ -316,8 +316,9 @@ function showOptions(type, sender, target){
         document.querySelector(`#reactOptions .${clickedElement}`).style.background = '#000000aa';
     }
     //show the options
-    let options = document.getElementById('optionsContainer');
+    let options = document.getElementById('optionsContainerWrapper');
     options.classList.add('active');
+    document.getElementById('focus_glass').classList.add('active');
     options.addEventListener('click', optionsMainEvent);
 }
 
@@ -393,14 +394,15 @@ function optionsReactEvent(e){
 }
 
 function hideOptions(){
-    let options = document.getElementById('optionsContainer');
+    let options = document.getElementById('optionsContainerWrapper');
     options.classList.remove('active');
     setTimeout(() => {
         copyOption.style.display = 'none';
         downloadOption.style.display = 'none';
         deleteOption.style.display = 'none';
     }, 100);
-    document.querySelector('.reactorContainer').classList.remove('active');
+    document.getElementById('focus_glass').classList.remove('active');
+    document.querySelector('.reactorContainerWrapper').classList.remove('active');
     options.removeEventListener('click', optionsMainEvent);
 }
 
@@ -776,7 +778,8 @@ function vibrate(){
 
 
 document.getElementById('more').addEventListener('click', ()=>{
-    document.getElementById('sidebar').classList.add('active');
+    document.getElementById('sidebar_wrapper').classList.add('active');
+    document.getElementById('focus_glass').classList.add('active');
 });
 
 document.getElementById('keyname').addEventListener('click', ()=>{
@@ -819,15 +822,6 @@ document.getElementById('logout').addEventListener('click', () => {
     window.location.href = '/';
 });
 
-closeOption.addEventListener('click', () => {
-    options.classList.remove('active');
-});
-
-
-document.querySelector('.closeOption').addEventListener('click', () => {
-    clearTargetMessage();
-    hideOptions();
-});
 
 replyToast.querySelector('.close').addEventListener('click', ()=>{
   hideReplyToast();
@@ -856,13 +850,17 @@ textbox.addEventListener('blur', ()=>{
   }
 });
 
-document.querySelector('.chatBox').addEventListener('click', (evt) => {
-    try{
-        if (evt.target?.id != 'more' && !evt.target.classList.contains('fa-ellipsis-vertical')){
-            document.getElementById('sidebar').classList.remove('active');
-        }
-    }catch(e){
-        console.log(e);
+document.querySelectorAll('.close_area').forEach(elem => {
+    elem.addEventListener('click', (evt) => {
+        document.getElementById('sidebar_wrapper').classList.remove('active');
+        hideOptions();
+    });
+});
+
+document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) => {
+    //stop parent event
+    if (evt.target.classList.contains('reactOptionsWrapper')){
+        hideOptions();
     }
 });
 
@@ -906,7 +904,8 @@ messages.addEventListener('click', (evt) => {
                 });
             }
             hideOptions();
-            document.querySelector('.reactorContainer').classList.add('active');
+            document.querySelector('.reactorContainerWrapper').classList.add('active');
+            document.getElementById('focus_glass').classList.add('active');
         }
         else if (evt.target?.classList?.contains('messageReply')){
             if (document.getElementById(evt.target.dataset.repid).dataset.deleted != 'true'){
@@ -939,6 +938,13 @@ messages.addEventListener('click', (evt) => {
         }
     }catch(e){
         console.log("Message does not exist");
+    }
+});
+
+
+document.querySelector('.reactorContainerWrapper').addEventListener('click', (evt) => {
+    if (evt.target.classList.contains('reactorContainerWrapper')){
+        hideOptions();
     }
 });
 

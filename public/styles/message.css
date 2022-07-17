@@ -76,6 +76,8 @@
   border-radius: 15px 15px 15px 3px;
   padding: 8px;
   padding-bottom: 25px;
+  width: -webkit-max-content;
+  width: -moz-max-content;
   width: max-content;
   max-width: 110%;
   transform: translateY(20px);
@@ -92,6 +94,8 @@
   padding: 0 5px;
   z-index: 15;
   display: none;
+  width: -webkit-max-content;
+  width: -moz-max-content;
   width: max-content;
 }
 .message .messageBody .reactsOfMessage:hover {

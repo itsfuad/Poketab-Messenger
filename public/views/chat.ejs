@@ -13,11 +13,15 @@
     <div class="newmessagepopup">
         <img src="" alt=""><div class="msg"></div>
     </div>
-    <div id="sidebar">
-        <div id="keyname" class="clickable"><i class="fa-regular fa-clone"></i><span><%=myKey_%></span></div>
-        <ul id="userlist"></ul>
-        <div id="logout" class="clickable"><i class="fa-solid fa-arrow-right-from-bracket"></i>Log Out</div>
+    <div id="sidebar_wrapper">
+        <div id="sidebar">
+            <div id="keyname" class="clickable"><i class="fa-regular fa-clone"></i><span><%=myKey_%></span></div>
+            <ul id="userlist"></ul>
+            <div id="logout" class="clickable"><i class="fa-solid fa-arrow-right-from-bracket"></i>Log Out</div>
+        </div>
+        <div class="close_area"></div>
     </div>
+    <div id="focus_glass"></div>
     <div class="chatBox">
         <!-- Navigation -->
         <div class="navbar">
@@ -45,6 +49,7 @@
                     </li>
                     <li>You can send your location by pressing the gps button before image button.</li>
                     <li>This app is under development. So please report any bugs you see on our <a href="https://github.com/itsfuad/Poketab-Messanger" target="_blank" >Github.</a></li>
+                    <li>Current version: <%=version%></li>
                 </ul>
                     
                 <!-- All messages will be added here -->
@@ -83,23 +88,29 @@
     </div>
 
     <!-- Options container for reacts and other functionalities -->
-    <div id="optionsContainer">
-        <ul id="reactOptions" class="options">
-            <div class="💙">💙</div>
-            <div class="😂">😂</div>
-            <div class="😮">😮</div>
-            <div class="😢">😢</div>
-            <div class="😠">😠</div>
-            <div class="👍🏻">👍🏻</div>
-            <div class="👎🏻">👎🏻</div>
-        </ul>
-        <ul id="normalOptions" class="options">
-            <div class="replyOption"><i class="fa-solid fa-reply"></i> <span>Reply</span></div>
-            <div class="copyOption" style="display: none;"><i class="fa-solid fa-clone"></i> <span>Copy</span></div>
-            <div class="downloadOption" style="display: none;"><i class="fa-solid fa-download"></i> <span>Download</span></div>
-            <div class="deleteOption"><i class="fa-solid fa-trash"></i> <span>Delete</span></div>
-            <div class="closeOption"><i class="fa-solid fa-xmark"></i></div>
-        </ul>
+    <div id="optionsContainerWrapper">
+        <div class="close_area"></div>
+        <div id="optionsContainer">
+            <div class="reactOptionsWrapper">
+                <ul id="reactOptions" class="options">
+                    <div class="💙">💙</div>
+                    <div class="😂">😂</div>
+                    <div class="😮">😮</div>
+                    <div class="😢">😢</div>
+                    <div class="😠">😠</div>
+                    <div class="👍🏻">👍🏻</div>
+                    <div class="👎🏻">👎🏻</div>
+                </ul>
+            </div>
+            <div class="normalOptionWrapper">
+                <ul id="normalOptions" class="options">
+                    <div class="replyOption"><i class="fa-solid fa-reply"></i> <span>Reply</span></div>
+                    <div class="copyOption" style="display: none;"><i class="fa-solid fa-clone"></i> <span>Copy</span></div>
+                    <div class="downloadOption" style="display: none;"><i class="fa-solid fa-download"></i> <span>Download</span></div>
+                    <div class="deleteOption"><i class="fa-solid fa-trash"></i> <span>Delete</span></div>
+                </ul>
+            </div>
+        </div>
     </div>
 
 
@@ -120,7 +131,9 @@
         <div id="lightbox__image"></div>
     </div>
 
-    <div class="reactorContainer">Reactions <ul></ul></div>
+    <div class="reactorContainerWrapper">
+        <div class="reactorContainer">Reactions <ul></ul></div>
+    </div>
 
 
     <template id="messageTemplate">
