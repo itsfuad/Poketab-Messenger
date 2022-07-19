@@ -72,7 +72,7 @@ body {
   z-index: 1000;
   visibility: hidden;
   opacity: 0;
-  transition: 200ms ease-in-out;
+  transition: 100ms ease-in-out;
 }
 .popup-message.active {
   visibility: visible;
@@ -86,7 +86,7 @@ body {
   position: fixed;
   display: grid;
   grid-template-columns: 70% 1fr;
-  transition: 200ms ease-in-out;
+  transition: 100ms ease-in-out;
   left: -100%;
   z-index: 90;
 }
@@ -166,7 +166,7 @@ img {
   position: fixed;
   top: -20px;
   font-size: 0.7rem;
-  transition: 300ms ease-in-out;
+  transition: 100ms ease-in-out;
   color: white;
 }
 .offline.active {
@@ -301,7 +301,7 @@ input[type=file] {
   z-index: 20;
   visibility: hidden;
   opacity: 0;
-  transition: 200ms ease-in-out;
+  transition: 100ms ease-in-out;
 }
 #previewImage.active {
   visibility: visible;
@@ -391,7 +391,7 @@ i[class^=fa-] {
   filter: drop-shadow(2px 5px 5px rgb(6, 20, 44));
   visibility: hidden;
   opacity: 0;
-  transition: opacity 200ms ease-in-out;
+  transition: 100ms ease-in-out;
 }
 #replyToast.active {
   display: flex;
@@ -406,7 +406,7 @@ i[class^=fa-] {
 }
 #replyToast .close i {
   color: var(--red) !important;
-  transition: 300ms ease-in-out;
+  transition: 100ms ease-in-out;
 }
 #replyToast .close i:hover {
   cursor: pointer;
@@ -435,7 +435,7 @@ i[class^=fa-] {
   display: none;
   visibility: hidden;
   opacity: 0;
-  transition: opacity 200ms ease-in-out;
+  transition: 100ms ease-in-out;
   cursor: pointer;
   filter: drop-shadow(2px 4px 6px #000);
 }
@@ -464,7 +464,7 @@ i[class^=fa-] {
   z-index: 20;
   visibility: hidden;
   opacity: 0;
-  transition: opacity 100ms ease-in-out;
+  transition: 100ms ease-in-out;
   align-content: center;
   justify-content: center;
   align-items: center;
@@ -521,7 +521,7 @@ i[class^=fa-] {
   grid-template-rows: 1fr 30%;
   visibility: hidden;
   opacity: 0;
-  transition: 0.1s ease-in-out;
+  transition: 100ms ease-in-out;
   z-index: 25;
 }
 #optionsContainerWrapper.active {
@@ -569,7 +569,7 @@ i[class^=fa-] {
   background: var(--focus-dark);
   -webkit-backdrop-filter: drop-shadow(0 0 10px rgb(0, 0, 0));
           backdrop-filter: drop-shadow(0 0 10px rgb(0, 0, 0));
-  transition: 0.2s ease-in-out;
+  transition: 100ms ease-in-out;
 }
 .options > * {
   transition: 100ms ease-in;
@@ -591,7 +591,7 @@ i[class^=fa-] {
 }
 .options:is(#normalOptions) > div {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 3px;
@@ -640,7 +640,7 @@ i[class^=fa-] {
   -webkit-backdrop-filter: blur(5px);
           backdrop-filter: blur(5px);
   filter: drop-shadow(2px 4px 6px black);
-  transition: opacity 200ms ease-in-out;
+  transition: 100ms ease-in-out;
 }
 .reactorContainer ul {
   display: flex;
@@ -665,5 +665,8 @@ i[class^=fa-] {
   }
   #sidebar_wrapper {
     grid-template-columns: 30% 1fr;
+  }
+  .normalOptionWrapper {
+    width: 50%;
   }
 }/*# sourceMappingURL=chat.css.map */
