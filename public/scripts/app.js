@@ -396,6 +396,8 @@ function optionsReactEvent(e){
 function hideOptions(){
     let options = document.getElementById('optionsContainerWrapper');
     options.classList.remove('active');
+    document.getElementById('sidebar_wrapper').classList.remove('active');
+    document.querySelector('.themeChooser').classList.remove('active');
     setTimeout(() => {
         copyOption.style.display = 'none';
         downloadOption.style.display = 'none';
@@ -782,8 +784,37 @@ document.getElementById('more').addEventListener('click', ()=>{
     document.getElementById('focus_glass').classList.add('active');
 });
 
-document.getElementById('keyname').addEventListener('click', ()=>{
-    copyText(document.getElementById('keyname').textContent);
+document.querySelectorAll('.keyCopy').forEach(elem => {
+    elem.addEventListener('click', ()=>{
+        copyText(myKey);
+    });
+});
+
+document.getElementById('invite').addEventListener('click', ()=>{
+    //copy inner link
+    copyText(`https://${window.location.host}/join/${myKey}`);
+});
+
+document.querySelector('.theme_option').addEventListener('click', ()=>{
+    hideOptions();
+    document.getElementById('focus_glass').classList.add('active');
+    document.querySelector('.themeChooser').classList.add('active');
+});
+
+document.querySelector('.themeChooser').addEventListener('click', ()=>{
+    document.querySelector('.themeChooser').classList.remove('active');
+    hideOptions();
+});
+
+document.querySelectorAll('.theme').forEach(theme => {
+    theme.addEventListener('click', (evt) => {
+        const theme = evt.target.closest('li').id;
+        localStorage.setItem('theme', theme);
+        //edit css variables
+        document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${theme}_w.webp')`);
+        document.querySelector('.themeChooser').classList.remove('active');
+        hideOptions();
+    });
 });
 
 

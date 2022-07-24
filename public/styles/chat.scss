@@ -10,10 +10,10 @@
     --primary-dark: #111d2a;
     --foreground-dark: #e1eeff;
     --secondary-dark: #2585fd;
-    --focus-dark: #192838bd;
+    --focus-dark: #19283880;
     --option-color: #213142;
     --app-height: 100vh;
-    --pattern: url('/images/a.png');
+    --pattern: url('../images/backgrounds/blue_w.webp');
 }
 
 *:not(input, textarea){
@@ -51,8 +51,10 @@
 }
 
 body{
-    background: var(--primary-dark) var(--pattern);
-    background-blend-mode: multiply;
+    background: #0000009c var(--pattern);
+    background-blend-mode: soft-light;
+    background-size: cover;
+    background-position: center;
     overscroll-behavior-y: contain;
 }
 
@@ -100,6 +102,10 @@ body{
     //background: rgba(255, 0, 0, 0.5);
 }
 
+.clickable{
+    cursor: pointer;
+}
+
 
 #sidebar{
     padding: 10px;
@@ -141,17 +147,75 @@ body{
             font-weight: 900;
         }
     }
+    .footer_options{
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+    }
     #logout{
-        padding-top: 20px;
-        border-radius: 10px;
+        border-radius: 24px;
         font-weight: 900;
         cursor: pointer;
-        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        font-size: .8rem;
     }
     #logout, #logout i{
-        color: orangered;
-        padding: 5px;
+        color: white;
+        background: orangered;
+        padding: 4px 8px;
     }
+    .theme_option{
+        display: flex;
+        gap: 5px;
+    }
+}
+
+.themeChooser{
+    width: 100vw;
+    height: 100vh;
+    //background: #a52a2a73;
+    display: none;
+    visibility: hidden;
+    opacity: 0;
+    place-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 80;
+    transition: 100ms;
+    &.active{
+        //make it visible
+        visibility: visible;
+        opacity: 1;
+        display: grid;
+    }
+}
+
+.themeList{
+    display: flex;
+    flex-direction: column;
+    width: max-content;
+    gap: 10px;
+    padding: 20px;
+    background: #192838f2;
+    border-radius: 10px;
+}
+
+.theme{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.themeIcon{
+    width: 50px;
+    border-radius: 50%;
 }
 
 img{
@@ -231,27 +295,34 @@ img{
     width: 100%;
     position: relative;
     height: var(--app-height);
+    .welcome_wrapper{
+        //background: #e1eeff;
+        padding: 40vh 0 20vh 0;
+        display: grid;
+        place-content: center;
+    }
     .welcomeText{
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         text-align: center;
-        padding: 50px;
-        padding-top: 330px;
-        h1{
-            font-size: 1.5rem;
+        width: max-content;
+        padding: 20px;
+        gap: 20px;
+        background: #0000009c;
+        border-radius: 15px;
+        .link-copy{
+            background: var(--focus-dark);
+            padding: 5px 24px;
+            gap: 10px;
+            border-radius: 15px;
         }
-        .sublist{
-            list-style: square;
-            font-size: 0.7rem;
-            text-align: justify;
-            blockquote{
-                padding-left: 24px;
-            }
-            code{
-                font-weight: 900;
-            }
+        #invite{
+            background: var(--secondary-dark);
+            color: var(--foreground-light);
+            padding: 5px 24px;
+            border-radius: 24px;
         }
     }
 }

@@ -10,10 +10,10 @@
   --primary-dark: #111d2a;
   --foreground-dark: #e1eeff;
   --secondary-dark: #2585fd;
-  --focus-dark: #192838bd;
+  --focus-dark: #19283880;
   --option-color: #213142;
   --app-height: 100vh;
-  --pattern: url("/images/a.png");
+  --pattern: url("../images/backgrounds/blue_w.webp");
 }
 
 *:not(input, textarea) {
@@ -48,8 +48,10 @@
 }
 
 body {
-  background: var(--primary-dark) var(--pattern);
-  background-blend-mode: multiply;
+  background: rgba(0, 0, 0, 0.6117647059) var(--pattern);
+  background-blend-mode: soft-light;
+  background-size: cover;
+  background-position: center;
   overscroll-behavior-y: contain;
 }
 
@@ -94,6 +96,10 @@ body {
   left: 0;
 }
 
+.clickable {
+  cursor: pointer;
+}
+
 #sidebar {
   padding: 10px;
   border-radius: 0 5px 5px 0;
@@ -136,16 +142,74 @@ body {
   gap: 5px;
   font-weight: 900;
 }
+#sidebar .footer_options {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
 #sidebar #logout {
-  padding-top: 20px;
-  border-radius: 10px;
+  border-radius: 24px;
   font-weight: 900;
   cursor: pointer;
-  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
 }
 #sidebar #logout, #sidebar #logout i {
-  color: orangered;
-  padding: 5px;
+  color: white;
+  background: orangered;
+  padding: 4px 8px;
+}
+#sidebar .theme_option {
+  display: flex;
+  gap: 5px;
+}
+
+.themeChooser {
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+  place-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 80;
+  transition: 100ms;
+}
+.themeChooser.active {
+  visibility: visible;
+  opacity: 1;
+  display: grid;
+}
+
+.themeList {
+  display: flex;
+  flex-direction: column;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  gap: 10px;
+  padding: 20px;
+  background: rgba(25, 40, 56, 0.9490196078);
+  border-radius: 10px;
+}
+
+.theme {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.themeIcon {
+  width: 50px;
+  border-radius: 50%;
 }
 
 img {
@@ -227,28 +291,36 @@ img {
   justify-content: center;
   gap: 5px;
 }
+.chatBox .welcome_wrapper {
+  padding: 40vh 0 20vh 0;
+  display: grid;
+  place-content: center;
+}
 .chatBox .welcomeText {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 50px;
-  padding-top: 330px;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  padding: 20px;
+  gap: 20px;
+  background: rgba(0, 0, 0, 0.6117647059);
+  border-radius: 15px;
 }
-.chatBox .welcomeText h1 {
-  font-size: 1.5rem;
+.chatBox .welcomeText .link-copy {
+  background: var(--focus-dark);
+  padding: 5px 24px;
+  gap: 10px;
+  border-radius: 15px;
 }
-.chatBox .welcomeText .sublist {
-  list-style: square;
-  font-size: 0.7rem;
-  text-align: justify;
-}
-.chatBox .welcomeText .sublist blockquote {
-  padding-left: 24px;
-}
-.chatBox .welcomeText .sublist code {
-  font-weight: 900;
+.chatBox .welcomeText #invite {
+  background: var(--secondary-dark);
+  color: var(--foreground-light);
+  padding: 5px 24px;
+  border-radius: 24px;
 }
 
 ::-webkit-scrollbar {

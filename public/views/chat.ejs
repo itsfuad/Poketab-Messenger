@@ -15,9 +15,12 @@
     </div>
     <div id="sidebar_wrapper">
         <div id="sidebar">
-            <div id="keyname" class="clickable"><i class="fa-regular fa-clone"></i><span><%=myKey_%></span></div>
+            <div id="keyname" class="clickable keyCopy"><i class="fa-regular fa-clone"></i><span><%=myKey_%></span></div>
             <ul id="userlist"></ul>
-            <div id="logout" class="clickable"><i class="fa-solid fa-arrow-right-from-bracket"></i>Log Out</div>
+            <div class="footer_options">
+                <div class="theme_option clickable"><i class="fa-solid fa-palette"></i>Theme</div>
+                <div id="logout" class="clickable"><i class="fa-solid fa-arrow-right-from-bracket"></i>Log Out</div>
+            </div>
         </div>
         <div class="close_area"></div>
     </div>
@@ -32,28 +35,22 @@
         </div>
         <!-- Chat Messages will append here -->
         <ul id="messages">
-            <li class="welcomeText">
-                <img src="/images/msg.png" width="100px" height="100px" alt="Message Icon">
-                <h1>Start typing messages!</h1>
-
-                <ul class="sublist">
-                    <li>You can send message by pressing <code>ctrl+enter</code> on keyboard. </li>
-                    <li>Images will be scaled down before send. </li>
-                    <li>To see the options for the message reply or reacts,
-                        <blockquote>
-                            <ul>
-                                <li>If you're on PC then right click on message. </li>
-                                <li>For mobile devices, long press.</li>
-                            </ul>
-                        </blockquote>
-                    </li>
-                    <li>You can send your location by pressing the gps button before image button.</li>
-                    <li>This app is under development. So please report any bugs you see on our <a href="https://github.com/itsfuad/Poketab-Messanger" target="_blank" >Github.</a></li>
-                    <li>Current version: <%=version%></li>
-                </ul>
-                    
-                <!-- All messages will be added here -->
-            </li>
+            <div class="welcome_wrapper">
+                <li class="welcomeText">
+                    <div class="link-copy clickable keyCopy">
+                        <i class="fa-solid fa-link"></i>
+                        <span><%=myKey%></span>
+                        <i class="fa-regular fa-clone"></i>
+                    </div>
+                    <% if (maxUser > 2) { %>
+                        <span>Send join link to your friends</span>
+                    <% } else { %>
+                        <span>Send join link to your friend</span>
+                    <% } %>
+                        <span id="invite" class="clickable">Invite</span>
+                </li>
+            </div>
+            <!-- All messages will be added here -->
         </ul>
         
     
@@ -135,6 +132,22 @@
         <div class="reactorContainer">Reactions <ul></ul></div>
     </div>
 
+    <div class="themeChooser">
+        <ul class="themeList">
+            <li class="theme clickable" id="blue">
+                <img class="themeIcon" src="./../images/backgrounds/blue_icon.webp" alt=""><span>Blue</span>
+            </li>
+            <li class="theme clickable" id="dark_mood">
+                <img class="themeIcon" src="./../images/backgrounds/dark_mood_icon.webp" alt=""><span>Dark Mood</span>
+            </li>
+            <li class="theme clickable" id="forest">
+                <img class="themeIcon" src="./../images/backgrounds/forest_icon.webp" alt=""><span>Forest</span>
+            </li>
+            <li class="theme clickable" id="geometry">
+                <img class="themeIcon" src="./../images/backgrounds/geometry_icon.webp" alt=""><span>Geometry</span>
+            </li>
+        </ul>
+    </div>
 
     <template id="messageTemplate">
         <li class="message {{classList}}" id="{{messageId}}" data-uid="{{uid}}"> <!-- noreply notitle delevered start end self react -->
@@ -156,6 +169,17 @@
         const myAvatar = "<%=myAvatar_%>";
         const myKey = "<%=myKey_%>";
         const maxUser = "<%=maxUser_%>";
+
+        function loadTheme(){
+            let theme = localStorage.getItem("theme");
+            if(theme == null){
+                theme = "blue";
+            }
+            document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${theme}_w.webp')`);
+        }
+        
+        loadTheme();
+
         document.addEventListener('click', ()=> {
           history.pushState({}, '', "#init");
           history.pushState({}, '', "#inbox");
@@ -163,6 +187,7 @@
             history.forward();
           }
         }, {once: true});
+
     </script>
 </body>
 </html>
