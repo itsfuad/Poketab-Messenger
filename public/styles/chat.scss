@@ -168,8 +168,16 @@ body{
         padding: 4px 8px;
     }
     .theme_option{
+        font-weight: 800;
+        font-size: 0.8rem;
+    }
+    .theme_option, .theme_option i{
         display: flex;
-        gap: 5px;
+        color: #fff;
+        background: #2585fd;
+        padding: 4px 8px;
+        border-radius: 25px;
+        align-items: center;
     }
 }
 
