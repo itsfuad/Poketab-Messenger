@@ -113,6 +113,7 @@
   padding: 8px;
   min-width: 32px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }

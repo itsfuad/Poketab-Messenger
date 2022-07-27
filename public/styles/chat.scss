@@ -181,6 +181,34 @@ body{
     }
 }
 
+.filepickerOverlay{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.65);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    visibility: hidden;
+    opacity: 0;
+    transition: 100ms ease-in-out;
+    &.active{
+        display: flex;
+        visibility: visible;
+        opacity: 1;
+    }
+    .content{
+        border: 5px dashed;
+        padding: 40px;
+        border-radius: 15px;
+        justify-content: center;
+    }
+}
+
 .themeChooser{
     width: 100vw;
     height: 100vh;
@@ -207,7 +235,7 @@ body{
 .themeList{
     display: flex;
     flex-direction: column;
-    width: max-content;
+    width: min(85vw, 380px);
     gap: 10px;
     padding: 20px;
     background: #192838f2;
@@ -321,7 +349,7 @@ img{
         background: #0000009c;
         border-radius: 15px;
         .link-copy{
-            background: var(--focus-dark);
+            background: #ffffff1f;
             padding: 5px 24px;
             gap: 10px;
             border-radius: 15px;

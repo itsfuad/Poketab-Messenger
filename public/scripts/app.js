@@ -6,6 +6,7 @@
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 
+
 console.log('loaded');
 
 //variables
@@ -22,6 +23,7 @@ const copyOption = document.querySelector('.copyOption');
 const downloadOption = document.querySelector('.downloadOption');
 const deleteOption = document.querySelector('.deleteOption');
 const replyOption = document.querySelector('.replyOption');
+const filepickerOverlay = document.querySelector('.filepickerOverlay');
 
 const incommingmessage = new Audio('/sounds/incommingmessage.mp3');
 const outgoingmessage = new Audio('/sounds/outgoingmessage.mp3');
@@ -313,7 +315,8 @@ function showOptions(type, sender, target){
     if (clicked){ //if the message has my reaction
         //get how many reactions the message has
         let clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
-        document.querySelector(`#reactOptions .${clickedElement}`).style.background = '#000000aa';
+        //selected react color
+        document.querySelector(`#reactOptions .${clickedElement}`).style.background = '#2585fd6b';
     }
     //show the options
     let options = document.getElementById('optionsContainerWrapper');
@@ -1004,16 +1007,21 @@ deleteOption.addEventListener('click', ()=>{
 
 photoButton.addEventListener('change', ()=>{
     //document.getElementById('selectedImage').innerHTML = `Loading image <i class="fa-solid fa-circle-notch fa-spin"></i>`;
+    ImageUpload();
+});
+
+function ImageUpload(fileFromClipboard = null){
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
     const fragment = document.createRange().createContextualFragment(`Loading image&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
     document.getElementById('selectedImage').append(fragment);
-    let file = photoButton.files[0];
+    let file = fileFromClipboard || photoButton.files[0];
     let reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (e) => {
         let data = e.target.result;
+        localStorage.setItem('selectedImage', data);
         //document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
         while (document.getElementById('selectedImage').firstChild) {
             document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
@@ -1022,6 +1030,22 @@ photoButton.addEventListener('change', ()=>{
         document.getElementById('selectedImage').append(fragment);
     }
     document.getElementById('previewImage')?.classList?.add('active');
+}
+
+window.addEventListener('dragover', (evt) => {
+    evt.preventDefault();
+    filepickerOverlay.classList.add('active');
+});
+
+window.addEventListener('drop', (evt) => {
+    evt.preventDefault();
+    filepickerOverlay.classList.remove('active');
+    //get the file from the event
+    let file = evt.dataTransfer.files[0];
+    //read the file if it is an image
+    if (file.type.match('image.*')) {
+        ImageUpload(file);
+    }
 });
 
 window.addEventListener('offline', function(e) { 
@@ -1084,17 +1108,10 @@ document.getElementById('previewImage').querySelector('.close')?.addEventListene
 });
 
 document.getElementById('previewImage').querySelector('#imageSend')?.addEventListener('click', ()=>{
-    let file = photoButton.files[0];
-    let reader = new FileReader();
-    reader.readAsArrayBuffer(file);
-    reader.onload = function(e){
-        let blob = new Blob([e.target.result]);
-        window.URL = window.URL || window.webkitURL;
-        let blobURL = window.URL.createObjectURL(blob);
         let image = new Image();
-        image.src = blobURL;
+        image.src = localStorage.getItem('selectedImage');
         image.onload = function() {
-            let resized = resizeImage(image, file.mimetype);
+            let resized = resizeImage(image, image.mimetype);
             let tempId = makeId();
             scrolling = false;
             insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
@@ -1105,7 +1122,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
                 document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
             }
         }
-    }
+        localStorage.removeItem('selectedImage');
 });
 
 
@@ -1142,6 +1159,24 @@ document.querySelectorAll('.clickable').forEach(elem => {
     });
 });
 
+
+window.addEventListener('paste', (e) => {
+        if (e.clipboardData) {
+            let items = e.clipboardData.items;
+            if (items) {
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].kind === 'file') {
+                        let file = items[i].getAsFile();
+                        if (file.type.match('image.*')) {
+                            localStorage.setItem('selectedImage', file);
+                            ImageUpload(file);
+                        }
+                    }
+                }
+            }
+        }
+    }
+);
 
 
 //sockets

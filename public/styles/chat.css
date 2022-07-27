@@ -175,6 +175,35 @@ body {
   align-items: center;
 }
 
+.filepickerOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  -webkit-backdrop-filter: blur(5px);
+          backdrop-filter: blur(5px);
+  visibility: hidden;
+  opacity: 0;
+  transition: 100ms ease-in-out;
+}
+.filepickerOverlay.active {
+  display: flex;
+  visibility: visible;
+  opacity: 1;
+}
+.filepickerOverlay .content {
+  border: 5px dashed;
+  padding: 40px;
+  border-radius: 15px;
+  justify-content: center;
+}
+
 .themeChooser {
   width: 100vw;
   height: 100vh;
@@ -199,9 +228,7 @@ body {
 .themeList {
   display: flex;
   flex-direction: column;
-  width: -webkit-max-content;
-  width: -moz-max-content;
-  width: max-content;
+  width: min(85vw, 380px);
   gap: 10px;
   padding: 20px;
   background: rgba(25, 40, 56, 0.9490196078);
@@ -319,7 +346,7 @@ img {
   border-radius: 15px;
 }
 .chatBox .welcomeText .link-copy {
-  background: var(--focus-dark);
+  background: rgba(255, 255, 255, 0.1215686275);
   padding: 5px 24px;
   gap: 10px;
   border-radius: 15px;

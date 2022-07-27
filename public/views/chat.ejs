@@ -4,15 +4,19 @@
     <%- include('layout/mainheader.ejs') %>
 </head>
 <body>
-
+    <!--Preload screen [Logging in..]-->
     <div id="preload" style="z-index: 100; position: fixed; top: 0; left: 0; bottom: 0; right: 0; display:flex; flex-direction:row; gap: 5px; align-items:center; justify-content:center; background: #111d2a; ">
         <div class="text" style="color: #2585fd;">Logging in</div><i class="fa-solid fa-circle-notch fa-spin" style="color: #2585fd;"></i>
     </div>
+    <!--Offline Indicator-->
     <div class="offline"></div>
+    <!--All popups will be shown here-->
     <div class="popup-message"></div>
+    <!--message popup-->
     <div class="newmessagepopup">
         <img src="" alt=""><div class="msg"></div>
     </div>
+    <!--The side menu-->
     <div id="sidebar_wrapper">
         <div id="sidebar">
             <div id="keyname" class="clickable keyCopy"><i class="fa-regular fa-clone"></i><span><%=myKey_%></span></div>
@@ -24,7 +28,10 @@
         </div>
         <div class="close_area"></div>
     </div>
+    <!--The dark overlay-->
     <div id="focus_glass"></div>
+
+    <!--The main chat area-->
     <div class="chatBox">
         <!-- Navigation -->
         <div class="navbar">
@@ -52,7 +59,6 @@
             </div>
             <!-- All messages will be added here -->
         </ul>
-        
     
         <!-- Reply toast popup-->
         <div id="replyToast">
@@ -84,6 +90,11 @@
         </div>
     </div>
 
+
+
+    <!-- Utilities -->
+
+    
     <!-- Options container for reacts and other functionalities -->
     <div id="optionsContainerWrapper">
         <div class="close_area"></div>
@@ -111,6 +122,8 @@
     </div>
 
 
+    <!-- Image Preview -->
+
     <div id="previewImage">
         <div id="selectedImage"></div>
         <div class="option">
@@ -128,10 +141,20 @@
         <div id="lightbox__image"></div>
     </div>
 
+    <!-- Image Drag and drop overlay -->
+
+    <div class="filepickerOverlay">
+        <div class="content">
+            <span>Drag and drop a file here</span>
+        </div>
+    </div>
+
+    <!-- Reacts of all peoples -->
     <div class="reactorContainerWrapper">
         <div class="reactorContainer">Reactions <ul></ul></div>
     </div>
 
+    <!-- The theme options -->
     <div class="themeChooser">
         <ul class="themeList">
             <li class="theme clickable" id="blue">
@@ -149,6 +172,8 @@
         </ul>
     </div>
 
+
+    <!-- Message template -->
     <template id="messageTemplate">
         <li class="message {{classList}}" id="{{messageId}}" data-uid="{{uid}}"> <!-- noreply notitle delevered start end self react -->
             <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
@@ -169,6 +194,7 @@
         const myAvatar = "<%=myAvatar_%>";
         const myKey = "<%=myKey_%>";
         const maxUser = "<%=maxUser_%>";
+        const devMode = "<%=devMode_%>";
 
         function loadTheme(){
             let theme = localStorage.getItem("theme");
@@ -178,14 +204,13 @@
             document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${theme}_w.webp')`);
         }
         
-        loadTheme();
-
+        loadTheme();      
         document.addEventListener('click', ()=> {
-          history.pushState({}, '', "#init");
-          history.pushState({}, '', "#inbox");
-          window.onpopstate = ()=>{
+            history.pushState({}, '', "#init");
+            history.pushState({}, '', "#inbox");
+            window.onpopstate = ()=>{
             history.forward();
-          }
+            }
         }, {once: true});
 
     </script>
