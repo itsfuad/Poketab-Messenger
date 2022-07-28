@@ -22,6 +22,12 @@
     z-index: 1;
 }
 
+
+code{
+    font-family: monospace;
+}
+
+
 .message{
     display: flex;
     flex-direction: row;
@@ -115,7 +121,10 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
+        & > * {
+            width: max-content;
+        }
     }
     img{
         width: 100%;

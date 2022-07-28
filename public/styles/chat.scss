@@ -54,6 +54,7 @@ body{
     background: #0000009c var(--pattern);
     background-blend-mode: soft-light;
     background-size: cover;
+    background-repeat: no-repeat;
     background-position: center;
     overscroll-behavior-y: contain;
 }

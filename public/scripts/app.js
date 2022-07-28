@@ -199,8 +199,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
             //remove background color and scale the font size
             message = `<p class='text' style='background: none; font-size:30px; padding: 0;'>${message}</p>`;
         }else{ //if its a normal text message
-            message = censorBadWords(message); //check if the message contains bad words
-            message = `<p class='text'>${linkify(message)}</p>`; //if the message contains links then linkify the message
+            message = messageFilter(message); //filter the message
         }
     }else if(type === 'image'){ //if the message is an image
         popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
@@ -276,6 +275,16 @@ function getCurrentTime(){
     minutes = minutes < 10 ? '0' + minutes : minutes;
     let strTime = hours + ':' + minutes + ' ' + ampm;
     return strTime;
+}
+
+function messageFilter(message){
+    message = censorBadWords(message); //check if the message contains bad words
+    message = `<p class='text'>${linkify(message)}</p>`; //if the message contains links then linkify the message
+    message = message.replaceAll(/```¶/g, '```'); //replace the code block markers
+    message = message.replaceAll(/```([^`]+)```/g, '<code>$1</code>'); //if the message contains code then replace it with the code tag
+    message = message.replaceAll('¶', '<br>'); //if the message contains new lines then replace them with <br>
+
+    return message;
 }
 
 /*
@@ -576,7 +585,7 @@ function clearTargetMessage(){
 function OptionEventHandler(evt){
     let type;
     let sender = evt.target.closest('.message').classList.contains('self')? true : false;
-    if (evt.target.classList.contains('text')){
+    if (evt.target.closest('.message').querySelector('.text') != null){
         type = 'text';
         //targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
         targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
@@ -1040,11 +1049,10 @@ window.addEventListener('dragover', (evt) => {
 window.addEventListener('drop', (evt) => {
     evt.preventDefault();
     filepickerOverlay.classList.remove('active');
-    //get the file from the event
-    let file = evt.dataTransfer.files[0];
-    //read the file if it is an image
-    if (file.type.match('image.*')) {
-        ImageUpload(file);
+    if (evt.dataTransfer.files.length > 0){
+        if (evt.dataTransfer.files[0].type.includes('image')){
+            ImageUpload(evt.dataTransfer.files[0]);
+        }
     }
 });
 
@@ -1072,7 +1080,7 @@ sendButton.addEventListener('click', () => {
         message += '... (message too long)';
     }
     //replace spaces with unusual characters
-    //message = message.replace(/\n/g, '¶');
+    message = message.replace(/\n/g, '¶');
     message = message.replace(/>/g, '&gt;');
     message = message.replace(/</g, '&lt;');
     //message = message.replace(/\n/g, '<br/>');

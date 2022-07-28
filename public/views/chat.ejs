@@ -145,7 +145,7 @@
 
     <div class="filepickerOverlay">
         <div class="content">
-            <span>Drag and drop a file here</span>
+            <span>Drop image here</span>
         </div>
     </div>
 
@@ -204,7 +204,8 @@
             document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${theme}_w.webp')`);
         }
         
-        loadTheme();      
+        loadTheme();
+    
         document.addEventListener('click', ()=> {
             history.pushState({}, '', "#init");
             history.pushState({}, '', "#inbox");
@@ -212,7 +213,7 @@
             history.forward();
             }
         }, {once: true});
-
+        
     </script>
 </body>
 </html>
