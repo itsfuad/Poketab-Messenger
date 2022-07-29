@@ -193,14 +193,10 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     let classList = ''; //the class list for the message. Initially empty. 
     let lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
     let popupmsg = ''; //the message to be displayed in the popup if user scrolled up 
+    let messageIsEmoji = isEmoji(message);
     if (type === 'text'){ //if the message is a text message
         popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
-        if(isEmoji(message)){ //if the message contains only emoji
-            //remove background color and scale the font size
-            message = `<p class='text' style='background: none; font-size:30px; padding: 0;'>${message}</p>`;
-        }else{ //if its a normal text message
-            message = messageFilter(message); //filter the message
-        }
+        message = messageFilter(message); //filter the message
     }else if(type === 'image'){ //if the message is an image
         popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
         message = `<img class='image' src='${message}' alt='image' />`; //insert the image
@@ -218,14 +214,18 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
         //last message has the bottom corner rounded
         classList += ' start end'; 
     }else  if (lastMsg?.dataset?.uid == uid){ //if the last message is from the same user
-        if (!options.reply){ //and the message is not a reply
+        if (!options.reply && !lastMsg?.classList.contains('emoji')){ //and the message is not a reply
             lastMsg?.classList.remove('end'); //then remove the bottom corner rounded from the last message
         }else{
             classList += ' start';
         }
         classList += ' end';
     }
-
+    if(messageIsEmoji){
+        console.log(lastMsg);
+        lastMsg?.classList.add('end');
+        classList += ' emoji';
+    }
     if(!options.reply){
         classList += ' noreply';
     }
