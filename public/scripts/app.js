@@ -50,6 +50,7 @@ let softKeyIsUp = false; //to check if soft keyboard of phone is up or not
 let scrolling = false; //to check if user is scrolling or not
 let lastPageLength = messages.scrollTop; // after adding a new message the page size gets updated
 let scroll = 0; //total scrolled up or down by pixel
+let selectedImage = undefined;
 
 //the message which fires the event
 let targetMessage = {
@@ -1030,7 +1031,8 @@ function ImageUpload(fileFromClipboard = null){
     reader.readAsDataURL(file);
     reader.onload = (e) => {
         let data = e.target.result;
-        localStorage.setItem('selectedImage', data);
+        //localStorage.setItem('selectedImage', data);
+        selectedImage = data;
         //document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
         while (document.getElementById('selectedImage').firstChild) {
             document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
@@ -1117,7 +1119,8 @@ document.getElementById('previewImage').querySelector('.close')?.addEventListene
 
 document.getElementById('previewImage').querySelector('#imageSend')?.addEventListener('click', ()=>{
         let image = new Image();
-        image.src = localStorage.getItem('selectedImage');
+        //image.src = localStorage.getItem('selectedImage');
+        image.src = selectedImage;
         image.onload = function() {
             let resized = resizeImage(image, image.mimetype);
             let tempId = makeId();
@@ -1130,7 +1133,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
                 document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
             }
         }
-        localStorage.removeItem('selectedImage');
+        //localStorage.removeItem('selectedImage');
 });
 
 
@@ -1176,7 +1179,8 @@ window.addEventListener('paste', (e) => {
                     if (items[i].kind === 'file') {
                         let file = items[i].getAsFile();
                         if (file.type.match('image.*')) {
-                            localStorage.setItem('selectedImage', file);
+                            //localStorage.setItem('selectedImage', file);
+                            selectedImage = file;
                             ImageUpload(file);
                         }
                     }
