@@ -13,7 +13,7 @@ const enter = document.getElementById('enter');
 
 //key format xxx-xxx-xxx-xxx
 const keyformat = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/;
-const usernameformat = /^[a-zA-Z0-9]{3,20}$/;
+const usernameformat = /^[a-zA-Z0-9\u0980-\u09FF]{3,20}$/;
 
 let e_users = [];
 

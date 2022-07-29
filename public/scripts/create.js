@@ -82,7 +82,7 @@ function countDown(){
 
 document.querySelector('.copy').addEventListener('click', ()=>{
     let key = document.getElementById('key').value;
-    navigator.clipboard.writeText(`${location.origin}/login/${key}`);
+    navigator.clipboard.writeText(`${location.origin}/join/${key}`);
     document.getElementById('label').style.color = 'limegreen';
     document.getElementById('label').childNodes[0].textContent = 'Copied ';
     document.getElementById('lb__icon').className =  'fa-solid fa-check';
