@@ -122,11 +122,6 @@ code {
   justify-content: center;
   align-items: flex-start;
 }
-.messageMain p > * {
-  width: -webkit-max-content;
-  width: -moz-max-content;
-  width: max-content;
-}
 .messageMain img {
   width: 100%;
   height: 100%;
@@ -213,7 +208,7 @@ code {
   visibility: visible;
 }
 
-.emoji p:is(.text) {
+.emoji .messageMain {
   background: none !important;
   font-size: 30px !important;
   padding: 0 !important;

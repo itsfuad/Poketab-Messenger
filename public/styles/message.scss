@@ -123,9 +123,6 @@ code{
         flex-direction: column;
         justify-content: center;
         align-items: flex-start;
-        & > * {
-            width: max-content;
-        }
     }
     img{
         width: 100%;
@@ -239,7 +236,7 @@ code{
     }
 }
 
-.emoji p:is(.text){
+.emoji .messageMain{
     background: none !important; 
     font-size:30px !important; 
     padding: 0 !important;

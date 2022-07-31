@@ -189,22 +189,19 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
             title: false
         };
     }
-
+    console.log(type);
     let template = document.getElementById('messageTemplate').innerHTML; //loads the template from the html
     let classList = ''; //the class list for the message. Initially empty. 
     let lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
     let popupmsg = ''; //the message to be displayed in the popup if user scrolled up 
-    let messageIsEmoji = isEmoji(message);
+
     if (type === 'text'){ //if the message is a text message
         popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
         message = messageFilter(message); //filter the message
     }else if(type === 'image'){ //if the message is an image
         popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
         message = `<img class='image' src='${message}' alt='image' />`; //insert the image
-    }else{
-        throw new Error('Unknown message type');
     }
-
     if(uid == myId){ //if the message is sent by the user is me
         classList += ' self'; 
     }
@@ -222,8 +219,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
         }
         classList += ' end';
     }
-    if(messageIsEmoji){
-        console.log(lastMsg);
+    if(type === 'emoji'){
         lastMsg?.classList.add('end');
         classList += ' emoji';
     }
@@ -288,6 +284,44 @@ function messageFilter(message){
     return message;
 }
 
+function emojiParser(text){
+    const emojiMap = new Map();
+    emojiMap.set(':)', '🙂');
+    emojiMap.set(`:'(`, '😢');
+    emojiMap.set(':D', '😀');
+    emojiMap.set(':P', '😛');
+    emojiMap.set(':p', '😛');
+    emojiMap.set(':O', '😮');
+    emojiMap.set(':o', '😮');
+    emojiMap.set(':|', '😐');
+    emojiMap.set(':/', '😕');
+    emojiMap.set(':*', '😘');
+    emojiMap.set('>:(', '😠');
+    emojiMap.set(':(', '😞');
+    emojiMap.set('o3o', '😗');
+    emojiMap.set('^3^', '😙');
+    emojiMap.set('^_^', '😊');
+    emojiMap.set('<3', '💙');
+    emojiMap.set('>_<', '😣');
+    emojiMap.set('>_>', '😒');
+
+    //find if the message contains the emoji
+    for (let [key, value] of emojiMap){
+        if (text.indexOf(key) != -1){
+            let position = text.indexOf(key);
+            //all charecter regex
+            let regex = /[a-zA-Z0-9_!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]/;
+            //if there is any kind of charecters before or after the match then don't replace it. 
+            if (text.charAt(position - 1).match(regex) || text.charAt(position + key.length).match(regex)){
+                continue;
+            }else{
+                text = text.replaceAll(key, value);
+            }
+        }
+    }
+    return text;
+}
+
 /*
 function emo_test(str) {
     return emoji_regex.test(str);
@@ -296,7 +330,9 @@ function emo_test(str) {
 
 //returns true if the message contains only emoji
 function isEmoji(text) {
-    return /^([\uD800-\uDBFF][\uDC00-\uDFFF])*$/.test(text);   
+    //replace white space with empty string
+    text = text.replace(/\s/g, '');
+    return /^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/.test(text);   
 }
 
 function showOptions(type, sender, target){
@@ -1077,21 +1113,33 @@ window.addEventListener('online', function(e) {
 sendButton.addEventListener('click', () => {
     let message = textbox.value?.trim();
     textbox.value = '';
-    if (message.length > 10000) {
-        message = message.substring(0, 10000);
-        message += '... (message too long)';
-    }
-    //replace spaces with unusual characters
-    message = message.replace(/\n/g, '¶');
-    message = message.replace(/>/g, '&gt;');
-    message = message.replace(/</g, '&lt;');
-    //message = message.replace(/\n/g, '<br/>');
+
     resizeTextbox();
     if (message.length) {
         let tempId = makeId();
         scrolling = false;
-        insertNewMessage(message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
-        socket.emit('message', message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+        let type = 'text';
+        
+        if (message.length > 10000) {
+            message = message.substring(0, 10000);
+            message += '... (message too long)';
+        }
+
+        message = emojiParser(message);
+        //replace spaces with unusual characters
+        message = message.replace(/\n/g, '¶');
+        message = message.replace(/>/g, '&gt;');
+        message = message.replace(/</g, '&lt;');
+        //message = message.replace(/\n/g, '<br/>');
+
+        if (isEmoji(message)){
+            type = 'emoji';
+            //replace whitespace with empty string
+            message = message.replace(/\s/g, '');
+        }
+        console.log(`Sending message: ${message} | Type: ${type}`);
+        insertNewMessage(message, type, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+        socket.emit('message', message, type, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
     }
     finalTarget.message = '';
     finalTarget.sender = '';
