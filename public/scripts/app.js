@@ -189,7 +189,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
             title: false
         };
     }
-    console.log(type);
+    //console.log(type);
     let template = document.getElementById('messageTemplate').innerHTML; //loads the template from the html
     let classList = ''; //the class list for the message. Initially empty. 
     let lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
@@ -1119,7 +1119,7 @@ sendButton.addEventListener('click', () => {
         let tempId = makeId();
         scrolling = false;
         let type = 'text';
-        
+
         if (message.length > 10000) {
             message = message.substring(0, 10000);
             message += '... (message too long)';
@@ -1137,7 +1137,7 @@ sendButton.addEventListener('click', () => {
             //replace whitespace with empty string
             message = message.replace(/\s/g, '');
         }
-        console.log(`Sending message: ${message} | Type: ${type}`);
+        //console.log(`Sending message: ${message} | Type: ${type}`);
         insertNewMessage(message, type, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         socket.emit('message', message, type, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
     }
