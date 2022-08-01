@@ -304,6 +304,19 @@ function emojiParser(text){
     emojiMap.set('<3', '💙');
     emojiMap.set('>_<', '😣');
     emojiMap.set('>_>', '😒');
+    emojiMap.set('-_-', '😑');
+    emojiMap.set('XD', '😆');
+    emojiMap.set('xD', '😆');
+    emojiMap.set('B)', '😎');
+    emojiMap.set('XD', '😉');
+    emojiMap.set('T-T', '😭');
+    emojiMap.set(':aww:', '🥺');
+    emojiMap.set(':lol:', '😂');
+    emojiMap.set(':haha:', '🤣');
+    emojiMap.set(':hehe:', '😅');
+    emojiMap.set(':meh:', '😶');
+    emojiMap.set(':hmm:', '😏');
+    emojiMap.set(':wtf:', '🤨');
 
     //find if the message contains the emoji
     for (let [key, value] of emojiMap){
