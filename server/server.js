@@ -28,7 +28,10 @@ const port = process.env.PORT || 3000;
 
 let app = express();
 let server = http.createServer(app);
-let io = socketIO(server);
+let io = socketIO(server,{
+  maxHttpBufferSize: 1e8, pingTimeout: 60000
+});
+
 let users = new Users();
 const devMode = false;
 

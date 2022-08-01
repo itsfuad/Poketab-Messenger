@@ -194,19 +194,22 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     let classList = ''; //the class list for the message. Initially empty. 
     let lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
     let popupmsg = ''; //the message to be displayed in the popup if user scrolled up 
-
+    let messageIsEmoji = isEmoji(message); //detect if the message is an emoji or not
     if (type === 'text'){ //if the message is a text message
         popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
         message = messageFilter(message); //filter the message
+        message = `<p class='text'>${message}</p>`
     }else if(type === 'image'){ //if the message is an image
         popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
         message = `<img class='image' src='${message}' alt='image' />`; //insert the image
+    }else{
+        throw new Error('Invalid message type');
     }
     if(uid == myId){ //if the message is sent by the user is me
         classList += ' self'; 
     }
 
-    if (lastMsg?.dataset?.uid != uid){ // if the last message is not from the same user
+    if (lastMsg?.dataset?.uid != uid || messageIsEmoji){ // if the last message is not from the same user
         //set the message as it is the first and last message of the user
         //first message has the top corner rounded
         //last message has the bottom corner rounded
@@ -219,7 +222,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
         }
         classList += ' end';
     }
-    if(type === 'emoji'){
+    if(messageIsEmoji){
         lastMsg?.classList.add('end');
         classList += ' emoji';
     }
@@ -276,7 +279,7 @@ function getCurrentTime(){
 
 function messageFilter(message){
     message = censorBadWords(message); //check if the message contains bad words
-    message = `<p class='text'>${linkify(message)}</p>`; //if the message contains links then linkify the message
+    message = linkify(message); //if the message contains links then linkify the message
     message = message.replaceAll(/```¶/g, '```'); //replace the code block markers
     message = message.replaceAll(/```([^`]+)```/g, '<code>$1</code>'); //if the message contains code then replace it with the code tag
     message = message.replaceAll('¶', '<br>'); //if the message contains new lines then replace them with <br>
@@ -765,8 +768,8 @@ function resizeImage(img, mimetype) {
     let canvas = document.createElement('canvas');
     let width = img.width;
     let height = img.height;
-    let max_height = 480;
-    let max_width = 480;
+    let max_height = 1280;
+    let max_width = 1280;
     // calculate the width and height, constraining the proportions
     if (width > height) {
         if (width > max_width) {
@@ -785,7 +788,7 @@ function resizeImage(img, mimetype) {
     canvas.height = height;
     let ctx = canvas.getContext("2d");
     ctx.drawImage(img, 0, 0, width, height);
-    return canvas.toDataURL(mimetype, 0.7); 
+    return canvas.toDataURL(mimetype, 1); 
 }
   
 function linkify(inputText) {
@@ -1131,8 +1134,6 @@ sendButton.addEventListener('click', () => {
     if (message.length) {
         let tempId = makeId();
         scrolling = false;
-        let type = 'text';
-
         if (message.length > 10000) {
             message = message.substring(0, 10000);
             message += '... (message too long)';
@@ -1146,13 +1147,12 @@ sendButton.addEventListener('click', () => {
         //message = message.replace(/\n/g, '<br/>');
 
         if (isEmoji(message)){
-            type = 'emoji';
             //replace whitespace with empty string
             message = message.replace(/\s/g, '');
         }
         //console.log(`Sending message: ${message} | Type: ${type}`);
-        insertNewMessage(message, type, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
-        socket.emit('message', message, type, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+        insertNewMessage(message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+        socket.emit('message', message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
     }
     finalTarget.message = '';
     finalTarget.sender = '';

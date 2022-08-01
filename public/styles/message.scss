@@ -236,7 +236,7 @@ code{
     }
 }
 
-.emoji .messageMain{
+.emoji .messageMain p:is(.text){
     background: none !important; 
     font-size:30px !important; 
     padding: 0 !important;
@@ -254,6 +254,7 @@ code{
         border: 2px solid #7d858c !important;
         color: #7d858c !important;
         height: 34px !important;
+        cursor: not-allowed;
     }
 }
 
