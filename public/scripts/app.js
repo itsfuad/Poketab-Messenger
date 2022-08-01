@@ -308,7 +308,7 @@ function emojiParser(text){
     emojiMap.set('XD', '😆');
     emojiMap.set('xD', '😆');
     emojiMap.set('B)', '😎');
-    emojiMap.set('XD', '😉');
+    emojiMap.set(';)', '😉');
     emojiMap.set('T-T', '😭');
     emojiMap.set(':aww:', '🥺');
     emojiMap.set(':lol:', '😂');
