@@ -1220,7 +1220,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             await sleep(10);
             //elem2.textContent = `${Math.round((i / resized.length) * 100)}%`;
             partArray.push(resized.substring(i, i + partSize));
-            socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempI, Math.round((i / resized.length) * 100));
+            socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId, Math.round((i / resized.length) * 100));
         }
         socket.emit('fileUploadEnd', tempId);
         //console.log(partArray);
