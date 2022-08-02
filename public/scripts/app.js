@@ -1247,8 +1247,8 @@ socket.on('getBuff', (tempId, got) => {
  elem2.classList.add('active');
  elem.querySelector('.image').style.filter = 'brightness(0.4)';
  elem2.textContent = `${got}%`;
- if(got>=100){
  elem.appendChild(elem2);
+ if(got>=100){
  elem.removeChild(elem2);
  elem.querySelector('.image').style.filter = 'brightness(1)';
 }
