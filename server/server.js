@@ -194,7 +194,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('fileUploadStream', (chunk, tempId) => {
+  socket.on('fileUploadStream', (chunk, tempId, got) => {
     //console.log('Received file upload stream request');
     let user = users.getUser(uids.get(socket.id));
     if (user) {
@@ -202,6 +202,7 @@ io.on('connection', (socket) => {
       if (file) {
         file.data += chunk;
         file.size += chunk.length;
+        socket.emit('getBuff', tempId, got);
       }
     }
   });
