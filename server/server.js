@@ -14,7 +14,6 @@ const {isRealString, validateUserName, avList} = require('./utils/validation');
 const {makeid, keyformat} = require('./utils/functions');
 const {Response403, Response404} = require('./utils/errorRes');
 
-
 const apiRequestLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minute
     max: 100, // limit each IP to 100 requests per windowMs
@@ -32,11 +31,13 @@ let io = socketIO(server,{
   maxHttpBufferSize: 1e8, pingTimeout: 60000
 });
 
+
 let users = new Users();
 const devMode = false;
 
 const keys = new Map();
 const uids = new Map();
+const fileBuffer = new Map();
 
 function deleteKeys(){
   for (let [key, value] of keys){
@@ -147,7 +148,6 @@ app.get('*', (_, res) => {
 });
 
 io.on('connection', (socket) => {
-
   socket.on('join', (params, callback) => {
     //console.log('Received join request');
     if (!isRealString(params.name) || !isRealString(params.key)) {
@@ -185,6 +185,39 @@ io.on('connection', (socket) => {
       //console.log('Message sent');
     }
   });
+
+  socket.on('fileUploadStart', (type, tempId, uId, reply, replyId, options) => {
+    //console.log('Received file upload start request');
+    let user = users.getUser(uids.get(socket.id));
+    if (user) {
+      fileBuffer.set(tempId, {type: type, uId: uId, reply: reply, replyId: replyId, options: options, data: [], size: 0});
+    }
+  });
+
+  socket.on('fileUploadStream', (chunk, tempId) => {
+    //console.log('Received file upload stream request');
+    let user = users.getUser(uids.get(socket.id));
+    if (user) {
+      let file = fileBuffer.get(tempId);
+      if (file) {
+        file.data += chunk;
+        file.size += chunk.length;
+      }
+    }
+  });
+  socket.on('fileUploadEnd', (tempId) => {
+    let user = users.getUser(uids.get(socket.id));
+    if (user) {
+      let file = fileBuffer.get(tempId);
+      if (file) {
+        let id = uuid.v4();
+        socket.emit('messageSent', tempId, id);
+        socket.broadcast.to(user.key).emit('newMessage', file.data, file.type, id, file.uId, file.reply, file.replyId, file.options);
+        //console.log(`File uploaded. Type: ${file.type} Size: ${file.size}`);
+      }
+    }
+  });
+
 
   socket.on('react', (target, messageId, myId) => {
     //console.log('Received react request', target, messageId, myId);
@@ -297,5 +330,5 @@ io.on('connection', (socket) => {
 
 
 server.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`TCP Server listening on port ${port}`);
 });

@@ -77,6 +77,12 @@
             <div class="chatInput">
                 <!-- Location input -->
                 <div class="location" id="send-location"><i class="fa-solid fa-location-crosshairs"></i></div>
+                
+                <!--div class="upload_file">
+                    <label for="file" class="file-input-label"><i class="fa-solid fa-upload"></i></label>
+                    <input type="file" name="file" id="file">
+                </div -->
+                
                 <!-- Image Choose -->
                 <div class="upload_image">
                 <label for="photo"><i class="fa-solid fa-image"></i></label>
@@ -89,7 +95,6 @@
             </div>
         </div>
     </div>
-
 
 
     <!-- Utilities -->
@@ -143,8 +148,8 @@
 
     <!-- Image Drag and drop overlay -->
 
-    <div class="filepickerOverlay">
-        <div class="content">
+    <div class="fileDropZone">
+        <div class="fileDropZoneContent">
             <span>Drop image here</span>
         </div>
     </div>
@@ -171,7 +176,6 @@
             </li>
         </ul>
     </div>
-
 
     <!-- Message template -->
     <template id="messageTemplate">
@@ -213,6 +217,7 @@
             history.forward();
             }
         }, {once: true});
+        
     </script>
 </body>
 </html>

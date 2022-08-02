@@ -13,7 +13,7 @@
     --focus-dark: #19283880;
     --option-color: #213142;
     --app-height: 100vh;
-    --pattern: url('../images/backgrounds/blue_w.webp');
+    --pattern: url('/images/backgrounds/blue_w.webp');
 }
 
 *:not(input, textarea){
@@ -182,7 +182,7 @@ body{
     }
 }
 
-.filepickerOverlay{
+.fileDropZone{
     position: fixed;
     top: 0;
     left: 0;
@@ -196,17 +196,20 @@ body{
     backdrop-filter: blur(5px);
     visibility: hidden;
     opacity: 0;
-    transition: 100ms ease-in-out;
+    transition: 100ms;
     &.active{
         display: flex;
         visibility: visible;
         opacity: 1;
     }
-    .content{
+    .fileDropZoneContent{
         border: 5px dashed;
         padding: 40px;
         border-radius: 15px;
         justify-content: center;
+        >*{
+            color: inherit;
+        }
     }
 }
 
@@ -524,7 +527,7 @@ i[class^=fa-]{
         transition: 100ms ease-in-out;
         &:hover{
             cursor: pointer;
-            transform: rotate(360deg) scale(1.2);
+            transform: scale(1.2);
         }
     }
 }

@@ -6,7 +6,6 @@
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 
-
 console.log('loaded');
 
 //variables
@@ -23,7 +22,7 @@ const copyOption = document.querySelector('.copyOption');
 const downloadOption = document.querySelector('.downloadOption');
 const deleteOption = document.querySelector('.deleteOption');
 const replyOption = document.querySelector('.replyOption');
-const filepickerOverlay = document.querySelector('.filepickerOverlay');
+const fileDropZone = document.querySelector('.fileDropZone');
 
 const incommingmessage = new Audio('/sounds/incommingmessage.mp3');
 const outgoingmessage = new Audio('/sounds/outgoingmessage.mp3');
@@ -36,7 +35,6 @@ const clickSound = new Audio('/sounds/click.mp3');
 
 const sendButton = document.getElementById('send');
 const photoButton = document.getElementById('photo');
-
 
 let isTyping = false, timeout = undefined;
 
@@ -172,7 +170,7 @@ function appHeight () {
 //this function generates a random id
 function makeId(length = 10){
     let result = '';
-    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     let charactersLength = characters.length;
     for (let i = 0; i < length; i++){
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -638,7 +636,7 @@ function clearTargetMessage(){
 function OptionEventHandler(evt){
     let type;
     let sender = evt.target.closest('.message').classList.contains('self')? true : false;
-    if (evt.target.closest('.message').querySelector('.text') != null){
+    if (evt.target.closest('.messageMain').querySelector('.text') != null){
         type = 'text';
         //targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
         targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
@@ -840,6 +838,9 @@ function vibrate(){
         navigator.vibrate(50);
     }
 }
+  
+
+
 
 //Event listeners
 
@@ -1068,16 +1069,17 @@ deleteOption.addEventListener('click', ()=>{
 });
 
 photoButton.addEventListener('change', ()=>{
-    //document.getElementById('selectedImage').innerHTML = `Loading image <i class="fa-solid fa-circle-notch fa-spin"></i>`;
     ImageUpload();
 });
 
 function ImageUpload(fileFromClipboard = null){
+    document.getElementById('previewImage').querySelector('#imageSend').style.display = 'none';
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
-    const fragment = document.createRange().createContextualFragment(`Loading image&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
+    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: #2585fd;'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
     document.getElementById('selectedImage').append(fragment);
+    document.getElementById('previewImage')?.classList?.add('active');
     let file = fileFromClipboard || photoButton.files[0];
     let reader = new FileReader();
     reader.readAsDataURL(file);
@@ -1091,21 +1093,41 @@ function ImageUpload(fileFromClipboard = null){
         }
         const fragment = document.createRange().createContextualFragment(`<img src="${data}" alt="image" class="image-message" />`);
         document.getElementById('selectedImage').append(fragment);
+        document.getElementById('previewImage').querySelector('#imageSend').style.display = 'block';
     }
-    document.getElementById('previewImage')?.classList?.add('active');
 }
+
+let timeoutObj;
 
 window.addEventListener('dragover', (evt) => {
     evt.preventDefault();
-    filepickerOverlay.classList.add('active');
+    evt.stopPropagation();
+    fileDropZone.classList.add('active');
+    if (evt.target.classList.contains('fileDropZoneContent')){
+        document.querySelector('.fileDropZoneContent').style.color = '#2585fd';
+        if (timeoutObj) {
+            clearTimeout(timeoutObj);
+        }
+    }else{
+        document.querySelector('.fileDropZoneContent').style.color = '#fff';
+        if (timeoutObj) {
+            clearTimeout(timeoutObj);
+        }
+    }
+    timeoutObj = setTimeout(() => {
+        fileDropZone.classList.remove('active');
+    }, 100);
 });
+
 
 window.addEventListener('drop', (evt) => {
     evt.preventDefault();
-    filepickerOverlay.classList.remove('active');
-    if (evt.dataTransfer.files.length > 0){
-        if (evt.dataTransfer.files[0].type.includes('image')){
-            ImageUpload(evt.dataTransfer.files[0]);
+    fileDropZone.classList.remove('active');
+    if (evt.target.classList.contains('fileDropZoneContent')){
+        if (evt.dataTransfer.files.length > 0){
+            if (evt.dataTransfer.files[0].type.includes('image')){
+                ImageUpload(evt.dataTransfer.files[0]);
+            }
         }
     }
 });
@@ -1179,24 +1201,50 @@ document.getElementById('previewImage').querySelector('.close')?.addEventListene
 });
 
 document.getElementById('previewImage').querySelector('#imageSend')?.addEventListener('click', ()=>{
-        let image = new Image();
-        //image.src = localStorage.getItem('selectedImage');
-        image.src = selectedImage;
-        image.onload = function() {
-            let resized = resizeImage(image, image.mimetype);
-            let tempId = makeId();
-            scrolling = false;
-            insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
-            socket.emit('message', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message ? true : false)});
-            document.getElementById('previewImage')?.classList?.remove('active');
-            //document.getElementById('selectedImage').innerHTML = '';
-            while (document.getElementById('selectedImage').firstChild) {
-                document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
-            }
+    document.getElementById('previewImage')?.classList?.remove('active');
+    let image = new Image();
+    image.src = selectedImage;
+    image.onload = async function() {
+        let resized = resizeImage(image, image.mimetype);
+        let tempId = makeId();
+        scrolling = false;
+        insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+        //socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+        //store image in 100 parts
+        let partSize = resized.length / 100;
+        let partArray = [];
+        socket.emit('fileUploadStart', 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+        let elem = document.querySelector(`#${tempId} .messageMain`);
+        let elem2 = document.createElement('div');
+        elem2.textContent = '0%';
+        elem2.classList.add('sendingImage');
+        elem2.classList.add('active');
+        elem.querySelector('.image').style.filter = 'brightness(0.4)';
+        elem.appendChild(elem2);
+        for (let i = 0; i < resized.length; i += partSize) {
+            //console.log(`${Math.round((i / resized.length) * 100)}%`);
+            await sleep(1);
+            elem2.textContent = `${Math.round((i / resized.length) * 100)}%`;
+            partArray.push(resized.substring(i, i + partSize));
+            socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId);
         }
-        //localStorage.removeItem('selectedImage');
+        socket.emit('fileUploadEnd', tempId);
+        //console.log(partArray);
+        //elem?.classList.remove('sendingImage');
+        elem.removeChild(elem2);
+        elem.querySelector('.image').style.filter = 'brightness(1)';
+        //document.getElementById('selectedImage').innerHTML = '';
+        while (document.getElementById('selectedImage').firstChild) {
+            document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+        }
+    }
+    //localStorage.removeItem('selectedImage');
 });
 
+//make a sleep function
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 document.getElementById('lightbox__save').addEventListener('click', ()=>{
     saveImage();
@@ -1316,6 +1364,7 @@ socket.on('server_message', (message, type) => {
 
 socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
     incommingmessage.play();
+    //console.log(message, type, id, uid, reply, replyId, options);
     insertNewMessage(message, type, id, uid, reply, replyId, options);
 });
 
