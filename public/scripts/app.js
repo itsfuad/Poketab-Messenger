@@ -1223,7 +1223,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         elem.appendChild(elem2);
         for (let i = 0; i < resized.length; i += partSize) {
             //console.log(`${Math.round((i / resized.length) * 100)}%`);
-            await sleep(1);
+            await sleep(10);
             elem2.textContent = `${Math.round((i / resized.length) * 100)}%`;
             partArray.push(resized.substring(i, i + partSize));
             socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId);
