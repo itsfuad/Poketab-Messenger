@@ -1214,13 +1214,13 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         let partSize = resized.length / 100;
         let partArray = [];
         socket.emit('fileUploadStart', 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
-        
+        let sent = 0;
         for (let i = 0; i < resized.length; i += partSize) {
             //console.log(`${Math.round((i / resized.length) * 100)}%`);
             await sleep(10);
             //elem2.textContent = `${Math.round((i / resized.length) * 100)}%`;
             partArray.push(resized.substring(i, i + partSize));
-            socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId);
+            socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempI, sent++);
         }
         socket.emit('fileUploadEnd', tempId);
         //console.log(partArray);
