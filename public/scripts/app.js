@@ -1210,7 +1210,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         //socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         //store image in 100 parts
-        let partSize = resized.length / 100;
+        let partSize = resized.length / 1000;
         let partArray = [];
         socket.emit('fileUploadStart', 'image', resized.length, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         /*
@@ -1228,7 +1228,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             partArray.push(resized.substring(i, i + partSize));
             //socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId, Math.round((i / resized.length) * 100));
             socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId);
-            await sleep(50);
+            await sleep(5);
         }
         socket.emit('fileUploadEnd', tempId);
 
