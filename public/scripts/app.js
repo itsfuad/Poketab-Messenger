@@ -1224,11 +1224,11 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         */
         for (let i = 0; i < resized.length; i += partSize) {
             //console.log(`${Math.round((i / resized.length) * 100)}%`);
-            await sleep(100);
             //elem2.textContent = `${Math.round((i / resized.length) * 100)}%`;
             partArray.push(resized.substring(i, i + partSize));
             //socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId, Math.round((i / resized.length) * 100));
             socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId);
+            await sleep(50);
         }
         socket.emit('fileUploadEnd', tempId);
 
