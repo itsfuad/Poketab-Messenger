@@ -1210,7 +1210,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         //socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         //store image in 100 parts
-        let partSize = resized.length / 10;
+        let partSize = resized.length / 100;
         let partArray = [];
         socket.emit('fileUploadStart', 'image', resized.length, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         /*
