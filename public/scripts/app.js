@@ -344,8 +344,10 @@ function emo_test(str) {
 //returns true if the message contains only emoji
 function isEmoji(text) {
     //replace white space with empty string
-    text = text.replace(/\s/g, '');
-    return /^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/.test(text);   
+   if(/^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/.test(text)){
+        text = text.replace(/\s/g, '');
+        return true;
+   }   
 }
 
 function showOptions(type, sender, target){
@@ -1210,7 +1212,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         //socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         //store image in 100 parts
-        let partSize = resized.length / 1000;
+        let partSize = resized.length / 200;
         let partArray = [];
         socket.emit('fileUploadStart', 'image', resized.length, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         
@@ -1240,10 +1242,34 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
     //localStorage.removeItem('selectedImage');
 });
 
-socket.on('sentBuffer', (id, sent) => {
-    let elem = document.getElementById(id).querySelector('.sendingImage');
-    elem.textContent = `${sent}%`;
+const fileBuffer = new Map();
+
+socket.on('fileDownloadStart', (type, size, tempId, uId, reply, replyId, options) => {
+    fileBuffer.set(tempId, {type: type, size: size, data: '', uId: uId, reply: reply, replyId: replyId, options: options});
 });
+
+
+socket.on('fileDownloadStream', (chunk, tempId) => {
+    fileBuffer.get(tempId).data += chunk;
+});
+
+socket.on('fileDownloadEnd', (tempId, id) => {
+    let data = fileBuffer.get(tempId);
+    let type = data.type;
+    let size = data.size;
+    let uId = data.uId;
+    let reply = data.reply;
+    let replyId = data.replyId;
+    let options = data.options;
+    let message = data.data;
+    fileBuffer.delete(tempId);
+    if (type === 'image') {
+        insertNewMessage(message, 'image', id, uId, reply, replyId, options);
+    } else if (type === 'file') {
+        insertNewMessage(message, 'file', id, uId, reply, replyId, options);
+    }
+});
+
 
 //make a sleep function
 function sleep(ms) {

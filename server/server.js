@@ -37,7 +37,6 @@ const devMode = false;
 
 const keys = new Map();
 const uids = new Map();
-const fileBuffer = new Map();
 
 function deleteKeys(){
   for (let [key, value] of keys){
@@ -190,7 +189,8 @@ io.on('connection', (socket) => {
     //console.log('Received file upload start request');
     let user = users.getUser(uids.get(socket.id));
     if (user) {
-      fileBuffer.set(tempId, {type: type, uId: uId, reply: reply, replyId: replyId, options: options, data: [], size: size});
+      //fileBuffer.set(tempId, {type: type, uId: uId, reply: reply, replyId: replyId, options: options, data: [], size: size});
+      socket.broadcast.to(user.key).emit('fileDownloadStart', type, size, tempId, uId, reply, replyId, options);
     }
   });
 
@@ -198,23 +198,30 @@ io.on('connection', (socket) => {
     //console.log('Received file upload stream request');
     let user = users.getUser(uids.get(socket.id));
     if (user) {
+      socket.broadcast.to(user.key).emit('fileDownloadStream', chunk, tempId);
+      /*
       let file = fileBuffer.get(tempId);
       if (file) {
-        file.data += chunk;
+        //file.data += chunk;
         //socket.emit('sentBuffer', tempId, got);
       }
+      */
     }
   });
+
   socket.on('fileUploadEnd', (tempId) => {
     let user = users.getUser(uids.get(socket.id));
     if (user) {
+      let id = uuid.v4();
+      socket.broadcast.to(user.key).emit('fileDownloadEnd', tempId, id);
+      socket.emit('messageSent', tempId, id);
+      /*
       let file = fileBuffer.get(tempId);
       if (file) {
-        let id = uuid.v4();
-        socket.emit('messageSent', tempId, id);
         socket.broadcast.to(user.key).emit('newMessage', file.data, file.type, id, file.uId, file.reply, file.replyId, file.options);
         //console.log(`File uploaded. Type: ${file.type} Size: ${file.size}`);
       }
+      */
     }
   });
 
