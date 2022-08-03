@@ -1213,7 +1213,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         let partSize = resized.length / 1000;
         let partArray = [];
         socket.emit('fileUploadStart', 'image', resized.length, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
-        /*
+        
         let elem = document.querySelector(`#${tempId} .messageMain`);
         let elem2 = document.createElement('div');
         elem2.textContent = '0%';
@@ -1221,17 +1221,18 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         elem2.classList.add('active');
         elem.querySelector('.image').style.filter = 'brightness(0.4)';
         elem.appendChild(elem2);
-        */
+        
         for (let i = 0; i < resized.length; i += partSize) {
             //console.log(`${Math.round((i / resized.length) * 100)}%`);
-            //elem2.textContent = `${Math.round((i / resized.length) * 100)}%`;
+            elem2.textContent = `${Math.round((i / resized.length) * 100)}%`;
             partArray.push(resized.substring(i, i + partSize));
             //socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId, Math.round((i / resized.length) * 100));
             socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId);
             await sleep(5);
         }
         socket.emit('fileUploadEnd', tempId);
-
+        elem.removeChild(elem2);
+        elem.querySelector('.image').style.filter = 'none';
         while (document.getElementById('selectedImage').firstChild) {
             document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
         }
