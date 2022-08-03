@@ -1203,16 +1203,17 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
     document.getElementById('previewImage')?.classList?.remove('active');
     let image = new Image();
     image.src = selectedImage;
-    image.onload = function() {
+    image.onload = async function() {
         let resized = resizeImage(image, image.mimetype);
         let tempId = makeId();
         scrolling = false;
         insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         //socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         //store image in 100 parts
-        let partSize = resized.length / 100;
+        let partSize = resized.length / 10;
         let partArray = [];
         socket.emit('fileUploadStart', 'image', resized.length, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+        /*
         let elem = document.querySelector(`#${tempId} .messageMain`);
         let elem2 = document.createElement('div');
         elem2.textContent = '0%';
@@ -1220,12 +1221,14 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         elem2.classList.add('active');
         elem.querySelector('.image').style.filter = 'brightness(0.4)';
         elem.appendChild(elem2);
+        */
         for (let i = 0; i < resized.length; i += partSize) {
             //console.log(`${Math.round((i / resized.length) * 100)}%`);
-            //await sleep(10);
+            await sleep(100);
             //elem2.textContent = `${Math.round((i / resized.length) * 100)}%`;
             partArray.push(resized.substring(i, i + partSize));
-            socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId, Math.round((i / resized.length) * 100));
+            //socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId, Math.round((i / resized.length) * 100));
+            socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId);
         }
         socket.emit('fileUploadEnd', tempId);
 
@@ -1368,14 +1371,16 @@ socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
     insertNewMessage(message, type, id, uid, reply, replyId, options);
 });
 
-socket.on('messageSent', (messageId, id, type) => {
+socket.on('messageSent', (messageId, id) => {
     outgoingmessage.play();
     document.getElementById(messageId).classList.add('delevered');
     document.getElementById(messageId).id = id;
+    /*
     if (type === 'image'){
         document.getElementById(id).querySelector('.sendingImage').remove();
         document.getElementById(id).querySelector('.image').style.filter = 'none';
     }
+    */
 });
 
 socket.on('getReact', (target, messageId, myId) => {
