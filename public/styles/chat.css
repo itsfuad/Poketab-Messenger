@@ -710,7 +710,7 @@ i[class^=fa-] {
   padding: 15px;
 }
 .options:is(#normalOptions) > div span {
-  font-size: 0.6rem;
+  font-size: 0.7rem;
 }
 .options:is(#normalOptions) > div:is(.closeOption, .deleteOption) > * {
   color: var(--red) !important;

@@ -64,7 +64,6 @@ let finalTarget = {
     id: '',
 };
 
-
 //first load functions 
 //if user device is mobile
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -636,7 +635,7 @@ function clearTargetMessage(){
 function OptionEventHandler(evt){
     let type;
     let sender = evt.target.closest('.message').classList.contains('self')? true : false;
-    if (evt.target.closest('.messageMain').querySelector('.text') != null){
+    if (evt.target.closest('.messageMain')?.querySelector('.text') ?? null){
         type = 'text';
         //targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
         targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
@@ -1213,20 +1212,23 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         //store image in 100 parts
         let partSize = resized.length / 100;
         let partArray = [];
-        socket.emit('fileUploadStart', 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
-      
+        socket.emit('fileUploadStart', 'image', resized.length, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+        let elem = document.querySelector(`#${tempId} .messageMain`);
+        let elem2 = document.createElement('div');
+        elem2.textContent = '0%';
+        elem2.classList.add('sendingImage');
+        elem2.classList.add('active');
+        elem.querySelector('.image').style.filter = 'brightness(0.4)';
+        elem.appendChild(elem2);
         for (let i = 0; i < resized.length; i += partSize) {
             //console.log(`${Math.round((i / resized.length) * 100)}%`);
-            await sleep(10);
+            await sleep(4);
             //elem2.textContent = `${Math.round((i / resized.length) * 100)}%`;
             partArray.push(resized.substring(i, i + partSize));
             socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId, Math.round((i / resized.length) * 100));
         }
         socket.emit('fileUploadEnd', tempId);
-        //console.log(partArray);
-        //elem?.classList.remove('sendingImage');
-        
-        //document.getElementById('selectedImage').innerHTML = '';
+
         while (document.getElementById('selectedImage').firstChild) {
             document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
         }
@@ -1234,25 +1236,15 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
     //localStorage.removeItem('selectedImage');
 });
 
+socket.on('sentBuffer', (id, sent) => {
+    let elem = document.getElementById(id).querySelector('.sendingImage');
+    elem.textContent = `${sent}%`;
+});
+
 //make a sleep function
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-
-socket.on('getBuff', (tempId, got) => {
- let elem = document.querySelector(`#${tempId} .messageMain`);
- let elem2 = document.createElement('div');
- elem2.textContent = '0%';
- elem2.classList.add('sendingImage');
- elem2.classList.add('active');
- elem.querySelector('.image').style.filter = 'brightness(0.4)';
- elem2.textContent = `${got}%`;
- elem.appendChild(elem2);
- if(got>=100){
- elem.removeChild(elem2);
- elem.querySelector('.image').style.filter = 'brightness(1)';
-}
-});
 
 document.getElementById('lightbox__save').addEventListener('click', ()=>{
     saveImage();
@@ -1376,10 +1368,14 @@ socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
     insertNewMessage(message, type, id, uid, reply, replyId, options);
 });
 
-socket.on('messageSent', (messageId, id) => {
+socket.on('messageSent', (messageId, id, type) => {
     outgoingmessage.play();
     document.getElementById(messageId).classList.add('delevered');
     document.getElementById(messageId).id = id;
+    if (type === 'image'){
+        document.getElementById(id).querySelector('.sendingImage').remove();
+        document.getElementById(id).querySelector('.image').style.filter = 'none';
+    }
 });
 
 socket.on('getReact', (target, messageId, myId) => {

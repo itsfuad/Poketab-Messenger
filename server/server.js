@@ -180,17 +180,17 @@ io.on('connection', (socket) => {
     if (user && isRealString(message)) {
       let id = uuid.v4();
       message = message.replace(/>/gi, "&gt;").replace(/</gi, "&lt;");
-      socket.emit('messageSent', messageId, id);
+      socket.emit('messageSent', messageId, id, type);
       socket.broadcast.to(user.key).emit('newMessage', message, type, id, uId, reply, replyId, options);
       //console.log('Message sent');
     }
   });
 
-  socket.on('fileUploadStart', (type, tempId, uId, reply, replyId, options) => {
+  socket.on('fileUploadStart', (type, size, tempId, uId, reply, replyId, options) => {
     //console.log('Received file upload start request');
     let user = users.getUser(uids.get(socket.id));
     if (user) {
-      fileBuffer.set(tempId, {type: type, uId: uId, reply: reply, replyId: replyId, options: options, data: [], size: 0});
+      fileBuffer.set(tempId, {type: type, uId: uId, reply: reply, replyId: replyId, options: options, data: [], size: size});
     }
   });
 
@@ -201,8 +201,7 @@ io.on('connection', (socket) => {
       let file = fileBuffer.get(tempId);
       if (file) {
         file.data += chunk;
-        file.size += chunk.length;
-        socket.emit('getBuff', tempId, got);
+        socket.emit('sentBuffer', tempId, got);
       }
     }
   });
@@ -212,7 +211,7 @@ io.on('connection', (socket) => {
       let file = fileBuffer.get(tempId);
       if (file) {
         let id = uuid.v4();
-        socket.emit('messageSent', tempId, id);
+        socket.emit('messageSent', tempId, id, 'image');
         socket.broadcast.to(user.key).emit('newMessage', file.data, file.type, id, file.uId, file.reply, file.replyId, file.options);
         //console.log(`File uploaded. Type: ${file.type} Size: ${file.size}`);
       }
