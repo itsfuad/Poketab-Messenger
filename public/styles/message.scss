@@ -26,6 +26,9 @@
     z-index: 1;
 }
 
+a{
+    color: inherit;
+}
 
 code{
     font-family: monospace;
@@ -252,13 +255,10 @@ code{
             border-radius: 50% !important;
             border: 2px solid white;
             font-size: 0.8rem;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
             z-index: 12;
-            &.active{
-                display: flex;
-            }
         }
 }
 

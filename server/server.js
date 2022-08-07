@@ -31,9 +31,11 @@ let io = socketIO(server,{
   maxHttpBufferSize: 1e8, pingTimeout: 60000
 });
 
+let fileSocket = io.of('/file');
+let auth = io.of('/auth');
 
 let users = new Users();
-const devMode = false;
+const devMode = process.env.NODE_ENV !== 'production';
 
 const keys = new Map();
 const uids = new Map();
@@ -176,52 +178,13 @@ io.on('connection', (socket) => {
   socket.on('message', (message, type, messageId, uId, reply, replyId, options) => {
     //console.log('Received new message request');
     let user = users.getUser(uids.get(socket.id));
+    console.log(user.key);
     if (user && isRealString(message)) {
       let id = uuid.v4();
       message = message.replace(/>/gi, "&gt;").replace(/</gi, "&lt;");
       socket.emit('messageSent', messageId, id);
       socket.broadcast.to(user.key).emit('newMessage', message, type, id, uId, reply, replyId, options);
       //console.log('Message sent');
-    }
-  });
-
-  socket.on('fileUploadStart', (type, size, tempId, uId, reply, replyId, options) => {
-    //console.log('Received file upload start request');
-    let user = users.getUser(uids.get(socket.id));
-    if (user) {
-      //fileBuffer.set(tempId, {type: type, uId: uId, reply: reply, replyId: replyId, options: options, data: [], size: size});
-      socket.broadcast.to(user.key).emit('fileDownloadStart', type, size, tempId, uId, reply, replyId, options);
-    }
-  });
-
-  socket.on('fileUploadStream', (chunk, tempId) => {
-    //console.log('Received file upload stream request');
-    let user = users.getUser(uids.get(socket.id));
-    if (user) {
-      socket.broadcast.to(user.key).emit('fileDownloadStream', chunk, tempId);
-      /*
-      let file = fileBuffer.get(tempId);
-      if (file) {
-        //file.data += chunk;
-        //socket.emit('sentBuffer', tempId, got);
-      }
-      */
-    }
-  });
-
-  socket.on('fileUploadEnd', (tempId) => {
-    let user = users.getUser(uids.get(socket.id));
-    if (user) {
-      let id = uuid.v4();
-      socket.broadcast.to(user.key).emit('fileDownloadEnd', tempId, id);
-      socket.emit('messageSent', tempId, id);
-      /*
-      let file = fileBuffer.get(tempId);
-      if (file) {
-        socket.broadcast.to(user.key).emit('newMessage', file.data, file.type, id, file.uId, file.reply, file.replyId, file.options);
-        //console.log(`File uploaded. Type: ${file.type} Size: ${file.size}`);
-      }
-      */
     }
   });
 
@@ -250,7 +213,7 @@ io.on('connection', (socket) => {
     //console.log('Received create location message request');
     let user = users.getUser(uids.get(socket.id));
     if (user) {
-      io.to(user.key).emit('server_message', {color: 'limegreen', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`, user: user.name}, 'location');
+      io.to(user.key).emit('server_message', {color: '#2585fd', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`, user: user.name}, 'location');
     }
   });
 
@@ -286,9 +249,42 @@ io.on('connection', (socket) => {
       console.log(`${usercount.length } users left`);
     }
   });
+});
 
 
+//file upload
+fileSocket.on('connection', (socket) => {
+  //console.log('File socket connected');
+  socket.on('join', (key) => {
+    //console.log('Received join request');
+    socket.join(key);
+  });
+
+  socket.on('fileUploadStart', (type, tempId, uId, reply, replyId, options, metadata, key) => {
+    //console.log('Received file upload start request', key);
+    socket.broadcast.to(key).emit('fileDownloadStart', type, tempId, uId, reply, replyId, options, metadata);
+    //socket.broadcast.emit('fileDownloadStart', type, size, tempId, uId, reply, replyId, options, metadata);
+  });
+
+  socket.on('fileUploadStream', (chunk, tempId, percentage, key) => {
+      socket.broadcast.to(key).emit('fileDownloadStream', chunk, tempId);
+      socket.emit('fileUploadProgress', tempId, percentage);
+  });
+
+  socket.on('fileUploadEnd', (tempId, key, uId) => {
+    //console.log('Received file upload end request');
+    let id = uuid.v4();
+    socket.broadcast.to(key).emit('fileDownloadEnd', tempId, id);
+    socket.emit('fileSent', tempId, id);
+  });
+});
+
+
+
+auth.on('connection', (socket) => {
+  //console.log('New auth connection');
   socket.on('createRequest', (key, callback) => {
+    //console.log('Received create request');
     if (!keyformat.test(key)){
       callback('Invalid key');
       return;
@@ -332,7 +328,6 @@ io.on('connection', (socket) => {
       socket.emit('joinResponse', {exists: keyExists});
     }
   });
-
 });
 
 

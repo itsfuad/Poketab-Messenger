@@ -372,8 +372,53 @@ img {
   justify-content: center;
   align-items: center;
 }
-.chatInput .upload_image, .chatInput #send {
-  padding: 5px;
+.chatInput .close_area {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: fixed;
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+.chatInput .close_area.active {
+  display: flex;
+  visibility: visible;
+  opacity: 1;
+}
+.chatInput .attachmentContainer {
+  position: absolute;
+  bottom: 70px;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  visibility: visible;
+  opacity: 1;
+  background: var(--focus-dark);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+  z-index: 1;
+}
+
+.file_preview {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+.file_preview .fa-file-lines {
+  font-size: 4rem;
 }
 
 #send-location {
@@ -383,7 +428,7 @@ img {
   cursor: pointer;
 }
 
-.upload_image {
+.upload_image, .upload_file {
   position: relative;
   padding-right: 5px;
 }
@@ -451,7 +496,7 @@ input[type=file] {
   cursor: pointer;
 }
 
-.fa-image, .fa-location-crosshairs, .fa-paper-plane {
+.fa-image, .fa-location-crosshairs, .fa-paper-plane, .fa-file-lines, .fa-paperclip {
   font-size: 1.5rem;
   padding: 5px;
   color: var(--secondary-dark);

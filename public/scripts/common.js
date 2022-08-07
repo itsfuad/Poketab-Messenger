@@ -1,6 +1,6 @@
 "use strict";
 
-const socket = io();
+const socket = io('/auth');
 
 const nextbtn = document.getElementById('next');
 const clickSound = new Audio('/sounds/click.mp3');

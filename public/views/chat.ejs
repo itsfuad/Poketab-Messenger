@@ -77,16 +77,20 @@
             <div class="chatInput">
                 <!-- Location input -->
                 <div class="location" id="send-location"><i class="fa-solid fa-location-crosshairs"></i></div>
-                
-                <!--div class="upload_file">
-                    <label for="file" class="file-input-label"><i class="fa-solid fa-upload"></i></label>
-                    <input type="file" name="file" id="file">
-                </div -->
-                
-                <!-- Image Choose -->
-                <div class="upload_image">
-                <label for="photo"><i class="fa-solid fa-image"></i></label>
-                <input type="file" name="photo" id="photo" accept="image/png, image/jpg, image/jpeg, image/gif">
+                <div class="attachments clickable" id="attachment"><i class="fa-solid fa-paperclip"></i></div>
+                <div class="close_area" id="attmain">
+                    <div class="attachmentContainer">
+                        <!-- File Choose -->
+                        <div class="upload_file clickable">
+                            <label for="file" class="file-input-label"><i class="fa-regular fa-file-lines"></i><span class="clickable">Choose Document</span></label>
+                            <input type="file" name="file" id="file">
+                        </div>
+                        <!-- Image Choose -->
+                        <div class="upload_image clickable">
+                            <label for="photo"><i class="fa-regular fa-image"></i><span class="clickable">Choose Photo</span></label>
+                            <input type="file" name="photo" id="photo" accept="image/png, image/jpg, image/jpeg, image/gif">
+                        </div>
+                    </div>
                 </div>
                 <!-- Text input -->
                 <textarea name="chatInputBox" id="textbox" class="select" rows="1" placeholder="Message..."></textarea>
@@ -163,16 +167,16 @@
     <div class="themeChooser">
         <ul class="themeList">
             <li class="theme clickable" id="blue">
-                <img class="themeIcon" src="./../images/backgrounds/blue_icon.webp" alt=""><span>Blue</span>
+                <img class="themeIcon" src="/images/backgrounds/blue_icon.webp" alt=""><span>Blue</span>
             </li>
             <li class="theme clickable" id="dark_mood">
-                <img class="themeIcon" src="./../images/backgrounds/dark_mood_icon.webp" alt=""><span>Dark Mood</span>
+                <img class="themeIcon" src="/images/backgrounds/dark_mood_icon.webp" alt=""><span>Dark Mood</span>
             </li>
             <li class="theme clickable" id="forest">
-                <img class="themeIcon" src="./../images/backgrounds/forest_icon.webp" alt=""><span>Forest</span>
+                <img class="themeIcon" src="/images/backgrounds/forest_icon.webp" alt=""><span>Forest</span>
             </li>
             <li class="theme clickable" id="geometry">
-                <img class="themeIcon" src="./../images/backgrounds/geometry_icon.webp" alt=""><span>Geometry</span>
+                <img class="themeIcon" src="/images/backgrounds/geometry_icon.webp" alt=""><span>Geometry</span>
             </li>
         </ul>
     </div>
@@ -209,7 +213,7 @@
         }
         
         loadTheme();
-        
+        /*
         document.addEventListener('click', ()=> {
             history.pushState({}, '', "#init");
             history.pushState({}, '', "#inbox");
@@ -217,7 +221,7 @@
             history.forward();
             }
         }, {once: true});
-        
+        */
     </script>
 </body>
 </html>

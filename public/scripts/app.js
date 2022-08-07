@@ -2,14 +2,15 @@
 'use strict';
 
 //bundles
-
+/*
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
-
+*/
 console.log('loaded');
 
 //variables
 const socket = io();
+const fileSocket = io('/file');
 //main message Element where all messages are inserted
 const messages = document.getElementById('messages');
 //const emoji_regex = /^(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|[\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|[\ud83c[\ude32-\ude3a]|[\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])+$/;
@@ -35,6 +36,8 @@ const clickSound = new Audio('/sounds/click.mp3');
 
 const sendButton = document.getElementById('send');
 const photoButton = document.getElementById('photo');
+const fileButton = document.getElementById('file');
+
 
 let isTyping = false, timeout = undefined;
 
@@ -43,6 +46,7 @@ const reactArray = ['💙', '😂','😮','😢','😠','👍🏻','👎🏻'];
 const userTypingMap = new Map();
 //all the user and their info is stored in this map
 const userInfoMap = new Map();
+const fileBuffer = new Map();
 
 let softKeyIsUp = false; //to check if soft keyboard of phone is up or not
 let scrolling = false; //to check if user is scrolling or not
@@ -178,7 +182,7 @@ function makeId(length = 10){
 }
 
 //this function inserts a message in the chat box
-function insertNewMessage(message, type, id, uid, reply, replyId, options){
+function insertNewMessage(message, type, id, uid, reply, replyId, options, metadata){
     //detect if the message has a reply or not
     if (!options){
         options = {
@@ -199,6 +203,8 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options){
     }else if(type === 'image'){ //if the message is an image
         popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
         message = `<img class='image' src='${message}' alt='image' />`; //insert the image
+    }else if (type === 'file'){
+        console.log(`File received with type: ${metadata.ext} and size: ${metadata.size}`);
     }else{
         throw new Error('Invalid message type');
     }
@@ -950,9 +956,14 @@ textbox.addEventListener('blur', ()=>{
 
 document.querySelectorAll('.close_area').forEach(elem => {
     elem.addEventListener('click', (evt) => {
+        document.getElementById('attmain').classList.remove('active');
         document.getElementById('sidebar_wrapper').classList.remove('active');
         hideOptions();
     });
+});
+
+document.getElementById('attachment').addEventListener('click', ()=>{
+    document.getElementById('attmain').classList.add('active');
 });
 
 document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) => {
@@ -1073,6 +1084,10 @@ photoButton.addEventListener('change', ()=>{
     ImageUpload();
 });
 
+fileButton.addEventListener('change', ()=>{
+    FileUpload();
+});
+
 function ImageUpload(fileFromClipboard = null){
     document.getElementById('previewImage').querySelector('#imageSend').style.display = 'none';
     while (document.getElementById('selectedImage').firstChild) {
@@ -1097,6 +1112,48 @@ function ImageUpload(fileFromClipboard = null){
         document.getElementById('previewImage').querySelector('#imageSend').style.display = 'block';
     }
 }
+
+function FileUpload(fileFromClipboard = null){
+    document.getElementById('previewImage').querySelector('#imageSend').style.display = 'none';
+    while (document.getElementById('selectedImage').firstChild) {
+        document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+    }
+    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: #2585fd;'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
+    document.getElementById('selectedImage').append(fragment);
+    document.getElementById('previewImage')?.classList?.add('active');
+    let file = fileFromClipboard || fileButton.files[0];
+    let filename = file.name;
+    let size = file.size;
+    //convert to B, KB, MB
+    if (size < 1024){
+        size = size + ' B';
+    }else if (size < 1048576){
+        size = (size/1024).toFixed(2) + ' KB';
+    }else{
+        size = (size/1048576).toFixed(2) + ' MB';
+    }
+    //if file more than 15 mb
+    if (file.size > 15000000){
+        popupMessage('File size must be less than 15 MB');
+        return;
+    }
+
+    let reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+        let data = e.target.result;
+        //localStorage.setItem('selectedImage', data);
+        selectedImage = data;
+        //document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
+        while (document.getElementById('selectedImage').firstChild) {
+            document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+        }
+        const fragment = document.createRange().createContextualFragment(`<div class='file_preview'><i class="fa-regular fa-file-lines"></i><div>File: ${filename}</div><div>Size: ${size}</div></div>`);
+        document.getElementById('selectedImage').append(fragment);
+        document.getElementById('previewImage').querySelector('#imageSend').style.display = 'block';
+    }
+}
+
 
 let timeoutObj;
 
@@ -1174,8 +1231,8 @@ sendButton.addEventListener('click', () => {
             message = message.replace(/\s/g, '');
         }
         //console.log(`Sending message: ${message} | Type: ${type}`);
-        insertNewMessage(message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
-        socket.emit('message', message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+        insertNewMessage(message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
+        socket.emit('message', message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
     }
     finalTarget.message = '';
     finalTarget.sender = '';
@@ -1194,6 +1251,9 @@ sendButton.addEventListener('click', () => {
 
 
 document.getElementById('previewImage').querySelector('.close')?.addEventListener('click', ()=>{
+    //remove file from input
+    photoButton.value = '';
+    fileButton.value = '';
     document.getElementById('previewImage')?.classList?.remove('active');
     //document.getElementById('selectedImage').innerHTML = '';
     while (document.getElementById('selectedImage').firstChild) {
@@ -1209,67 +1269,32 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         let resized = resizeImage(image, image.mimetype);
         let tempId = makeId();
         scrolling = false;
-        insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+        insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.length});
         //socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         //store image in 100 parts
-        let partSize = resized.length / 200;
-        let partArray = [];
-        socket.emit('fileUploadStart', 'image', resized.length, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
-        
-        let elem = document.querySelector(`#${tempId} .messageMain`);
+        let elem = document.getElementById(tempId)?.querySelector('.messageMain');
         let elem2 = document.createElement('div');
         elem2.textContent = '0%';
         elem2.classList.add('sendingImage');
-        elem2.classList.add('active');
         elem.querySelector('.image').style.filter = 'brightness(0.4)';
         elem.appendChild(elem2);
-        
+        let partSize = resized.length / 200;
+        let partArray = [];
+        fileSocket.emit('fileUploadStart', 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.length}, myKey);
+
         for (let i = 0; i < resized.length; i += partSize) {
             //console.log(`${Math.round((i / resized.length) * 100)}%`);
-            elem2.textContent = `${Math.round((i / resized.length) * 100)}%`;
             partArray.push(resized.substring(i, i + partSize));
-            //socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId, Math.round((i / resized.length) * 100));
-            socket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId);
+            fileSocket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId, Math.round((i / resized.length) * 100), myKey);
             await sleep(5);
         }
-        socket.emit('fileUploadEnd', tempId);
-        elem.removeChild(elem2);
-        elem.querySelector('.image').style.filter = 'none';
+        fileSocket.emit('fileUploadEnd', tempId, myKey);
         while (document.getElementById('selectedImage').firstChild) {
             document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
         }
     }
     //localStorage.removeItem('selectedImage');
 });
-
-const fileBuffer = new Map();
-
-socket.on('fileDownloadStart', (type, size, tempId, uId, reply, replyId, options) => {
-    fileBuffer.set(tempId, {type: type, size: size, data: '', uId: uId, reply: reply, replyId: replyId, options: options});
-});
-
-
-socket.on('fileDownloadStream', (chunk, tempId) => {
-    fileBuffer.get(tempId).data += chunk;
-});
-
-socket.on('fileDownloadEnd', (tempId, id) => {
-    let data = fileBuffer.get(tempId);
-    let type = data.type;
-    let size = data.size;
-    let uId = data.uId;
-    let reply = data.reply;
-    let replyId = data.replyId;
-    let options = data.options;
-    let message = data.data;
-    fileBuffer.delete(tempId);
-    if (type === 'image') {
-        insertNewMessage(message, 'image', id, uId, reply, replyId, options);
-    } else if (type === 'file') {
-        insertNewMessage(message, 'file', id, uId, reply, replyId, options);
-    }
-});
-
 
 //make a sleep function
 function sleep(ms) {
@@ -1298,7 +1323,7 @@ document.getElementById('send-location').addEventListener('click', () => {
           longitude: position.coords.longitude
         });
     }, (error) => {
-        popupMessage('Unable to fetch location.');
+        popupMessage(error.message);
     });
 });
 
@@ -1394,20 +1419,14 @@ socket.on('server_message', (message, type) => {
 
 socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
     incommingmessage.play();
-    //console.log(message, type, id, uid, reply, replyId, options);
-    insertNewMessage(message, type, id, uid, reply, replyId, options);
+    //console.log(message, type, id, uid, reply, replyId, options, 'Line 1400');
+    insertNewMessage(message, type, id, uid, reply, replyId, options, {});
 });
 
 socket.on('messageSent', (messageId, id) => {
     outgoingmessage.play();
     document.getElementById(messageId).classList.add('delevered');
     document.getElementById(messageId).id = id;
-    /*
-    if (type === 'image'){
-        document.getElementById(id).querySelector('.sendingImage').remove();
-        document.getElementById(id).querySelector('.image').style.filter = 'none';
-    }
-    */
 });
 
 socket.on('getReact', (target, messageId, myId) => {
@@ -1433,12 +1452,65 @@ socket.on('stoptyping', (id) => {
     }
 });
 
-
 //on disconnect
 socket.on('disconnect', () => {
     console.log('disconnected');
     popupMessage('Disconnected from server');
 });
+
+fileSocket.on('connect', () => {
+    console.log('fileSocket connected');
+    fileSocket.emit('join', myKey);
+});
+
+fileSocket.on('fileDownloadStart', (type, tempId, uId, reply, replyId, options, metadata) => {
+    //console.log('fileDownloadStart');
+    fileBuffer.set(tempId, {type: type, data: '', uId: uId, reply: reply, replyId: replyId, options: options, metadata: metadata});
+});
+
+fileSocket.on('fileDownloadStream', (chunk, tempId) => {
+    //console.log('fileDownloadStream');
+    fileBuffer.get(tempId).data += chunk;
+});
+
+fileSocket.on('fileUploadProgress', (tempId, progress) => {
+    let elem = document.getElementById(tempId)?.querySelector('.messageMain');
+    //console.log(`tempId: ${tempId} | progress: ${progress} | elem: ${elem}`);
+    if (elem && elem.querySelector('.sendingImage')){
+        elem.querySelector('.sendingImage').textContent = `${progress}%`;
+    }
+});
+
+fileSocket.on('fileDownloadEnd', (tempId, id) => {
+    console.log('fileDownloadEnd');
+    let data = fileBuffer.get(tempId);
+    let type = data.type;
+    let size = data.size;
+    let ext = data.ext;
+    let uId = data.uId;
+    let reply = data.reply;
+    let replyId = data.replyId;
+    let options = data.options;
+    let message = data.data;
+    fileBuffer.delete(tempId);
+    if (type === 'image') {
+        insertNewMessage(message, 'image', id, uId, reply, replyId, options, {});
+    } else if (type === 'file') {
+        insertNewMessage(message, 'file', id, uId, reply, replyId, options, {ext: ext, size: size});
+    }
+});
+
+fileSocket.on('fileSent', (fileId, id) => {
+    outgoingmessage.play();
+    document.getElementById(fileId).classList.add('delevered');
+    let elem = document.getElementById(fileId)?.querySelector('.messageMain');
+    if (elem){
+        document.querySelector('.sendingImage').remove();
+        elem.querySelector('.image').style.filter = 'none';
+    }
+    document.getElementById(fileId).id = id;
+});
+
 
 
 appHeight();
