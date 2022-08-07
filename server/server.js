@@ -6,6 +6,9 @@ const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const socketIO = require('socket.io');
 const uuid = require("uuid");
+const aws = require('aws-sdk');
+const bcrypt = require('bcrypt');
+const { instrument } = require("@socket.io/admin-ui");
 
 const version = process.env.npm_package_version;
 
@@ -25,12 +28,28 @@ const apiRequestLimiter = rateLimit({
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
 
+let s3 = new aws.S3({
+  username: process.env.USER_NAME,
+  password: process.env.PASSWORD
+});
+
 let app = express();
 let server = http.createServer(app);
 let io = socketIO(server,{
-  maxHttpBufferSize: 1e8, pingTimeout: 60000
+  maxHttpBufferSize: 1e8, pingTimeout: 60000,
+  cors: {
+    origin: ["https://admin.socket.io", "https://poketabmessanger.herokuapp.com", "https://poketabmessanger.herokuapp.com/", "localhost:3000", "localhost:3000/", "http://localhost:3000", "http://localhost:3000/"],
+    credentials: true
+  }
 });
 
+instrument(io, {
+  auth: {
+    type: "basic",
+    username: s3.username,
+    password: bcrypt.hashSync(s3.password || '', 10)
+  }
+});
 
 let users = new Users();
 const devMode = false;
