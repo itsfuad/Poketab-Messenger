@@ -1200,6 +1200,10 @@ function FileUpload(fileFromClipboard = null){
     //if file more than 15 mb
     if (file.size > 15000000){
         popupMessage('File size must be less than 15 mb');
+        document.getElementById('previewImage')?.classList.remove('active');
+        while (document.getElementById('selectedImage').firstChild) {
+            document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+        }
         return;
     }
 
