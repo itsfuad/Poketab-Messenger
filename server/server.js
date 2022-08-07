@@ -266,16 +266,16 @@ fileSocket.on('connection', (socket) => {
     //socket.broadcast.emit('fileDownloadStart', type, size, tempId, uId, reply, replyId, options, metadata);
   });
 
-  socket.on('fileUploadStream', (chunk, tempId, percentage, key) => {
+  socket.on('fileUploadStream', (chunk, tempId, percentage, key, type) => {
       socket.broadcast.to(key).emit('fileDownloadStream', chunk, tempId);
-      socket.emit('fileUploadProgress', tempId, percentage);
+      socket.emit('fileUploadProgress', tempId, percentage, type);
   });
 
-  socket.on('fileUploadEnd', (tempId, key, uId) => {
+  socket.on('fileUploadEnd', (tempId, key, type, size) => {
     //console.log('Received file upload end request');
     let id = uuid.v4();
     socket.broadcast.to(key).emit('fileDownloadEnd', tempId, id);
-    socket.emit('fileSent', tempId, id);
+    socket.emit('fileSent', tempId, id, type, size);
   });
 });
 

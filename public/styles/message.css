@@ -199,6 +199,9 @@ code {
   padding: 8px;
   background: var(--secondary-dark);
 }
+.message:is(.self) .messageBody .messageMain .file {
+  background: var(--secondary-dark);
+}
 .message:is(.self) .messageBody .messageMain > * {
   border-radius: 15px 3px 3px 15px;
 }
@@ -237,6 +240,34 @@ code {
   background: none !important;
   font-size: 30px !important;
   padding: 0 !important;
+}
+
+.file {
+  padding: 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: #516696;
+}
+.file .fa-file-lines {
+  color: currentColor;
+}
+
+.fileInfo {
+  display: grid;
+  grid-template-columns: 5fr 2fr;
+  font-size: 0.7rem;
+  gap: 5px;
+}
+.fileInfo .fileName, .fileInfo .fileSize {
+  display: grid;
+  place-items: center;
+}
+.fileInfo .fileName {
+  text-decoration: underline;
+}
+.fileInfo .fileSize {
+  font-size: 0.5rem;
 }
 
 .deleted .messageTitle {

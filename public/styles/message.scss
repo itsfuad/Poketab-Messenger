@@ -215,6 +215,9 @@ code{
                 padding: 8px;
                 background: var(--secondary-dark);
             }
+            .file{
+                background: var(--secondary-dark);
+            }
             & > *{
                 border-radius: 15px 3px 3px 15px;
             }
@@ -266,6 +269,34 @@ code{
     background: none !important; 
     font-size:30px !important; 
     padding: 0 !important;
+}
+
+.file{
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: #516696;
+    .fa-file-lines{
+        color: currentColor;
+    }
+}
+
+.fileInfo{
+    display: grid;
+    grid-template-columns: 5fr 2fr;
+    font-size: 0.7rem;
+    gap: 5px;
+    .fileName, .fileSize{
+        display: grid;
+        place-items: center;
+    }
+    .fileName{
+        text-decoration: underline;
+    }
+    .fileSize{
+        font-size: 0.5rem;
+    }
 }
 
 .deleted{

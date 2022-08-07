@@ -2,10 +2,10 @@
 'use strict';
 
 //bundles
-/*
+
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
-*/
+
 console.log('loaded');
 
 //variables
@@ -53,13 +53,24 @@ let scrolling = false; //to check if user is scrolling or not
 let lastPageLength = messages.scrollTop; // after adding a new message the page size gets updated
 let scroll = 0; //total scrolled up or down by pixel
 let selectedImage = undefined;
-
+let selectedFile = {
+    data: '',
+    name: '',
+    size: '',
+    ext: ''
+};
+let selectedObject = '';
 //the message which fires the event
 let targetMessage = {
     sender: '',
     message: '',
     id: '',
 };
+
+let targetFile = {
+    fileName: '',
+    fileData: ''
+}
 
 //after the message is varified we store the message info here
 let finalTarget = {
@@ -191,7 +202,6 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
         };
     }
     //console.log(type);
-    let template = document.getElementById('messageTemplate').innerHTML; //loads the template from the html
     let classList = ''; //the class list for the message. Initially empty. 
     let lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
     let popupmsg = ''; //the message to be displayed in the popup if user scrolled up 
@@ -203,9 +213,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     }else if(type === 'image'){ //if the message is an image
         popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
         message = `<img class='image' src='${message}' alt='image' />`; //insert the image
-    }else if (type === 'file'){
-        console.log(`File received with type: ${metadata.ext} and size: ${metadata.size}`);
-    }else{
+    }else if(type != 'text' && type != 'image' && type != 'file'){ //if the message is not a text or image message
         throw new Error('Invalid message type');
     }
     if(uid == myId){ //if the message is sent by the user is me
@@ -245,18 +253,39 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     if (repliedTo == myName){repliedTo = 'You';}
     if (repliedTo == username){repliedTo = 'self';}
 
+    let template, html;
 
-    let html = Mustache.render(template, {
-        classList: classList,
-        avatar: `<img src='/images/avatars/${avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
-        messageId: id,
-        uid: uid,
-        repId: replyId,
-        title: options.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
-        message: message,
-        replyMsg: reply,
-        time: getCurrentTime()
-    });
+    if (type === 'file'){
+        template = document.getElementById('fileTemplate').innerHTML;
+        html = Mustache.render(template, {
+            classList: classList,
+            avatar: `<img src='/images/avatars/${avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
+            messageId: id,
+            uid: uid,
+            repId: replyId,
+            title: options.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+            data: message,
+            fileName: metadata.name,
+            fileSize: metadata.size,
+            ext: metadata.ext,
+            replyMsg: reply,
+            time: getCurrentTime()
+        });
+    }else{
+        template  = document.getElementById('messageTemplate').innerHTML; //loads the template from the html
+        html = Mustache.render(template, {
+            classList: classList,
+            avatar: `<img src='/images/avatars/${avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
+            messageId: id,
+            uid: uid,
+            repId: replyId,
+            title: options.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+            message: message,
+            replyMsg: reply,
+            time: getCurrentTime()
+        });
+    }
+
     /*
     messages.innerHTML += html;
     */
@@ -369,6 +398,8 @@ function showOptions(type, sender, target){
         copyOption.style.display = 'flex';
     }else if (type == 'image'){ //if the message is an image
         downloadOption.style.display = 'flex';
+    }else if (type == 'file'){ //if the message is a file
+        downloadOption.style.display = 'flex';
     }
     if (sender == true){ //if the message is sent by me
         deleteOption.style.display = 'flex'; //then shgell the delete option
@@ -438,8 +469,17 @@ function deleteMessage(messageId, user){
     }
 }
 
-function saveImage()
-{
+function downloadHandler(){
+    if (targetMessage.message === 'Image'){
+        console.log('image');
+        saveImage();
+    }else{
+        console.log('file');
+        downloadFile();
+    }
+}
+
+function saveImage(){
   try{
     let a = document.createElement('a');
     a.href = document.querySelector('#lightbox__image img').src;
@@ -450,6 +490,18 @@ function saveImage()
   }catch(e){
     console.log(e);
   }
+}
+
+function downloadFile(){
+    let data = targetFile.fileData;
+    let fileName = targetFile.fileName;
+    //let filetype = filename.split('.').pop();
+    let a = document.createElement('a');
+    a.href = data;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
 
 function optionsReactEvent(e){
@@ -674,7 +726,18 @@ function OptionEventHandler(evt){
         targetMessage.message = 'Image';
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
-    if (type == 'text' || type == 'image'){
+    else if (evt.target.closest('.messageMain')?.querySelector('.file') ?? null){
+        type = 'file';
+        targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
+        if (targetMessage.sender == myName){
+            targetMessage.sender = 'You';
+        }
+        targetFile.fileName = evt.target.closest('.message').querySelector('.fileName').textContent;
+        targetFile.fileData = evt.target.closest('.message').querySelector('.file').dataset.data;
+        targetMessage.message = targetFile.fileName;
+        targetMessage.id = evt.target?.closest('.message')?.id;
+    }
+    if (type == 'text' || type == 'image' || type == 'file'){
         showOptions(type, sender, evt.target);
     }
 }
@@ -1072,7 +1135,7 @@ replyOption.addEventListener('click', showReplyToast);
 copyOption.addEventListener('click', () => {
     copyText(null);
 });
-downloadOption.addEventListener('click', saveImage);
+downloadOption.addEventListener('click', downloadHandler);
 deleteOption.addEventListener('click', ()=>{
     let uid = document.getElementById(targetMessage.id)?.dataset?.uid;
     if (uid){
@@ -1103,6 +1166,7 @@ function ImageUpload(fileFromClipboard = null){
         let data = e.target.result;
         //localStorage.setItem('selectedImage', data);
         selectedImage = data;
+        selectedObject = 'image';
         //document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
         while (document.getElementById('selectedImage').firstChild) {
             document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
@@ -1124,17 +1188,18 @@ function FileUpload(fileFromClipboard = null){
     let file = fileFromClipboard || fileButton.files[0];
     let filename = file.name;
     let size = file.size;
+    let extention = filename.split('.').pop();
     //convert to B, KB, MB
     if (size < 1024){
-        size = size + ' B';
+        size = size + 'b';
     }else if (size < 1048576){
-        size = (size/1024).toFixed(2) + ' KB';
+        size = (size/1024).toFixed(1) + 'kb';
     }else{
-        size = (size/1048576).toFixed(2) + ' MB';
+        size = (size/1048576).toFixed(1) + 'mb';
     }
     //if file more than 15 mb
     if (file.size > 15000000){
-        popupMessage('File size must be less than 15 MB');
+        popupMessage('File size must be less than 15 mb');
         return;
     }
 
@@ -1143,7 +1208,11 @@ function FileUpload(fileFromClipboard = null){
     reader.onload = (e) => {
         let data = e.target.result;
         //localStorage.setItem('selectedImage', data);
-        selectedImage = data;
+        selectedFile.data = data;
+        selectedFile.name = filename;
+        selectedFile.size = size;
+        selectedFile.ext = extention;
+        selectedObject = 'file';
         //document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
         while (document.getElementById('selectedImage').firstChild) {
             document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
@@ -1185,6 +1254,8 @@ window.addEventListener('drop', (evt) => {
         if (evt.dataTransfer.files.length > 0){
             if (evt.dataTransfer.files[0].type.includes('image')){
                 ImageUpload(evt.dataTransfer.files[0]);
+            }else{
+                FileUpload(evt.dataTransfer.files[0]);
             }
         }
     }
@@ -1263,35 +1334,60 @@ document.getElementById('previewImage').querySelector('.close')?.addEventListene
 
 document.getElementById('previewImage').querySelector('#imageSend')?.addEventListener('click', ()=>{
     document.getElementById('previewImage')?.classList?.remove('active');
-    let image = new Image();
-    image.src = selectedImage;
-    image.onload = async function() {
-        let resized = resizeImage(image, image.mimetype);
-        let tempId = makeId();
-        scrolling = false;
-        insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.length});
-        //socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
-        //store image in 100 parts
-        let elem = document.getElementById(tempId)?.querySelector('.messageMain');
-        let elem2 = document.createElement('div');
-        elem2.textContent = '0%';
-        elem2.classList.add('sendingImage');
-        elem.querySelector('.image').style.filter = 'brightness(0.4)';
-        elem.appendChild(elem2);
-        let partSize = resized.length / 200;
-        let partArray = [];
-        fileSocket.emit('fileUploadStart', 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.length}, myKey);
-
-        for (let i = 0; i < resized.length; i += partSize) {
-            //console.log(`${Math.round((i / resized.length) * 100)}%`);
-            partArray.push(resized.substring(i, i + partSize));
-            fileSocket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId, Math.round((i / resized.length) * 100), myKey);
-            await sleep(5);
+    //check if image or file is selected
+    if (selectedObject === 'image'){
+        let image = new Image();
+        image.src = selectedImage;
+        image.onload = async function() {
+            let resized = resizeImage(image, image.mimetype);
+            let tempId = makeId();
+            scrolling = false;
+            insertNewMessage(resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.length});
+            //socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
+            //store image in 100 parts
+            let elem = document.getElementById(tempId)?.querySelector('.messageMain');
+            let elem2 = document.createElement('div');
+            elem2.textContent = '0%';
+            elem2.classList.add('sendingImage');
+            elem.querySelector('.image').style.filter = 'brightness(0.4)';
+            elem.appendChild(elem2);
+            let partSize = resized.length / 200;
+            let partArray = [];
+            fileSocket.emit('fileUploadStart', 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.length}, myKey);
+    
+            for (let i = 0; i < resized.length; i += partSize) {
+                //console.log(`${Math.round((i / resized.length) * 100)}%`);
+                partArray.push(resized.substring(i, i + partSize));
+                fileSocket.emit('fileUploadStream', resized.substring(i, i + partSize), tempId, Math.round((i / resized.length) * 100), myKey, 'image');
+                await sleep(5);
+            }
+            fileSocket.emit('fileUploadEnd', tempId, myKey, 'image');
+            while (document.getElementById('selectedImage').firstChild) {
+                document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+            }
         }
-        fileSocket.emit('fileUploadEnd', tempId, myKey);
-        while (document.getElementById('selectedImage').firstChild) {
-            document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
-        }
+    }else if (selectedObject === 'file'){
+        (async () => {
+            let tempId = makeId();
+            scrolling = false;
+            insertNewMessage(selectedFile.data, 'file', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name});
+           
+            //store image in 100 parts
+            let partSize = selectedFile.data.length / 200;
+            let partArray = [];
+            fileSocket.emit('fileUploadStart', 'file', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey);
+            //document.getElementById(tempId).querySelector('.messageMain').style.filter = 'brightness(0.4)';
+            for (let i = 0; i < selectedFile.data.length; i += partSize) {
+                //console.log(`${Math.round((i / resized.length) * 100)}%`);
+                partArray.push(selectedFile.data.substring(i, i + partSize));
+                fileSocket.emit('fileUploadStream', selectedFile.data.substring(i, i + partSize), tempId, Math.round((i / selectedFile.data.length) * 100), myKey, 'file');
+                await sleep(5);
+            }
+            fileSocket.emit('fileUploadEnd', tempId, myKey, 'file', selectedFile.size);
+            while (document.getElementById('selectedImage').firstChild) {
+                document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+            }
+        })();
     }
     //localStorage.removeItem('selectedImage');
 });
@@ -1345,6 +1441,7 @@ window.addEventListener('paste', (e) => {
                         if (file.type.match('image.*')) {
                             //localStorage.setItem('selectedImage', file);
                             selectedImage = file;
+                            selectedObject = 'image';
                             ImageUpload(file);
                         }
                     }
@@ -1473,20 +1570,25 @@ fileSocket.on('fileDownloadStream', (chunk, tempId) => {
     fileBuffer.get(tempId).data += chunk;
 });
 
-fileSocket.on('fileUploadProgress', (tempId, progress) => {
+fileSocket.on('fileUploadProgress', (tempId, progress, type) => {
     let elem = document.getElementById(tempId)?.querySelector('.messageMain');
-    //console.log(`tempId: ${tempId} | progress: ${progress} | elem: ${elem}`);
-    if (elem && elem.querySelector('.sendingImage')){
-        elem.querySelector('.sendingImage').textContent = `${progress}%`;
+    if (type === 'image'){
+        //console.log(`tempId: ${tempId} | progress: ${progress} | elem: ${elem}`);
+        if (elem && elem.querySelector('.sendingImage')){
+            elem.querySelector('.sendingImage').textContent = `${progress}%`;
+        }
+    }else if (type === 'file'){
+        elem.querySelector('.fileSize').textContent = `${progress}%`;
     }
 });
 
 fileSocket.on('fileDownloadEnd', (tempId, id) => {
-    console.log('fileDownloadEnd');
+    //console.log('fileDownloadEnd');
     let data = fileBuffer.get(tempId);
     let type = data.type;
-    let size = data.size;
-    let ext = data.ext;
+    let size = data.metadata.size;
+    let name = data.metadata.name;
+    let ext = data.metadata.ext;
     let uId = data.uId;
     let reply = data.reply;
     let replyId = data.replyId;
@@ -1496,18 +1598,26 @@ fileSocket.on('fileDownloadEnd', (tempId, id) => {
     if (type === 'image') {
         insertNewMessage(message, 'image', id, uId, reply, replyId, options, {});
     } else if (type === 'file') {
-        insertNewMessage(message, 'file', id, uId, reply, replyId, options, {ext: ext, size: size});
+        insertNewMessage(message, 'file', id, uId, reply, replyId, options, {ext: ext, size: size, name: name});
     }
 });
 
-fileSocket.on('fileSent', (fileId, id) => {
+fileSocket.on('fileSent', (fileId, id, type, size) => {
     outgoingmessage.play();
     document.getElementById(fileId).classList.add('delevered');
     let elem = document.getElementById(fileId)?.querySelector('.messageMain');
-    if (elem){
-        document.querySelector('.sendingImage').remove();
-        elem.querySelector('.image').style.filter = 'none';
+
+    if (type === 'image') {
+        if (elem){
+            document.querySelector('.sendingImage').remove();
+            elem.querySelector('.image').style.filter = 'none';
+        }
+    } else if (type === 'file') {
+        let fileSize = document.getElementById(fileId)?.querySelector('.fileSize');
+        fileSize.textContent = size;
+        elem.querySelector('.file').style.filter = 'none';
     }
+
     document.getElementById(fileId).id = id;
 });
 
