@@ -404,9 +404,7 @@ img {
   width: max-content;
   visibility: visible;
   opacity: 1;
-  background: var(--focus-dark);
-  -webkit-backdrop-filter: blur(6px);
-          backdrop-filter: blur(6px);
+  background: #192838;
   z-index: 1;
 }
 
@@ -430,7 +428,7 @@ img {
 
 .upload_image, .upload_file {
   position: relative;
-  padding-right: 5px;
+  padding: 10px 0 10px 0;
 }
 
 input[type=file] {
