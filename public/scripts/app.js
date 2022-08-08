@@ -910,8 +910,6 @@ function vibrate(){
 }
   
 
-
-
 //Event listeners
 
 
@@ -1375,7 +1373,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             let tempId = makeId();
             scrolling = false;
             insertNewMessage(selectedFile.data, 'file', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name});
-           
+        
             //store image in 100 parts
             let partSize = selectedFile.data.length / 200;
             let partArray = [];
@@ -1388,6 +1386,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
                 await sleep(5);
             }
             fileSocket.emit('fileUploadEnd', tempId, myKey, 'file', selectedFile.size);
+
             while (document.getElementById('selectedImage').firstChild) {
                 document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
             }
