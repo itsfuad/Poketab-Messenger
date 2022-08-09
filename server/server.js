@@ -260,14 +260,14 @@ fileSocket.on('connection', (socket) => {
     socket.join(key);
   });
 
-  socket.on('fileUploadStart', (type, tempId, uId, reply, replyId, options, metadata, key) => {
-    //console.log('Received file upload start request', key);
-    socket.broadcast.to(key).emit('fileDownloadStart', type, tempId, uId, reply, replyId, options, metadata);
+  socket.on('fileUploadStart', ( type, thumbnail, tempId, uId, reply, replyId, options, metadata, key) => {
+    console.log('Received file upload start request', key);
+    socket.broadcast.to(key).emit('fileDownloadStart', type, thumbnail, tempId, uId, reply, replyId, options, metadata);
     //socket.broadcast.emit('fileDownloadStart', type, size, tempId, uId, reply, replyId, options, metadata);
   });
 
   socket.on('fileUploadStream', (chunk, tempId, percentage, key, type) => {
-      socket.broadcast.to(key).emit('fileDownloadStream', chunk, tempId);
+      socket.broadcast.to(key).emit('fileDownloadStream', chunk, tempId, percentage, type);
       socket.emit('fileUploadProgress', tempId, percentage, type);
   });
 

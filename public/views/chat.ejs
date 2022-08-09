@@ -181,6 +181,9 @@
         </ul>
     </div>
 
+
+    <img src="/images/loader.gif" id="imgdownloadpreload" style="display: none;">
+
     <!-- Message template -->
     <template id="messageTemplate">
         <li class="message {{classList}}" id="{{messageId}}" data-uid="{{uid}}"> <!-- noreply notitle delevered start end self react -->
@@ -221,7 +224,12 @@
             <div class="reactedUsers" style="display: none;"></div>
         </li>
     </template>
-
+    <svg style="display: none;" class='hideSvgSoThatItSupportsFirefox'>
+        <filter id='sharpBlur'>
+          <feGaussianBlur stdDeviation='5'></feGaussianBlur>
+          <feComposite in2='SourceGraphic' operator='in'></feComposite>
+        </filter>
+    </svg>
     <script>
         const myId = "<%=myId_%>";
         const myName = "<%=myName_%>";

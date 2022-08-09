@@ -131,8 +131,9 @@ code {
   align-items: flex-start;
 }
 .messageMain img {
-  width: 100%;
   height: 100%;
+  max-width: 100%;
+  background: #516696;
 }
 .messageMain > * {
   border-radius: 3px 15px 15px 3px;
@@ -205,6 +206,9 @@ code {
 .message:is(.self) .messageBody .messageMain > * {
   border-radius: 15px 3px 3px 15px;
 }
+.message:is(.self) .messageBody .messageMain img {
+  background: var(--secondary-dark);
+}
 .message:is(.self):is(.start) .messageMain > * {
   border-bottom-right-radius: 3px;
   border-top-right-radius: 15px;
@@ -219,7 +223,7 @@ code {
   visibility: visible;
 }
 
-.self .messageMain .sendingImage {
+.messageMain .sendingImage {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -227,12 +231,9 @@ code {
   width: 50px;
   height: 50px;
   color: white;
-  border-radius: 50% !important;
-  border: 2px solid white;
   font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   z-index: 12;
 }
 
@@ -255,7 +256,7 @@ code {
 
 .fileInfo {
   display: grid;
-  grid-template-columns: 5fr 2fr;
+  grid-template-columns: 6fr 1.5fr;
   font-size: 0.7rem;
   gap: 5px;
 }
