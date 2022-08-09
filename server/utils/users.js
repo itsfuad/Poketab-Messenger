@@ -46,6 +46,5 @@ class Users {
       return uidArray;
     }
 }
+
 module.exports = {Users};
-  
-  

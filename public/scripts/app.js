@@ -352,6 +352,12 @@ function emojiParser(text){
     emojiMap.set(':meh:', '😶');
     emojiMap.set(':hmm:', '😏');
     emojiMap.set(':wtf:', '🤨');
+    emojiMap.set(':yay:', '🥳');
+    emojiMap.set(':yolo:', '🤪');
+    emojiMap.set(':yikes:', '😱');
+    emojiMap.set(':sweat:', '😅');
+    emojiMap.set(':sick:', '🤢');
+    
 
     //find if the message contains the emoji
     for (let [key, value] of emojiMap){
