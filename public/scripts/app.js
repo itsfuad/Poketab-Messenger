@@ -1364,7 +1364,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         image.src = selectedImage;
         image.onload = async function() {
             let resized = resizeImage(image, image.mimetype);
-            let thumbnail = resizeImage(image, image.mimetype, 100);
+            let thumbnail = resizeImage(image, image.mimetype, 50);
             let tempId = makeId();
             scrolling = false;
             insertNewMessage(resized.data, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.data.length, height: resized.height, width: resized.width});
@@ -1376,7 +1376,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             elem2.classList.add('sendingImage');
             elem.querySelector('.image').style.filter = 'brightness(0.4)';
             elem.appendChild(elem2);
-            let partSize = resized.data.length / 200;
+            let partSize = resized.data.length / 100;
             let partArray = [];
             fileSocket.emit('fileUploadStart', 'image', thumbnail.data, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.data.length, height: resized.height, width: resized.width}, myKey);
     
@@ -1384,7 +1384,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
                 //console.log(`${Math.round((i / resized.length) * 100)}%`);
                 partArray.push(resized.data.substring(i, i + partSize));
                 fileSocket.emit('fileUploadStream', resized.data.substring(i, i + partSize), tempId, Math.round((i / resized.data.length) * 100), myKey, 'image');
-                await sleep(5);
+                await sleep(10);
             }
             fileSocket.emit('fileUploadEnd', tempId, myKey, 'image');
             while (document.getElementById('selectedImage').firstChild) {
@@ -1398,7 +1398,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             insertNewMessage(selectedFile.data, 'file', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name});
            
             //store image in 100 parts
-            let partSize = selectedFile.data.length / 200;
+            let partSize = selectedFile.data.length / 100;
             let partArray = [];
             fileSocket.emit('fileUploadStart', 'file', '', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey);
             //document.getElementById(tempId).querySelector('.messageMain').style.filter = 'brightness(0.4)';
@@ -1406,7 +1406,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
                 //console.log(`${Math.round((i / resized.length) * 100)}%`);
                 partArray.push(selectedFile.data.substring(i, i + partSize));
                 fileSocket.emit('fileUploadStream', selectedFile.data.substring(i, i + partSize), tempId, Math.round((i / selectedFile.data.length) * 100), myKey, 'file');
-                await sleep(5);
+                await sleep(10);
             }
             fileSocket.emit('fileUploadEnd', tempId, myKey, 'file', selectedFile.size);
             while (document.getElementById('selectedImage').firstChild) {
