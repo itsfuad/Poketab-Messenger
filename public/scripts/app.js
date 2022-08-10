@@ -1601,7 +1601,7 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, tempId, uId, reply, replyId
             let elem2 = document.createElement('div');
             elem2.textContent = '↓ 0%';
             elem2.classList.add('sendingImage');
-            elem.querySelector('.image').style.filter = 'url(#sharpBlur)';
+            elem.querySelector('.image').style.filter = 'brightness(0.4) url(#sharpBlur)';
             elem.appendChild(elem2);
         }, 100);
     }else{
