@@ -266,9 +266,10 @@ fileSocket.on('connection', (socket) => {
     //socket.broadcast.emit('fileDownloadStart', type, size, tempId, uId, reply, replyId, options, metadata);
   });
 
-  socket.on('fileUploadStream', (chunk, tempId, progress, key, type) => {
+  socket.on('fileUploadStream', (chunk, tempId, progress, key, type, callback) => {
       socket.broadcast.to(key).emit('fileDownloadStream', chunk, tempId, progress, type);
-      socket.emit('fileUploadProgress', tempId, progress, type);
+      callback();
+      //socket.emit('fileUploadProgress', tempId, progress, type);
   });
 
   socket.on('fileUploadEnd', (tempId, key, type, size) => {
