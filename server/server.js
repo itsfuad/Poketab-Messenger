@@ -246,7 +246,7 @@ io.on('connection', (socket) => {
         keys.delete(user.key);
         console.log(`Session ended with key: ${user.key}`);
       }
-      console.log(`${usercount.length } users left`);
+      console.log(`${usercount.length } ${usercount.length > 1 ? 'users' : 'user'} left on ${user.key}`);
     }
   });
 });
