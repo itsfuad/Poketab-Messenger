@@ -178,7 +178,7 @@ io.on('connection', (socket) => {
   socket.on('message', (message, type, messageId, uId, reply, replyId, options) => {
     //console.log('Received new message request');
     let user = users.getUser(uids.get(socket.id));
-    console.log(user.key);
+    //console.log(user.key);
     if (user && isRealString(message)) {
       let id = uuid.v4();
       message = message.replace(/>/gi, "&gt;").replace(/</gi, "&lt;");

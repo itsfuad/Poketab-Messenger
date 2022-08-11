@@ -10,7 +10,10 @@
 }
 
 :root {
-  --loadedImage: "0%";
+  --msg-get: hsl(213, 40%, 57%);
+  --msg-get-reply: hsl(213, 35%, 27%);
+  --msg-send: hsl(213, 98%, 57%);
+  --msg-send-reply: hsl(213, 88%, 27%);
 }
 
 #messages {
@@ -76,7 +79,7 @@ code {
   display: block;
 }
 .message .messageBody .messageReply {
-  background: #213a54;
+  background: var(--msg-get-reply);
   border-radius: 15px 15px 15px 3px;
   padding: 8px;
   padding-bottom: 25px;
@@ -122,7 +125,7 @@ code {
   cursor: pointer;
 }
 .messageMain p {
-  background: #516696;
+  background: var(--msg-get);
   padding: 8px;
   min-width: 32px;
   display: flex;
@@ -133,7 +136,7 @@ code {
 .messageMain img {
   height: 100%;
   max-width: 100%;
-  background: #516696;
+  background: var(--msg-get);
 }
 .messageMain > * {
   border-radius: 3px 15px 15px 3px;
@@ -191,23 +194,23 @@ code {
   align-items: flex-end;
 }
 .message:is(.self) .messageBody .messageReply {
-  background: #264770;
+  background: var(--msg-send-reply);
   padding: 8px;
   padding-bottom: 25px;
   border-radius: 15px 15px 3px 15px;
 }
 .message:is(.self) .messageBody .messageMain p {
   padding: 8px;
-  background: var(--secondary-dark);
+  background: var(--msg-send);
 }
 .message:is(.self) .messageBody .messageMain .file {
-  background: var(--secondary-dark);
+  background: var(--msg-send);
 }
 .message:is(.self) .messageBody .messageMain > * {
   border-radius: 15px 3px 3px 15px;
 }
 .message:is(.self) .messageBody .messageMain img {
-  background: var(--secondary-dark);
+  background: var(--msg-send);
 }
 .message:is(.self):is(.start) .messageMain > * {
   border-bottom-right-radius: 3px;
@@ -248,7 +251,7 @@ code {
   display: flex;
   flex-direction: row;
   align-items: center;
-  background: #516696;
+  background: var(--msg-get);
 }
 .file .fa-file-lines {
   color: currentColor;

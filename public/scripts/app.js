@@ -962,6 +962,11 @@ document.querySelectorAll('.theme').forEach(theme => {
         localStorage.setItem('theme', theme);
         //edit css variables
         document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${theme}_w.webp')`);
+        document.documentElement.style.setProperty('--secondary-dark', themeAccent[theme]['secondary']);
+        document.documentElement.style.setProperty('--msg-get', themeAccent[theme]['msg-get']);
+        document.documentElement.style.setProperty('--msg-get-reply', themeAccent[theme]['msg-get-reply']);
+        document.documentElement.style.setProperty('--msg-send', themeAccent[theme]['msg-send']);
+        document.documentElement.style.setProperty('--msg-send-reply', themeAccent[theme]['msg-send-reply']);
         document.querySelector('.themeChooser').classList.remove('active');
         hideOptions();
     });
@@ -1176,7 +1181,7 @@ function ImageUpload(fileFromClipboard = null){
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
-    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: #2585fd;'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
+    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[localStorage.getItem('theme')]['secondary']}'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
     document.getElementById('selectedImage').append(fragment);
     document.getElementById('previewImage')?.classList?.add('active');
     let file = fileFromClipboard || photoButton.files[0];
@@ -1261,7 +1266,7 @@ window.addEventListener('dragover', (evt) => {
     evt.stopPropagation();
     fileDropZone.classList.add('active');
     if (evt.target.classList.contains('fileDropZoneContent')){
-        document.querySelector('.fileDropZoneContent').style.color = '#2585fd';
+        document.querySelector('.fileDropZoneContent').style.color = themeAccent[localStorage.getItem('theme')]['secondary'];
         if (timeoutObj) {
             clearTimeout(timeoutObj);
         }

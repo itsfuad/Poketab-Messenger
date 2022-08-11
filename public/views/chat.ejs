@@ -238,12 +238,52 @@
         const maxUser = "<%=maxUser_%>";
         const devMode = "<%=devMode_%>";
 
+        const themeAccent = {
+            blue: {
+                secondary: 'hsl(213, 98%, 57%)',
+                foreground: '#e1eeff',
+                'msg-get': 'hsl(213, 40%, 57%)',
+                'msg-get-reply': 'hsl(213, 35%, 27%)',
+                'msg-send': 'hsl(213, 98%, 57%)',
+                'msg-send-reply': 'hsl(213, 88%, 27%)'
+            },
+            geometry: {
+                secondary: 'hsl(15, 98%, 57%)',
+                foreground: '#e1eeff',
+                'msg-get': 'hsl(15, 40%, 57%)',
+                'msg-get-reply': 'hsl(15, 35%, 27%)',
+                'msg-send': 'hsl(15, 98%, 57%)',
+                'msg-send-reply': 'hsl(15, 88%, 27%)'
+            },
+            dark_mood: {
+                secondary: 'hsl(216, 37%, 44%)',
+                foreground: '#e1eeff',
+                'msg-get': 'hsl(216, 27%, 33%)',
+                'msg-get-reply': 'hsl(216, 20%, 21%)',
+                'msg-send': 'hsl(216, 37%, 44%)',
+                'msg-send-reply': 'hsl(216, 32%, 23%)'
+            },
+            forest: {
+                secondary: 'hsl(162, 60%, 42%)',
+                foreground: '#e1eeff',
+                'msg-get': 'hsl(162, 18%, 41%)',
+                'msg-get-reply': 'hsl(162, 14%, 27%)',
+                'msg-send': 'hsl(162, 60%, 42%)',
+                'msg-send-reply': 'hsl(162, 32%, 34%)'
+            }
+        }
+
         function loadTheme(){
             let theme = localStorage.getItem("theme");
             if(theme == null){
                 theme = "blue";
             }
             document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${theme}_w.webp')`);
+            document.documentElement.style.setProperty('--secondary-dark', themeAccent[theme]['secondary']);
+            document.documentElement.style.setProperty('--msg-get', themeAccent[theme]['msg-get']);
+            document.documentElement.style.setProperty('--msg-get-reply', themeAccent[theme]['msg-get-reply']);
+            document.documentElement.style.setProperty('--msg-send', themeAccent[theme]['msg-send']);
+            document.documentElement.style.setProperty('--msg-send-reply', themeAccent[theme]['msg-send-reply']);
         }
         
         loadTheme();
