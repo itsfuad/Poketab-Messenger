@@ -289,8 +289,7 @@ code{
 }
 
 .fileInfo{
-    display: grid;
-    grid-template-columns: 6fr 1.5fr;
+    display: flex;
     font-size: 0.7rem;
     gap: 5px;
     .fileName, .fileSize{
@@ -299,9 +298,11 @@ code{
     }
     .fileName{
         text-decoration: underline;
+        padding-left: 10px;
     }
     .fileSize{
         font-size: 0.5rem;
+        min-width: 50px;
     }
 }
 

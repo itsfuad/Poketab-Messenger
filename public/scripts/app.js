@@ -1210,12 +1210,13 @@ function FileUpload(fileFromClipboard = null){
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
-    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: #2585fd;'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
+    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[localStorage.getItem('theme')]['secondary']};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
     document.getElementById('selectedImage').append(fragment);
     document.getElementById('previewImage')?.classList?.add('active');
     let file = fileFromClipboard || fileButton.files[0];
     let filename = file.name;
     let size = file.size;
+
     let extention = filename.split('.').pop();
     //convert to B, KB, MB
     if (size < 1024){
@@ -1249,7 +1250,7 @@ function FileUpload(fileFromClipboard = null){
         while (document.getElementById('selectedImage').firstChild) {
             document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
         }
-        const fragment = document.createRange().createContextualFragment(`<div class='file_preview'><i class="fa-regular fa-file-lines"></i><div>File: ${filename}</div><div>Size: ${size}</div></div>`);
+        const fragment = document.createRange().createContextualFragment(`<div class='file_preview'><i class="fa-regular fa-file-lines"></i><div>File: ${filename.length >= 25 ? filename.substring(0, 10) + '...' + filename.substring(filename.length - 10, filename.length) : filename}</div><div>Size: ${size}</div></div>`);
         document.getElementById('selectedImage').append(fragment);
         document.getElementById('previewImage').querySelector('#imageSend').style.display = 'block';
     }

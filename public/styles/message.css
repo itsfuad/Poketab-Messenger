@@ -258,8 +258,7 @@ code {
 }
 
 .fileInfo {
-  display: grid;
-  grid-template-columns: 6fr 1.5fr;
+  display: flex;
   font-size: 0.7rem;
   gap: 5px;
 }
@@ -269,9 +268,11 @@ code {
 }
 .fileInfo .fileName {
   text-decoration: underline;
+  padding-left: 10px;
 }
 .fileInfo .fileSize {
   font-size: 0.5rem;
+  min-width: 50px;
 }
 
 .deleted .messageTitle {
