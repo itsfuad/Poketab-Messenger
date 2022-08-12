@@ -175,15 +175,16 @@ io.on('connection', (socket) => {
   });
 
 
-  socket.on('message', (message, type, messageId, uId, reply, replyId, options) => {
+  socket.on('message', (message, type, uId, reply, replyId, options, callback) => {
     //console.log('Received new message request');
     let user = users.getUser(uids.get(socket.id));
     //console.log(user.key);
     if (user && isRealString(message)) {
       let id = uuid.v4();
       message = message.replace(/>/gi, "&gt;").replace(/</gi, "&lt;");
-      socket.emit('messageSent', messageId, id);
+      //socket.emit('messageSent', messageId, id);
       socket.broadcast.to(user.key).emit('newMessage', message, type, id, uId, reply, replyId, options);
+      callback(id);
       //console.log('Message sent');
     }
   });
@@ -272,11 +273,12 @@ fileSocket.on('connection', (socket) => {
       //socket.emit('fileUploadProgress', tempId, progress, type);
   });
 
-  socket.on('fileUploadEnd', (tempId, key, type, size) => {
+  socket.on('fileUploadEnd', (tempId, key, callback) => {
     //console.log('Received file upload end request');
     let id = uuid.v4();
     socket.broadcast.to(key).emit('fileDownloadEnd', tempId, id);
-    socket.emit('fileSent', tempId, id, type, size);
+    callback(id);
+    //socket.emit('fileSent', tempId, id, type, size);
   });
 });
 

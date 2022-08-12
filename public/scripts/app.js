@@ -1339,7 +1339,11 @@ sendButton.addEventListener('click', () => {
         }
         //console.log(`Sending message: ${message} | Type: ${type}`);
         insertNewMessage(message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
-        socket.emit('message', message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
+        socket.emit('message', message, 'text', myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function (id) {
+            outgoingmessage.play();
+            document.getElementById(tempId).classList.add('delevered');
+            document.getElementById(tempId).id = id;
+        });
     }
     finalTarget.message = '';
     finalTarget.sender = '';
@@ -1401,7 +1405,19 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
                 });
                 await sleep(4);
             }
-            fileSocket.emit('fileUploadEnd', tempId, myKey, 'image');
+            fileSocket.emit('fileUploadEnd', tempId, myKey, (id) => {
+                outgoingmessage.play();
+
+                document.getElementById(tempId).classList.add('delevered');
+                document.getElementById(tempId).dataset.downloaded = 'true';
+            
+                let elem = document.getElementById(tempId)?.querySelector('.messageMain');
+                if (elem){
+                    document.querySelector('.sendingImage').remove();
+                    elem.querySelector('.image').style.filter = 'none';
+                }
+                document.getElementById(tempId).id = id;
+            });
             while (document.getElementById('selectedImage').firstChild) {
                 document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
             }
@@ -1428,7 +1444,14 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
                 });
                 await sleep(4);
             }
-            fileSocket.emit('fileUploadEnd', tempId, myKey, 'file', selectedFile.size);
+            fileSocket.emit('fileUploadEnd', tempId, myKey, (id) => {
+                document.getElementById(tempId).classList.add('delevered');
+                document.getElementById(tempId).dataset.downloaded = 'true';
+                let fileSize = document.getElementById(tempId)?.querySelector('.fileSize');
+                fileSize.textContent = selectedFile.size;
+                elem.querySelector('.file').style.filter = 'none';
+                document.getElementById(tempId).id = id;
+            });
             while (document.getElementById('selectedImage').firstChild) {
                 document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
             }
@@ -1564,12 +1587,13 @@ socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
     //console.log(message, type, id, uid, reply, replyId, options, 'Line 1400');
     insertNewMessage(message, type, id, uid, reply, replyId, options, {});
 });
-
+/*
 socket.on('messageSent', (messageId, id) => {
     outgoingmessage.play();
     document.getElementById(messageId).classList.add('delevered');
     document.getElementById(messageId).id = id;
 });
+*/
 
 socket.on('getReact', (target, messageId, myId) => {
     getReact(target, messageId, myId);
@@ -1678,7 +1702,7 @@ fileSocket.on('fileDownloadEnd', (tempId, id) => {
     }
     updateScroll();
 });
-
+/*
 fileSocket.on('fileSent', (fileId, id, type, size) => {
     outgoingmessage.play();
 
@@ -1699,7 +1723,7 @@ fileSocket.on('fileSent', (fileId, id, type, size) => {
     }
     document.getElementById(fileId).id = id;
 });
-
+*/
 
 
 appHeight();
