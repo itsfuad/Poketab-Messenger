@@ -74,13 +74,13 @@ app.get('/', (_, res) => {
 });
 
 app.get('/join', (_, res) => {
-  res.render('join', {title: 'join', version: `v.${version}`, key: null, key_label: `Enter key <i id='lb__icon' class="fa-solid fa-key"></i>`});
+  res.render('join', {title: 'Join', version: `v.${version}`, key: null, key_label: `Enter key <i id='lb__icon' class="fa-solid fa-key"></i>`});
 });
 
 app.get('/join/:key', (req, res)=>{
   const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
   if (key_format.test(req.params.key)){
-    res.render('join', {title: 'join', key_label: `Checking <i id='lb__icon' class="fa-solid fa-circle-notch fa-spin"></i>` , version: `v.${version}`, key: req.params.key});
+    res.render('join', {title: 'Join', key_label: `Checking <i id='lb__icon' class="fa-solid fa-circle-notch fa-spin"></i>` , version: `v.${version}`, key: req.params.key});
   }
   else{
     res.redirect('/');
