@@ -77,16 +77,20 @@
             <div class="chatInput">
                 <!-- Location input -->
                 <div class="location" id="send-location"><i class="fa-solid fa-location-crosshairs"></i></div>
-                
-                <!--div class="upload_file">
-                    <label for="file" class="file-input-label"><i class="fa-solid fa-upload"></i></label>
-                    <input type="file" name="file" id="file">
-                </div -->
-                
-                <!-- Image Choose -->
-                <div class="upload_image">
-                <label for="photo"><i class="fa-solid fa-image"></i></label>
-                <input type="file" name="photo" id="photo" accept="image/png, image/jpg, image/jpeg, image/gif">
+                <div class="attachments clickable" id="attachment"><i class="fa-solid fa-paperclip"></i></div>
+                <div class="close_area" id="attmain">
+                    <div class="attachmentContainer">
+                        <!-- File Choose -->
+                        <div class="upload_file clickable">
+                            <label for="file" class="file-input-label"><i class="fa-regular fa-file-lines"></i><span class="clickable">Choose Document</span></label>
+                            <input type="file" name="file" id="file">
+                        </div>
+                        <!-- Image Choose -->
+                        <div class="upload_image clickable">
+                            <label for="photo"><i class="fa-regular fa-image"></i><span class="clickable">Choose Photo</span></label>
+                            <input type="file" name="photo" id="photo" accept="image/png, image/jpg, image/jpeg, image/gif">
+                        </div>
+                    </div>
                 </div>
                 <!-- Text input -->
                 <textarea name="chatInputBox" id="textbox" class="select" rows="1" placeholder="Message..."></textarea>
@@ -150,7 +154,7 @@
 
     <div class="fileDropZone">
         <div class="fileDropZoneContent">
-            <span>Drop image here</span>
+            <span>Drop file here</span>
         </div>
     </div>
 
@@ -163,19 +167,22 @@
     <div class="themeChooser">
         <ul class="themeList">
             <li class="theme clickable" id="blue">
-                <img class="themeIcon" src="./../images/backgrounds/blue_icon.webp" alt=""><span>Blue</span>
+                <img class="themeIcon" src="/images/backgrounds/blue_icon.webp" alt=""><span>Blue</span>
             </li>
             <li class="theme clickable" id="dark_mood">
-                <img class="themeIcon" src="./../images/backgrounds/dark_mood_icon.webp" alt=""><span>Dark Mood</span>
+                <img class="themeIcon" src="/images/backgrounds/dark_mood_icon.webp" alt=""><span>Dark Mood</span>
             </li>
             <li class="theme clickable" id="forest">
-                <img class="themeIcon" src="./../images/backgrounds/forest_icon.webp" alt=""><span>Forest</span>
+                <img class="themeIcon" src="/images/backgrounds/forest_icon.webp" alt=""><span>Forest</span>
             </li>
             <li class="theme clickable" id="geometry">
-                <img class="themeIcon" src="./../images/backgrounds/geometry_icon.webp" alt=""><span>Geometry</span>
+                <img class="themeIcon" src="/images/backgrounds/geometry_icon.webp" alt=""><span>Geometry</span>
             </li>
         </ul>
     </div>
+
+
+    <img src="/images/loader.gif" id="imgdownloadpreload" style="display: none;">
 
     <!-- Message template -->
     <template id="messageTemplate">
@@ -192,6 +199,37 @@
             <div class="reactedUsers" style="display: none;"></div>
         </li>
     </template>
+
+    <template id="fileTemplate">
+        <li class="message {{classList}}" id="{{messageId}}" data-uid="{{uid}}">
+            <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
+            <div class="avatar">{{{avatar}}}</div>
+            <div class="messageBody">
+                <div class="messageTitle">{{title}}</div>
+                <div class="messageReply" data-repid="{{repId}}" data-deleted>{{replyMsg}}</div>
+                <div class="messageMain">
+                    <div class="file" data-data="{{data}}" data-ext="{{ext}}">
+                        <div class="fileIcon">
+                            <i class="fa-regular fa-file-lines"></i>
+                        </div>
+                        <div class="fileInfo">
+                            <div class="fileName">{{fileName}}</div>
+                            <div class="fileSize">{{fileSize}}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reactsOfMessage"></div>
+            </div>
+            <div class="messageTime">{{time}}</div>
+            <div class="reactedUsers" style="display: none;"></div>
+        </li>
+    </template>
+    <svg style="display: none;" class='hideSvgSoThatItSupportsFirefox'>
+        <filter id='sharpBlur'>
+          <feGaussianBlur stdDeviation='5'></feGaussianBlur>
+          <feComposite in2='SourceGraphic' operator='in'></feComposite>
+        </filter>
+    </svg>
     <script>
         const myId = "<%=myId_%>";
         const myName = "<%=myName_%>";
@@ -200,12 +238,52 @@
         const maxUser = "<%=maxUser_%>";
         const devMode = "<%=devMode_%>";
 
+        const themeAccent = {
+            blue: {
+                secondary: 'hsl(213, 98%, 57%)',
+                foreground: '#e1eeff',
+                'msg-get': 'hsl(213, 40%, 57%)',
+                'msg-get-reply': 'hsl(213, 35%, 27%)',
+                'msg-send': 'hsl(213, 98%, 57%)',
+                'msg-send-reply': 'hsl(213, 88%, 27%)'
+            },
+            geometry: {
+                secondary: 'hsl(15, 98%, 57%)',
+                foreground: '#e1eeff',
+                'msg-get': 'hsl(15, 40%, 57%)',
+                'msg-get-reply': 'hsl(15, 35%, 27%)',
+                'msg-send': 'hsl(15, 98%, 57%)',
+                'msg-send-reply': 'hsl(15, 88%, 27%)'
+            },
+            dark_mood: {
+                secondary: 'hsl(216, 37%, 44%)',
+                foreground: '#e1eeff',
+                'msg-get': 'hsl(216, 27%, 33%)',
+                'msg-get-reply': 'hsl(216, 20%, 21%)',
+                'msg-send': 'hsl(216, 37%, 44%)',
+                'msg-send-reply': 'hsl(216, 32%, 23%)'
+            },
+            forest: {
+                secondary: 'hsl(162, 60%, 42%)',
+                foreground: '#e1eeff',
+                'msg-get': 'hsl(162, 18%, 41%)',
+                'msg-get-reply': 'hsl(162, 14%, 27%)',
+                'msg-send': 'hsl(162, 60%, 42%)',
+                'msg-send-reply': 'hsl(162, 32%, 34%)'
+            }
+        }
+
         function loadTheme(){
             let theme = localStorage.getItem("theme");
             if(theme == null){
                 theme = "blue";
             }
             document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${theme}_w.webp')`);
+            document.documentElement.style.setProperty('--secondary-dark', themeAccent[theme]['secondary']);
+            document.documentElement.style.setProperty('--msg-get', themeAccent[theme]['msg-get']);
+            document.documentElement.style.setProperty('--msg-get-reply', themeAccent[theme]['msg-get-reply']);
+            document.documentElement.style.setProperty('--msg-send', themeAccent[theme]['msg-send']);
+            document.documentElement.style.setProperty('--msg-send-reply', themeAccent[theme]['msg-send-reply']);
         }
         
         loadTheme();

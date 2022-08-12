@@ -11,7 +11,11 @@
 }
 
 :root{
-    --loadedImage: '0%';
+    //--loadedImage: '0%';
+    --msg-get: hsl(213, 40%, 57%);
+    --msg-get-reply: hsl(213, 35%, 27%);
+    --msg-send: hsl(213, 98%, 57%);
+    --msg-send-reply: hsl(213, 88%, 27%);
 }
 
 #messages{
@@ -26,6 +30,9 @@
     z-index: 1;
 }
 
+a{
+    color: inherit;
+}
 
 code{
     font-family: monospace;
@@ -74,7 +81,7 @@ code{
             display: block;
         }
         .messageReply{
-            background: #213a54;
+            background: var(--msg-get-reply);
             border-radius: 15px 15px 15px 3px;
             padding: 8px;
             padding-bottom: 25px;
@@ -120,7 +127,7 @@ code{
         cursor: pointer;
     }
     p{
-        background: #516696;
+        background: var(--msg-get);
         padding: 8px;
         min-width: 32px;
         display: flex;
@@ -129,8 +136,10 @@ code{
         align-items: flex-start;
     }
     img{
-        width: 100%;
+        //width: 100%;
         height: 100%;
+        max-width: 100%;
+        background: var(--msg-get);
     }
     & > *{
         border-radius: 3px 15px 15px 3px;
@@ -202,7 +211,7 @@ code{
     .messageBody{
         align-items: flex-end;
         .messageReply{
-            background: #264770;
+            background: var(--msg-send-reply);
             padding: 8px;
             padding-bottom: 25px;
             border-radius: 15px 15px 3px 15px;
@@ -210,10 +219,16 @@ code{
         .messageMain{
             p{
                 padding: 8px;
-                background: var(--secondary-dark);
+                background: var(--msg-send);
+            }
+            .file{
+                background: var(--msg-send)
             }
             & > *{
                 border-radius: 15px 3px 3px 15px;
+            }
+            img{
+                background: var(--msg-send);
             }
         }
     }
@@ -240,7 +255,7 @@ code{
     }
 }
 
-.self .messageMain{
+.messageMain{
         .sendingImage{
             position: absolute;
             top: 50%;
@@ -249,16 +264,10 @@ code{
             width: 50px;
             height: 50px;
             color: white;
-            border-radius: 50% !important;
-            border: 2px solid white;
             font-size: 0.8rem;
-            display: none;
-            align-items: center;
-            justify-content: center;
+            display: grid;
+            place-items: center;
             z-index: 12;
-            &.active{
-                display: flex;
-            }
         }
 }
 
@@ -266,6 +275,35 @@ code{
     background: none !important; 
     font-size:30px !important; 
     padding: 0 !important;
+}
+
+.file{
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: var(--msg-get);
+    .fa-file-lines{
+        color: currentColor;
+    }
+}
+
+.fileInfo{
+    display: flex;
+    font-size: 0.7rem;
+    gap: 5px;
+    .fileName, .fileSize{
+        display: grid;
+        place-items: center;
+    }
+    .fileName{
+        text-decoration: underline;
+        padding-left: 10px;
+    }
+    .fileSize{
+        font-size: 0.5rem;
+        min-width: 50px;
+    }
 }
 
 .deleted{

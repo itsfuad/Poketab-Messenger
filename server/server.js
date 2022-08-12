@@ -31,9 +31,11 @@ let io = socketIO(server,{
   maxHttpBufferSize: 1e8, pingTimeout: 60000
 });
 
+let fileSocket = io.of('/file');
+let auth = io.of('/auth');
 
 let users = new Users();
-const devMode = false;
+const devMode = process.env.NODE_ENV !== 'production';
 
 const keys = new Map();
 const uids = new Map();
@@ -57,15 +59,15 @@ app.set('views', path.join(__dirname, '../public/views'));
 app.set('view engine', 'ejs');
 app.set('trust proxy', 1);
 
-app.use(cors());
-app.use(compression());
-app.use(express.static(publicPath));
-app.use(express.json());
-app.use(express.urlencoded({
-  extended: false
-}));
-
-app.use(apiRequestLimiter);
+app.use(cors(),
+  compression(),
+  express.static(publicPath),
+  express.json(),
+  express.urlencoded({
+    extended: false
+  }),
+  apiRequestLimiter
+);
 
 app.get('/', (_, res) => {
     res.redirect('/join');
@@ -173,55 +175,17 @@ io.on('connection', (socket) => {
   });
 
 
-  socket.on('message', (message, type, messageId, uId, reply, replyId, options) => {
+  socket.on('message', (message, type, uId, reply, replyId, options, callback) => {
     //console.log('Received new message request');
     let user = users.getUser(uids.get(socket.id));
+    //console.log(user.key);
     if (user && isRealString(message)) {
       let id = uuid.v4();
       message = message.replace(/>/gi, "&gt;").replace(/</gi, "&lt;");
-      socket.emit('messageSent', messageId, id);
+      //socket.emit('messageSent', messageId, id);
       socket.broadcast.to(user.key).emit('newMessage', message, type, id, uId, reply, replyId, options);
+      callback(id);
       //console.log('Message sent');
-    }
-  });
-
-  socket.on('fileUploadStart', (type, size, tempId, uId, reply, replyId, options) => {
-    //console.log('Received file upload start request');
-    let user = users.getUser(uids.get(socket.id));
-    if (user) {
-      //fileBuffer.set(tempId, {type: type, uId: uId, reply: reply, replyId: replyId, options: options, data: [], size: size});
-      socket.broadcast.to(user.key).emit('fileDownloadStart', type, size, tempId, uId, reply, replyId, options);
-    }
-  });
-
-  socket.on('fileUploadStream', (chunk, tempId) => {
-    //console.log('Received file upload stream request');
-    let user = users.getUser(uids.get(socket.id));
-    if (user) {
-      socket.broadcast.to(user.key).emit('fileDownloadStream', chunk, tempId);
-      /*
-      let file = fileBuffer.get(tempId);
-      if (file) {
-        //file.data += chunk;
-        //socket.emit('sentBuffer', tempId, got);
-      }
-      */
-    }
-  });
-
-  socket.on('fileUploadEnd', (tempId) => {
-    let user = users.getUser(uids.get(socket.id));
-    if (user) {
-      let id = uuid.v4();
-      socket.broadcast.to(user.key).emit('fileDownloadEnd', tempId, id);
-      socket.emit('messageSent', tempId, id);
-      /*
-      let file = fileBuffer.get(tempId);
-      if (file) {
-        socket.broadcast.to(user.key).emit('newMessage', file.data, file.type, id, file.uId, file.reply, file.replyId, file.options);
-        //console.log(`File uploaded. Type: ${file.type} Size: ${file.size}`);
-      }
-      */
     }
   });
 
@@ -250,7 +214,7 @@ io.on('connection', (socket) => {
     //console.log('Received create location message request');
     let user = users.getUser(uids.get(socket.id));
     if (user) {
-      io.to(user.key).emit('server_message', {color: 'limegreen', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`, user: user.name}, 'location');
+      io.to(user.key).emit('server_message', {color: '#2585fd', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`, user: user.name}, 'location');
     }
   });
 
@@ -283,12 +247,47 @@ io.on('connection', (socket) => {
         keys.delete(user.key);
         console.log(`Session ended with key: ${user.key}`);
       }
-      console.log(`${usercount.length } users left`);
+      console.log(`${usercount.length } ${usercount.length > 1 ? 'users' : 'user'} left on ${user.key}`);
     }
   });
+});
 
 
+//file upload
+fileSocket.on('connection', (socket) => {
+  //console.log('File socket connected');
+  socket.on('join', (key) => {
+    //console.log('Received join request');
+    socket.join(key);
+  });
+
+  socket.on('fileUploadStart', ( type, thumbnail, tempId, uId, reply, replyId, options, metadata, key) => {
+    console.log('Received file upload start request', key);
+    socket.broadcast.to(key).emit('fileDownloadStart', type, thumbnail, tempId, uId, reply, replyId, options, metadata);
+    //socket.broadcast.emit('fileDownloadStart', type, size, tempId, uId, reply, replyId, options, metadata);
+  });
+
+  socket.on('fileUploadStream', (chunk, tempId, progress, key, type, callback) => {
+      socket.broadcast.to(key).emit('fileDownloadStream', chunk, tempId, progress, type);
+      callback();
+      //socket.emit('fileUploadProgress', tempId, progress, type);
+  });
+
+  socket.on('fileUploadEnd', (tempId, key, callback) => {
+    //console.log('Received file upload end request');
+    let id = uuid.v4();
+    socket.broadcast.to(key).emit('fileDownloadEnd', tempId, id);
+    callback(id);
+    //socket.emit('fileSent', tempId, id, type, size);
+  });
+});
+
+
+
+auth.on('connection', (socket) => {
+  //console.log('New auth connection');
   socket.on('createRequest', (key, callback) => {
+    //console.log('Received create request');
     if (!keyformat.test(key)){
       callback('Invalid key');
       return;
@@ -332,7 +331,6 @@ io.on('connection', (socket) => {
       socket.emit('joinResponse', {exists: keyExists});
     }
   });
-
 });
 
 

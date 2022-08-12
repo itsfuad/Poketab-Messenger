@@ -9,7 +9,7 @@
   --red: #cd4040;
   --primary-dark: #111d2a;
   --foreground-dark: #e1eeff;
-  --secondary-dark: #2585fd;
+  --secondary-dark: hsl(213, 98%, 57%);
   --focus-dark: #19283880;
   --option-color: #213142;
   --app-height: 100vh;
@@ -372,8 +372,51 @@ img {
   justify-content: center;
   align-items: center;
 }
-.chatInput .upload_image, .chatInput #send {
-  padding: 5px;
+.chatInput .close_area {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: fixed;
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+.chatInput .close_area.active {
+  display: flex;
+  visibility: visible;
+  opacity: 1;
+}
+.chatInput .attachmentContainer {
+  position: absolute;
+  bottom: 70px;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  visibility: visible;
+  opacity: 1;
+  background: #192838;
+  z-index: 1;
+}
+
+.file_preview {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+.file_preview .fa-file-lines {
+  font-size: 4rem;
 }
 
 #send-location {
@@ -383,9 +426,9 @@ img {
   cursor: pointer;
 }
 
-.upload_image {
+.upload_image, .upload_file {
   position: relative;
-  padding-right: 5px;
+  padding: 10px 0 10px 0;
 }
 
 input[type=file] {
@@ -451,7 +494,7 @@ input[type=file] {
   cursor: pointer;
 }
 
-.fa-image, .fa-location-crosshairs, .fa-paper-plane {
+.fa-image, .fa-location-crosshairs, .fa-paper-plane, .fa-file-lines, .fa-paperclip {
   font-size: 1.5rem;
   padding: 5px;
   color: var(--secondary-dark);
@@ -477,7 +520,7 @@ i[class^=fa-] {
   border: none;
   outline: none;
   border-radius: 25px;
-  background: var(--focus-dark);
+  background: rgba(255, 255, 255, 0.0901960784);
 }
 
 .footer {
