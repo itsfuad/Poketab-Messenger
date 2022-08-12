@@ -428,7 +428,7 @@ function showOptions(type, sender, target){
         //get how many reactions the message has
         let clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
         //selected react color
-        document.querySelector(`#reactOptions .${clickedElement}`).style.background = '#2585fd6b';
+        document.querySelector(`#reactOptions .${clickedElement}`).style.background = themeAccent[localStorage.getItem('theme')]['secondary'];
     }
     //show the options
     let options = document.getElementById('optionsContainerWrapper');
