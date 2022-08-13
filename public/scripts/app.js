@@ -64,6 +64,7 @@ let selectedObject = '';
 let targetMessage = {
     sender: '',
     message: '',
+    type: '',
     id: '',
 };
 
@@ -76,6 +77,7 @@ let targetFile = {
 let finalTarget = {
     sender: '',
     message: '',
+    type: '', 
     id: '',
 };
 
@@ -202,6 +204,13 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             title: false
         };
     }
+    if (options.reply){
+        //check if the replyid is available in the message list
+        let replyMessage = document.getElementById(replyId);
+        if (replyMessage == null){
+            reply = {data: 'Message is not available on this device', type: 'message'};
+        }
+    }
     //console.log(type);
     let classList = ''; //the class list for the message. Initially empty. 
     let lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
@@ -209,15 +218,8 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     let messageIsEmoji = isEmoji(message); //detect if the message is an emoji or not
     if (type === 'text'){ //if the message is a text message
         popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
-        let filteredMessage = messageFilter(message); //filter the message
-        if (filteredMessage.link){ //if the message has links
-            fetch(`http://api.linkpreview.net/?key=778657325a922567da738f01d07b11e8&q=${filteredMessage.link}`)
-            .then(response => {
-                message = `<p class='text'>${filteredMessage.msg}</p><img class='linkPreviewImage' src='${response.image}' alt='Preview from link'>`
-            }); //fetch the link preview
-        }else{
-            message = `<p class='text'>${filteredMessage.msg}</p>`
-        }
+        message = messageFilter(message); //filter the message
+        message = `<p class='text'>${message}</p>`
     }else if(type === 'image'){ //if the message is an image
         popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
         message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' />`; //insert the image
@@ -262,7 +264,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     if (repliedTo == username){repliedTo = 'self';}
 
     let template, html;
-
+    //console.dir(reply);
     if (type === 'file'){
         template = document.getElementById('fileTemplate').innerHTML;
         html = Mustache.render(template, {
@@ -276,7 +278,8 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             fileName: metadata.name,
             fileSize: metadata.size,
             ext: metadata.ext,
-            replyMsg: reply,
+            replyMsg: reply.type == 'image'? document.getElementById(replyId)?.querySelector('.image').outerHTML.replace('class="image"', 'class="image imageReply"') : reply.data,
+            replyFor: reply.type == 'image'? 'image' : 'message',
             time: getCurrentTime()
         });
     }else{
@@ -289,18 +292,21 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             repId: replyId,
             title: options.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
             message: message,
-            replyMsg: reply,
+            replyMsg: reply.type == 'image'? document.getElementById(replyId)?.querySelector('.image').outerHTML.replace('class="image"', 'class="image imageReply"') : reply.data,
+            replyFor: reply.type == 'image'? 'image' : 'message',
             time: getCurrentTime()
         });
     }
-
     /*
     messages.innerHTML += html;
     */
    //similar to the above but a bit secured
-    const fragment = document.createDocumentFragment();
-    fragment.append(document.createRange().createContextualFragment(html));
-    messages.append(fragment);
+   const fragment = document.createDocumentFragment();
+   fragment.append(document.createRange().createContextualFragment(html));
+   messages.append(fragment);
+   if (reply.type == 'image'){
+        document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
+   }
     updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
 }
 
@@ -319,13 +325,11 @@ function getCurrentTime(){
 
 function messageFilter(message){
     message = censorBadWords(message); //check if the message contains bad words
-    let conv = linkify(message); //if the message contains links then linkify the message
-    message = conv.data;
+    message = linkify(message); //if the message contains links then linkify the message
     message = message.replaceAll(/```¶/g, '```'); //replace the code block markers
     message = message.replaceAll(/```([^`]+)```/g, '<code>$1</code>'); //if the message contains code then replace it with the code tag
     message = message.replaceAll('¶', '<br>'); //if the message contains new lines then replace them with <br>
-
-    return {msg: message, link: conv.link};
+    return message;
 }
 
 function emojiParser(text){
@@ -404,21 +408,32 @@ function showOptions(type, sender, target){
     document.querySelectorAll(`#reactOptions div`).forEach(
         option => option.style.background = 'none'
     )
-    
+    //console.log(target.closest('.message')?.dataset.uid, myId);
+    if (target.classList.contains('imageReply')){
+        return;
+    }
     //if the message is a text message
     if (type == 'text'){
         copyOption.style.display = 'flex';
     }else if (type == 'image'){ //if the message is an image
         if (target.closest('.message')?.dataset.downloaded != 'true'){  
+            if (target.closest('.message')?.dataset.uid == myId){
+                popupMessage('Not sent yet');
+            }else{
+                popupMessage('Not downloaded yet');
+            }
             console.log('%cNot availabe yet', 'color: red');
-            popupMessage('Not downloaded yet');
             return;
         }
         downloadOption.style.display = 'flex';
     }else if (type == 'file'){ //if the message is a file
         if (target.closest('.message')?.dataset.downloaded != 'true'){  
+            if (target.closest('.message')?.dataset.uid == myId){
+                popupMessage('Not sent yet');
+            }else{
+                popupMessage('Not downloaded yet');
+            }
             console.log('%cNot availabe yet', 'color: red');
-            popupMessage('Not downloaded yet');
             return;
         }
         downloadOption.style.display = 'flex';
@@ -483,6 +498,7 @@ function deleteMessage(messageId, user){
         let replyMsg = document.querySelectorAll(`[data-repid='${messageId}']`);
         if (replyMsg != null) {
           replyMsg.forEach(element => {
+            element.classList.remove('imageReply');
             element.style.background = '#000000c4';
             element.style.color = '#7d858c';
             element.textContent = `${user == myName ? 'You': user} deleted this message`;
@@ -559,15 +575,20 @@ function showReplyToast(){
     textbox.focus();
 
     finalTarget = Object.assign({}, targetMessage);
-    replyToast.querySelector('.replyText').textContent = finalTarget.message?.substring(0, 50);
-    replyToast.querySelector('#text').textContent = finalTarget.sender;
+    //console.dir(finalTarget);
+    if (finalTarget.type == 'image'){
+        replyToast.querySelector('.replyData').appendChild(finalTarget.message);
+    }else{
+        replyToast.querySelector('.replyData').textContent = finalTarget.message?.substring(0, 50);
+    }
+    replyToast.querySelector('.username').textContent = finalTarget.sender;
     replyToast.classList.add('active');
 }
 
 function hideReplyToast(){
     replyToast.classList.remove('active');
-    replyToast.querySelector('.replyText').textContent = '';
-    replyToast.querySelector('#text').textContent = '';
+    replyToast.querySelector('.replyData').textContent = '';
+    replyToast.querySelector('.username').textContent = '';
     clearTargetMessage();
 }
 
@@ -711,7 +732,14 @@ function pinchZoom (imageElement) {
 function clearTargetMessage(){
     targetMessage.sender = '';
     targetMessage.message = '';
+    targetMessage.type = '';
     targetMessage.id = '';
+    /*
+    finalTarget.sender = '';
+    finalTarget.message = '';
+    finalTarget.type = '';
+    finalTarget.id = '';
+    */
 }
 
 function OptionEventHandler(evt){
@@ -724,10 +752,11 @@ function OptionEventHandler(evt){
         if (targetMessage.sender == myName){
             targetMessage.sender = 'You';
         }
-        targetMessage.message = evt.target.closest('.message').querySelector('.messageMain .text').textContent.substring(0, 100);
+        targetMessage.message = evt.target.closest('.messageMain').querySelector('.text').textContent.substring(0, 100);
+        targetMessage.type = type;
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
-    else if (evt.target.classList.contains('image')){
+    else if (evt.target.classList.contains('image') && !evt.target.classList.contains('imageReply')){
         type = 'image';
         //document.querySelector('#lightbox__image').innerHTML = "";
         while (document.querySelector('#lightbox__image').firstChild) {
@@ -736,7 +765,7 @@ function OptionEventHandler(evt){
         //document.querySelector('#lightbox__image').innerHTML = `<img src="${evt.target.closest('.message').querySelector('.image').src}" alt="Image">`;
         const fragment = document.createDocumentFragment();
         const img = document.createElement('img');
-        img.src = evt.target.closest('.message').querySelector('.image').src;
+        img.src = evt.target.closest('.messageMain')?.querySelector('.image').src;
         img.alt = 'Image';
         fragment.append(img);
         document.querySelector('#lightbox__image').append(fragment);
@@ -745,7 +774,10 @@ function OptionEventHandler(evt){
         if (targetMessage.sender == myName){
             targetMessage.sender = 'You';
         }
-        targetMessage.message = 'Image';
+        
+        let targetNode = evt.target.closest('.messageMain').querySelector('.image').cloneNode(true);
+        targetMessage.message = targetNode;
+        targetMessage.type = type;
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
     else if (evt.target.closest('.messageMain')?.querySelector('.file') ?? null){
@@ -754,8 +786,8 @@ function OptionEventHandler(evt){
         if (targetMessage.sender == myName){
             targetMessage.sender = 'You';
         }
-        targetFile.fileName = evt.target.closest('.message').querySelector('.fileName').textContent;
-        targetFile.fileData = evt.target.closest('.message').querySelector('.file').dataset.data;
+        targetFile.fileName = evt.target.closest('.messageMain').querySelector('.fileName').textContent;
+        targetFile.fileData = evt.target.closest('.messageMain').querySelector('.file').dataset.data;
         targetMessage.message = targetFile.fileName;
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
@@ -890,8 +922,7 @@ replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" targ
 replacePattern3 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
 replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
 //get the first link
-let link = replacedText.match(/<a href="([^"]*)/);
-return {data: replacedText, link: link};
+return replacedText;
 }
 
 
@@ -1067,13 +1098,16 @@ document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) =
 
 messages.addEventListener('click', (evt) => {
     try {
-        if (evt.target?.classList?.contains('image')){
+        if (evt.target?.classList?.contains('image') && !evt.target?.classList?.contains('imageReply')){
             evt.preventDefault();
             evt.stopPropagation();
-
             if (evt.target.closest('.message')?.dataset.downloaded != 'true'){  
+                if (evt.target.closest('.message')?.dataset.uid == myId){
+                    popupMessage('Not sent yet');
+                }else{
+                    popupMessage('Not downloaded yet');
+                }
                 console.log('%cNot availabe yet', 'color: blue');
-                popupMessage('Not downloaded yet');
                 return;
             }
             //document.getElementById('lightbox__image').innerHTML = `<img src=${evt.target?.src} class='lb'>`;
@@ -1114,10 +1148,10 @@ messages.addEventListener('click', (evt) => {
             document.querySelector('.reactorContainerWrapper').classList.add('active');
             document.getElementById('focus_glass').classList.add('active');
         }
-        else if (evt.target?.classList?.contains('messageReply')){
-            if (document.getElementById(evt.target.dataset.repid).dataset.deleted != 'true'){
+        else if (evt.target?.classList?.contains('messageReply') || evt.target?.classList?.contains('imageReply')){
+            if (document.getElementById(evt.target.closest('.messageReply').dataset.repid).dataset.deleted != 'true'){
                 try{
-                    let target = evt.target.dataset.repid;
+                    let target = evt.target.closest('.messageReply')?.dataset.repid;
                     document.querySelectorAll('.message').forEach(element => {
                         if (element.id != target){
                             element.style.filter = 'brightness(0.5)';
@@ -1131,7 +1165,7 @@ messages.addEventListener('click', (evt) => {
                         });
                     }, 1000);
             setTimeout(() => {
-                        document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'center'});
+                        document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'start'});
             }, 100);
                 }catch(e){
                         popupMessage('Deleted message');
@@ -1326,7 +1360,7 @@ window.addEventListener('online', function(e) {
 sendButton.addEventListener('click', () => {
     let message = textbox.value?.trim();
     textbox.value = '';
-
+    
     resizeTextbox();
     if (message.length) {
         let tempId = makeId();
@@ -1348,14 +1382,15 @@ sendButton.addEventListener('click', () => {
             message = message.replace(/\s/g, '');
         }
         //console.log(`Sending message: ${message} | Type: ${type}`);
-        insertNewMessage(message, 'text', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
-        socket.emit('message', message, 'text', myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function (id) {
+        insertNewMessage(message, 'text', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
+        socket.emit('message', message, 'text', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function (id) {
             outgoingmessage.play();
             document.getElementById(tempId).classList.add('delevered');
             document.getElementById(tempId).id = id;
         });
     }
     finalTarget.message = '';
+    finalTarget.type = '';
     finalTarget.sender = '';
     finalTarget.id = '';
     textbox.focus();
@@ -1385,6 +1420,7 @@ document.getElementById('previewImage').querySelector('.close')?.addEventListene
 document.getElementById('previewImage').querySelector('#imageSend')?.addEventListener('click', ()=>{
     document.getElementById('previewImage')?.classList?.remove('active');
     //check if image or file is selected
+    //console.log(finalTarget);
     if (selectedObject === 'image'){
         let image = new Image();
         image.src = selectedImage;
@@ -1393,7 +1429,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             let thumbnail = resizeImage(image, image.mimetype, 50);
             let tempId = makeId();
             scrolling = false;
-            insertNewMessage(resized.data, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.data.length, height: resized.height, width: resized.width});
+            insertNewMessage(resized.data, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.data.length, height: resized.height, width: resized.width});
             //socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
             //store image in 100 parts
             let elem = document.getElementById(tempId)?.querySelector('.messageMain');
@@ -1405,7 +1441,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             let partSize = resized.data.length / 1000;
             let partArray = [];
             let progress = 0;
-            fileSocket.emit('fileUploadStart', 'image', thumbnail.data, tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.data.length, height: resized.height, width: resized.width}, myKey);
+            fileSocket.emit('fileUploadStart', 'image', thumbnail.data, tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.data.length, height: resized.height, width: resized.width}, myKey);
             for (let i = 0; i < resized.data.length; i += partSize) {
                 //console.log(`${Math.round((i / resized.length) * 100)}%`);
                 progress = Math.round((i / resized.data.length) * 100);
@@ -1417,10 +1453,10 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             }
             fileSocket.emit('fileUploadEnd', tempId, myKey, (id) => {
                 outgoingmessage.play();
-
+                
                 document.getElementById(tempId).classList.add('delevered');
                 document.getElementById(tempId).dataset.downloaded = 'true';
-            
+                
                 let elem = document.getElementById(tempId)?.querySelector('.messageMain');
                 if (elem){
                     document.querySelector('.sendingImage').remove();
@@ -1436,14 +1472,14 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
         (async () => {
             let tempId = makeId();
             scrolling = false;
-            insertNewMessage(selectedFile.data, 'file', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name});
-           
+            insertNewMessage(selectedFile.data, 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name});
+            
             //store image in 100 parts
             let partSize = selectedFile.data.length / 1000;
             let partArray = [];
             let progress = 0;
             let elem = document.getElementById(tempId)?.querySelector('.messageMain');
-            fileSocket.emit('fileUploadStart', 'file', '', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey);
+            fileSocket.emit('fileUploadStart', 'file', '', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey);
             //document.getElementById(tempId).querySelector('.messageMain').style.filter = 'brightness(0.4)';
             for (let i = 0; i < selectedFile.data.length; i += partSize) {
                 //console.log(`${Math.round((i / resized.length) * 100)}%`);
@@ -1467,6 +1503,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             }
         })();
     }
+    hideReplyToast();
     //localStorage.removeItem('selectedImage');
 });
 
@@ -1659,6 +1696,9 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, tempId, uId, reply, replyId
 
 fileSocket.on('fileDownloadStream', (chunk, tempId, progress, type) => {
     //console.log('fileDownloadStream', tempId, progress, type);
+    if (!fileBuffer.has(tempId)){
+        return;
+    }
     fileBuffer.get(tempId).data += chunk;
     let elem = document.getElementById(tempId)?.querySelector('.messageMain');
     if (type === 'image'){
@@ -1685,6 +1725,9 @@ fileSocket.on('fileUploadProgress', (tempId, progress, type) => {
 */
 fileSocket.on('fileDownloadEnd', (tempId, id) => {
     //console.log('fileDownloadEnd');
+    if (!fileBuffer.has(tempId)){
+        return;
+    }
     let data = fileBuffer.get(tempId);
     let type = data.type;
     let size = data.metadata.size;

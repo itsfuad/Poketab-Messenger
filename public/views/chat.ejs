@@ -63,8 +63,8 @@
         <!-- Reply toast popup-->
         <div id="replyToast">
             <div class="content">
-                <div class="title"><i class="fa-solid fa-reply"></i> Replying to <span id="text">Fuad</span></div>
-                <div class="replyText">Lorem ipsum dolor sit amet.</div>
+                <div class="title"><i class="fa-solid fa-reply"></i> Replying to <span class="username"></span></div>
+                <div class="replyData"></div>
             </div>
             <div class="close">
                 <i class="fa-solid fa-xmark"></i>
@@ -191,7 +191,7 @@
             <div class="avatar">{{{avatar}}}</div>
             <div class="messageBody">
                 <div class="messageTitle">{{title}}</div>
-                <div class="messageReply" data-repid="{{repId}}" data-deleted>{{replyMsg}}</div>
+                <div class="messageReply" data-repid="{{repId}}" data-reply-for="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
                 <div class="messageMain">{{{message}}}</div>
                 <div class="reactsOfMessage"></div>
             </div>
@@ -206,7 +206,7 @@
             <div class="avatar">{{{avatar}}}</div>
             <div class="messageBody">
                 <div class="messageTitle">{{title}}</div>
-                <div class="messageReply" data-repid="{{repId}}" data-deleted>{{replyMsg}}</div>
+                <div class="messageReply" data-repid="{{repId}}" data-reply-for="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
                 <div class="messageMain">
                     <div class="file" data-data="{{data}}" data-ext="{{ext}}">
                         <div class="fileIcon">

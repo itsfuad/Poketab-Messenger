@@ -561,8 +561,14 @@ i[class^=fa-]{
     .title, .title *{
         color: var(--secondary-dark);
     }
-    .replyText{
+    .replyData{
         font-size: 0.7rem;
+        .image{
+            max-height: 50px;
+            width: auto;
+            padding: 3px;
+            border-radius: 5px;
+        }
     }
     .close i{
         color: var(--red) !important;
