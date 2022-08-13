@@ -83,13 +83,26 @@ code{
         .messageReply{
             background: var(--msg-get-reply);
             border-radius: 15px 15px 15px 3px;
-            padding: 8px;
-            padding-bottom: 25px;
             width: max-content;
             max-width: 110%;
             transform: translateY(20px);
             cursor: pointer;
             z-index: 10;
+            padding: 8px 8px 25px 8px;
+            &.imageReply{
+                padding: 0;
+            }
+            .imageReply{
+                filter: brightness(0.5) !important;
+                position: relative;
+                max-height: 150px;
+                max-width: 150px;
+                min-width: 100px;
+                min-height: 100px;
+                object-fit: cover;
+                vertical-align: bottom;
+                border-radius: 15px 15px 15px 3px;
+            }
         }
         .reactsOfMessage{
             position: absolute;
@@ -123,6 +136,7 @@ code{
 .messageMain{
     display: flex;
     color: white;
+    position: relative;
     &:hover{
         cursor: pointer;
     }
@@ -139,6 +153,8 @@ code{
         //width: 100%;
         height: 100%;
         max-width: 100%;
+        min-height: 100px;
+        min-width: 100px;
         background: var(--msg-get);
     }
     & > *{
@@ -212,9 +228,10 @@ code{
         align-items: flex-end;
         .messageReply{
             background: var(--msg-send-reply);
-            padding: 8px;
-            padding-bottom: 25px;
             border-radius: 15px 15px 3px 15px;
+            .image{
+                border-radius: 15px 15px 3px 15px;
+            }
         }
         .messageMain{
             p{

@@ -555,8 +555,14 @@ i[class^=fa-] {
 #replyToast .title, #replyToast .title * {
   color: var(--secondary-dark);
 }
-#replyToast .replyText {
+#replyToast .replyData {
   font-size: 0.7rem;
+}
+#replyToast .replyData .image {
+  max-height: 50px;
+  width: auto;
+  padding: 3px;
+  border-radius: 5px;
 }
 #replyToast .close i {
   color: var(--red) !important;
