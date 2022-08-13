@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offline</title>
+    <title><%=title%> </title>
 </head>
 <body>
     <div class="container">
         <div class="text">
-            <h1>Oops!</h1>
-            <h3>You're offline :(</h3>
+            <h1><%=errorCode%></h1>
+            <h3><%=errorMessage%></h3>
         </div>
     </div>
-    <a href="/">Retry</a>
+    <a href="/"><%=buttonText%></a>
     <style>
         @font-face {
             font-family: 'comic';

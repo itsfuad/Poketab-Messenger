@@ -209,8 +209,15 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     let messageIsEmoji = isEmoji(message); //detect if the message is an emoji or not
     if (type === 'text'){ //if the message is a text message
         popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
-        message = messageFilter(message); //filter the message
-        message = `<p class='text'>${message}</p>`
+        let filteredMessage = messageFilter(message); //filter the message
+        if (filteredMessage.link){ //if the message has links
+            fetch(`http://api.linkpreview.net/?key=778657325a922567da738f01d07b11e8&q=${filteredMessage.link}`)
+            .then(response => {
+                message = `<p class='text'>${filteredMessage.msg}</p><img class='linkPreviewImage' src='${response.image}' alt='Preview from link'>`
+            }); //fetch the link preview
+        }else{
+            message = `<p class='text'>${filteredMessage.msg}</p>`
+        }
     }else if(type === 'image'){ //if the message is an image
         popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
         message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' />`; //insert the image
@@ -312,12 +319,13 @@ function getCurrentTime(){
 
 function messageFilter(message){
     message = censorBadWords(message); //check if the message contains bad words
-    message = linkify(message); //if the message contains links then linkify the message
+    let conv = linkify(message); //if the message contains links then linkify the message
+    message = conv.data;
     message = message.replaceAll(/```¶/g, '```'); //replace the code block markers
     message = message.replaceAll(/```([^`]+)```/g, '<code>$1</code>'); //if the message contains code then replace it with the code tag
     message = message.replaceAll('¶', '<br>'); //if the message contains new lines then replace them with <br>
 
-    return message;
+    return {msg: message, link: conv.link};
 }
 
 function emojiParser(text){
@@ -881,7 +889,9 @@ replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
 replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
 replacePattern3 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
 replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
-return replacedText;
+//get the first link
+let link = replacedText.match(/<a href="([^"]*)/);
+return {data: replacedText, link: link};
 }
 
 

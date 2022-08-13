@@ -7,12 +7,11 @@ const cors = require('cors');
 const socketIO = require('socket.io');
 const uuid = require("uuid");
 
-const version = process.env.npm_package_version;
+const version = process.env.npm_package_version || "Development";
 
 const {Users} = require('./utils/users');
 const {isRealString, validateUserName, avList} = require('./utils/validation');
 const {makeid, keyformat} = require('./utils/functions');
-const {Response403, Response404} = require('./utils/errorRes');
 
 const apiRequestLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minute
@@ -134,18 +133,17 @@ app.post('/chat', (req, res) => {
     }
   }else{
     //send invalid key message
-    res.status(401).send({
-      message: "Key no longer available"
-    });
+    res.render('errorRes', {title: 'Error', errorCode: '404', errorMessage: 'Key session not found', buttonText: 'Renew'});
   }
 });
 
 app.get('/offline', (_, res) => {
-  res.render('offline');
+  res.render('errorRes', {title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline', buttonText: 'Refresh'});
 });
 
 app.get('*', (_, res) => {
-  res.send(Response404);
+  console.log('404');
+  res.render('errorRes', {title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home'});
 });
 
 io.on('connection', (socket) => {
@@ -322,7 +320,7 @@ auth.on('connection', (socket) => {
       let user = users.getUserList(key);
       let max_users = users.getMaxUser(key) ?? 2;
       if (user.length >= max_users){
-        callback(Response403);
+        callback(errorRes(errorRes.schema, 403, 'Not Authorized'));
       }else{
         socket.emit('joinResponse', {exists: keyExists, userlist: users.getUserList(key), avatarlist: users.getAvatarList(key)});
       }
