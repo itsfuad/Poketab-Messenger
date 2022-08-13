@@ -539,6 +539,32 @@ i[class^=fa-]{
     }
 }
 
+#backToBottom{
+    position: fixed;
+    bottom: -20px;
+    visibility: hidden;
+    opacity: 0;
+    right: 5px;
+    filter: drop-shadow(2px 4px 6px black);
+    background: var(--msg-send);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    z-index: 100;
+    transition: 200ms ease-in-out;
+    &.active{
+        bottom: 70px;
+        visibility: visible;
+        opacity: 1;
+    }
+    .fa-arrow-down{
+        color: inherit;
+    }
+}
+
 #replyToast{
     display: none;
     flex-direction: row;
@@ -834,5 +860,8 @@ i[class^=fa-]{
     }
     .normalOptionWrapper{
         width: 50%;
+    }
+    #backToBottom{
+        right: calc(25vw + 5px);
     }
 }
