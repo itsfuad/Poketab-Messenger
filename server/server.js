@@ -126,24 +126,21 @@ app.post('/chat', (req, res) => {
     //console.log(user.length >= max_users);
     if (user.length >= max_users){
       //send unauthorized access message
-      res.status(401).send({
-        message: "Unauthorized access",
-      });
+      res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
     }else{
       res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, devMode: devMode});
     }
   }else{
     //send invalid key message
-    res.render('errorRes', {title: 'Error', errorCode: '404', errorMessage: 'Key session not found', buttonText: 'Renew'});
+    res.render('errorRes', {title: 'Not found', errorCode: '404', errorMessage: 'Key session not found', buttonText: 'Renew'});
   }
 });
 
 app.get('/offline', (_, res) => {
-  res.render('errorRes', {title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline', buttonText: 'Refresh'});
+  res.render('errorRes', {title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline😥', buttonText: 'Refresh'});
 });
 
 app.get('*', (_, res) => {
-  console.log('404');
   res.render('errorRes', {title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home'});
 });
 
