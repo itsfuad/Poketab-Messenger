@@ -1048,12 +1048,6 @@ messages.addEventListener('scroll', () => {
     }
 });
 
-document.getElementById('backToBottom').addEventListener('click', ()=>{
-    setTimeout(()=>{
-        messages.scrollTop = messages.scrollHeight;
-        document.getElementById('backToBottom').classList.remove('active');
-    }, 50);
-});
 
 textbox.addEventListener('input' , function () {
     resizeTextbox();
