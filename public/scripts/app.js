@@ -197,7 +197,7 @@ function makeId(length = 10){
 //this function inserts a message in the chat box
 function insertNewMessage(message, type, id, uid, reply, replyId, options, metadata){
     //detect if the message has a reply or not
-    //console.log(message, type, id, uid, reply, replyId, options, metadata);
+    //console.log(reply, replyId, options, metadata);
     if (!options){
         options = {
             reply: false,
@@ -734,12 +734,13 @@ function clearTargetMessage(){
     targetMessage.message = '';
     targetMessage.type = '';
     targetMessage.id = '';
-    /*
+}
+
+function clearFinalTarget(){
     finalTarget.sender = '';
     finalTarget.message = '';
     finalTarget.type = '';
     finalTarget.id = '';
-    */
 }
 
 function OptionEventHandler(evt){
@@ -799,10 +800,13 @@ function OptionEventHandler(evt){
 
 function updateScroll(avatar = null, text = ''){
     if (scrolling) {
-        if (text.length > 0 && avatar != null) {
-          document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).png`;
-          document.querySelector('.newmessagepopup .msg').textContent = text;
-          document.querySelector('.newmessagepopup').classList.add('active');
+        if (text.length > 0 && avatar != null) {   
+            document.querySelector('.newmessagepopup img').style.display = 'block';
+            document.querySelector('.newmessagepopup .msg').style.display = 'block';
+            document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
+            document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).png`;
+            document.querySelector('.newmessagepopup .msg').textContent = text;
+            document.querySelector('.newmessagepopup').classList.add('active');
         }
         return;
       }
@@ -816,6 +820,9 @@ function updateScroll(avatar = null, text = ''){
 
 function removeNewMessagePopup() {
     document.querySelector('.newmessagepopup').classList.remove('active');
+    //document.querySelector('.newmessagepopup .msg')?.removeChild(document.querySelector('.newmessagepopup .msg').firstChild);
+    document.querySelector('.newmessagepopup img').style.display = 'none';
+    document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
 }
 
 
@@ -1018,19 +1025,29 @@ messages.addEventListener('scroll', () => {
     scroll = messages.scrollTop;
     let scrolled = lastPageLength-scroll;
     if (scroll <= lastPageLength) {
-      if (scrolled >= 50){   
-        scrolling = true;
-      }
-      if (scrolled == 0){
-        scrolling = false;
-      }
-    } 
+        if (scrolled >= 50){   
+            scrolling = true;
+        }
+        if (scrolled == 0){
+            document.querySelector('.newmessagepopup').classList.remove('active');
+            scrolling = false;
+        }
+    }
     else {
-      lastPageLength = scroll;
-      removeNewMessagePopup();
-      scrolling = false;
+        lastPageLength = scroll;
+        removeNewMessagePopup();
+        //document.getElementById('backToBottom').classList.remove('active');
+        scrolling = false;
+    }
+    if (scrolled >= 300){
+        //document.getElementById('backToBottom').classList.add('active');
+        document.querySelector('.newmessagepopup img').style.display = 'none';
+        document.querySelector('.newmessagepopup .msg').style.display = 'none';
+        document.querySelector('.newmessagepopup .downarrow').style.display = 'block';
+        document.querySelector('.newmessagepopup').classList.add('active');
     }
 });
+
 
 textbox.addEventListener('input' , function () {
     resizeTextbox();
@@ -1051,7 +1068,9 @@ document.getElementById('logout').addEventListener('click', () => {
 
 
 replyToast.querySelector('.close').addEventListener('click', ()=>{
-  hideReplyToast();
+    clearTargetMessage();
+    clearFinalTarget();
+    hideReplyToast();
 });
 
 document.addEventListener('contextmenu', event => event.preventDefault());
@@ -1429,6 +1448,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             let thumbnail = resizeImage(image, image.mimetype, 50);
             let tempId = makeId();
             scrolling = false;
+            //console.log(finalTarget);
             insertNewMessage(resized.data, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.data.length, height: resized.height, width: resized.width});
             //socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
             //store image in 100 parts
@@ -1442,6 +1462,8 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             let partArray = [];
             let progress = 0;
             fileSocket.emit('fileUploadStart', 'image', thumbnail.data, tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.data.length, height: resized.height, width: resized.width}, myKey);
+            console.log('image sent');
+            clearFinalTarget();
             for (let i = 0; i < resized.data.length; i += partSize) {
                 //console.log(`${Math.round((i / resized.length) * 100)}%`);
                 progress = Math.round((i / resized.data.length) * 100);
@@ -1481,6 +1503,8 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             let elem = document.getElementById(tempId)?.querySelector('.messageMain');
             fileSocket.emit('fileUploadStart', 'file', '', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey);
             //document.getElementById(tempId).querySelector('.messageMain').style.filter = 'brightness(0.4)';
+            console.log('file sent');
+            clearFinalTarget();
             for (let i = 0; i < selectedFile.data.length; i += partSize) {
                 //console.log(`${Math.round((i / resized.length) * 100)}%`);
                 progress = Math.round((i / selectedFile.data.length) * 100);
@@ -1503,6 +1527,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             }
         })();
     }
+
     hideReplyToast();
     //localStorage.removeItem('selectedImage');
 });

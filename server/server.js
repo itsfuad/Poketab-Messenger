@@ -212,7 +212,7 @@ io.on('connection', (socket) => {
     //console.log('Received create location message request');
     let user = users.getUser(uids.get(socket.id));
     if (user) {
-      io.to(user.key).emit('server_message', {color: '#2585fd', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`, user: user.name}, 'location');
+      io.to(user.key).emit('server_message', {color: 'var(--secondary-dark);', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`, user: user.name}, 'location');
     }
   });
 

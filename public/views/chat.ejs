@@ -14,7 +14,7 @@
     <div class="popup-message"></div>
     <!--message popup-->
     <div class="newmessagepopup">
-        <img src="" alt="Avatar"><div class="msg"></div>
+        <img src="" alt="Avatar"><div class="msg"></div><div class="downarrow"><i class="fa-solid fa-arrow-down"></i></div>
     </div>
     <!--The side menu-->
     <div id="sidebar_wrapper">
@@ -181,9 +181,6 @@
         </ul>
     </div>
 
-
-    <img src="/images/loader.gif" id="imgdownloadpreload" style="display: none;">
-
     <!-- Message template -->
     <template id="messageTemplate">
         <li class="message {{classList}}" id="{{messageId}}" data-uid="{{uid}}"> <!-- noreply notitle delevered start end self react -->
@@ -287,7 +284,7 @@
         }
         
         loadTheme();
-        
+        /*
         document.addEventListener('click', ()=> {
             history.pushState({}, '', "#init");
             history.pushState({}, '', "#inbox");
@@ -295,7 +292,7 @@
             history.forward();
             }
         }, {once: true});
-        
+        */
     </script>
 </body>
 </html>
