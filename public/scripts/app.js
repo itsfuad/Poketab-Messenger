@@ -801,6 +801,9 @@ function OptionEventHandler(evt){
 function updateScroll(avatar = null, text = ''){
     if (scrolling) {
         if (text.length > 0 && avatar != null) {   
+            document.querySelector('.newmessagepopup img').style.display = 'block';
+            document.querySelector('.newmessagepopup .msg').style.display = 'block';
+            document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
             document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).png`;
             document.querySelector('.newmessagepopup .msg').textContent = text;
             document.querySelector('.newmessagepopup').classList.add('active');
@@ -817,6 +820,9 @@ function updateScroll(avatar = null, text = ''){
 
 function removeNewMessagePopup() {
     document.querySelector('.newmessagepopup').classList.remove('active');
+    //document.querySelector('.newmessagepopup .msg')?.removeChild(document.querySelector('.newmessagepopup .msg').firstChild);
+    document.querySelector('.newmessagepopup img').style.display = 'none';
+    document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
 }
 
 
@@ -1023,18 +1029,22 @@ messages.addEventListener('scroll', () => {
             scrolling = true;
         }
         if (scrolled == 0){
-            document.getElementById('backToBottom').classList.remove('active');
+            document.querySelector('.newmessagepopup').classList.remove('active');
             scrolling = false;
         }
     }
     else {
         lastPageLength = scroll;
         removeNewMessagePopup();
-        document.getElementById('backToBottom').classList.remove('active');
+        //document.getElementById('backToBottom').classList.remove('active');
         scrolling = false;
     }
     if (scrolled >= 300){
-        document.getElementById('backToBottom').classList.add('active');
+        //document.getElementById('backToBottom').classList.add('active');
+        document.querySelector('.newmessagepopup img').style.display = 'none';
+        document.querySelector('.newmessagepopup .msg').style.display = 'none';
+        document.querySelector('.newmessagepopup .downarrow').style.display = 'block';
+        document.querySelector('.newmessagepopup').classList.add('active');
     }
 });
 
