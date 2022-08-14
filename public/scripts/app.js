@@ -1459,7 +1459,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             elem.querySelector('.image').style.filter = 'brightness(0.4)';
             elem.appendChild(elem2);
             //let partSize = resized.data.length / 1000;
-            let partSize = 1000;
+            let partSize = 1024 * 5;
             let progress = 0;
             fileSocket.emit('fileUploadStart', 'image', thumbnail.data, tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.data.length, height: resized.height, width: resized.width}, myKey);
             console.log('image sent');
@@ -1494,7 +1494,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             
             //store image in 100 parts
             //let partSize = selectedFile.data.length / 1000;
-            let partSize = 1000;
+            let partSize = 1024 * 5;
             let progress = 0;
             let elem = document.getElementById(tempId)?.querySelector('.messageMain');
             fileSocket.emit('fileUploadStart', 'file', '', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey);
