@@ -27,7 +27,8 @@ const port = process.env.PORT || 3000;
 let app = express();
 let server = http.createServer(app);
 let io = socketIO(server,{
-  maxHttpBufferSize: 1e8, pingTimeout: 60000
+  maxHttpBufferSize: 1e8, pingTimeout: 60000,
+  async_handlers: true
 });
 
 let fileSocket = io.of('/file');
@@ -125,24 +126,21 @@ app.post('/chat', (req, res) => {
     //console.log(user.length >= max_users);
     if (user.length >= max_users){
       //send unauthorized access message
-      res.status(401).send({
-        message: "Unauthorized access",
-      });
+      res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
     }else{
       res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, devMode: devMode});
     }
   }else{
     //send invalid key message
-    res.render('errorRes', {title: 'Error', errorCode: '404', errorMessage: 'Key session not found', buttonText: 'Renew'});
+    res.render('errorRes', {title: 'Not found', errorCode: '404', errorMessage: 'Key session not found', buttonText: 'Renew'});
   }
 });
 
 app.get('/offline', (_, res) => {
-  res.render('errorRes', {title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline', buttonText: 'Refresh'});
+  res.render('errorRes', {title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline😥', buttonText: 'Refresh'});
 });
 
 app.get('*', (_, res) => {
-  console.log('404');
   res.render('errorRes', {title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home'});
 });
 
@@ -320,7 +318,7 @@ auth.on('connection', (socket) => {
       let user = users.getUserList(key);
       let max_users = users.getMaxUser(key) ?? 2;
       if (user.length >= max_users){
-        callback(errorRes(errorRes.schema, 403, 'Not Authorized'));
+        callback('Not Authorized');
       }else{
         socket.emit('joinResponse', {exists: keyExists, userlist: users.getUserList(key), avatarlist: users.getAvatarList(key)});
       }

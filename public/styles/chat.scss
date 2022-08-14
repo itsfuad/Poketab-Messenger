@@ -593,7 +593,7 @@ i[class^=fa-]{
     border-radius: 25px;
     font-size: .8rem;
     transform: translateX(-50%);
-    z-index: 100;
+    z-index: 10;
     gap: 5px;
     width: max-content;
     display: none;
@@ -626,7 +626,7 @@ i[class^=fa-]{
     width: 100%;
     height: 100%;
     background: #0d1a24;
-    z-index: 20;
+    z-index: 100;
     visibility: hidden;
     opacity: 0;
     transition: 100ms ease-in-out;
