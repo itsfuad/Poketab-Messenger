@@ -1470,7 +1470,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
                 fileSocket.emit('fileUploadStream', resized.data.substring(i, i + partSize), tempId, progress, myKey, 'image', function (){
                     elem.querySelector('.sendingImage').textContent = `↑ ${progress}%`;
                 });
-                //await sleep(4);
+                await sleep(4);
             }
             fileSocket.emit('fileUploadEnd', tempId, myKey, (id) => {
                 outgoingmessage.play();
@@ -1507,7 +1507,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
                 fileSocket.emit('fileUploadStream', selectedFile.data.substring(i, i + partSize), tempId, Math.round((i / selectedFile.data.length) * 100), myKey, 'file', function (){
                     elem.querySelector('.fileSize').textContent = `↑ ${progress}%`;
                 });
-                //await sleep(4);
+                await sleep(4);
             }
             fileSocket.emit('fileUploadEnd', tempId, myKey, (id) => {
                 document.getElementById(tempId).classList.add('delevered');
