@@ -451,7 +451,7 @@ function showOptions(type, sender, target){
         //get how many reactions the message has
         let clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
         //selected react color
-        document.querySelector(`#reactOptions .${clickedElement}`).style.background = themeAccent[localStorage.getItem('theme')]['secondary'];
+        document.querySelector(`#reactOptions .${clickedElement}`).style.background = themeAccent[localStorage.getItem("theme")].secondary;
     }
     //show the options
     let options = document.getElementById('optionsContainerWrapper');
@@ -1010,11 +1010,11 @@ document.querySelectorAll('.theme').forEach(theme => {
         localStorage.setItem('theme', theme);
         //edit css variables
         document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${theme}_w.webp')`);
-        document.documentElement.style.setProperty('--secondary-dark', themeAccent[theme]['secondary']);
-        document.documentElement.style.setProperty('--msg-get', themeAccent[theme]['msg-get']);
-        document.documentElement.style.setProperty('--msg-get-reply', themeAccent[theme]['msg-get-reply']);
-        document.documentElement.style.setProperty('--msg-send', themeAccent[theme]['msg-send']);
-        document.documentElement.style.setProperty('--msg-send-reply', themeAccent[theme]['msg-send-reply']);
+        document.documentElement.style.setProperty('--secondary-dark', themeAccent[theme].secondary);
+        document.documentElement.style.setProperty('--msg-get', themeAccent[theme].msg_get);
+        document.documentElement.style.setProperty('--msg-get-reply', themeAccent[theme].msg_get_reply);
+        document.documentElement.style.setProperty('--msg-send', themeAccent[theme].msg_send);
+        document.documentElement.style.setProperty('--msg-send-reply', themeAccent[theme].msg_get_reply);
         document.querySelector('.themeChooser').classList.remove('active');
         hideOptions();
     });
@@ -1244,7 +1244,7 @@ function ImageUpload(fileFromClipboard = null){
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
-    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[localStorage.getItem('theme')]['secondary']}'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
+    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[localStorage.getItem("theme")].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
     document.getElementById('selectedImage').append(fragment);
     document.getElementById('previewImage')?.classList?.add('active');
     let file = fileFromClipboard || photoButton.files[0];
@@ -1273,7 +1273,7 @@ function FileUpload(fileFromClipboard = null){
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
-    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[localStorage.getItem('theme')]['secondary']};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
+    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[localStorage.getItem("theme")].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
     document.getElementById('selectedImage').append(fragment);
     document.getElementById('previewImage')?.classList?.add('active');
     let file = fileFromClipboard || fileButton.files[0];
@@ -1330,7 +1330,7 @@ window.addEventListener('dragover', (evt) => {
     evt.stopPropagation();
     fileDropZone.classList.add('active');
     if (evt.target.classList.contains('fileDropZoneContent')){
-        document.querySelector('.fileDropZoneContent').style.color = themeAccent[localStorage.getItem('theme')]['secondary'];
+        document.querySelector('.fileDropZoneContent').style.color = themeAccent[localStorage.getItem("theme")].secondary;
         if (timeoutObj) {
             clearTimeout(timeoutObj);
         }
@@ -1458,7 +1458,8 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             elem2.classList.add('sendingImage');
             elem.querySelector('.image').style.filter = 'brightness(0.4)';
             elem.appendChild(elem2);
-            let partSize = resized.data.length / 1000;
+            //let partSize = resized.data.length / 1000;
+            let partSize = 1000;
             let partArray = [];
             let progress = 0;
             fileSocket.emit('fileUploadStart', 'image', thumbnail.data, tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: 'png', size: resized.data.length, height: resized.height, width: resized.width}, myKey);
@@ -1471,7 +1472,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
                 fileSocket.emit('fileUploadStream', resized.data.substring(i, i + partSize), tempId, progress, myKey, 'image', function (){
                     elem.querySelector('.sendingImage').textContent = `↑ ${progress}%`;
                 });
-                await sleep(4);
+                await sleep(30);
             }
             fileSocket.emit('fileUploadEnd', tempId, myKey, (id) => {
                 outgoingmessage.play();
@@ -1497,7 +1498,8 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
             insertNewMessage(selectedFile.data, 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name});
             
             //store image in 100 parts
-            let partSize = selectedFile.data.length / 1000;
+            //let partSize = selectedFile.data.length / 1000;
+            let partSize = 1000;
             let partArray = [];
             let progress = 0;
             let elem = document.getElementById(tempId)?.querySelector('.messageMain');
@@ -1512,7 +1514,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
                 fileSocket.emit('fileUploadStream', selectedFile.data.substring(i, i + partSize), tempId, Math.round((i / selectedFile.data.length) * 100), myKey, 'file', function (){
                     elem.querySelector('.fileSize').textContent = `↑ ${progress}%`;
                 });
-                await sleep(4);
+                await sleep(30);
             }
             fileSocket.emit('fileUploadEnd', tempId, myKey, (id) => {
                 document.getElementById(tempId).classList.add('delevered');

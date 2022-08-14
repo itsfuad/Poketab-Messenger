@@ -27,7 +27,8 @@ const port = process.env.PORT || 3000;
 let app = express();
 let server = http.createServer(app);
 let io = socketIO(server,{
-  maxHttpBufferSize: 1e8, pingTimeout: 60000
+  maxHttpBufferSize: 1e8, pingTimeout: 60000,
+  async_handlers: true
 });
 
 let fileSocket = io.of('/file');
@@ -320,7 +321,7 @@ auth.on('connection', (socket) => {
       let user = users.getUserList(key);
       let max_users = users.getMaxUser(key) ?? 2;
       if (user.length >= max_users){
-        callback(errorRes(errorRes.schema, 403, 'Not Authorized'));
+        callback('Not Authorized');
       }else{
         socket.emit('joinResponse', {exists: keyExists, userlist: users.getUserList(key), avatarlist: users.getAvatarList(key)});
       }
