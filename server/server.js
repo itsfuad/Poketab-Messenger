@@ -6,12 +6,13 @@ const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const socketIO = require('socket.io');
 const uuid = require("uuid");
+const fs = require('fs');
 
 const version = process.env.npm_package_version || "Development";
 
-const {Users} = require('./utils/users');
 const {isRealString, validateUserName, avList} = require('./utils/validation');
 const {makeid, keyformat} = require('./utils/functions');
+const {keys, uids, users, fileStore} = require('./keys/cred');
 
 const apiRequestLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minute
@@ -34,11 +35,7 @@ let io = socketIO(server,{
 let fileSocket = io.of('/file');
 let auth = io.of('/auth');
 
-let users = new Users();
 const devMode = process.env.NODE_ENV !== 'production';
-
-const keys = new Map();
-const uids = new Map();
 
 function deleteKeys(){
   for (let [key, value] of keys){
@@ -50,7 +47,18 @@ function deleteKeys(){
   }
 }
 
+function deleteFiles(){
+  for (let [key, value] of fileStore){
+    if (!keys.has(value['key']) && fs.existsSync(`uploads/${key}`)){
+      fs.unlinkSync(`uploads/${key}`);
+      fileStore.delete(key);
+      console.log(`File ${key} deleted`);
+    }
+  }
+}
+
 setInterval(deleteKeys, 1000);
+setInterval(deleteFiles, 1000);
 
 app.disable('x-powered-by');
 
@@ -68,6 +76,9 @@ app.use(cors(),
   }),
   apiRequestLimiter
 );
+
+app.use('/api/files', require('./routes/files'));
+app.use('/api/download', require('./routes/files'));
 
 app.get('/', (_, res) => {
     res.redirect('/join');
@@ -241,6 +252,12 @@ io.on('connection', (socket) => {
         users.removeMaxUser(user.key);
         //delete key from keys
         keys.delete(user.key);
+        let files = Array.from(fileStore.values()).filter(file => file.key === user.key);
+        files.forEach(file => {
+          //console.log('Deleting file', file);
+          fs.unlinkSync(`uploads/${file.filename}`);
+          fileStore.delete(file.fileId);
+        });
         console.log(`Session ended with key: ${user.key}`);
       }
       console.log(`${usercount.length } ${usercount.length > 1 ? 'users' : 'user'} left on ${user.key}`);
@@ -258,23 +275,35 @@ fileSocket.on('connection', (socket) => {
   });
 
   socket.on('fileUploadStart', ( type, thumbnail, tempId, uId, reply, replyId, options, metadata, key) => {
-    console.log('Received file upload start request', key);
+    //console.log('Received file upload start request', key);
     socket.broadcast.to(key).emit('fileDownloadStart', type, thumbnail, tempId, uId, reply, replyId, options, metadata);
     //socket.broadcast.emit('fileDownloadStart', type, size, tempId, uId, reply, replyId, options, metadata);
   });
-
+  /*
   socket.on('fileUploadStream', (chunk, tempId, progress, key, type, callback) => {
       socket.broadcast.to(key).emit('fileDownloadStream', chunk, tempId, progress, type);
       callback();
       //socket.emit('fileUploadProgress', tempId, progress, type);
   });
-
-  socket.on('fileUploadEnd', (tempId, key, callback) => {
-    //console.log('Received file upload end request');
+  */
+  socket.on('fileUploadEnd', (tempId, key, downlink, callback) => {
+    //console.log('Received file upload end request => ', tempId, key, downlink, callback);
     let id = uuid.v4();
-    socket.broadcast.to(key).emit('fileDownloadEnd', tempId, id);
+    socket.broadcast.to(key).emit('fileDownloadReady', tempId, id, downlink);
     callback(id);
     //socket.emit('fileSent', tempId, id, type, size);
+  });
+
+  socket.on('fileDownloaded', (userId, key, filename) => {
+    if (fileStore.has(filename)) {
+      //{filename: req.file.filename, downloaded: 0, keys: [], uids: []}
+      fileStore.get(filename).downloaded++;
+      if (users.getMaxUser(key) == fileStore.get(filename).downloaded + 1) {
+        console.log('Deleting file');
+        fs.unlinkSync(`./uploads/${filename}`);
+        fileStore.delete(filename);
+      }
+    }
   });
 });
 

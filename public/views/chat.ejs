@@ -13,7 +13,7 @@
     <!--All popups will be shown here-->
     <div class="popup-message"></div>
     <!--message popup-->
-    <div class="newmessagepopup">
+    <div class="newmessagepopup clickable">
         <img src="" alt="Avatar"><div class="msg"></div><div class="downarrow"><i class="fa-solid fa-arrow-down"></i></div>
     </div>
     <!--The side menu-->
@@ -211,7 +211,10 @@
                         </div>
                         <div class="fileInfo">
                             <div class="fileName">{{fileName}}</div>
-                            <div class="fileSize">{{fileSize}}</div>
+                            <div class="filemeta">
+                                <div class="progress"></div>
+                                <div class="fileSize">{{fileSize}}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
