@@ -1516,7 +1516,7 @@ function sendImageStoreRequest(){
             }
             else{
                 console.log('error uploading image');
-                elem2.textContent = 'Error';
+                elem.querySelector('.sendingImage').textContent = 'Error';
             }
         }
         xhr.send(formData);
