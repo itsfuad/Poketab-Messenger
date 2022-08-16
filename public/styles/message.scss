@@ -278,8 +278,7 @@ code{
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
+            width: max-content;
             color: white;
             font-size: 0.8rem;
             display: grid;
@@ -307,6 +306,8 @@ code{
 
 .fileInfo{
     display: flex;
+    flex-direction: column;
+    
     font-size: 0.7rem;
     gap: 5px;
     .fileName, .fileSize{
@@ -315,11 +316,14 @@ code{
     }
     .fileName{
         text-decoration: underline;
-        padding-left: 10px;
+        padding-left: 3px;
     }
-    .fileSize{
-        font-size: 0.5rem;
-        min-width: 50px;
+    .filemeta{
+        font-size: .5rem;
+        display: flex;
+        padding: 3px;
+        flex-direction: row;
+        justify-content: space-between;
     }
 }
 
