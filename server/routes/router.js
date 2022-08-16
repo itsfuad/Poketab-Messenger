@@ -2,15 +2,15 @@ const router = require('express').Router();
 const multer = require('multer');
 const fs = require('fs');
 const uuid = require('uuid').v4;
-const { fileStore } = require('./../keys/cred');
+const { keys, store } = require('../keys/cred');
 
 
 let storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => {
-        const filename = file.originalname;
+        const filename = `poketab-${uuid()}-${file.originalname}`;
         cb(null, filename);
-    }
+    },
 });
 
 let upload = multer({ 
@@ -23,12 +23,12 @@ router.post('/', (req, res) => {
     //store
     upload(req, res, async (err) => {
         if (err) {
-            console.log(err);
+            console.log('File cannot be stored:', err.message);
             res.send({ error: err.message });
         } else {
-            let fileId = uuid();
-            fileStore.set(req.file.filename, {fileId: fileId, filename: req.file.filename, downloaded: 0, key: req.body.key});
-            res.send({ success: true, downlink: `${req.file.filename}`, id: fileId });
+            store(req.file.filename, {filename: req.file.filename, downloaded: 0, key: req.body.key});
+            //fileStore[req.file.filename] = {filename: req.file.filename, downloaded: 0, key: req.body.key};
+            res.send({ success: true, downlink: req.file.filename});
         }
     });
 });
@@ -39,7 +39,7 @@ router.get('/:id', (req, res) => {
     if (fs.existsSync(`uploads/${req.params.id}`)) {
         res.sendFile(`uploads/${req.params.id}`, { root: __dirname + '/../..' });
     } else {
-        res.send({ error: 'File not found' });
+        res.status(404).send('Not found');
     }
 });
 

@@ -7,3 +7,6 @@ message.css
 message.css.map
 mustache.js
 bundle.js.LICENSE.txt
+.env
+uploads/*
+fileStore.json

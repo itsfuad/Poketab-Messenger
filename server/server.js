@@ -7,8 +7,10 @@ const cors = require('cors');
 const socketIO = require('socket.io');
 const uuid = require("uuid");
 const fs = require('fs');
+require('dotenv').config();
 
 const version = process.env.npm_package_version || "Development";
+const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
 const {isRealString, validateUserName, avList} = require('./utils/validation');
 const {makeid, keyformat} = require('./utils/functions');
@@ -38,6 +40,7 @@ let auth = io.of('/auth');
 const devMode = process.env.NODE_ENV !== 'production';
 
 function deleteKeys(){
+  //console.log(keys);
   for (let [key, value] of keys){
     //console.dir(`${key} ${value.using}, ${value.created}, ${Date.now()}`);
     if (value.using != true && Date.now() - value.created > 120000){
@@ -48,17 +51,29 @@ function deleteKeys(){
 }
 
 function deleteFiles(){
-  for (let [key, value] of fileStore){
-    if (!keys.has(value['key']) && fs.existsSync(`uploads/${key}`)){
-      fs.unlinkSync(`uploads/${key}`);
-      fileStore.delete(key);
-      console.log(`File ${key} deleted`);
+  //read fileStore.json
+  let json = fs.readFileSync('fileStore.json', 'utf8');
+  if (json.length > 0) {
+    let files = JSON.parse(json);
+    for (let file in files){
+      if (!keys.has(file)){
+        //delete file
+        files[file].forEach(function(filename){
+          if (fs.existsSync('uploads/'+filename)){
+            fs.unlinkSync('uploads/'+filename);
+            //console.log(`File deleted for key ${file}`);
+          }
+        });
+        //remove file from fileStore.json
+        delete files[file];
+        fs.writeFileSync('fileStore.json', JSON.stringify(files));
+      }
     }
   }
 }
 
 setInterval(deleteKeys, 1000);
-setInterval(deleteFiles, 1000);
+setInterval(deleteFiles, 2000);
 
 app.disable('x-powered-by');
 
@@ -67,21 +82,30 @@ app.set('views', path.join(__dirname, '../public/views'));
 app.set('view engine', 'ejs');
 app.set('trust proxy', 1);
 
-app.use(cors(),
-  compression(),
-  express.static(publicPath),
-  express.json(),
-  express.urlencoded({
-    extended: false
-  }),
-  apiRequestLimiter
-);
 
-app.use('/api/files', require('./routes/files'));
-app.use('/api/download', require('./routes/files'));
+app.use(cors());
+app.use(compression());
+app.use(express.static(publicPath));
+app.use(express.json());
+app.use(express.urlencoded({
+  extended: false
+}));
+app.use(apiRequestLimiter);
+
+app.use('/api/files', require('./routes/router'));
+app.use('/api/download', require('./routes/router'));
 
 app.get('/', (_, res) => {
     res.redirect('/join');
+});
+
+app.get('/admin/:pass', (req, res) => {
+  if (req.params.pass === ADMIN_PASS) {
+    console.log('Admin access granted');
+    res.send(Object.fromEntries(keys));
+  } else {
+    res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
+  }
 });
 
 app.get('/join', (_, res) => {
@@ -170,7 +194,7 @@ io.on('connection', (socket) => {
       return callback('exists');
     }
     callback();
-    keys.get(params.key) ? keys.get(params.key).using = true: null;
+    keys.get(params.key) ? keys.get(params.key).using = true: keys.set(params.key, {using: true, created: Date.now()});
     socket.join(params.key);
     users.removeUser(params.id);
     uids.set(socket.id, params.id);
@@ -252,12 +276,6 @@ io.on('connection', (socket) => {
         users.removeMaxUser(user.key);
         //delete key from keys
         keys.delete(user.key);
-        let files = Array.from(fileStore.values()).filter(file => file.key === user.key);
-        files.forEach(file => {
-          //console.log('Deleting file', file);
-          fs.unlinkSync(`uploads/${file.filename}`);
-          fileStore.delete(file.fileId);
-        });
         console.log(`Session ended with key: ${user.key}`);
       }
       console.log(`${usercount.length } ${usercount.length > 1 ? 'users' : 'user'} left on ${user.key}`);
@@ -268,24 +286,14 @@ io.on('connection', (socket) => {
 
 //file upload
 fileSocket.on('connection', (socket) => {
-  //console.log('File socket connected');
   socket.on('join', (key) => {
-    //console.log('Received join request');
     socket.join(key);
   });
 
   socket.on('fileUploadStart', ( type, thumbnail, tempId, uId, reply, replyId, options, metadata, key) => {
-    //console.log('Received file upload start request', key);
     socket.broadcast.to(key).emit('fileDownloadStart', type, thumbnail, tempId, uId, reply, replyId, options, metadata);
-    //socket.broadcast.emit('fileDownloadStart', type, size, tempId, uId, reply, replyId, options, metadata);
   });
-  /*
-  socket.on('fileUploadStream', (chunk, tempId, progress, key, type, callback) => {
-      socket.broadcast.to(key).emit('fileDownloadStream', chunk, tempId, progress, type);
-      callback();
-      //socket.emit('fileUploadProgress', tempId, progress, type);
-  });
-  */
+
   socket.on('fileUploadEnd', (tempId, key, downlink, callback) => {
     //console.log('Received file upload end request => ', tempId, key, downlink, callback);
     let id = uuid.v4();

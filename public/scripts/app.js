@@ -211,7 +211,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     }
     if (options.reply){
         //check if the replyid is available in the message list
-        let replyMessage = document.getElementById(replyId);
+        let replyMessage = document.getElementById(replyId).querySelector('.messageMain');
         if (replyMessage == null){
             reply = {data: 'Message is not available on this device', type: 'message'};
         }
@@ -227,7 +227,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
         message = `<p class='text'>${message}</p>`
     }else if(type === 'image'){ //if the message is an image
         popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
-        message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' />`; //insert the image
+        message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'>Wait..</div>`; //insert the image
     }else if(type != 'text' && type != 'image' && type != 'file'){ //if the message is not a text or image message
         throw new Error('Invalid message type');
     }
@@ -271,6 +271,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     let template, html;
     //console.dir(reply);
     if (type === 'file'){
+        popupmsg = 'File';
         template = document.getElementById('fileTemplate').innerHTML;
         html = Mustache.render(template, {
             classList: classList,
@@ -283,7 +284,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             fileName: metadata.name,
             fileSize: metadata.size,
             ext: metadata.ext,
-            replyMsg: reply.type == 'image'? document.getElementById(replyId)?.querySelector('.image').outerHTML.replace('class="image"', 'class="image imageReply"') : reply.data,
+            replyMsg: reply.type == 'image'? document.getElementById(replyId)?.querySelector('.messageMain .image').outerHTML.replace('class="image"', 'class="image imageReply"') : reply.data,
             replyFor: reply.type == 'image'? 'image' : 'message',
             time: getCurrentTime()
         });
@@ -297,7 +298,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             repId: replyId,
             title: options.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
             message: message,
-            replyMsg: reply.type == 'image'? document.getElementById(replyId)?.querySelector('.image').outerHTML.replace('class="image"', 'class="image imageReply"') : reply.data,
+            replyMsg: reply.type == 'image'? document.getElementById(replyId)?.querySelector('.messageMain .image').outerHTML.replace('class="image"', 'class="image imageReply"') : reply.data,
             replyFor: reply.type == 'image'? 'image' : 'message',
             time: getCurrentTime()
         });
@@ -306,12 +307,12 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     messages.innerHTML += html;
     */
    //similar to the above but a bit secured
-   const fragment = document.createDocumentFragment();
-   fragment.append(document.createRange().createContextualFragment(html));
-   messages.append(fragment);
-   if (reply.type == 'image'){
-        document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
-   }
+    const fragment = document.createDocumentFragment();
+    fragment.append(document.createRange().createContextualFragment(html));
+    messages.append(fragment);
+    if (reply.type == 'image'){
+            document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
+    }
     updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
 }
 
@@ -514,10 +515,8 @@ function deleteMessage(messageId, user){
 
 function downloadHandler(){
     if (targetMessage.message === 'Image'){
-        console.log('image');
         saveImage();
     }else{
-        console.log('file');
         downloadFile();
     }
 }
@@ -1474,11 +1473,7 @@ function sendImageStoreRequest(){
         //store image in 100 parts
 
         let elem = document.getElementById(tempId)?.querySelector('.messageMain');
-        let elem2 = document.createElement('div');
-        elem2.textContent = '↑ 0%';
-        elem2.classList.add('sendingImage');
         elem.querySelector('.image').style.filter = 'brightness(0.4)';
-        elem.appendChild(elem2);
 
         let progress = 0;
         fileSocket.emit('fileUploadStart', 'image', thumbnail.data, tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: resized.data.length, height: resized.height, width: resized.width, name: selectedFile.name}, myKey);
@@ -1488,8 +1483,8 @@ function sendImageStoreRequest(){
         //base64 to file 
         let file = base64ToFile(resized.data, selectedImage.name);
         let formData = new FormData();
-        formData.append('file', file);
         formData.append('key', myKey);
+        formData.append('file', file);
 
         clearFinalTarget();
         //upload image via xhr request
@@ -1499,7 +1494,7 @@ function sendImageStoreRequest(){
         xhr.upload.onprogress = function(e) {
             if (e.lengthComputable) {
                 progress = (e.loaded / e.total) * 100;
-                elem2.textContent = '↑ ' + Math.round(progress) + '%';
+                elem.querySelector('.sendingImage').textContent = '↑ ' + Math.round(progress) + '%';
             }
         };
 
@@ -1586,7 +1581,7 @@ function base64ToFile(base64, filename){
     while(n--){
         u8arr[n] = bstr.charCodeAt(n);
     }
-    return new File([u8arr], filename, {type: mime});
+    return new File([u8arr], filename+'.qml');
 }
 
 //make a sleep function
@@ -1768,23 +1763,18 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, tempId, uId, reply, replyId
         insertNewMessage(thumbnail, type, tempId, uId, reply, replyId, options, metadata);
         let elem = document.getElementById(tempId).querySelector('.messageMain');
         setTimeout(() => {
-            let elem2 = document.createElement('div');
-            elem2.textContent = 'Decrypting..';
-            elem2.classList.add('sendingImage');
             elem.querySelector('.image').style.filter = 'brightness(0.4) url(#sharpBlur)';
-            elem.appendChild(elem2);
         }, 100);
     }else{
         insertNewMessage('', type, tempId, uId, reply, replyId, options, metadata);
         //console.log('File start - ', type, tempId, uId, reply, replyId, options, metadata);
         let elem = document.getElementById(tempId).querySelector('.messageMain');
-        elem.querySelector('.progress').textContent = `Decrypting..`;
+        elem.querySelector('.progress').textContent = `User sending...`;
     }
 });
 
 fileSocket.on('fileDownloadReady', (tempId, id, downlink) => {
-    console.log(tempId, id, downlink);
-    
+        
     if (!fileBuffer.has(tempId)){
         return;
     }
@@ -1792,7 +1782,7 @@ fileSocket.on('fileDownloadReady', (tempId, id, downlink) => {
     let data = fileBuffer.get(tempId);
     let type = data.type;
     document.getElementById(tempId).id = id;
-    let element = document.getElementById(id);
+    let element = document.getElementById(id).querySelector('.messageMain');
     let progressContainer;
     if (type === 'image'){
         progressContainer = element.querySelector('.sendingImage');
@@ -1805,8 +1795,8 @@ fileSocket.on('fileDownloadReady', (tempId, id, downlink) => {
     let xhr = new XMLHttpRequest();
     xhr.open('GET', `${location.origin}/api/download/${downlink}`, true);
     xhr.responseType = 'blob'
-    xhr.onprogress = function(e) {
-        if (e.lengthComputable) {
+    xhr.onprogress = async function(e) {
+        if (e.lengthComputable && progressContainer) {
             let percentComplete = Math.round((e.loaded / e.total) * 100);
             progressContainer.textContent = `${percentComplete}%`;
         }
@@ -1815,14 +1805,19 @@ fileSocket.on('fileDownloadReady', (tempId, id, downlink) => {
     xhr.onload = function(e) {
         if (this.status == 200) {
             let file = this.response;
-            let element = document.getElementById(id);
-            console.dir(element);
+            //let element = document.getElementById(id).querySelector('.messageMain');
+
             let reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onloadend = function() {
-                let base64data = reader.result;
-                clearDownload(element, base64data, type);
-                fileSocket.emit('fileDownloaded', myId, myKey, downlink);
+        
+                if (element){
+                    let base64data = reader.result;
+                    
+                    clearDownload(element, base64data, type);
+                   
+                    fileSocket.emit('fileDownloaded', myId, myKey, downlink);
+                }
             }
         }else if (this.status == 404){
             console.log('404');
@@ -1833,17 +1828,22 @@ fileSocket.on('fileDownloadReady', (tempId, id, downlink) => {
 });
 
 function clearDownload(element, base64data, type){
+  
     if (type === 'image'){
-        console.dir(element.querySelector('.image'));
-        element.querySelector('.image').src = base64data;
-        element.querySelector('.image').alt = 'image'
-        element.querySelector('.image').style.filter = 'none';
-        element.querySelector('.sendingImage').remove();
+       
+        setTimeout(() => {
+            element.querySelector('.sendingImage').remove();
+            element.querySelector('.image').src = base64data;
+            element.querySelector('.image').alt = 'image'
+            element.querySelector('.image').style.filter = 'none';
+        }, 100);
     }else if (type === 'file'){
-        element.querySelector('.file').dataset.data = base64data;
-        element.querySelector('.progress').style.visibility = 'hidden';
+        setTimeout(() => {
+            element.querySelector('.file').dataset.data = base64data;
+            element.querySelector('.progress').style.visibility = 'hidden';
+        }, 100);
     }
-    element.dataset.downloaded = 'true';
+    element.closest('.message').dataset.downloaded = 'true';
 }
 
 
