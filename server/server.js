@@ -313,6 +313,11 @@ fileSocket.on('connection', (socket) => {
       }
     }
   });
+
+  socket.on('fileUploadError', (key, id, type) => {
+    socket.broadcast.to(key).emit('fileUploadError', id, type);
+  });
+
 });
 
 

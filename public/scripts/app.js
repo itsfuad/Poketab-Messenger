@@ -1517,6 +1517,7 @@ function sendImageStoreRequest(){
             else{
                 console.log('error uploading image');
                 elem.querySelector('.sendingImage').textContent = 'Error';
+                fileSocket.emit('fileUploadError', myKey, tempId, 'image');
             }
         }
         xhr.send(formData);
@@ -1567,6 +1568,7 @@ function sendFileStoreRequest(){
         else{
             console.log('error uploading file');
             elem.querySelector('.progress').textContent = `Error`;
+            fileSocket.emit('fileUploadError', myKey, tempId, 'image');
         }
     }
     xhr.send(formData);
@@ -1771,6 +1773,17 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, tempId, uId, reply, replyId
         let elem = document.getElementById(tempId).querySelector('.messageMain');
         elem.querySelector('.progress').textContent = `User sending...`;
     }
+});
+
+fileSocket.on('fileUploadError', (id, type) => {
+    let element = document.getElementById(id).querySelector('.messageMain');
+    let progressContainer;
+    if (type === 'image'){
+        progressContainer = element.querySelector('.sendingImage');
+    }else{
+        progressContainer = element.querySelector('.progress');
+    }
+    progressContainer.textContent = 'Upload Error';
 });
 
 fileSocket.on('fileDownloadReady', (tempId, id, downlink) => {
