@@ -37,7 +37,7 @@ let io = socketIO(server,{
 let fileSocket = io.of('/file');
 let auth = io.of('/auth');
 
-const devMode = process.env.NODE_ENV !== 'production';
+const devMode = false;
 
 function deleteKeys(){
   //console.log(keys);

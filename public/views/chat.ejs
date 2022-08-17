@@ -298,17 +298,15 @@
         }
         
         loadTheme();
+        
         document.addEventListener('click', ()=> {
-            if (devMode) {
-                console.log("devMode");
-            }else{
                 history.pushState({}, '', "#init");
                 history.pushState({}, '', "#inbox");
                 window.onpopstate = ()=>{
                 history.forward();
                 }
-            }
         }, {once: true});
+
     </script>
 </body>
 </html>
