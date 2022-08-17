@@ -1051,6 +1051,7 @@ function closeStickersPanel(){
 //Event listeners
 
 document.querySelector('.stickerBtn').addEventListener('click', () => {
+    softKeyIsUp = false;
     textbox.blur();
     showStickersPanel();
 });
