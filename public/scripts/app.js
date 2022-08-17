@@ -1014,18 +1014,19 @@ let stickerNames;
 let stickers = '';
 let selectedStickerGroup, selectedStickerGroupCount;
 
+selectedStickerGroup = Stickers[0].name;
+selectedStickerGroupCount = Stickers[0].count;
+
 function loadStickers(){
+    stickers = '';
     stickerNames = Stickers.map(sticker => {
-        return `<img src="/stickers/${sticker.name}/${sticker.icon}.webp" alt="${sticker.name}" data-name="${sticker.name}" class="stickerName clickable">`;
+        return `<img src="/stickers/${sticker.name}/animated/${sticker.icon}.webp" alt="${sticker.name}" data-name="${sticker.name}" class="stickerName clickable">`;
     }).join('');
 
-
-    selectedStickerGroup = Stickers[0].name;
-    selectedStickerGroupCount = Stickers[0].count;
-    console.log(selectedStickerGroup, selectedStickerGroupCount);
+    //console.log(selectedStickerGroup, selectedStickerGroupCount);
 
     for (let i = 1; i <= selectedStickerGroupCount; i++) {
-        stickers += `<img src="/stickers/${selectedStickerGroup}/${i}.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/${i}" class="stickerpack clickable">`;
+        stickers += `<img src="/stickers/${selectedStickerGroup}/static/${i}.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/animated/${i}" class="stickerpack clickable">`;
     }
 
     document.getElementById('selectStickerGroup').innerHTML = stickerNames;
@@ -1068,7 +1069,7 @@ document.getElementById('selectStickerGroup').addEventListener('click', e => {
         selectedStickerGroupCount = Stickers.find(sticker => sticker.name === selectedStickerGroup).count;
         stickers = '';
         for (let i = 1; i <= selectedStickerGroupCount; i++) {
-            stickers += `<img src="/stickers/${selectedStickerGroup}/${i}.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/${i}" class="stickerpack clickable">`;
+            stickers += `<img src="/stickers/${selectedStickerGroup}/static/${i}.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/animated/${i}" class="stickerpack clickable">`;
         }
         //document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["theme"]].msg_send;
         document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').dataset.selected = 'true';
