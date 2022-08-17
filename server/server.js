@@ -98,10 +98,6 @@ app.get('/', (_, res) => {
     res.redirect('/join');
 });
 
-app.get('/stickers', (_, res) => {
-  res.render('sticker');
-});
-
 app.get('/admin/:pass', (req, res) => {
   if (req.params.pass === ADMIN_PASS) {
     console.log('Admin access granted');
