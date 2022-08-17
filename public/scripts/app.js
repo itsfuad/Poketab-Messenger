@@ -34,6 +34,7 @@ const typingsound = new Audio('/sounds/typing.mp3');
 const locationsound = new Audio('/sounds/location.mp3');
 const reactsound = new Audio('/sounds/react.mp3');
 const clickSound = new Audio('/sounds/click.mp3');
+const stickerSound = new Audio('/sounds/sticker.mp3');
 
 const sendButton = document.getElementById('send');
 const photoButton = document.getElementById('photo');
@@ -1085,6 +1086,7 @@ document.getElementById('stickers').addEventListener('click', e => {
         console.log(e.target.dataset.name);
         let tempId = makeId();
         //insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, finalTarget.message, finalTarget.id, {});
+        stickerSound.play();
         insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
         socket.emit('message', e.target.dataset.name, 'sticker', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function(id){
             outgoingmessage.play();
@@ -1830,7 +1832,11 @@ socket.on('server_message', (message, type) => {
 });
 
 socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
-    incommingmessage.play();
+    if (type == 'text'){
+        incommingmessage.play();
+    }else if(type == 'sticker'){
+        stickerSound.play();
+    }
     //console.log(message, type, id, uid, reply, replyId, options, 'Line 1400');
     insertNewMessage(message, type, id, uid, reply, replyId, options, {});
 });
@@ -1877,6 +1883,7 @@ fileSocket.on('connect', () => {
 });
 
 fileSocket.on('fileDownloadStart', (type, thumbnail, tempId, uId, reply, replyId, options, metadata) => {
+    incommingmessage.play();
     //console.log('fileDownloadStart', type, thumbnail, tempId, uId, reply, replyId, options, metadata);
     fileBuffer.set(tempId, {type: type, data: '', uId: uId, reply: reply, replyId: replyId, options: options, metadata: metadata});
     if (type === 'image'){
@@ -1959,7 +1966,7 @@ fileSocket.on('fileDownloadReady', (tempId, id, downlink) => {
 });
 
 function clearDownload(element, base64data, type){
-  
+    outgoingmessage.play();
     if (type === 'image'){
        
         setTimeout(() => {
