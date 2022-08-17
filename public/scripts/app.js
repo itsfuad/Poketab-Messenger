@@ -1718,6 +1718,7 @@ textbox.addEventListener('keydown', (evt) => {
 });
 
 document.getElementById('send-location').addEventListener('click', () => {
+    popupMessage('Tracing your location...');
     if (!navigator.geolocation) {
         popupMessage('Geolocation not supported by your browser.');
         return;
