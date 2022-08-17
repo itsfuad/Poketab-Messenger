@@ -17,7 +17,7 @@ const {makeid, keyformat} = require('./utils/functions');
 const {keys, uids, users, fileStore} = require('./keys/cred');
 
 const apiRequestLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minute
+  windowMs: 15 * 60 * 1000, // 15 minute
     max: 100, // limit each IP to 100 requests per windowMs
     message: "Too many requests. Temporarily blocked from PokeTab server. Please try again later",
     standardHeaders: false, // Return rate limit info in the `RateLimit-*` headers
@@ -37,7 +37,7 @@ let io = socketIO(server,{
 let fileSocket = io.of('/file');
 let auth = io.of('/auth');
 
-const devMode = process.env.NODE_ENV !== 'production';
+const devMode = false;
 
 function deleteKeys(){
   //console.log(keys);
@@ -81,7 +81,6 @@ app.disable('x-powered-by');
 app.set('views', path.join(__dirname, '../public/views'));
 app.set('view engine', 'ejs');
 app.set('trust proxy', 1);
-
 
 app.use(cors());
 app.use(compression());

@@ -76,7 +76,10 @@
             <div id="typingIndicator"></div>
             <div class="chatInput">
                 <!-- Location input -->
-                <div class="location" id="send-location"><i class="fa-solid fa-location-crosshairs"></i></div>
+                <div class="location clickable" id="send-location"><i class="fa-solid fa-location-crosshairs"></i></div>
+                <div class="stickerBtn clickable"><i class="fa-solid fa-note-sticky"></i></div>
+                <!-- Text input -->
+                <textarea name="chatInputBox" id="textbox" class="select" rows="1" placeholder="Message..."></textarea>
                 <div class="attachments clickable" id="attachment"><i class="fa-solid fa-paperclip"></i></div>
                 <div class="close_area" id="attmain">
                     <div class="attachmentContainer">
@@ -92,12 +95,19 @@
                         </div>
                     </div>
                 </div>
-                <!-- Text input -->
-                <textarea name="chatInputBox" id="textbox" class="select" rows="1" placeholder="Message..."></textarea>
                 <!-- Send Button-->
                 <button id="send"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
+
+        <div class="stickersPanel" id="stickersPanel">
+            <div class="stickerGroups">
+                <div class="names" id="selectStickerGroup"></div>
+                <i class="fa-solid fa-xmark clickable" id="closeStickersPanel"></i>
+            </div>
+            <div class="stickers" id="stickers">Loading&nbsp;<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--secondary-dark)"></i></div>
+        </div>
+
     </div>
 
 
@@ -290,13 +300,13 @@
         loadTheme();
         
         document.addEventListener('click', ()=> {
-            history.pushState({}, '', "#init");
-            history.pushState({}, '', "#inbox");
-            window.onpopstate = ()=>{
-            history.forward();
-            }
+                history.pushState({}, '', "#init");
+                history.pushState({}, '', "#inbox");
+                window.onpopstate = ()=>{
+                history.forward();
+                }
         }, {once: true});
-        
+
     </script>
 </body>
 </html>
