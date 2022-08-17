@@ -204,7 +204,7 @@ function makeId(length = 10){
 //this function inserts a message in the chat box
 function insertNewMessage(message, type, id, uid, reply, replyId, options, metadata){
     //detect if the message has a reply or not
-    console.log(reply, replyId, options, metadata);
+
     if (!options){
         options = {
             reply: false,
@@ -231,7 +231,6 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
         popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
         message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'>Wait..</div>`; //insert the image
     }else if (type === 'sticker'){
-        console.log('Sticker');
         popupmsg = 'Sticker';
         message = `<img class='sticker' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
     }else if(type != 'text' && type != 'image' && type != 'file' && type != 'sticker'){ //if the message is not a text or image message
@@ -281,7 +280,6 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     let template, html;
     let replyMsg, replyFor;
     if (reply.type === 'text' || reply.type === 'file'){
-        console.log('Reply is ', reply);
         replyMsg = reply.data;
         replyFor = 'message';
     }else if (reply.type === 'image'){
@@ -435,8 +433,7 @@ function showOptions(type, sender, target){
     document.querySelector('.reactorContainerWrapper').classList.remove('active');
     document.querySelectorAll(`#reactOptions div`).forEach(
         option => option.style.background = 'none'
-    )
-    //console.log(target.closest('.message')?.dataset.uid, myId);
+    );
     if (target.classList.contains('imageReply')){
         return;
     }
@@ -818,7 +815,6 @@ function OptionEventHandler(evt){
         targetMessage.message = targetFile.fileName;
         targetMessage.id = evt.target?.closest('.message')?.id;
     }else if (evt.target.closest('.messageMain')?.querySelector('.sticker') ?? null){
-        //console.log('Clicked sticker');
         type = 'sticker';
         targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
         if (targetMessage.sender == myName){
@@ -829,7 +825,6 @@ function OptionEventHandler(evt){
         targetMessage.type = type;
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
-    console.log(targetMessage);
     if (type === 'text' || type === 'image' || type === 'file' || type === 'sticker'){
         //console.log('targetMessage', targetMessage);
         showOptions(type, sender, evt.target);
@@ -1023,8 +1018,6 @@ function loadStickers(){
         return `<img src="/stickers/${sticker.name}/animated/${sticker.icon}.webp" alt="${sticker.name}" data-name="${sticker.name}" class="stickerName clickable">`;
     }).join('');
 
-    //console.log(selectedStickerGroup, selectedStickerGroupCount);
-
     for (let i = 1; i <= selectedStickerGroupCount; i++) {
         stickers += `<img src="/stickers/${selectedStickerGroup}/static/${i}.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/animated/${i}" class="stickerpack clickable">`;
     }
@@ -1084,7 +1077,6 @@ document.getElementById('stickers').addEventListener('click', e => {
             sticker.style.background = 'transparent';
         });
         e.target.style.background = themeAccent[localStorage["theme"]].msg_send;
-        console.log(e.target.dataset.name);
         let tempId = makeId();
         //insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, finalTarget.message, finalTarget.id, {});
         stickerSound.play();
@@ -1527,7 +1519,7 @@ sendButton.addEventListener('click', () => {
             //replace whitespace with empty string
             message = message.replace(/\s/g, '');
         }
-        //console.log(`Sending message: ${message} | Type: ${type}`);
+
         insertNewMessage(message, 'text', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
         socket.emit('message', message, 'text', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function (id) {
             outgoingmessage.play();
@@ -1566,7 +1558,7 @@ document.getElementById('previewImage').querySelector('.close')?.addEventListene
 document.getElementById('previewImage').querySelector('#imageSend')?.addEventListener('click', ()=>{
     document.getElementById('previewImage')?.classList?.remove('active');
     //check if image or file is selected
-    //console.log(finalTarget);
+
     if (selectedObject === 'image'){
         //sendImage();
         sendImageStoreRequest();
@@ -1587,7 +1579,7 @@ function sendImageStoreRequest(){
         let thumbnail = resizeImage(image, image.mimetype, 50);
         let tempId = makeId();
         scrolling = false;
-        //console.log(finalTarget);
+
         insertNewMessage(resized.data, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: resized.data.length, height: resized.height, width: resized.width, name: selectedFile.name});
         //socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
         //store image in 100 parts
@@ -1838,16 +1830,9 @@ socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
     }else if(type == 'sticker'){
         stickerSound.play();
     }
-    //console.log(message, type, id, uid, reply, replyId, options, 'Line 1400');
     insertNewMessage(message, type, id, uid, reply, replyId, options, {});
 });
-/*
-socket.on('messageSent', (messageId, id) => {
-    outgoingmessage.play();
-    document.getElementById(messageId).classList.add('delevered');
-    document.getElementById(messageId).id = id;
-});
-*/
+
 
 socket.on('getReact', (target, messageId, myId) => {
     getReact(target, messageId, myId);
@@ -1895,7 +1880,6 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, tempId, uId, reply, replyId
         }, 100);
     }else{
         insertNewMessage('', type, tempId, uId, reply, replyId, options, metadata);
-        //console.log('File start - ', type, tempId, uId, reply, replyId, options, metadata);
         let elem = document.getElementById(tempId).querySelector('.messageMain');
         elem.querySelector('.progress').textContent = `User sending...`;
     }
@@ -1930,7 +1914,7 @@ fileSocket.on('fileDownloadReady', (tempId, id, downlink) => {
     }
 
     fileBuffer.delete(tempId);
-    //console.log(elem);
+
     let xhr = new XMLHttpRequest();
     xhr.open('GET', `${location.origin}/api/download/${downlink}`, true);
     xhr.responseType = 'blob'
@@ -1944,7 +1928,6 @@ fileSocket.on('fileDownloadReady', (tempId, id, downlink) => {
     xhr.onload = function(e) {
         if (this.status == 200) {
             let file = this.response;
-            //let element = document.getElementById(id).querySelector('.messageMain');
 
             let reader = new FileReader();
             reader.readAsDataURL(file);
