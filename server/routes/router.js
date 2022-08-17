@@ -2,12 +2,12 @@ const router = require('express').Router();
 const multer = require('multer');
 const fs = require('fs');
 const uuid = require('uuid').v4;
-const { keys, store } = require('../keys/cred');
+const { store } = require('../keys/cred');
 
 
 let storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
-    filename: (req, file, cb) => {
+    destination: (_, file, cb) => cb(null, 'uploads/'),
+    filename: (_, file, cb) => {
         const filename = `poketab-${uuid()}-${file.originalname}`;
         cb(null, filename);
     },

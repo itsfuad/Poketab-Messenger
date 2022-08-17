@@ -82,7 +82,7 @@ code{
         }
         .messageReply{
             background: var(--msg-get-reply);
-            border-radius: 15px 15px 15px 3px;
+            border-radius: 15px 15px 15px 8px;
             width: max-content;
             max-width: 110%;
             transform: translateY(20px);
@@ -101,7 +101,7 @@ code{
                 min-height: 100px;
                 object-fit: cover;
                 vertical-align: bottom;
-                border-radius: 15px 15px 15px 3px;
+                border-radius: 15px 15px 15px 8px;
             }
         }
         .reactsOfMessage{
@@ -123,6 +123,9 @@ code{
     }
 }
 
+.messageReply:is(.imageReply){
+    background: transparent !important;
+}
 
 .message:is(.noreply){
     .messageReply{
@@ -156,6 +159,9 @@ code{
         min-height: 100px;
         min-width: 100px;
         background: var(--msg-get);
+        &.sticker{
+            background: none;
+        }
     }
     & > *{
         border-radius: 3px 15px 15px 3px;
@@ -228,9 +234,9 @@ code{
         align-items: flex-end;
         .messageReply{
             background: var(--msg-send-reply);
-            border-radius: 15px 15px 3px 15px;
+            border-radius: 15px 15px 8px 15px;
             .image{
-                border-radius: 15px 15px 3px 15px;
+                border-radius: 15px 15px 8px 15px;
             }
         }
         .messageMain{

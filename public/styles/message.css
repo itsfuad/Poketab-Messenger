@@ -80,7 +80,7 @@ code {
 }
 .message .messageBody .messageReply {
   background: var(--msg-get-reply);
-  border-radius: 15px 15px 15px 3px;
+  border-radius: 15px 15px 15px 8px;
   width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
@@ -103,7 +103,7 @@ code {
   -o-object-fit: cover;
      object-fit: cover;
   vertical-align: bottom;
-  border-radius: 15px 15px 15px 3px;
+  border-radius: 15px 15px 15px 8px;
 }
 .message .messageBody .reactsOfMessage {
   position: absolute;
@@ -122,6 +122,10 @@ code {
 }
 .message .messageBody .reactsOfMessage:hover {
   cursor: pointer;
+}
+
+.messageReply:is(.imageReply) {
+  background: transparent !important;
 }
 
 .message:is(.noreply) .messageReply {
@@ -154,6 +158,9 @@ code {
   min-height: 100px;
   min-width: 100px;
   background: var(--msg-get);
+}
+.messageMain img.sticker {
+  background: none;
 }
 .messageMain > * {
   border-radius: 3px 15px 15px 3px;
@@ -212,10 +219,10 @@ code {
 }
 .message:is(.self) .messageBody .messageReply {
   background: var(--msg-send-reply);
-  border-radius: 15px 15px 3px 15px;
+  border-radius: 15px 15px 8px 15px;
 }
 .message:is(.self) .messageBody .messageReply .image {
-  border-radius: 15px 15px 3px 15px;
+  border-radius: 15px 15px 8px 15px;
 }
 .message:is(.self) .messageBody .messageMain p {
   padding: 8px;

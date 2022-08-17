@@ -5,6 +5,7 @@
 
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
+import {Stickers} from './../stickers/stickersConfig';
 
 console.log('loaded');
 
@@ -202,7 +203,7 @@ function makeId(length = 10){
 //this function inserts a message in the chat box
 function insertNewMessage(message, type, id, uid, reply, replyId, options, metadata){
     //detect if the message has a reply or not
-    //console.log(reply, replyId, options, metadata);
+    console.log(reply, replyId, options, metadata);
     if (!options){
         options = {
             reply: false,
@@ -228,7 +229,11 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     }else if(type === 'image'){ //if the message is an image
         popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
         message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'>Wait..</div>`; //insert the image
-    }else if(type != 'text' && type != 'image' && type != 'file'){ //if the message is not a text or image message
+    }else if (type === 'sticker'){
+        console.log('Sticker');
+        popupmsg = 'Sticker';
+        message = `<img class='sticker' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
+    }else if(type != 'text' && type != 'image' && type != 'file' && type != 'sticker'){ //if the message is not a text or image message
         throw new Error('Invalid message type');
     }
     if(uid == myId){ //if the message is sent by the user is me
@@ -241,16 +246,20 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
         //last message has the bottom corner rounded
         classList += ' start end'; 
     }else  if (lastMsg?.dataset?.uid == uid){ //if the last message is from the same user
-        if (!options.reply && !lastMsg?.classList.contains('emoji')){ //and the message is not a reply
+        if (!options.reply && !lastMsg?.classList.contains('emoji') && !lastMsg?.classList.contains('sticker')){ //and the message is not a reply
             lastMsg?.classList.remove('end'); //then remove the bottom corner rounded from the last message
         }else{
             classList += ' start';
         }
         classList += ' end';
     }
-    if(messageIsEmoji){
+    if(messageIsEmoji){ //if the message is an emoji or sticker
         lastMsg?.classList.add('end');
         classList += ' emoji';
+    }
+    if (type === 'sticker'){
+        lastMsg?.classList.add('end');
+        classList += ' sticker';
     }
     if(!options.reply){
         classList += ' noreply';
@@ -269,6 +278,18 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     if (repliedTo == username){repliedTo = 'self';}
 
     let template, html;
+    let replyMsg, replyFor;
+    if (reply.type === 'text' || reply.type === 'file'){
+        console.log('Reply is ', reply);
+        replyMsg = reply.data;
+        replyFor = 'message';
+    }else if (reply.type === 'image'){
+        replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .image').outerHTML.replace('class="image"', 'class="image imageReply"')
+        replyFor = 'image';
+    }else if (reply.type === 'sticker'){
+        replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .sticker').outerHTML.replace('class="sticker"', 'class="sticker imageReply"')
+        replyFor = 'image';
+    }
     //console.dir(reply);
     if (type === 'file'){
         popupmsg = 'File';
@@ -284,8 +305,8 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             fileName: metadata.name,
             fileSize: metadata.size,
             ext: metadata.ext,
-            replyMsg: reply.type == 'image'? document.getElementById(replyId)?.querySelector('.messageMain .image').outerHTML.replace('class="image"', 'class="image imageReply"') : reply.data,
-            replyFor: reply.type == 'image'? 'image' : 'message',
+            replyMsg: replyMsg,
+            replyFor: replyFor,
             time: getCurrentTime()
         });
     }else{
@@ -298,8 +319,8 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             repId: replyId,
             title: options.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
             message: message,
-            replyMsg: reply.type == 'image'? document.getElementById(replyId)?.querySelector('.messageMain .image').outerHTML.replace('class="image"', 'class="image imageReply"') : reply.data,
-            replyFor: reply.type == 'image'? 'image' : 'message',
+            replyMsg: replyMsg,
+            replyFor: replyFor,
             time: getCurrentTime()
         });
     }
@@ -310,7 +331,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     const fragment = document.createDocumentFragment();
     fragment.append(document.createRange().createContextualFragment(html));
     messages.append(fragment);
-    if (reply.type == 'image'){
+    if (reply.type == 'image' || reply.type == 'sticker'){
             document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
     }
     updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
@@ -419,9 +440,9 @@ function showOptions(type, sender, target){
         return;
     }
     //if the message is a text message
-    if (type == 'text'){
+    if (type === 'text'){
         copyOption.style.display = 'flex';
-    }else if (type == 'image'){ //if the message is an image
+    }else if (type === 'image'){ //if the message is an image
         if (target.closest('.message')?.dataset.downloaded != 'true'){  
             if (target.closest('.message')?.dataset.uid == myId){
                 popupMessage('Not sent yet');
@@ -432,7 +453,7 @@ function showOptions(type, sender, target){
             return;
         }
         downloadOption.style.display = 'flex';
-    }else if (type == 'file'){ //if the message is a file
+    }else if (type === 'file'){ //if the message is a file
         if (target.closest('.message')?.dataset.downloaded != 'true'){  
             if (target.closest('.message')?.dataset.uid == myId){
                 popupMessage('Not sent yet');
@@ -444,7 +465,7 @@ function showOptions(type, sender, target){
         }
         downloadOption.style.display = 'flex';
     }
-    if (sender == true){ //if the message is sent by me
+    if (sender === true){ //if the message is sent by me
         deleteOption.style.display = 'flex'; //then shgell the delete option
     }else{ //else dont show the delete option
         deleteOption.style.display = 'none';
@@ -580,7 +601,7 @@ function showReplyToast(){
 
     finalTarget = Object.assign({}, targetMessage);
     //console.dir(finalTarget);
-    if (finalTarget.type == 'image'){
+    if (finalTarget.type == 'image' || finalTarget.type == 'sticker'){
         replyToast.querySelector('.replyData').appendChild(finalTarget.message);
     }else{
         replyToast.querySelector('.replyData').textContent = finalTarget.message?.substring(0, 50);
@@ -795,8 +816,21 @@ function OptionEventHandler(evt){
         targetFile.fileData = evt.target.closest('.messageMain').querySelector('.file').dataset.data;
         targetMessage.message = targetFile.fileName;
         targetMessage.id = evt.target?.closest('.message')?.id;
+    }else if (evt.target.closest('.messageMain')?.querySelector('.sticker') ?? null){
+        //console.log('Clicked sticker');
+        type = 'sticker';
+        targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
+        if (targetMessage.sender == myName){
+            targetMessage.sender = 'You';
+        }
+        let targetNode = evt.target.closest('.messageMain').querySelector('.sticker').cloneNode(true);
+        targetMessage.message = targetNode;
+        targetMessage.type = type;
+        targetMessage.id = evt.target?.closest('.message')?.id;
     }
-    if (type == 'text' || type == 'image' || type == 'file'){
+    console.log(targetMessage);
+    if (type === 'text' || type === 'image' || type === 'file' || type === 'sticker'){
+        //console.log('targetMessage', targetMessage);
         showOptions(type, sender, evt.target);
     }
 }
@@ -974,12 +1008,93 @@ function vibrate(){
         navigator.vibrate(50);
     }
 }
-  
+
+let stickerNames;
+let stickers = '';
+let selectedStickerGroup, selectedStickerGroupCount;
+
+function loadStickers(){
+    stickerNames = Stickers.map(sticker => {
+        return `<img src="/stickers/${sticker.name}/${sticker.icon}.webp" alt="${sticker.name}" data-name="${sticker.name}" class="stickerName clickable">`;
+    }).join('');
+
+
+    selectedStickerGroup = Stickers[0].name;
+    selectedStickerGroupCount = Stickers[0].count;
+    console.log(selectedStickerGroup, selectedStickerGroupCount);
+
+    for (let i = 1; i <= selectedStickerGroupCount; i++) {
+        stickers += `<img src="/stickers/${selectedStickerGroup}/${i}.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/${i}" class="stickerpack clickable">`;
+    }
+
+    document.getElementById('selectStickerGroup').innerHTML = stickerNames;
+    document.getElementById('stickers').innerHTML = stickers;
+    //document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["theme"]].msg_send;
+    document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').dataset.selected = 'true';
+}
+
+function showStickersPanel(){
+    loadStickers();
+    document.getElementById('stickersPanel').classList.add('active');
+}
+
+document.getElementById('closeStickersPanel').addEventListener('click', () => {
+    closeStickersPanel();
+});
+
+function closeStickersPanel(){
+    document.getElementById('stickersPanel').classList.remove('active');
+}
 
 
 
 //Event listeners
 
+document.querySelector('.stickerBtn').addEventListener('click', () => {
+    showStickersPanel();
+});
+
+document.getElementById('selectStickerGroup').addEventListener('click', e => {
+    if (e.target.tagName === 'IMG') {
+        document.getElementById('stickers').innerHTML = `Loading&nbsp;<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--secondary-dark)"></i>`;
+        document.getElementById('selectStickerGroup').querySelectorAll('.stickerName')
+        .forEach(sticker => {
+            sticker.dataset.selected = 'false';
+        });
+        selectedStickerGroup = e.target.dataset.name;
+        selectedStickerGroupCount = Stickers.find(sticker => sticker.name === selectedStickerGroup).count;
+        stickers = '';
+        for (let i = 1; i <= selectedStickerGroupCount; i++) {
+            stickers += `<img src="/stickers/${selectedStickerGroup}/${i}.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/${i}" class="stickerpack clickable">`;
+        }
+        //document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["theme"]].msg_send;
+        document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').dataset.selected = 'true';
+        document.getElementById('stickers').innerHTML = stickers;
+    }
+} );
+
+document.getElementById('stickers').addEventListener('click', e => {
+    if (e.target.tagName === 'IMG') {
+        document.getElementById('stickers').querySelectorAll('.stickerpack')
+        .forEach(sticker => {
+            sticker.style.background = 'transparent';
+        });
+        e.target.style.background = themeAccent[localStorage["theme"]].msg_send;
+        console.log(e.target.dataset.name);
+        let tempId = makeId();
+        //insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, finalTarget.message, finalTarget.id, {});
+        insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
+        socket.emit('message', e.target.dataset.name, 'sticker', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function(id){
+            outgoingmessage.play();
+            document.getElementById(tempId).classList.add('delevered');
+            document.getElementById(tempId).id = id;
+        });
+        clearTargetMessage();
+        clearFinalTarget();
+        hideReplyToast();
+        closeStickersPanel();
+    }
+} );
 
 document.getElementById('more').addEventListener('click', ()=>{
     document.getElementById('sidebar_wrapper').classList.add('active');

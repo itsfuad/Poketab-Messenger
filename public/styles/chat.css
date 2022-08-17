@@ -101,6 +101,92 @@ body {
   cursor: pointer;
 }
 
+.stickersPanel {
+  position: fixed;
+  bottom: -50%;
+  height: 40vh;
+  width: 100%;
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  border-radius: 10px 10px 0 0;
+  overflow: hidden;
+  background: #121a2b;
+  transition: 2ms ease-in-out;
+  z-index: 20;
+}
+.stickersPanel.active {
+  display: flex;
+  visibility: visible;
+  opacity: 1;
+  bottom: 0;
+}
+.stickersPanel img {
+  -webkit-user-drag: none;
+}
+
+.stickerGroups {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  border-radius: 10px 10px 0 0;
+  background: rgb(30, 41, 63);
+}
+.stickerGroups i {
+  font-size: 1.2rem;
+  color: #f00;
+  padding: 10px;
+}
+.stickerGroups .names {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 3px 10px;
+  align-items: center;
+  gap: 10px;
+}
+.stickerGroups .names > img {
+  height: 30px;
+  width: 30px;
+  border-radius: 10px;
+  background: transparent;
+}
+.stickerGroups .names > img[data-selected=true] {
+  background: var(--secondary-dark);
+}
+
+.stickerBtn {
+  padding: 5px;
+  display: grid;
+  place-items: center;
+}
+
+.stickers {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  overflow: scroll;
+  width: 100%;
+  height: 100%;
+  color: var(--secondary-dark);
+}
+.stickers > img {
+  width: clamp(70px, 20vw, 90px);
+  border-radius: 10px;
+}
+
+img:is(.sticker) {
+  width: 100px;
+  height: 100px;
+  background: transparent !important;
+}
+
 #sidebar {
   padding: 10px;
   border-radius: 0 5px 5px 0;
@@ -558,7 +644,7 @@ i[class^=fa-] {
 #replyToast .replyData {
   font-size: 0.7rem;
 }
-#replyToast .replyData .image {
+#replyToast .replyData .image, #replyToast .replyData .sticker {
   max-height: 50px;
   width: auto;
   padding: 3px;
@@ -821,6 +907,9 @@ i[class^=fa-] {
 @media (orientation: landscape) and (min-device-aspect-ratio: 1/1) {
   .chatBox {
     padding: 0 25%;
+  }
+  .stickersPanel {
+    width: 50%;
   }
   #sidebar_wrapper {
     grid-template-columns: 30% 1fr;
