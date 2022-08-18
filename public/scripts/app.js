@@ -533,7 +533,8 @@ function deleteMessage(messageId, user){
 }
 
 function downloadHandler(){
-    if (targetMessage.message === 'Image'){
+    if (targetMessage.type === 'image'){
+        document.querySelector('#lightbox__image img').src = targetMessage.message.src;
         saveImage();
     }else{
         downloadFile();
@@ -542,6 +543,7 @@ function downloadHandler(){
 
 function saveImage(){
   try{
+    console.log('Saving image');
     let a = document.createElement('a');
     a.href = document.querySelector('#lightbox__image img').src;
     a.download = `poketab-${Date.now()}`;

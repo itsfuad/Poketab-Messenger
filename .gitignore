@@ -8,3 +8,4 @@ message.css.map
 mustache.js
 bundle.js.LICENSE.txt
 .env
+*.qml
