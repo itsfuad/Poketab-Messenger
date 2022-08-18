@@ -240,7 +240,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
         classList += ' self'; 
     }
 
-    if (lastMsg?.dataset?.uid != uid || messageIsEmoji){ // if the last message is not from the same user
+    if (lastMsg?.dataset?.uid != uid || messageIsEmoji || type === 'sticker'){ // if the last message is not from the same user
         //set the message as it is the first and last message of the user
         //first message has the top corner rounded
         //last message has the bottom corner rounded
@@ -508,9 +508,8 @@ function deleteMessage(messageId, user){
         message.classList.add('deleted');
         message.dataset.deleted = true;
         message.querySelector('.messageTitle').textContent = user;
-        lastPageLength = messages.scrollTop;
         popupMessage(`${user == myName ? 'You': user} deleted a message`);
-    
+        
         if (maxUser == 2 || (message.dataset.uid == myId)) {
           message.querySelector('.messageTitle').style.visibility = 'hidden';
         }
@@ -529,6 +528,7 @@ function deleteMessage(messageId, user){
             element.textContent = `${user == myName ? 'You': user} deleted this message`;
           });
         }
+        lastPageLength = messages.scrollTop;
     }
 }
 
@@ -587,7 +587,7 @@ function hideOptions(){
         copyOption.style.display = 'none';
         downloadOption.style.display = 'none';
         deleteOption.style.display = 'none';
-    }, 100);
+    }, 200);
     document.getElementById('focus_glass').classList.remove('active');
     document.querySelector('.reactorContainerWrapper').classList.remove('active');
     options.removeEventListener('click', optionsMainEvent);
@@ -614,6 +614,7 @@ function hideReplyToast(){
     replyToast.classList.remove('active');
     replyToast.querySelector('.replyData').textContent = '';
     replyToast.querySelector('.username').textContent = '';
+    lastPageLength = messages.scrollTop;
     clearTargetMessage();
 }
 
@@ -684,7 +685,7 @@ function getReact(type, messageId, uid){
                 span.textContent = `${key}${value}`;
                 fragment.append(span);
                 reactsOfMessage.append(fragment);
-                count ++;
+                count++;
             });
             document.getElementById(messageId).classList.add('react');
         }else{
@@ -695,6 +696,7 @@ function getReact(type, messageId, uid){
         console.log("Message not exists");
     }
 }
+
 
 // util functions
 function pinchZoom (imageElement) {
