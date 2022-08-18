@@ -171,7 +171,7 @@ app.post('/chat', (req, res) => {
 });
 
 app.get('/offline', (_, res) => {
-  res.render('errorRes', {title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline😥', buttonText: 'Refresh'});
+  res.render('errorRes', {title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline :(', buttonText: 'Refresh'});
 });
 
 app.get('*', (_, res) => {
