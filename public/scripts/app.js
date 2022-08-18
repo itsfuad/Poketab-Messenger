@@ -1612,7 +1612,6 @@ function sendImageStoreRequest(){
 
         xhr.onload = function(e) {
             if (this.status == 200) {
-                outgoingmessage.play();
                 fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink, (id) => {
                     outgoingmessage.play();
                     
