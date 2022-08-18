@@ -1068,7 +1068,7 @@ document.getElementById('selectStickerGroup').addEventListener('click', e => {
         document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').dataset.selected = 'true';
         document.getElementById('stickers').innerHTML = stickers;
     }
-} );
+});
 
 document.getElementById('stickers').addEventListener('click', e => {
     if (e.target.tagName === 'IMG') {
@@ -1091,7 +1091,7 @@ document.getElementById('stickers').addEventListener('click', e => {
         hideReplyToast();
         closeStickersPanel();
     }
-} );
+});
 
 document.getElementById('more').addEventListener('click', ()=>{
     document.getElementById('sidebar_wrapper').classList.add('active');
