@@ -2,11 +2,11 @@
 'use strict';
 
 //bundles
-/*
+
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
-*/
+
 console.log('loaded');
 
 //variables
