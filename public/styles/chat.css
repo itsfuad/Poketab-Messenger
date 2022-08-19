@@ -102,9 +102,9 @@ body {
 }
 
 .stickersPanel {
-  position: fixed;
+  position: relative;
   bottom: -50%;
-  height: 40vh;
+  height: 42vh;
   width: 100%;
   display: none;
   visibility: hidden;
@@ -515,7 +515,11 @@ img {
 .upload_image, .upload_file, .location {
   position: relative;
   padding: 10px;
+  min-width: 50px;
+  min-height: 50px;
   border-radius: 55px;
+  display: grid;
+  place-items: center;
   background: rgba(255, 255, 255, 0.0901960784);
 }
 
@@ -611,13 +615,11 @@ i[class^=fa-] {
   background: rgba(255, 255, 255, 0.0901960784);
 }
 
-.footer {
-  padding-bottom: 10px;
-}
 .footer .chatInput {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding-bottom: 10px;
 }
 
 #replyToast {
@@ -909,9 +911,6 @@ i[class^=fa-] {
 @media (orientation: landscape) and (min-device-aspect-ratio: 1/1) {
   .chatBox {
     padding: 0 25%;
-  }
-  .stickersPanel {
-    width: 50%;
   }
   #sidebar_wrapper {
     grid-template-columns: 30% 1fr;
