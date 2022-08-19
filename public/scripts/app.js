@@ -1973,7 +1973,6 @@ function clearDownload(element, base64data, type){
     element.closest('.message').dataset.downloaded = 'true';
 }
 
-
 appHeight();
 
 updateScroll();

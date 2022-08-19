@@ -75,26 +75,29 @@
         <div class="footer">
             <div id="typingIndicator"></div>
             <div class="chatInput">
-                <!-- Location input -->
-                <div class="location clickable" id="send-location"><i class="fa-solid fa-location-crosshairs"></i></div>
+
                 <div class="stickerBtn clickable"><i class="fa-solid fa-note-sticky"></i></div>
                 <!-- Text input -->
-                <textarea name="chatInputBox" id="textbox" class="select" rows="1" placeholder="Message..."></textarea>
                 <div class="attachments clickable" id="attachment"><i class="fa-solid fa-paperclip"></i></div>
                 <div class="close_area" id="attmain">
                     <div class="attachmentContainer">
                         <!-- File Choose -->
                         <div class="upload_file clickable">
-                            <label for="file" class="file-input-label"><i class="fa-regular fa-file-lines"></i><span class="clickable">Choose Document</span></label>
+                            <label for="file" class="file-input-label"><i class="fa-regular fa-file-lines"></i></label>
                             <input type="file" name="file" id="file">
                         </div>
                         <!-- Image Choose -->
                         <div class="upload_image clickable">
-                            <label for="photo"><i class="fa-regular fa-image"></i><span class="clickable">Choose Photo</span></label>
+                            <label for="photo"><i class="fa-regular fa-image"></i></label>
                             <input type="file" name="photo" id="photo" accept="image/png, image/jpg, image/jpeg, image/gif">
+                        </div>
+                        <!-- Location input -->
+                        <div class="location clickable" id="send-location">
+                            <i class="fa-solid fa-location-crosshairs"></i>
                         </div>
                     </div>
                 </div>
+                <textarea name="chatInputBox" id="textbox" class="select" rows="1" placeholder="Message..."></textarea>
                 <!-- Send Button-->
                 <button id="send"><i class="fa-solid fa-paper-plane"></i></button>
             </div>

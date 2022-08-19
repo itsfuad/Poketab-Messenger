@@ -161,7 +161,7 @@ body {
 }
 
 .stickerBtn {
-  padding: 5px;
+  padding: 3px 5px 5px 10px;
   display: grid;
   place-items: center;
 }
@@ -462,6 +462,7 @@ img {
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 .chatInput .close_area {
   top: 0;
@@ -487,7 +488,8 @@ img {
   padding: 20px;
   border-radius: 10px;
   display: flex;
-  flex-direction: column;
+  gap: 20px;
+  flex-direction: row;
   align-items: flex-start;
   justify-content: center;
   width: -webkit-max-content;
@@ -510,16 +512,11 @@ img {
   font-size: 4rem;
 }
 
-#send-location {
-  padding-left: 5px;
-}
-#send-location:hover {
-  cursor: pointer;
-}
-
-.upload_image, .upload_file {
+.upload_image, .upload_file, .location {
   position: relative;
-  padding: 10px 0 10px 0;
+  padding: 10px;
+  border-radius: 55px;
+  background: rgba(255, 255, 255, 0.0901960784);
 }
 
 input[type=file] {
