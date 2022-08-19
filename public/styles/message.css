@@ -25,6 +25,8 @@
   overflow-y: scroll;
   color: var(--foreground-dark);
   scroll-behavior: smooth;
+  scrollbar-width: none;
+  list-style: none;
   z-index: 1;
 }
 

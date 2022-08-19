@@ -2,11 +2,11 @@
 'use strict';
 
 //bundles
-
+/*
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
-
+*/
 console.log('loaded');
 
 //variables
@@ -333,6 +333,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     if (reply.type == 'image' || reply.type == 'sticker'){
             document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
     }
+    lastPageLength = messages.scrollTop;
     updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
 }
 
@@ -1033,25 +1034,32 @@ function loadStickers(){
 }
 
 function showStickersPanel(){
+    updateScroll();
     loadStickers();
-    document.getElementById('stickersPanel').classList.add('active');
+    document.getElementById('stickersPanel').style.display = 'flex';
+    setTimeout(() => {
+        document.getElementById('focus_glass').classList.add('active');
+        document.getElementById('stickersPanel').classList.add('active');
+    }, 20);
 }
 
 document.getElementById('closeStickersPanel').addEventListener('click', () => {
+    lastPageLength = messages.scrollTop;
+    setTimeout(() => {
+        updateScroll();
+    }, 100);
+    document.getElementById('stickersPanel').style.display = 'none';
     closeStickersPanel();
 });
 
 function closeStickersPanel(){
+    document.getElementById('focus_glass').classList.remove('active');
     document.getElementById('stickersPanel').classList.remove('active');
 }
 
 
-
 //Event listeners
-
 document.querySelector('.stickerBtn').addEventListener('click', () => {
-    softKeyIsUp = false;
-    textbox.blur();
     showStickersPanel();
 });
 
@@ -1218,16 +1226,21 @@ textbox.addEventListener('blur', ()=>{
   }
 });
 
-document.querySelectorAll('.close_area').forEach(elem => {
-    elem.addEventListener('click', (evt) => {
-        document.getElementById('attmain').classList.remove('active');
+document.querySelector('.close_area').addEventListener('click', (evt) => {
         document.getElementById('sidebar_wrapper').classList.remove('active');
         hideOptions();
-    });
+});
+
+document.getElementById('attmain').addEventListener('click', (evt) => {
+    document.getElementById('attmain').classList.remove('active');
+    document.getElementById('attmain').style.display = 'none';
 });
 
 document.getElementById('attachment').addEventListener('click', ()=>{
-    document.getElementById('attmain').classList.add('active');
+    document.getElementById('attmain').style.display = 'flex';
+    setTimeout(()=>{
+        document.getElementById('attmain').classList.add('active');
+    }, 20);
 });
 
 document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) => {

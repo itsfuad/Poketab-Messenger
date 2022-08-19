@@ -3,6 +3,7 @@
     margin: 0;
     box-sizing: border-box;
     color: var(--foreground-dark);
+    scrollbar-width: none;
 }
 
 :root{
@@ -108,28 +109,31 @@ body{
 }
 
 .stickersPanel{
-    position: relative;
-    bottom: -50%;
+    position: fixed;
+    bottom: 0px;
+    left: 50%;
     height: 42vh;
-    width: 100%;
-    display: none;
+    min-height: 300px;
+    width: 95%;
     visibility: hidden;
     opacity: 0;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    border-radius: 10px 10px 0 0;
+    border-radius: 12px;
     overflow: hidden;
     background: #121a2b;
-    transition: 2ms ease-in-out;
-
+    transition: 100ms ease-in-out;
+    transform: translateX(-50%) scale(0.5);
+    transform-origin: bottom;
+    scrollbar-width: none;
     z-index: 20;
 
     &.active{
-        display: flex;
         visibility: visible;
         opacity: 1;
-        bottom: 0;
+        bottom: 70px;
+        transform: translateX(-50%) scale(1);
     }
     
     img{
@@ -233,6 +237,7 @@ img:is(.sticker){
         list-style: none;
         gap: 5px;
         border-radius: 10px;
+        scrollbar-width: none;
         .user{
             display: flex;
             flex-direction: row;
@@ -475,19 +480,23 @@ img{
     .close_area{
         top: 0;
         left: 0;
-        bottom: 0;
+        bottom: -20px;
         right: 0;
         position: fixed;
-        display: none;
+        //display: flex;
         visibility: hidden;
         opacity: 0;
         justify-content: center;
         align-items: center;
         z-index: 1;
+        transition: 100ms ease-in-out;
+        transform: scale(0.5);
+        transform-origin: bottom;
         &.active{
-            display: flex;
+            bottom: 0;
             visibility: visible;
             opacity: 1;
+            transform: scale(1);
         }
     }
     .attachmentContainer{
@@ -623,9 +632,11 @@ i[class^=fa-]{
     outline: none;
     border-radius: 25px;
     background: #ffffff17;
+    scrollbar-width: none;
 }
 
 .footer{
+    position: relative;
     .chatInput{
         display: flex;
         justify-content: center;
@@ -681,7 +692,7 @@ i[class^=fa-]{
     align-items: center;
     justify-content: center;
     position: absolute;
-    bottom: 80px;
+    top: -35px;
     left: 50%;
     background: var(--primary-dark);
     padding: 5px 10px;
@@ -781,6 +792,7 @@ i[class^=fa-]{
     grid-template-rows: 1fr 30%;
     visibility: hidden;
     opacity: 0;
+    backdrop-filter: blur(2px) brightness(0.5);
     transition: 100ms ease-in-out;
     z-index: 25;
     &.active{
@@ -826,8 +838,7 @@ i[class^=fa-]{
     width: max-content;
     align-items: center;
     border-radius: 10px;
-    background: var(--focus-dark);
-    backdrop-filter: drop-shadow(0 0 10px rgb(0, 0, 0));
+    background: #192838;
     transition: 100ms ease-in-out;
     & > *{
         transition: 100ms ease-in;
@@ -899,6 +910,7 @@ i[class^=fa-]{
     justify-content: flex-start;
     z-index: 10;
     backdrop-filter: blur(5px);
+    scrollbar-width: none;
     filter: drop-shadow(2px 4px 6px black);
     transition: 100ms ease-in-out;
     ul{
@@ -928,5 +940,8 @@ i[class^=fa-]{
     }
     .normalOptionWrapper{
         width: 50%;
+    }
+    .stickersPanel{
+        width: 45%;
     }
 }

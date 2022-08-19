@@ -12,10 +12,6 @@
     <div class="offline"></div>
     <!--All popups will be shown here-->
     <div class="popup-message"></div>
-    <!--message popup-->
-    <div class="newmessagepopup clickable">
-        <img src="" alt="Avatar"><div class="msg"></div><div class="downarrow"><i class="fa-solid fa-arrow-down"></i></div>
-    </div>
     <!--The side menu-->
     <div id="sidebar_wrapper">
         <div id="sidebar">
@@ -54,7 +50,7 @@
                     <% } else { %>
                         <span>Send join link to your friend</span>
                     <% } %>
-                        <span id="invite" class="clickable">Invite</span>
+                    <span id="invite" class="clickable">Invite</span>
                 </li>
             </div>
             <!-- All messages will be added here -->
@@ -73,9 +69,12 @@
 
         <!-- All inputs -->
         <div class="footer">
+            <!--message popup-->
+            <div class="newmessagepopup clickable">
+                <img src="" alt="Avatar"><div class="msg"></div><div class="downarrow"><i class="fa-solid fa-arrow-down"></i></div>
+            </div>
             <div id="typingIndicator"></div>
             <div class="chatInput">
-
                 <div class="stickerBtn clickable"><i class="fa-solid fa-note-sticky"></i></div>
                 <!-- Text input -->
                 <div class="attachments clickable" id="attachment"><i class="fa-solid fa-paperclip"></i></div>
@@ -101,13 +100,13 @@
                 <!-- Send Button-->
                 <button id="send"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
-            <div class="stickersPanel" id="stickersPanel">
-                <div class="stickerGroups">
-                    <div class="names" id="selectStickerGroup"></div>
-                    <i class="fa-solid fa-xmark clickable" id="closeStickersPanel"></i>
-                </div>
-                <div class="stickers" id="stickers">Loading&nbsp;<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--secondary-dark)"></i></div>
+        </div>
+        <div class="stickersPanel" id="stickersPanel">
+            <div class="stickerGroups">
+                <div class="names" id="selectStickerGroup"></div>
+                <i class="fa-solid fa-xmark clickable" id="closeStickersPanel"></i>
             </div>
+            <div class="stickers" id="stickers">Loading&nbsp;<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--secondary-dark)"></i></div>
         </div>
     </div>
 
@@ -299,7 +298,7 @@
         }
         
         loadTheme();
-        
+        /*
         document.addEventListener('click', ()=> {
                 history.pushState({}, '', "#init");
                 history.pushState({}, '', "#inbox");
@@ -307,7 +306,7 @@
                 history.forward();
                 }
         }, {once: true});
-        
+        */
     </script>
 </body>
 </html>
