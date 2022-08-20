@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Get's started</title>
+</head>
+<body>
+    <style>
+        @font-face {
+            font-family: 'Comic';
+            src: url('/fonts/comic-webfont.woff2');
+        }
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic';
+            scrollbar-width: none;
+            user-select: none;
+        }
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        body{
+            background: #111d2a;
+            height: 100vh;
+        }
+        .maincontainer{
+            color: white;
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: justify;
+            gap: 20px;
+        }
+        .more{
+            color: #ffffff95;
+            width: clamp(300px,60vw,1000px);
+        }
+        a{
+            text-decoration: none;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        #login{
+            background: rgb(20, 154, 231);
+            color: white;
+        }
+        #github{
+            background: black;
+            color: white;
+        }
+        .links{
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+    </style>
+    <div class="maincontainer">
+        <img src="/images/avatars/pikachu.png" height="120px" width="120px" alt="logo">
+        <h1>Poketab Messanger</h1>
+        <div class="slogan">On the go solution for temporary needs.</div>
+        <div class="more">Poketab is an open source project that uses websocket connections for messaging texts. For media and files it uses its internal filesystem. After users get the media file, the file on the server gets deleted immediately. So you don’t need to worry about your privacy. The files also cannot be accessed from outside. Only the users on the chat can get the files.</div>
+        <div class="links">
+            <a id="login" href="/join">Start Chat</a>
+            <a id="github" href="https://github.com/itsfuad/poketab-messanger">View Source</a>
+        </div>
+    </div>
+</body>
+</html>
