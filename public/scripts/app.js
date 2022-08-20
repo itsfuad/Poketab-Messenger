@@ -1545,8 +1545,10 @@ sendButton.addEventListener('click', () => {
             message = message.replace(/\s/g, '');
         }
 
-        insertNewMessage(message, 'text', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
-        socket.emit('message', message, 'text', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function (id) {
+        let replyData = finalTarget?.message.substring(0, 100);
+
+        insertNewMessage(message, 'text', tempId, myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
+        socket.emit('message', message, 'text', myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function (id) {
             outgoingmessage.play();
             document.getElementById(tempId).classList.add('delevered');
             document.getElementById(tempId).id = id;
