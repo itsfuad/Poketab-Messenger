@@ -95,7 +95,7 @@ app.use('/api/files', require('./routes/router'));
 app.use('/api/download', require('./routes/router'));
 
 app.get('/', (_, res) => {
-    res.redirect('/join');
+    res.render('home');
 });
 
 app.get('/admin/:pass', (req, res) => {
