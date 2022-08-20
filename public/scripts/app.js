@@ -481,9 +481,12 @@ function showOptions(type, sender, target){
     }
     //show the options
     let options = document.getElementById('optionsContainerWrapper');
-    options.classList.add('active');
-    document.getElementById('focus_glass').classList.add('active');
-    options.addEventListener('click', optionsMainEvent);
+    options.style.display = 'grid';
+    setTimeout(() => {
+        options.classList.add('active');
+        document.getElementById('focus_glass').classList.add('active');
+        options.addEventListener('click', optionsMainEvent);
+    }, 20);
 }
 
 function optionsMainEvent(e){
@@ -588,7 +591,8 @@ function hideOptions(){
         copyOption.style.display = 'none';
         downloadOption.style.display = 'none';
         deleteOption.style.display = 'none';
-    }, 200);
+        options.style.display = 'none';
+    }, 20);
     document.getElementById('focus_glass').classList.remove('active');
     document.querySelector('.reactorContainerWrapper').classList.remove('active');
     options.removeEventListener('click', optionsMainEvent);
@@ -853,7 +857,7 @@ function updateScroll(avatar = null, text = ''){
         let messages = document.getElementById('messages');
         messages.scrollTo(0, messages.scrollHeight);
         lastPageLength = messages.scrollTop;
-    }, 100);
+    }, 20);
 }
 
 
@@ -1045,16 +1049,16 @@ function showStickersPanel(){
 
 document.getElementById('closeStickersPanel').addEventListener('click', () => {
     lastPageLength = messages.scrollTop;
-    setTimeout(() => {
-        updateScroll();
-    }, 100);
-    document.getElementById('stickersPanel').style.display = 'none';
     closeStickersPanel();
+    updateScroll();
 });
 
 function closeStickersPanel(){
     document.getElementById('focus_glass').classList.remove('active');
     document.getElementById('stickersPanel').classList.remove('active');
+    setTimeout(() => {
+        document.getElementById('stickersPanel').style.display = 'none';
+    }, 20);
 }
 
 
@@ -1233,7 +1237,9 @@ document.querySelector('.close_area').addEventListener('click', (evt) => {
 
 document.getElementById('attmain').addEventListener('click', (evt) => {
     document.getElementById('attmain').classList.remove('active');
-    document.getElementById('attmain').style.display = 'none';
+    setTimeout(()=>{
+        document.getElementById('attmain').style.display = 'none';
+    }, 20);
 });
 
 document.getElementById('attachment').addEventListener('click', ()=>{
@@ -1318,9 +1324,9 @@ messages.addEventListener('click', (evt) => {
                             }
                         });
                     }, 1000);
-            setTimeout(() => {
-                        document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'start'});
-            }, 100);
+                    setTimeout(() => {
+                                document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'start'});
+                    }, 20);
                 }catch(e){
                         popupMessage('Deleted message');
                 }
@@ -1349,7 +1355,7 @@ window.addEventListener('resize',()=>{
   setTimeout(()=>{
     scrolling = false;
     updateScroll();
-  }, 100);
+  }, 20);
   scrolling = temp;
   softKeyIsUp = maxWindowHeight > window.innerHeight ? true : false;
 });
@@ -1480,7 +1486,7 @@ window.addEventListener('dragover', (evt) => {
     }
     timeoutObj = setTimeout(() => {
         fileDropZone.classList.remove('active');
-    }, 100);
+    }, 20);
 });
 
 
@@ -1895,7 +1901,7 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, tempId, uId, reply, replyId
         let elem = document.getElementById(tempId).querySelector('.messageMain');
         setTimeout(() => {
             elem.querySelector('.image').style.filter = 'brightness(0.4) url(#sharpBlur)';
-        }, 100);
+        }, 20);
     }else{
         insertNewMessage('', type, tempId, uId, reply, replyId, options, metadata);
         let elem = document.getElementById(tempId).querySelector('.messageMain');
@@ -1976,12 +1982,12 @@ function clearDownload(element, base64data, type){
             element.querySelector('.image').src = base64data;
             element.querySelector('.image').alt = 'image'
             element.querySelector('.image').style.filter = 'none';
-        }, 100);
+        }, 20);
     }else if (type === 'file'){
         setTimeout(() => {
             element.querySelector('.file').dataset.data = base64data;
             element.querySelector('.progress').style.visibility = 'hidden';
-        }, 100);
+        }, 20);
     }
     element.closest('.message').dataset.downloaded = 'true';
 }

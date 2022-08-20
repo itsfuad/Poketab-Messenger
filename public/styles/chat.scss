@@ -115,6 +115,7 @@ body{
     height: 42vh;
     min-height: 300px;
     width: 95%;
+    display: none;
     visibility: hidden;
     opacity: 0;
     flex-direction: column;
@@ -788,8 +789,8 @@ i[class^=fa-]{
     left: 0;
     bottom: 0;
     right: 0;
-    display: grid;
     grid-template-rows: 1fr 30%;
+    display: none;
     visibility: hidden;
     opacity: 0;
     backdrop-filter: blur(2px) brightness(0.5);
