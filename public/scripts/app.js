@@ -1486,7 +1486,7 @@ window.addEventListener('dragover', (evt) => {
     }
     timeoutObj = setTimeout(() => {
         fileDropZone.classList.remove('active');
-    }, 20);
+    }, 200);
 });
 
 
