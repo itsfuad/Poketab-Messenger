@@ -785,7 +785,7 @@ function OptionEventHandler(evt){
         if (targetMessage.sender == myName){
             targetMessage.sender = 'You';
         }
-        targetMessage.message = evt.target.closest('.messageMain').querySelector('.text').innerText.substring(0, 100);
+        targetMessage.message = evt.target.closest('.messageMain').querySelector('.text').innerText;
         targetMessage.type = type;
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
