@@ -1258,6 +1258,12 @@ document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) =
 
 messages.addEventListener('click', (evt) => {
     try {
+        if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')){
+            evt.target?.closest('.message')?.querySelector('.messageTime')?.classList?.add('active');
+            setTimeout(()=>{
+                evt.target?.closest('.message')?.querySelector('.messageTime')?.classList?.remove('active');
+            }, 1500);
+        }
         if (evt.target?.classList?.contains('image') && !evt.target?.classList?.contains('imageReply')){
             evt.preventDefault();
             evt.stopPropagation();

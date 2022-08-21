@@ -129,6 +129,10 @@ app.get('/create', (req, res) => {
   res.render('create', {title: 'Create', version: `v.${version}`, key: key});
 });
 
+app.get('/error', (_, res) => {
+  res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized Access', buttonText: 'Suicide'});
+});
+
 app.get('/chat', (_, res) => {
   res.redirect('/join');
 });

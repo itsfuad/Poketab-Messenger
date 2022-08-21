@@ -175,6 +175,18 @@ code{
     color: gray;
     font-size: 0.6rem;
     padding: 0 15px;
+    visibility: hidden;
+    opacity: 0;
+    transition: 200ms ease-in-out;
+    &.active{
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+.message:last-child .messageTime{
+    visibility: visible;
+    opacity: 1;
 }
 
 .message:is(.react){
