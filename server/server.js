@@ -95,7 +95,7 @@ app.use('/api/files', require('./routes/router'));
 app.use('/api/download', require('./routes/router'));
 
 app.get('/', (_, res) => {
-    res.render('home');
+    res.render('home', {title: 'Get Started'});
 });
 
 app.get('/admin/:pass', (req, res) => {
