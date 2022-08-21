@@ -213,9 +213,8 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     }
     if (options.reply){
         //check if the replyid is available in the message list
-        let replyMessage = document.getElementById(replyId).querySelector('.messageMain');
-        if (replyMessage == null){
-            reply = {data: 'Message is not available on this device', type: 'message'};
+        if (!document.getElementById(replyId)){
+            reply = {data: 'Message is not available on this device', type: 'text'};
         }
     }
     //console.log(type);
@@ -822,6 +821,7 @@ function OptionEventHandler(evt){
         targetFile.fileName = evt.target.closest('.messageMain').querySelector('.fileName').textContent;
         targetFile.fileData = evt.target.closest('.messageMain').querySelector('.file').dataset.data;
         targetMessage.message = targetFile.fileName;
+        targetMessage.type = type;
         targetMessage.id = evt.target?.closest('.message')?.id;
     }else if (evt.target.closest('.messageMain')?.querySelector('.sticker') ?? null){
         type = 'sticker';
