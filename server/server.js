@@ -117,7 +117,7 @@ app.get('/join/:key', (req, res)=>{
     res.render('join', {title: 'Join', key_label: `Checking <i id='lb__icon' class="fa-solid fa-circle-notch fa-spin"></i>` , version: `v.${version}`, key: req.params.key});
   }
   else{
-    res.redirect('/');
+    res.redirect('/join');
   }
 });
 
@@ -130,7 +130,7 @@ app.get('/create', (req, res) => {
 });
 
 app.get('/chat', (_, res) => {
-  res.redirect('/');
+  res.redirect('/join');
 });
 
 app.post('/chat', (req, res) => {
