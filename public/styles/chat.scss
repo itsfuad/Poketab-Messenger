@@ -52,11 +52,6 @@
 }
 
 body{
-    background: #0000009c var(--pattern);
-    background-blend-mode: soft-light;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
     overscroll-behavior-y: contain;
 }
 
@@ -406,6 +401,17 @@ img{
 }
 
 .chatBox{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 100%;
+    position: relative;
+    height: var(--app-height);
+    background: rgba(0,0,0,.6117647059) var(--pattern);
+    background-blend-mode: soft-light;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     .navbar{
         display: flex;
         flex-direction: row;
@@ -432,12 +438,6 @@ img{
             gap: 5px;
         }
     }
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    width: 100%;
-    position: relative;
-    height: var(--app-height);
     .welcome_wrapper{
         //background: #e1eeff;
         padding: 40vh 0 20vh 0;
