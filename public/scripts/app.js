@@ -1971,6 +1971,13 @@ fileSocket.on('fileDownloadReady', (tempId, id, downlink) => {
                     clearDownload(element, base64data, type);
                    
                     fileSocket.emit('fileDownloaded', myId, myKey, downlink);
+                    if (type === 'image'){
+                        //update the reply thumbnails with the detailed image if exists
+                        document.querySelectorAll(`.messageReply[data-repid="${id}"`)
+                        .forEach(elem => {
+                            elem.querySelector('.image').src = base64data;
+                        });
+                    }
                 }
             }
         }else if (this.status == 404){
