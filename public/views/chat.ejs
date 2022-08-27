@@ -8,8 +8,6 @@
     <div id="preload" style="z-index: 100; position: fixed; top: 0; left: 0; bottom: 0; right: 0; display:flex; flex-direction:row; gap: 5px; align-items:center; justify-content:center; background: #111d2a; ">
         <div class="text" style="color: #2585fd;">Logging in</div><i class="fa-solid fa-circle-notch fa-spin" style="color: #2585fd;"></i>
     </div>
-    <!--Offline Indicator-->
-    <div class="offline"></div>
     <!--All popups will be shown here-->
     <div class="popup-message"></div>
     <!--The side menu-->
@@ -32,11 +30,14 @@
         <!-- Navigation -->
         <div class="navbar">
             <div id="currentlyActive"><i class="fa-solid fa-user"></i> Active: <div id="count"></div></div>
-            <div id="more" class="clickable">
-                <i class="fa-solid fa-ellipsis-vertical"></i>
+            <div class="nav2">
+                <div id="call" class="clickable"><i class="fa-solid fa-phone-flip"></i></div>
+                <div id="more" class="clickable"><i class="fa-solid fa-ellipsis-vertical"></i></div>
             </div>
         </div>
         <!-- Chat Messages will append here -->
+        <!--Offline Indicator-->
+        <div class="offline">Offline</div>
         <ul id="messages">
             <div class="welcome_wrapper">
                 <li class="welcomeText">
@@ -191,6 +192,24 @@
         </ul>
     </div>
 
+    <div class="callWindow">
+        <div class="container">
+            <div class="statusBar">
+              <div class="duration" id="callDuration">00:00:00</div>
+              <div class="minimize clickable" id="minimizeCall"><i class="fa-solid fa-minimize"></i></div>
+            </div>
+            <div class="participents">
+                <!--All users attend the call-->
+            </div>
+            <div class="controls">
+                <!--div class="toggleAudio clickable" id="toggleAudio"><i class="fa-solid fa-microphone"></i></!--div-->
+                <div class="toggleVideo clickable" id="toggleVideo"><i class="fa-solid fa-video-slash"></i></div>
+                <div class="dropCall clickable" id="dropCall"><i class="fa-solid fa-phone-flip"></i></div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Message template -->
     <template id="messageTemplate">
         <li class="message {{classList}}" id="{{messageId}}" data-uid="{{uid}}"> <!-- noreply notitle delevered start end self react -->
@@ -298,7 +317,7 @@
         }
         
         loadTheme();
-        
+        /*
         document.addEventListener('click', ()=> {
                 history.pushState({}, '', "#init");
                 history.pushState({}, '', "#inbox");
@@ -306,7 +325,7 @@
                 history.forward();
                 }
         }, {once: true});
-        
+        */
     </script>
 </body>
 </html>

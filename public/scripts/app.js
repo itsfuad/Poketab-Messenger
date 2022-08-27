@@ -2,11 +2,11 @@
 'use strict';
 
 //bundles
-
+/*
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
-
+*/
 console.log('loaded');
 
 //variables
@@ -39,7 +39,6 @@ const stickerSound = new Audio('/sounds/sticker.mp3');
 const sendButton = document.getElementById('send');
 const photoButton = document.getElementById('photo');
 const fileButton = document.getElementById('file');
-
 
 let isTyping = false, timeout = undefined;
 
@@ -183,7 +182,6 @@ if(!isMobile){
 
 
 //functions
-
 //sets the app height to the max height of the window
 function appHeight () {
     const doc = document.documentElement;

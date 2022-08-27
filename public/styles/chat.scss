@@ -366,16 +366,16 @@ img{
 }
 
 .offline{
-    position: absolute;
     visibility: hidden;
     opacity: 0; 
     width: 100%;
     text-align: center;
-    position: fixed;
+    position: relative;
     top: -20px; 
     font-size: 0.7rem;
     transition: 100ms ease-in-out;
     color: white;
+    z-index: 10;
     &.active{
         visibility: visible;
         opacity: 1;
@@ -423,8 +423,16 @@ img{
         z-index: 15;
         font-size: 0.9rem;
         color: var(--foreground-dark);
-        & > div{
+        #currentlyActive{
             padding: 10px 20px;
+        }
+        .nav2{
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            & > div {
+                padding: 15px;
+            }
         }
         i{
             color: inherit;
@@ -935,6 +943,108 @@ i[class^=fa-]{
     }
 }
 
+.callWindow{
+    position: fixed;
+    top: 0;
+    right: 0;
+    display: none;
+    visibility: hidden;
+    opacity: 0;
+    width: 100vw;
+    height: 100vh;
+    .container{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 100%;
+        height: 100%;
+    }
+    &.min{
+        width: 40vw;
+        height: 40vh;
+    }
+    background: var(--primary-dark);
+    color: white;
+    transition: 200ms ease-in-out;
+    z-index: 100;
+    &.active{
+        display: flex;
+        visibility: visible;
+        opacity: 1;
+    }
+    .duration{
+        font-size: 0.7rem;
+        color: var(--secondary-dark);
+    }
+    video{
+        max-width: 100%;
+        max-height: 85vh;
+        background: rgb(0, 0, 0);
+        position: relative;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        vertical-align: middle;
+        border-radius: 5px;
+    }
+    .statusBar{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        text-align: right;
+        color: black;
+        width: 100%;
+        .duration{
+        padding: 0 15px;
+        }
+        .minimize{
+        width: max-content;
+        padding: 5px;
+        }
+    }
+    .participents{
+        display: grid;
+        //grid-auto-flow: row;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 5px;
+        align-items: center;
+        .caller{
+            border-radius: 5px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            max-width: 100%;
+            max-height: 85vh;
+            .name{
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                padding: 5px;
+                z-index: 1;
+                color: var(--secondary-dark);
+            }
+        }
+    }
+    .controls{
+        display: flex;
+        flex-direction: row;
+        padding: 5px;
+        justify-content: center;
+        & > div{
+        padding: 5px;
+        }
+    }
+}
+
+.myCall{
+    transform: rotateY(180deg);
+    &.back{
+        transform: rotateY(0deg);
+    }
+}
+
+
 @media (orientation: landscape) and (min-device-aspect-ratio: 1 / 1){
     .chatBox {
         padding: 0 25%;
@@ -947,5 +1057,11 @@ i[class^=fa-]{
     }
     .stickersPanel{
         width: 45%;
+    }
+    .callWindow.min{
+        height: 50vh;
+    }
+    .callWindow.min .caller, .callWindow.min .caller video{
+        max-height: 30vh;
     }
 }

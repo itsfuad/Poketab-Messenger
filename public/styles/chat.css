@@ -358,16 +358,16 @@ img {
 }
 
 .offline {
-  position: absolute;
   visibility: hidden;
   opacity: 0;
   width: 100%;
   text-align: center;
-  position: fixed;
+  position: relative;
   top: -20px;
   font-size: 0.7rem;
   transition: 100ms ease-in-out;
   color: white;
+  z-index: 10;
 }
 .offline.active {
   visibility: visible;
@@ -418,8 +418,16 @@ img {
   font-size: 0.9rem;
   color: var(--foreground-dark);
 }
-.chatBox .navbar > div {
+.chatBox .navbar #currentlyActive {
   padding: 10px 20px;
+}
+.chatBox .navbar .nav2 {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+.chatBox .navbar .nav2 > div {
+  padding: 15px;
 }
 .chatBox .navbar i {
   color: inherit;
@@ -927,6 +935,108 @@ i[class^=fa-] {
   padding-left: 8px;
 }
 
+.callWindow {
+  position: fixed;
+  top: 0;
+  right: 0;
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--primary-dark);
+  color: white;
+  transition: 200ms ease-in-out;
+  z-index: 100;
+}
+.callWindow .container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+}
+.callWindow.min {
+  width: 40vw;
+  height: 40vh;
+}
+.callWindow.active {
+  display: flex;
+  visibility: visible;
+  opacity: 1;
+}
+.callWindow .duration {
+  font-size: 0.7rem;
+  color: var(--secondary-dark);
+}
+.callWindow video {
+  max-width: 100%;
+  max-height: 85vh;
+  background: rgb(0, 0, 0);
+  position: relative;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  vertical-align: middle;
+  border-radius: 5px;
+}
+.callWindow .statusBar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  text-align: right;
+  color: black;
+  width: 100%;
+}
+.callWindow .statusBar .duration {
+  padding: 0 15px;
+}
+.callWindow .statusBar .minimize {
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  padding: 5px;
+}
+.callWindow .participents {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 5px;
+  align-items: center;
+}
+.callWindow .participents .caller {
+  border-radius: 5px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  max-height: 85vh;
+}
+.callWindow .participents .caller .name {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 5px;
+  z-index: 1;
+  color: var(--secondary-dark);
+}
+.callWindow .controls {
+  display: flex;
+  flex-direction: row;
+  padding: 5px;
+  justify-content: center;
+}
+.callWindow .controls > div {
+  padding: 5px;
+}
+
+.myCall {
+  transform: rotateY(180deg);
+}
+.myCall.back {
+  transform: rotateY(0deg);
+}
+
 @media (orientation: landscape) and (min-device-aspect-ratio: 1/1) {
   .chatBox {
     padding: 0 25%;
@@ -939,5 +1049,11 @@ i[class^=fa-] {
   }
   .stickersPanel {
     width: 45%;
+  }
+  .callWindow.min {
+    height: 50vh;
+  }
+  .callWindow.min .caller, .callWindow.min .caller video {
+    max-height: 30vh;
   }
 }/*# sourceMappingURL=chat.css.map */
