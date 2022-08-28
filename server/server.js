@@ -6,15 +6,18 @@ const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const socketIO = require('socket.io');
 const uuid = require("uuid");
-const fs = require('fs');
+
 require('dotenv').config();
 
 const version = process.env.npm_package_version || "Development";
 const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
-const {isRealString, validateUserName, avList} = require('./utils/validation');
-const {makeid, keyformat} = require('./utils/functions');
-const {keys, uids, users, fileStore} = require('./keys/cred');
+const { isRealString, validateUserName, avList } = require('./utils/validation');
+const { makeid, keyformat } = require('./utils/functions');
+const { keys, uids, users, fileStore } = require('./keys/cred');
+const { clean } = require('./worker')
+
+clean();
 
 const apiRequestLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minute
@@ -37,43 +40,7 @@ let io = socketIO(server,{
 let fileSocket = io.of('/file');
 let auth = io.of('/auth');
 
-const devMode = true;
-
-function deleteKeys(){
-  //console.log(keys);
-  for (let [key, value] of keys){
-    //console.dir(`${key} ${value.using}, ${value.created}, ${Date.now()}`);
-    if (value.using != true && Date.now() - value.created > 120000){
-      keys.delete(key);
-      console.log(`Key ${key} deleted`);
-    }
-  }
-}
-
-function deleteFiles(){
-  //read fileStore.json
-  let json = fs.readFileSync('fileStore.json', 'utf8');
-  if (json.length > 0) {
-    let files = JSON.parse(json);
-    for (let file in files){
-      if (!keys.has(file)){
-        //delete file
-        files[file].forEach(function(filename){
-          if (fs.existsSync('uploads/'+filename)){
-            fs.unlinkSync('uploads/'+filename);
-            //console.log(`File deleted for key ${file}`);
-          }
-        });
-        //remove file from fileStore.json
-        delete files[file];
-        fs.writeFileSync('fileStore.json', JSON.stringify(files));
-      }
-    }
-  }
-}
-
-setInterval(deleteKeys, 1000);
-setInterval(deleteFiles, 2000);
+const devMode = false;
 
 app.disable('x-powered-by');
 

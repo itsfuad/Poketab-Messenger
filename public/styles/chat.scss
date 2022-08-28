@@ -118,7 +118,7 @@ body{
     align-items: center;
     border-radius: 12px;
     overflow: hidden;
-    background: #121a2b;
+    background: var(--msg-get-reply);
     transition: 100ms ease-in-out;
     transform: translateX(-50%) scale(0.5);
     transform-origin: bottom;
@@ -143,7 +143,7 @@ body{
     align-items: center;
     width: 100%;
     border-radius: 10px 10px 0 0;
-    background: rgb(30, 41, 63);
+    background: var(--focus-dark);
     i{
         font-size: 1.2rem;
         color: #f00;
@@ -366,7 +366,7 @@ img{
 }
 
 .offline{
-    position: absolute;
+    position: fixed;
     visibility: hidden;
     opacity: 0;
     width: 250px;
@@ -529,7 +529,7 @@ img{
         width: max-content;
         visibility: visible;
         opacity: 1;
-        background: #192838;
+        background: var(--msg-get-reply);
         z-index: 1;
     }
 }

@@ -8,6 +8,11 @@
     <div id="preload" style="z-index: 100; position: fixed; top: 0; left: 0; bottom: 0; right: 0; display:flex; flex-direction:row; gap: 5px; align-items:center; justify-content:center; background: #111d2a; ">
         <div class="text" style="color: #2585fd;">Logging in</div><i class="fa-solid fa-circle-notch fa-spin" style="color: #2585fd;"></i>
     </div>
+    <!--Offline Indicator-->
+    <div class="offline">
+        <div class="icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+        <div class="text"></div>
+    </div>
     <!--All popups will be shown here-->
     <div class="popup-message"></div>
     <!--The side menu-->
@@ -33,11 +38,6 @@
             <div id="more" class="clickable">
                 <i class="fa-solid fa-ellipsis-vertical"></i>
             </div>
-        </div>
-        <!--Offline Indicator-->
-        <div class="offline">
-            <div class="icon"><i class="fa-solid fa-circle-exclamation"></i></div>
-            <div class="text"></div>
         </div>
         <!-- Chat Messages will append here -->
         <ul id="messages">
@@ -301,7 +301,7 @@
         }
         
         loadTheme();
-        /*
+        
         document.addEventListener('click', ()=> {
                 history.pushState({}, '', "#init");
                 history.pushState({}, '', "#inbox");
@@ -309,7 +309,7 @@
                 history.forward();
                 }
         }, {once: true});
-        */
+        
     </script>
 </body>
 </html>

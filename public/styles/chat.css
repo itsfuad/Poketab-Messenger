@@ -7,7 +7,7 @@
 }
 
 :root {
-  --red: #cd4040;
+  --red: indianred;
   --primary-dark: #111d2a;
   --foreground-dark: #e1eeff;
   --secondary-dark: hsl(213, 98%, 57%);
@@ -112,7 +112,7 @@ body {
   align-items: center;
   border-radius: 12px;
   overflow: hidden;
-  background: #121a2b;
+  background: var(--msg-get-reply);
   transition: 100ms ease-in-out;
   transform: translateX(-50%) scale(0.5);
   transform-origin: bottom;
@@ -136,7 +136,7 @@ body {
   align-items: center;
   width: 100%;
   border-radius: 10px 10px 0 0;
-  background: rgb(30, 41, 63);
+  background: var(--focus-dark);
 }
 .stickerGroups i {
   font-size: 1.2rem;
@@ -332,7 +332,7 @@ img:is(.sticker) {
   width: min(85vw, 380px);
   gap: 10px;
   padding: 20px;
-  background: rgba(25, 40, 56, 0.9490196078);
+  background: var(--msg-get-reply);
   border-radius: 10px;
 }
 
@@ -358,7 +358,7 @@ img {
 }
 
 .offline {
-  position: absolute;
+  position: fixed;
   visibility: hidden;
   opacity: 0;
   width: 250px;
@@ -524,7 +524,7 @@ img {
   width: max-content;
   visibility: visible;
   opacity: 1;
-  background: #192838;
+  background: var(--msg-get-reply);
   z-index: 1;
 }
 
@@ -660,10 +660,9 @@ i[class^=fa-] {
   justify-content: space-between;
   padding: 10px;
   margin: 0 10px;
-  background: var(--focus-dark);
+  background: var(--msg-get-reply);
   border-radius: 10px;
   position: relative;
-  filter: drop-shadow(2px 5px 5px rgb(6, 20, 44));
   visibility: hidden;
   opacity: 0;
   transition: 100ms ease-in-out;
