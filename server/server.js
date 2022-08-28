@@ -6,6 +6,8 @@ const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const socketIO = require('socket.io');
 const uuid = require("uuid");
+const cluster = require('cluster');
+const os = require('os');
 
 require('dotenv').config();
 
@@ -15,16 +17,15 @@ const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 const { isRealString, validateUserName, avList } = require('./utils/validation');
 const { makeid, keyformat } = require('./utils/functions');
 const { keys, uids, users, fileStore } = require('./keys/cred');
-const { clean } = require('./worker')
+const { clean } = require('./cleaner')
 
-clean();
 
 const apiRequestLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minute
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: "Too many requests. Temporarily blocked from PokeTab server. Please try again later",
-    standardHeaders: false, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false // Disable the `X-RateLimit-*` headers
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests. Temporarily blocked from PokeTab server. Please try again later",
+  standardHeaders: false, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false // Disable the `X-RateLimit-*` headers
 });
 
 const publicPath = path.join(__dirname, '../public');
@@ -37,10 +38,13 @@ let io = socketIO(server,{
   async_handlers: true
 });
 
-let fileSocket = io.of('/file');
-let auth = io.of('/auth');
+const fileSocket = io.of('/file');
+const auth = io.of('/auth');
 
 const devMode = false;
+const cpuCount = os.cpus().length;
+
+clean();
 
 app.disable('x-powered-by');
 
@@ -93,7 +97,7 @@ app.get('/create', (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null; //currently ip has nothing to do with our server. May be we can use it for user validation or attacts. 
   //console.log(`${ip} created key ${key}`);
   keys.set(key, {using: false, created: Date.now(), ip: ip});
-  res.render('create', {title: 'Create', version: `v.${version}`, key: key});
+  res.render('create', {title: 'Create', version: `v.${version}`, key: key})
 });
 
 app.get('/error', (_, res) => {
@@ -341,7 +345,18 @@ auth.on('connection', (socket) => {
   });
 });
 
+if (cluster.isMaster){
+  for (let i = 0; i < cpuCount; i++){
+    cluster.fork();
+  }
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`Worker process with pid: ${worker.process.pid} killed`);
+    cluster.fork();
+  });
+}else{
+  server.listen(port, () => {
+      console.log(`TCP Server listening on port ${port} | cpu cores: ${cpuCount} | Master: ${cluster.isMaster} | PID: ${process.pid}`);
+  });
+}
 
-server.listen(port, () => {
-    console.log(`TCP Server listening on port ${port}`);
-});
+
