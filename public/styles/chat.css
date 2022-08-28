@@ -200,7 +200,7 @@ img:is(.sticker) {
 #sidebar {
   padding: 10px;
   border-radius: 0 5px 5px 0;
-  background: var(--option-color);
+  background: var(--msg-send-reply);
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
   z-index: 90;
@@ -267,7 +267,7 @@ img:is(.sticker) {
 #sidebar .theme_option, #sidebar .theme_option i {
   display: flex;
   color: #fff;
-  background: #2585fd;
+  background: var(--secondary-dark);
   padding: 4px 8px;
   border-radius: 25px;
   align-items: center;
@@ -823,7 +823,7 @@ i[class^=fa-] {
   width: 100%;
   padding: 5px;
   border-radius: 20px 20px 0 0;
-  background: #192838;
+  background: var(--msg-send-reply);
   place-content: center;
   display: grid;
 }
@@ -848,7 +848,7 @@ i[class^=fa-] {
   width: max-content;
   align-items: center;
   border-radius: 10px;
-  background: #192838;
+  background: var(--msg-send-reply);
   transition: 100ms ease-in-out;
 }
 .options > * {
@@ -908,7 +908,7 @@ i[class^=fa-] {
 .reactorContainer {
   display: flex;
   flex-direction: column;
-  background: var(--focus-dark);
+  background: var(--msg-send-reply);
   padding: 20px;
   width: 300px;
   height: 220px;
