@@ -186,7 +186,6 @@ app.get('*', (_, res) => {
 
 io.on('connection', (socket) => {
   socket.on('join', (params, callback) => {
-    console.log('Received join request');
     if (!isRealString(params.name) || !isRealString(params.key)) {
       return callback('empty');
     }
@@ -203,12 +202,59 @@ io.on('connection', (socket) => {
     socket.join(params.key);
     users.removeUser(params.id);
     uids.set(socket.id, params.id);
-    users.addUser(params.id, params.name, params.key, params.avatar, params.maxuser || users.getMaxUser(params.key));
+    users.addUser(socket.id, params.id, params.name, params.key, params.avatar, params.maxuser || users.getMaxUser(params.key));
     io.to(params.key).emit('updateUserList', users.getAllUsersDetails(params.key));
     socket.emit('server_message', {color: 'limegreen', text: 'You joined the chat.🔥'}, 'join');
     socket.broadcast.to(params.key).emit('server_message', {color: 'limegreen', text: `${params.name} joined the chat.🔥`}, 'join');
     //console.log(`New user ${params.name} connected on key ${params.key} with avatar ${params.avatar} and maxuser ${params.maxuser || users.getMaxUser(params.key)}`);
   });
+
+
+  socket.on('user joined room', roomId => {
+    const room = io.sockets.adapter.rooms.get(roomId);
+
+    if (room && room.size === 4) {
+        socket.emit('server is full');
+        return;
+    }
+
+    const otherUsers = [];
+
+    if (room) {
+        room.forEach(id => {
+            otherUsers.push(id);
+        })
+    }
+
+    socket.join(roomId);
+    socket.broadcast.to(roomId).emit('all other users', otherUsers);
+});
+
+socket.on('peer connection request', ({ userIdToCall, sdp }) => {
+    io.to(userIdToCall).emit("connection offer", { sdp, callerId: socket.id });
+});
+
+socket.on('connection answer', ({ userToAnswerTo, sdp }) => {
+    io.to(userToAnswerTo).emit('connection answer', { sdp, answererId: socket.id })
+});
+
+socket.on('ice-candidate', ({ target, candidate }) => {
+    io.to(target).emit('ice-candidate', { candidate, from: socket.id });
+});
+
+socket.on('disconnecting', () => {
+    socket.rooms.forEach(room => {
+        socket.to(room).emit('user disconnected', socket.id);
+    });
+});
+
+socket.on('hide remote cam', targetId => {
+    io.to(targetId).emit('hide cam');
+});
+
+socket.on('show remote cam', targetId => {
+    io.to(targetId).emit('show cam')
+})
 
 
   socket.on('message', (message, type, uId, reply, replyId, options, callback) => {
@@ -275,6 +321,7 @@ io.on('connection', (socket) => {
     if (user) {
       io.to(user.key).emit('updateUserList', users.getAllUsersDetails(user.key));
       io.to(user.key).emit('server_message', {color: 'orangered', text: `${user.name} left the chat.🐸`}, 'leave');
+      io.to(user.key).emit('user disconnected', socket.id);
       console.log(`User ${user.name} disconnected from key ${user.key}`);
       let usercount = users.users.filter(datauser => datauser.key === user.key);
       if (usercount.length === 0) {
@@ -377,10 +424,15 @@ auth.on('connection', (socket) => {
 });
 
 
+
+
+
+
+
 //calling functions
 
-var channels = {};
-var sockets = {};
+//var channels = {};
+//var sockets = {};
 
 /**
  * Users will connect to the signaling server, after which they'll issue a "join"
@@ -392,6 +444,7 @@ var sockets = {};
  * information. After all of that happens, they'll finally be able to complete
  * the peer connection and will be streaming audio/video between eachother.
  */
+/*
 callSocket.on('connection', function (socket) {
     console.log(socket.channels);
     socket.channels = {};
@@ -467,7 +520,19 @@ callSocket.on('connection', function (socket) {
             sockets[peer_id].emit('sessionDescription', {'peer_id': socket.id, 'session_description': session_description});
         }
     });
+
+    socket.on('end call', (id, key) => {
+      console.log('call ended');
+      socket.broadcast.to(key).emit('endCall', id);
+    })
+
 });
+
+*/
+
+
+
+
 
 
 

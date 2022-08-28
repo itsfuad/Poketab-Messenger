@@ -47,6 +47,7 @@ const reactArray = ['💙', '😂','😮','😢','😠','👍🏻','👎🏻'];
 const userTypingMap = new Map();
 //all the user and their info is stored in this map
 const userInfoMap = new Map();
+const callSocMap = new Map();
 const fileBuffer = new Map();
 
 let softKeyIsUp = false; //to check if soft keyboard of phone is up or not
@@ -1819,6 +1820,7 @@ socket.on('connect', () => {
 socket.on('updateUserList', users => {
     users.forEach(user => {
         userInfoMap.set(user.uid, user);
+        callSocMap.set(user.socId, user.uid);
     });
     document.getElementById('count').textContent = `${users.length}/${maxUser}`;
     //document.getElementById('userlist').innerHTML = '';

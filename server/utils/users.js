@@ -3,10 +3,10 @@ class Users {
       this.users = [];
       this.MaxUser = new Map();
     }
-    addUser (uid, name, key, avatar, maxuser) {
+    addUser (socId, uid, name, key, avatar, maxuser) {
       this.MaxUser.set(key, maxuser);
       //console.log(`Maxuser: ${maxuser}`);
-      let user = {uid, name, key, avatar};
+      let user = {socId, uid, name, key, avatar};
       this.users.push(user);
       return user;
     }
@@ -24,6 +24,11 @@ class Users {
       let users = this.users.filter((user) => user.key === key);
       let namesArray = users.map((user) => user.name);
       return namesArray;
+    }
+    getUserSocket(key){
+      let users = this.users.filter((user) => user.key === key);
+      let socIdArray = users.map((user) => user.socId);
+      return socIdArray;
     }
     getAllUsersDetails(key){
         let users = this.users.filter((user) => user.key === key);

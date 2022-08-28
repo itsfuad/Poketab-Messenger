@@ -7,14 +7,15 @@ const minimizeCallButton = document.getElementById('minimizeCall');
 const toggleVideoButton = document.getElementById('toggleVideo');
 const dropCallButton = document.getElementById('dropCall');
 const VIDEO_GRID = document.querySelector('.participents');
-
+const myCallStatus = {
+    video: true,
+    audio: true
+}
 
 /** CONFIG **/
 //let SIGNALING_SERVER = "http://localhost:8080";
 let SIGNALING_SERVER = '/calls';
-let USE_AUDIO = true;
-let USE_VIDEO = true;
-let DEFAULT_CHANNEL = 'default';
+let DEFAULT_CHANNEL = myKey;
 let MUTE_AUDIO_BY_DEFAULT = false;
 
 /** You should probably use a different stun server doing commercial stuff **/
@@ -30,7 +31,6 @@ myVideo.classList.add('myCall');
 myVideo.classList.add('caller');
 //myVideo.classList.add('caller');
 myVideo.muted = true;
-myVideo.src = '';
 myVideo.dataset.uid = "myId";
 
 let signaling_socket = null;   /* our socket.io connection to our webserver */
@@ -38,11 +38,37 @@ let local_media_stream = null; /* our own microphone / webcam */
 let peers = {};                /* keep track of our peer connections, indexed by peer_id (aka socket.io id) */
 let peer_media_elements = {};  /* keep track of our <video>/<audio> tags, indexed by peer_id */
 
+function endCall(id){
+    for (peer_id in peer_media_elements) {
+        peer_media_elements[peer_id].remove();
+    }
+    for (peer_id in peers) {
+        peers[peer_id].close();
+    }
+    peers = {};
+    peer_media_elements = {};
+    if (id){
+        activeCallerMap.delete(id);
+        document.getElementById(`call-${id}`)?.remove();
+        console.log('removed video');
+    }
+}
+
+function handleDisconnect(userId) {
+    delete peers[userId];
+    document.getElementById(`call-${userId}`).remove();
+};
+
+function join_chat_channel(channel, userdata) {
+    signaling_socket.emit('join', {"channel": channel, "userdata": userdata});
+}
+function part_chat_channel(channel) {
+    signaling_socket.emit('part', channel);
+}
 
 function init() {
     console.log("Connecting to signaling server");
     signaling_socket = io(SIGNALING_SERVER);
-    signaling_socket = io();
 
     signaling_socket.on('connect', () => {
         console.log("Connected to signaling server");
@@ -52,26 +78,11 @@ function init() {
             join_chat_channel(DEFAULT_CHANNEL, {'whatever-you-want-here': 'stuff'});
         });
     });
-    signaling_socket.on('disconnect', () => {
-        console.log("Disconnected from signaling server");
-        /* Tear down all of our peer connections and remove all the
-         * media divs when we disconnect */
-        for (peer_id in peer_media_elements) {
-            peer_media_elements[peer_id].remove();
-        }
-        for (peer_id in peers) {
-            peers[peer_id].close();
-        }
 
-        peers = {};
-        peer_media_elements = {};
+    signaling_socket.on('endCall', (id) => {
+        console.log('End call by: ', id);
+        handleDisconnect(id);
     });
-    function join_chat_channel(channel, userdata) {
-        signaling_socket.emit('join', {"channel": channel, "userdata": userdata});
-    }
-    function part_chat_channel(channel) {
-        signaling_socket.emit('part', channel);
-    }
     /** 
     * When we join a group, our signaling server will send out 'addPeer' events to each pair
     * of users in the group (creating a fully-connected graph of users, ie if there are 6 people
@@ -110,7 +121,7 @@ function init() {
             //let remote_media = USE_VIDEO ? $("<video>") : $("<audio>");
             const remote_media = document.createElement("video");
             peer_media_elements[peer_id] = remote_media;
-            addVideoStream(remote_media, event.streams[0], "Incomming", "1111");
+            addVideoStream(remote_media, event.streams[0], "Uner", `caller-${peer_id}`);
         }
 
         /* Add our local stream */
@@ -238,6 +249,7 @@ function addVideoStream(video, stream, name = "Unknown", id){
     if (!activeCallerMap.has(id)){
         const Call = document.createElement('div');
         Call.classList.add('caller');
+        Call.id = `call-${id}`;
         const uname = document.createElement('div');
         uname.classList.add("name");
         uname.textContent = name;
@@ -265,11 +277,15 @@ function setup_local_media(callback, errorback) {
            navigator.msGetUserMedia);
 
 
-    navigator.mediaDevices.getUserMedia({"audio":USE_AUDIO, "video":USE_VIDEO})
+    navigator.mediaDevices.getUserMedia({audio: myCallStatus.audio, video: myCallStatus.video})
         .then((stream) => { /* user accepted access to a/v */
             console.log("Access granted to audio/video");
+            let video = stream.getTracks().find(track => track.kind === 'video');
+            if(video){
+                video.enabled = false;
+            }
             local_media_stream = stream;
-            addVideoStream(myVideo, stream, "Fuad", "1234");
+            addVideoStream(myVideo, stream, myName, myId);
             if (callback) callback();
         })
         .catch((err) => { /* user denied access to a/v */
@@ -278,19 +294,16 @@ function setup_local_media(callback, errorback) {
         })
 }
 
+function hideCam() {
+    const videoTrack = local_media_stream.getTracks().find(track => track.kind === 'video');
+    videoTrack.enabled = false;
+    toggleVideoButton.querySelector('i').classList.replace('fa-video', 'fa-video-slash');
+}
 
-function toggleVideo(){
-    if (toggleVideoButton.querySelector('i').classList.contains('fa-video-slash')){ //if true then video off
-        toggleVideoButton.querySelector('i').classList.replace('fa-video-slash', 'fa-video');
-        console.log('video on');
-        myCallStatus.video = true;
-        init();
-    }else{
-        toggleVideoButton.querySelector('i').classList.replace('fa-video', 'fa-video-slash');
-        myCallStatus.video = false;
-        localStream.getVideoTracks()[0]?.stop();
-        console.log('video off');
-    }
+function showCam() {
+    const videoTrack = local_media_stream.getTracks().find(track => track.kind === 'video');
+    videoTrack.enabled = true;
+    toggleVideoButton.querySelector('i').classList.replace('fa-video-slash', 'fa-video');
 }
 
 function dropCall(){
@@ -304,6 +317,8 @@ function dropCall(){
         item.remove();
     });
     activeCallerMap.delete(myId);
+    endCall(myId);
+    signaling_socket.emit('end call', myId, myKey);
     console.log('Call ended');
 }
 
@@ -332,7 +347,16 @@ callButton.addEventListener('click', () => {
 dropCallButton.addEventListener('click', dropCall);
 
 //toggleAudioButton.addEventListener('click', toggleAudio);
-toggleVideoButton.addEventListener('click', toggleVideo);
+toggleVideoButton.addEventListener('click', () => {
+    const videoTrack = local_media_stream.getTracks().find(track => track.kind === 'video');
+    if (videoTrack?.enabled) {
+       hideCam();
+       console.log("camera off");
+    } else {
+       showCam();
+       console.log("camera on");
+    }  
+});
 
 minimizeCallButton.addEventListener('click', () => {
     console.log(minimizeCallButton.querySelector('i').classList);
