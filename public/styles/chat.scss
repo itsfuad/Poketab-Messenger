@@ -7,7 +7,7 @@
 }
 
 :root{
-    --red: #cd4040;
+    --red: indianred;
     --primary-dark: #111d2a;
     --foreground-dark: #e1eeff;
     --secondary-dark: hsl(213, 98%, 57%);
@@ -340,7 +340,7 @@ img:is(.sticker){
     width: min(85vw, 380px);
     gap: 10px;
     padding: 20px;
-    background: #192838f2;
+    background: var(--msg-get-reply);
     border-radius: 10px;
 }
 
@@ -669,10 +669,9 @@ i[class^=fa-]{
     justify-content: space-between;
     padding: 10px;
     margin: 0 10px;
-    background: var(--focus-dark);
+    background: var(--msg-get-reply);
     border-radius: 10px;
     position: relative;
-    filter: drop-shadow(2px 5px 5px rgb(6, 20, 44));
     visibility: hidden;
     opacity: 0;
     transition: 100ms ease-in-out;

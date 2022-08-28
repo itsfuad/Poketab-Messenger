@@ -2,11 +2,11 @@
 'use strict';
 
 //bundles
-
+/*
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
-
+*/
 console.log('loaded');
 
 //variables
@@ -476,7 +476,7 @@ function showOptions(type, sender, target){
         //get how many reactions the message has
         let clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
         //selected react color
-        document.querySelector(`#reactOptions .${clickedElement}`).style.background = themeAccent[localStorage.getItem("theme")].secondary;
+        document.querySelector(`#reactOptions .${clickedElement}`).style.background = themeAccent[THEME].secondary;
     }
     //show the options
     let options = document.getElementById('optionsContainerWrapper');
@@ -1033,7 +1033,7 @@ function loadStickers(){
 
     document.getElementById('selectStickerGroup').innerHTML = stickerNames;
     document.getElementById('stickers').innerHTML = stickers;
-    //document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["theme"]].msg_send;
+    //document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["THEME"]].msg_send;
     document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').dataset.selected = 'true';
 }
 
@@ -1080,7 +1080,7 @@ document.getElementById('selectStickerGroup').addEventListener('click', e => {
         for (let i = 1; i <= selectedStickerGroupCount; i++) {
             stickers += `<img src="/stickers/${selectedStickerGroup}/static/${i}.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/animated/${i}" class="stickerpack clickable">`;
         }
-        //document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["theme"]].msg_send;
+        //document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["THEME"]].msg_send;
         document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').dataset.selected = 'true';
         document.getElementById('stickers').innerHTML = stickers;
     }
@@ -1092,7 +1092,7 @@ document.getElementById('stickers').addEventListener('click', e => {
         .forEach(sticker => {
             sticker.style.background = 'transparent';
         });
-        e.target.style.background = themeAccent[localStorage["theme"]].msg_send;
+        e.target.style.background = themeAccent[THEME].msg_send;
         let tempId = makeId();
         //insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, finalTarget.message, finalTarget.id, {});
         stickerSound.play();
@@ -1129,6 +1129,12 @@ document.getElementById('invite').addEventListener('click', ()=>{
 
 document.querySelector('.theme_option').addEventListener('click', ()=>{
     hideOptions();
+    if(THEME){
+        document.querySelector('.themeChooser').querySelectorAll(".theme").forEach(theme => {
+            theme.querySelector("img").style.border = "";
+        });
+        document.querySelector(`.themeChooser #${THEME}`).querySelector("img").style.border = "2px solid var(--secondary-dark)";
+    }
     document.getElementById('focus_glass').classList.add('active');
     document.querySelector('.themeChooser').classList.add('active');
 });
@@ -1140,15 +1146,16 @@ document.querySelector('.themeChooser').addEventListener('click', ()=>{
 
 document.querySelectorAll('.theme').forEach(theme => {
     theme.addEventListener('click', (evt) => {
-        const theme = evt.target.closest('li').id;
-        localStorage.setItem('theme', theme);
+        THEME = evt.target.closest('li').id;
+        localStorage.setItem('theme', THEME);
+        console.log(`Theme changed to ${THEME}`);
         //edit css variables
-        document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${theme}_w.webp')`);
-        document.documentElement.style.setProperty('--secondary-dark', themeAccent[theme].secondary);
-        document.documentElement.style.setProperty('--msg-get', themeAccent[theme].msg_get);
-        document.documentElement.style.setProperty('--msg-get-reply', themeAccent[theme].msg_get_reply);
-        document.documentElement.style.setProperty('--msg-send', themeAccent[theme].msg_send);
-        document.documentElement.style.setProperty('--msg-send-reply', themeAccent[theme].msg_get_reply);
+        document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${THEME}_w.webp')`);
+        document.documentElement.style.setProperty('--secondary-dark', themeAccent[THEME].secondary);
+        document.documentElement.style.setProperty('--msg-get', themeAccent[THEME].msg_get);
+        document.documentElement.style.setProperty('--msg-get-reply', themeAccent[THEME].msg_get_reply);
+        document.documentElement.style.setProperty('--msg-send', themeAccent[THEME].msg_send);
+        document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_get_reply);
         document.querySelector('.themeChooser').classList.remove('active');
         hideOptions();
     });
@@ -1391,7 +1398,7 @@ function ImagePreview(fileFromClipboard = null){
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
-    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[localStorage.getItem("theme")].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
+    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
     document.getElementById('selectedImage').append(fragment);
     document.getElementById('previewImage')?.classList?.add('active');
     let file = fileFromClipboard || photoButton.files[0];
@@ -1423,7 +1430,7 @@ function FilePreview(fileFromClipboard = null){
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
-    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[localStorage.getItem("theme")].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
+    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
     document.getElementById('selectedImage').append(fragment);
     document.getElementById('previewImage')?.classList?.add('active');
     let file = fileFromClipboard || fileButton.files[0];
@@ -1480,7 +1487,7 @@ window.addEventListener('dragover', (evt) => {
     evt.stopPropagation();
     fileDropZone.classList.add('active');
     if (evt.target.classList.contains('fileDropZoneContent')){
-        document.querySelector('.fileDropZoneContent').style.color = themeAccent[localStorage.getItem("theme")].secondary;
+        document.querySelector('.fileDropZoneContent').style.color = themeAccent[THEME].secondary;
         if (timeoutObj) {
             clearTimeout(timeoutObj);
         }

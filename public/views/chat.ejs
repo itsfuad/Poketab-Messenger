@@ -250,7 +250,7 @@
         const myKey = "<%=myKey_%>";
         const maxUser = "<%=maxUser_%>";
         const devMode = "<%=devMode_%>";
-
+        let THEME = "";
         const themeAccent = {
             blue: {
                 secondary: 'hsl(213, 98%, 57%)',
@@ -287,21 +287,21 @@
         }
 
         function loadTheme(){
-            let theme = localStorage.getItem("theme");
-            if(theme == null){
-                theme = "blue";
-                localStorage.setItem("theme", theme);
+            THEME = localStorage.getItem("theme");
+            if(THEME == null){
+                THEME = "blue";
+                localStorage.setItem("theme", THEME);
             }
-            document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${theme}_w.webp')`);
-            document.documentElement.style.setProperty('--secondary-dark', themeAccent[theme].secondary);
-            document.documentElement.style.setProperty('--msg-get', themeAccent[theme].msg_get);
-            document.documentElement.style.setProperty('--msg-get-reply', themeAccent[theme].msg_get_reply);
-            document.documentElement.style.setProperty('--msg-send', themeAccent[theme].msg_send);
-            document.documentElement.style.setProperty('--msg-send-reply', themeAccent[theme].msg_send_reply);
+            document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${THEME}_w.webp')`);
+            document.documentElement.style.setProperty('--secondary-dark', themeAccent[THEME].secondary);
+            document.documentElement.style.setProperty('--msg-get', themeAccent[THEME].msg_get);
+            document.documentElement.style.setProperty('--msg-get-reply', themeAccent[THEME].msg_get_reply);
+            document.documentElement.style.setProperty('--msg-send', themeAccent[THEME].msg_send);
+            document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_send_reply);
         }
         
         loadTheme();
-        
+        /*
         document.addEventListener('click', ()=> {
                 history.pushState({}, '', "#init");
                 history.pushState({}, '', "#inbox");
@@ -309,7 +309,7 @@
                 history.forward();
                 }
         }, {once: true});
-        
+        */
     </script>
 </body>
 </html>
