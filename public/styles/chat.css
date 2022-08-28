@@ -919,7 +919,6 @@ i[class^=fa-] {
   -webkit-backdrop-filter: blur(5px);
           backdrop-filter: blur(5px);
   scrollbar-width: none;
-  filter: drop-shadow(2px 4px 6px black);
   transition: 100ms ease-in-out;
 }
 .reactorContainer ul {
