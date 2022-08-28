@@ -1512,14 +1512,16 @@ window.addEventListener('drop', (evt) => {
 
 window.addEventListener('offline', function(e) { 
     console.log('offline'); 
-    document.querySelector('.offline').textContent = 'You are offline!';
+    document.querySelector('.offline .icon i').classList.replace('fa-wifi', 'fa-circle-exclamation');
+    document.querySelector('.offline .text').textContent = 'You are offline!';
     document.querySelector('.offline').classList.add('active');
-    document.querySelector('.offline').style.background = 'orangered';
+    document.querySelector('.offline').style.background = 'var(--msg-get-reply)';
 });
 
 window.addEventListener('online', function(e) {
     console.log('Back to online');
-    document.querySelector('.offline').textContent = 'Back to online!';
+    document.querySelector('.offline .icon i').classList.replace( 'fa-circle-exclamation', 'fa-wifi');
+    document.querySelector('.offline .text').textContent = 'Back to online!';
     document.querySelector('.offline').style.background = 'limegreen';
     setTimeout(() => {
         document.querySelector('.offline').classList.remove('active');
