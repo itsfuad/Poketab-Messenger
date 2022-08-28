@@ -208,7 +208,7 @@ img:is(.sticker){
 #sidebar{
     padding: 10px;
     border-radius: 0 5px 5px 0;
-    background: var(--msg-send-reply);
+    background: var(--msg-get-reply);
     backdrop-filter: blur(10px);
     z-index: 90;
     display: flex;
@@ -263,7 +263,7 @@ img:is(.sticker){
     }
     #logout, #logout i{
         color: white;
-        background: orangered;
+        background: indianred;
         padding: 4px 8px;
     }
     .theme_option{
@@ -831,7 +831,7 @@ i[class^=fa-]{
     width: 100%;
     padding: 5px;
     border-radius: 20px 20px 0 0;
-    background: var(--msg-send-reply);
+    background: var(--msg-get-reply);
     place-content: center;
     display: grid;
 }
@@ -855,7 +855,7 @@ i[class^=fa-]{
     width: max-content;
     align-items: center;
     border-radius: 10px;
-    background: var(--msg-send-reply);
+    background: var(--msg-get-reply);
     transition: 100ms ease-in-out;
     & > *{
         transition: 100ms ease-in;
@@ -917,7 +917,7 @@ i[class^=fa-]{
 .reactorContainer{
     display: flex;
     flex-direction: column;
-    background: var(--msg-send-reply);
+    background: var(--msg-get-reply);
     padding: 20px;
     width: 300px;
     height: 220px;
