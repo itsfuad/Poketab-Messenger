@@ -14,8 +14,8 @@ const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
 const { isRealString, validateUserName, avList } = require('./utils/validation');
 const { makeid, keyformat } = require('./utils/functions');
-const { keys, uids, users, fileStore } = require('./keys/cred');
-const { clean } = require('./worker')
+const { keys, uids, users } = require('./keys/cred');
+const { clean, markForDelete } = require('./worker')
 
 clean();
 
@@ -248,7 +248,7 @@ io.on('connection', (socket) => {
         keys.delete(user.key);
         console.log(`Session ended with key: ${user.key}`);
       }
-      console.log(`${usercount.length } ${usercount.length > 1 ? 'users' : 'user'} left on ${user.key}`);
+      console.log(`${usercount.length == 0 ? "No" : usercount.length} ${usercount.length > 1 ? 'users' : 'user'} left on ${user.key}`);
     }
   });
 });
@@ -273,15 +273,7 @@ fileSocket.on('connection', (socket) => {
   });
 
   socket.on('fileDownloaded', (userId, key, filename) => {
-    if (fileStore.has(filename)) {
-      //{filename: req.file.filename, downloaded: 0, keys: [], uids: []}
-      fileStore.get(filename).downloaded++;
-      if (users.getMaxUser(key) == fileStore.get(filename).downloaded + 1) {
-        console.log('Deleting file');
-        fs.unlinkSync(`./uploads/${filename}`);
-        fileStore.delete(filename);
-      }
-    }
+      markForDelete(userId, key, filename);
   });
 
   socket.on('fileUploadError', (key, id, type) => {

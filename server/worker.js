@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { keys } = require('./keys/cred');
+const { keys, users, fileStore } = require('./keys/cred');
 
 function deleteKeys(){
     //console.log(keys);
@@ -34,10 +34,20 @@ function deleteFiles(){
     }
 }
 
+function markForDelete(userId, key, filename){
+    //{filename: req.file.filename, downloaded: 0, keys: [], uids: []}
+    fileStore.get(filename).downloaded++;
+    if (users.getMaxUser(key) == fileStore.get(filename).downloaded + 1) {
+    console.log('Deleting file');
+    fs.unlinkSync(`./uploads/${filename}`);
+    fileStore.delete(filename);
+    }
+}
+
 function clean(){
     console.log('Running cleaner...');
     setInterval(deleteKeys, 1000);
     setInterval(deleteFiles, 2000);
 }
 
-module.exports = { clean };
+module.exports = { clean, markForDelete };
