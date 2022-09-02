@@ -41,6 +41,27 @@ code {
 .message {
   display: flex;
   flex-direction: row;
+  align-items: flex-end;
+}
+.message .seenBy {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+.message .seenBy img {
+  padding-top: 1px;
+  height: 8px;
+  width: 8px;
+}
+.message .messageContainer {
+  display: flex;
+  flex-direction: row;
   list-style: none;
   align-items: flex-end;
   gap: 3px;
@@ -113,8 +134,8 @@ code {
   z-index: 15;
   flex-direction: row;
   gap: 5px;
-  background: var(--focus-dark);
-  border-radius: 5px;
+  background: var(--msg-get-reply);
+  border-radius: 10px;
   padding: 0 5px;
   z-index: 15;
   display: none;
@@ -214,6 +235,9 @@ code {
 }
 
 .message:is(.self) {
+  flex-direction: column;
+}
+.message:is(.self) .messageContainer {
   flex-direction: row-reverse;
 }
 .message:is(.self) .sent {

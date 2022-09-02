@@ -44,12 +44,33 @@ code{
 .message{
     display: flex;
     flex-direction: row;
-    list-style: none;
     align-items: flex-end;
-    gap: 3px;
-    font-size: 0.8rem;
-    width: 100%;
-    position: relative;
+    .seenBy{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 1px;
+        img{
+            padding-top: 1px;
+            height: 8px;
+            width: 8px;
+        }
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+    }
+    .messageContainer{
+        display: flex;
+        flex-direction: row;
+        list-style: none;
+        align-items: flex-end;
+        gap: 3px;
+        font-size: 0.8rem;
+        width: 100%;
+        position: relative;
+    }
 
     .sent{
         display: none;
@@ -112,8 +133,8 @@ code{
             z-index: 15;
             flex-direction: row;
             gap: 5px;
-            background: var(--focus-dark);
-            border-radius: 5px;
+            background: var(--msg-get-reply);
+            border-radius: 10px;
             padding: 0 5px;
             z-index: 15;
             display: none;
@@ -227,7 +248,10 @@ code{
 }
 
 .message:is(.self){
-    flex-direction: row-reverse;
+    flex-direction: column;
+    .messageContainer{
+        flex-direction: row-reverse;
+    }
     .sent{
         display: block;
     }

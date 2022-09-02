@@ -36,11 +36,14 @@ function deleteFiles(){
 
 function markForDelete(userId, key, filename){
     //{filename: req.file.filename, downloaded: 0, keys: [], uids: []}
-    fileStore.get(filename).downloaded++;
-    if (users.getMaxUser(key) == fileStore.get(filename).downloaded + 1) {
-    console.log('Deleting file');
-    fs.unlinkSync(`./uploads/${filename}`);
-    fileStore.delete(filename);
+    let file = fileStore.get(filename);
+    if (file){
+        file.downloaded++;
+        if (users.getMaxUser(key) == fileStore.get(filename).downloaded + 1) {
+        console.log('Deleting file');
+        fs.unlinkSync(`./uploads/${filename}`);
+        fileStore.delete(filename);
+        }
     }
 }
 

@@ -88,6 +88,8 @@ let finalTarget = {
     id: '',
 };
 
+let lastSeenMessage = null;
+
 //first load functions 
 //if user device is mobile
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -217,7 +219,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             reply = {data: 'Message is not available on this device', type: 'text'};
         }
     }
-    //console.log(type);
+
     let classList = ''; //the class list for the message. Initially empty. 
     let lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
     let popupmsg = ''; //the message to be displayed in the popup if user scrolled up 
@@ -322,6 +324,13 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             time: getCurrentTime()
         });
     }
+
+    lastSeenMessage = id;
+
+    if (document.hasFocus()){
+        socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+    }
+
     /*
     messages.innerHTML += html;
     */
@@ -330,11 +339,15 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     fragment.append(document.createRange().createContextualFragment(html));
     messages.append(fragment);
     if (reply.type == 'image' || reply.type == 'sticker'){
-            document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
+        document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
     }
     lastPageLength = messages.scrollTop;
     updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
 }
+
+window.addEventListener('focus', () => {
+    socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+});
 
 function getCurrentTime(){
     //return time in hh:mm a format
@@ -692,8 +705,10 @@ function getReact(type, messageId, uid){
                 count++;
             });
             document.getElementById(messageId).classList.add('react');
+            document.getElementById(messageId).querySelector('.seenBy').style.marginTop = '12px';
         }else{
             document.getElementById(messageId).classList.remove('react');
+            document.getElementById(messageId).querySelector('.seenBy').style.marginTop = '0';
         }
         updateScroll();
     }catch(e){
@@ -835,7 +850,6 @@ function OptionEventHandler(evt){
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
     if (type === 'text' || type === 'image' || type === 'file' || type === 'sticker'){
-        //console.log('targetMessage', targetMessage);
         showOptions(type, sender, evt.target);
     }
 }
@@ -1103,6 +1117,10 @@ document.getElementById('stickers').addEventListener('click', e => {
             outgoingmessage.play();
             document.getElementById(tempId).classList.add('delevered');
             document.getElementById(tempId).id = id;
+            lastSeenMessage = id;
+            if (document.hasFocus()){
+                socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+            }
         });
         clearTargetMessage();
         clearFinalTarget();
@@ -1338,7 +1356,7 @@ messages.addEventListener('click', (evt) => {
                         });
                     }, 1000);
                     setTimeout(() => {
-                                document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'start'});
+                        document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'start'});
                     }, 20);
                 }catch(e){
                         popupMessage('Deleted message');
@@ -1567,6 +1585,10 @@ sendButton.addEventListener('click', () => {
             outgoingmessage.play();
             document.getElementById(tempId).classList.add('delevered');
             document.getElementById(tempId).id = id;
+            lastSeenMessage = id;
+            if (document.hasFocus()){
+                socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+            }
         });
     }
     finalTarget.message = '';
@@ -1630,7 +1652,14 @@ function sendImageStoreRequest(){
         elem.querySelector('.image').style.filter = 'brightness(0.4)';
 
         let progress = 0;
-        fileSocket.emit('fileUploadStart', 'image', thumbnail.data, tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: resized.data.length, height: resized.height, width: resized.width, name: selectedFile.name}, myKey);
+        fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: resized.data.length, height: resized.height, width: resized.width, name: selectedFile.name}, myKey, (id) => {
+            document.getElementById(tempId).id = id;
+            tempId = id;
+            lastSeenMessage = id;
+            if (document.hasFocus()){
+                socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+            }
+        });
         
         //make xhr request
         //convert resized image to xhr file
@@ -1654,7 +1683,7 @@ function sendImageStoreRequest(){
 
         xhr.onload = function(e) {
             if (this.status == 200) {
-                fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink, (id) => {
+                fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink, () => {
                     outgoingmessage.play();
                     
                     document.getElementById(tempId).classList.add('delevered');
@@ -1664,7 +1693,6 @@ function sendImageStoreRequest(){
                         elem.querySelector('.sendingImage').remove();
                         elem.querySelector('.image').style.filter = 'none';
                     }
-                    document.getElementById(tempId).id = id;
                 });
             }
             else{
@@ -1685,7 +1713,14 @@ function sendFileStoreRequest(){
     let progress = 0;
     let elem = document.getElementById(tempId)?.querySelector('.messageMain');
 
-    fileSocket.emit('fileUploadStart', 'file', '', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey);
+    fileSocket.emit('fileUploadStart', 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey, (id) => {
+        document.getElementById(tempId).id = id;
+        tempId = id;
+        lastSeenMessage = id;
+        if (document.hasFocus()){
+            socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+        }
+    });
     //document.getElementById(tempId).querySelector('.messageMain').style.filter = 'brightness(0.4)';
     
     let file = base64ToFile(selectedFile.data, selectedFile.name);
@@ -1710,12 +1745,11 @@ function sendFileStoreRequest(){
 
         if (this.status == 200) {
             //fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink, (id) => {
-            fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink, (id) => {
+            fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink, () => {
                 outgoingmessage.play();
                 document.getElementById(tempId).classList.add('delevered');
                 document.getElementById(tempId).dataset.downloaded = 'true';
                 elem.querySelector('.progress').style.visibility = 'hidden';
-                document.getElementById(tempId).id = id;
             });
         }
         else{
@@ -1874,6 +1908,23 @@ socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
     insertNewMessage(message, type, id, uid, reply, replyId, options, {});
 });
 
+socket.on('seen', meta => {
+    let message = document.getElementById(meta.messageId);
+    if (message && !message.dataset.seen?.includes(meta.userId)){
+        document.querySelectorAll(`.message[data-seen*="${meta.userId}"]`)
+        .forEach(elem => {
+            elem.querySelector(`.seenBy img[data-user="${meta.userId}"]`)?.remove();
+        });
+
+        message.dataset.seen = message.dataset.seen ? message.dataset.seen + "|" + meta.userId : meta.userId;
+        const element = document.createElement('img');
+        element.src = `/images/avatars/${meta.avatar}(custom)-mini.png`;
+        element.dataset.user = meta.userId;
+        message.querySelector('.seenBy').appendChild(element);
+        updateScroll();
+    }
+});
+
 
 socket.on('getReact', (target, messageId, myId) => {
     getReact(target, messageId, myId);
@@ -1909,19 +1960,18 @@ fileSocket.on('connect', () => {
     fileSocket.emit('join', myKey);
 });
 
-fileSocket.on('fileDownloadStart', (type, thumbnail, tempId, uId, reply, replyId, options, metadata) => {
+fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, options, metadata) => {
     incommingmessage.play();
-    //console.log('fileDownloadStart', type, thumbnail, tempId, uId, reply, replyId, options, metadata);
-    fileBuffer.set(tempId, {type: type, data: '', uId: uId, reply: reply, replyId: replyId, options: options, metadata: metadata});
+    fileBuffer.set(id, {type: type, data: '', uId: uId, reply: reply, replyId: replyId, options: options, metadata: metadata});
     if (type === 'image'){
-        insertNewMessage(thumbnail, type, tempId, uId, reply, replyId, options, metadata);
-        let elem = document.getElementById(tempId).querySelector('.messageMain');
+        insertNewMessage(thumbnail, type, id, uId, reply, replyId, options, metadata);
+        let elem = document.getElementById(id).querySelector('.messageMain');
         setTimeout(() => {
             elem.querySelector('.image').style.filter = 'brightness(0.4) url(#sharpBlur)';
         }, 20);
     }else{
-        insertNewMessage('', type, tempId, uId, reply, replyId, options, metadata);
-        let elem = document.getElementById(tempId).querySelector('.messageMain');
+        insertNewMessage('', type, id, uId, reply, replyId, options, metadata);
+        let elem = document.getElementById(id).querySelector('.messageMain');
         elem.querySelector('.progress').textContent = `User sending...`;
     }
 });
@@ -1937,15 +1987,13 @@ fileSocket.on('fileUploadError', (id, type) => {
     progressContainer.textContent = 'Upload Error';
 });
 
-fileSocket.on('fileDownloadReady', (tempId, id, downlink) => {
-        
-    if (!fileBuffer.has(tempId)){
+fileSocket.on('fileDownloadReady', (id, downlink) => {
+    if (!fileBuffer.has(id)){
         return;
     }
 
-    let data = fileBuffer.get(tempId);
+    let data = fileBuffer.get(id);
     let type = data.type;
-    document.getElementById(tempId).id = id;
     let element = document.getElementById(id).querySelector('.messageMain');
     let progressContainer;
     if (type === 'image'){
@@ -1954,7 +2002,7 @@ fileSocket.on('fileDownloadReady', (tempId, id, downlink) => {
         progressContainer = element.querySelector('.progress');
     }
 
-    fileBuffer.delete(tempId);
+    fileBuffer.delete(id);
 
     let xhr = new XMLHttpRequest();
     xhr.open('GET', `${location.origin}/api/download/${downlink}`, true);

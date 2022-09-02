@@ -190,6 +190,13 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('seen', (meta) => {
+    let user = users.getUser(uids.get(socket.id));
+    if (user){
+      socket.broadcast.to(user.key).emit('seen', meta);
+    }
+  });
+
 
   socket.on('react', (target, messageId, myId) => {
     //console.log('Received react request', target, messageId, myId);
@@ -260,15 +267,17 @@ fileSocket.on('connection', (socket) => {
     socket.join(key);
   });
 
-  socket.on('fileUploadStart', ( type, thumbnail, tempId, uId, reply, replyId, options, metadata, key) => {
-    socket.broadcast.to(key).emit('fileDownloadStart', type, thumbnail, tempId, uId, reply, replyId, options, metadata);
+  socket.on('fileUploadStart', ( type, thumbnail, uId, reply, replyId, options, metadata, key, callback) => {
+    //console.log(uId, reply, replyId, options, metadata, key, callback);
+    let id = uuid.v4();
+    socket.broadcast.to(key).emit('fileDownloadStart', type, thumbnail, id, uId, reply, replyId, options, metadata);
+    callback(id);
   });
 
-  socket.on('fileUploadEnd', (tempId, key, downlink, callback) => {
-    //console.log('Received file upload end request => ', tempId, key, downlink, callback);
-    let id = uuid.v4();
-    socket.broadcast.to(key).emit('fileDownloadReady', tempId, id, downlink);
-    callback(id);
+  socket.on('fileUploadEnd', (id, key, downlink, callback) => {
+    //console.log('fileDownloadReady', id, downlink);
+    socket.broadcast.to(key).emit('fileDownloadReady', id, downlink);
+    callback();
     //socket.emit('fileSent', tempId, id, type, size);
   });
 
