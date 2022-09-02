@@ -907,25 +907,29 @@ function censorBadWords(text) {
 
 
 function getTypingString(userTypingMap){
-    const array = Array.from(userTypingMap.values());
-    let string = '';
-  
-    if (array.length >= 1){
-        if (array.length == 1){
-            string = array[0];
+    if (userTypingMap.size > 0){
+        const array = Array.from(userTypingMap.values());
+        let string = '';
+      
+        if (array.length >= 1){
+            if (array.length == 1){
+                string = array[0];
+            }
+            else if (array.length == 2){
+                string = `${array[0]} and ${array[1]}`;
+            }
+            else if (array.length ==  3){
+                string = `${array[0]}, ${array[1]} and ${array[2]}`;
+            }
+            else{
+                string = `${array[0]}, ${array[1]}, ${array[2]} and ${array.length - 3} other${array.length - 3 > 1 ? 's' : ''}`;
+            }
         }
-        else if (array.length == 2){
-            string = `${array[0]} and ${array[1]}`;
-        }
-        else if (array.length ==  3){
-            string = `${array[0]}, ${array[1]} and ${array[2]}`;
-        }
-        else{
-            string = `${array[0]}, ${array[1]}, ${array[2]} and ${array.length - 3} other${array.length - 3 > 1 ? 's' : ''}`;
-        }
+        string += `${array.length > 1 ? ' are ': ' is '} typing...`
+        return string;
+    }else{
+        return '';
     }
-    string += `${array.length > 1 ? ' are ': ' is '} typing...`
-    return string;
 }
 
 
@@ -1017,6 +1021,9 @@ function serverMessage(message, type) {
     messages.append(fragment);
     if (type == 'location'){
         updateScroll('location', `${message.user}'s location`);
+    }else if(type == 'leave'){
+        userTypingMap.delete(message.who);
+        document.getElementById('typingIndicator').textContent = getTypingString(userTypingMap);
     }else{
         updateScroll();
     }
@@ -1884,7 +1891,7 @@ socket.on('updateUserList', users => {
     });
 });
 
-socket.on('server_message', (message, type) => {
+socket.on('server_message', (meta, type) => {
     switch (type) {
         case 'join':
             joinsound.play();
@@ -1896,7 +1903,7 @@ socket.on('server_message', (message, type) => {
             locationsound.play();
             break;
     }
-    serverMessage(message, type);
+    serverMessage(meta, type);
 });
 
 socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
@@ -1938,7 +1945,7 @@ socket.on('typing', (user, id) => {
     typingsound.play();
     userTypingMap.set(id, user);
     document.getElementById('typingIndicator').textContent = getTypingString(userTypingMap);
-  });
+});
   
 socket.on('stoptyping', (id) => {
     userTypingMap.delete(id);

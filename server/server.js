@@ -91,7 +91,6 @@ app.get('/join/:key', (req, res)=>{
 app.get('/create', (req, res) => {
   const key = makeid(12);
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null; //currently ip has nothing to do with our server. May be we can use it for user validation or attacts. 
-  //console.log(`${ip} created key ${key}`);
   keys.set(key, {using: false, created: Date.now(), ip: ip});
   res.render('create', {title: 'Create', version: `v.${version}`, key: key});
 });
@@ -105,8 +104,6 @@ app.get('/chat', (_, res) => {
 });
 
 app.post('/chat', (req, res) => {
-
-  //console.log('Received chat request');
 
   let username = req.body.username;
   let key = req.body.key;
@@ -128,9 +125,7 @@ app.post('/chat', (req, res) => {
     let user = users.getUserList(key);
     let max_users = users.getMaxUser(key) ?? maxuser;
     let uid = uuid.v4();
-    //console.log(user.length >= max_users);
     if (user.length >= max_users){
-      //send unauthorized access message
       res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
     }else{
       res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, devMode: devMode});
@@ -151,7 +146,6 @@ app.get('*', (_, res) => {
 
 io.on('connection', (socket) => {
   socket.on('join', (params, callback) => {
-    //console.log('Received join request');
     if (!isRealString(params.name) || !isRealString(params.key)) {
       return callback('empty');
     }
@@ -172,21 +166,16 @@ io.on('connection', (socket) => {
     io.to(params.key).emit('updateUserList', users.getAllUsersDetails(params.key));
     socket.emit('server_message', {color: 'limegreen', text: 'You joined the chat.🔥'}, 'join');
     socket.broadcast.to(params.key).emit('server_message', {color: 'limegreen', text: `${params.name} joined the chat.🔥`}, 'join');
-    //console.log(`New user ${params.name} connected on key ${params.key} with avatar ${params.avatar} and maxuser ${params.maxuser || users.getMaxUser(params.key)}`);
   });
 
 
   socket.on('message', (message, type, uId, reply, replyId, options, callback) => {
-    //console.log('Received new message request');
     let user = users.getUser(uids.get(socket.id));
-    //console.log(user.key);
     if (user && isRealString(message)) {
       let id = uuid.v4();
       message = message.replace(/>/gi, "&gt;").replace(/</gi, "&lt;");
-      //socket.emit('messageSent', messageId, id);
       socket.broadcast.to(user.key).emit('newMessage', message, type, id, uId, reply, replyId, options);
       callback(id);
-      //console.log('Message sent');
     }
   });
 
@@ -199,17 +188,14 @@ io.on('connection', (socket) => {
 
 
   socket.on('react', (target, messageId, myId) => {
-    //console.log('Received react request', target, messageId, myId);
     let user = users.getUser(uids.get(socket.id));
     if (user) {
-      //send to all including sender
       io.to(user.key).emit('getReact', target, messageId, myId);
     }
   });
 
 
   socket.on('deletemessage', (messageId, msgUid, userName, userId) => {
-    //console.log('Received delete message request');
     let user = users.getUser(uids.get(socket.id));
     if (user) {
       if (msgUid == userId){
@@ -219,7 +205,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('createLocationMessage', (coord) => {
-    //console.log('Received create location message request');
     let user = users.getUser(uids.get(socket.id));
     if (user) {
       io.to(user.key).emit('server_message', {color: 'var(--secondary-dark);', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`, user: user.name}, 'location');
@@ -230,13 +215,13 @@ io.on('connection', (socket) => {
   socket.on('typing', () => {
     let user = users.getUser(uids.get(socket.id));
     if (user) {
-      socket.broadcast.to(user.key).emit('typing', user.name, user.id + '-typing');
+      socket.broadcast.to(user.key).emit('typing', user.name, user.uid);
     }
   });
   socket.on('stoptyping', () => {
     let user = users.getUser(uids.get(socket.id));
     if (user) {
-      socket.broadcast.to(user.key).emit('stoptyping', user.id + '-typing');
+      socket.broadcast.to(user.key).emit('stoptyping', user.uid);
     }
   });
 
@@ -245,8 +230,8 @@ io.on('connection', (socket) => {
     let user = users.removeUser(uids.get(socket.id));
     uids.delete(socket.id);
     if (user) {
-      io.to(user.key).emit('updateUserList', users.getAllUsersDetails(user.key));
-      io.to(user.key).emit('server_message', {color: 'orangered', text: `${user.name} left the chat.🐸`}, 'leave');
+      socket.broadcast.to(user.key).emit('updateUserList', users.getAllUsersDetails(user.key));
+      socket.broadcast.to(user.key).emit('server_message', {color: 'orangered', text: `${user.name} left the chat.🐸`, who: user.uid}, 'leave');
       console.log(`User ${user.name} disconnected from key ${user.key}`);
       let usercount = users.users.filter(datauser => datauser.key === user.key);
       if (usercount.length === 0) {
@@ -268,14 +253,12 @@ fileSocket.on('connection', (socket) => {
   });
 
   socket.on('fileUploadStart', ( type, thumbnail, uId, reply, replyId, options, metadata, key, callback) => {
-    //console.log(uId, reply, replyId, options, metadata, key, callback);
     let id = uuid.v4();
     socket.broadcast.to(key).emit('fileDownloadStart', type, thumbnail, id, uId, reply, replyId, options, metadata);
     callback(id);
   });
 
   socket.on('fileUploadEnd', (id, key, downlink, callback) => {
-    //console.log('fileDownloadReady', id, downlink);
     socket.broadcast.to(key).emit('fileDownloadReady', id, downlink);
     callback();
     //socket.emit('fileSent', tempId, id, type, size);
@@ -294,9 +277,7 @@ fileSocket.on('connection', (socket) => {
 
 
 auth.on('connection', (socket) => {
-  //console.log('New auth connection');
   socket.on('createRequest', (key, callback) => {
-    //console.log('Received create request');
     if (!keyformat.test(key)){
       callback('Invalid key');
       return;
