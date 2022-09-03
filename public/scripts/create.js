@@ -62,18 +62,23 @@ function countDown(){
             errorSound.currentTime = 0;
             errorSound.play();
             navigator.vibrate(1000);
+            document.getElementsByClassName('remainingTime')[0].classList.remove('shake');
+            document.getElementsByClassName('remainingTime')[1].classList.remove('shake');
+            return;
+        }else if(count <= 10){
             document.getElementsByClassName('remainingTime')[0].style.color = '#e33937';
             document.getElementsByClassName('remainingTime')[1].style.color = '#e33937';
-        }else{
-            //convert to mm:ss
-            min = Math.floor(count/60);
-            sec = count%60;
-            if (min < 10){
-                min = '0' + min;
-            }
-            if (sec < 10){
-                sec = '0' + sec;
-            }
+            document.getElementsByClassName('remainingTime')[0].classList.add('shake');
+            document.getElementsByClassName('remainingTime')[1].classList.add('shake');
+        }
+        //convert to mm:ss
+        min = Math.floor(count/60);
+        sec = count%60;
+        if (min < 10){
+            min = '0' + min;
+        }
+        if (sec < 10){
+            sec = '0' + sec;
         }
         document.getElementsByClassName('remainingTime')[0].textContent = `${min}:${sec}`;
         document.getElementsByClassName('remainingTime')[1].textContent = `${min}:${sec}`;

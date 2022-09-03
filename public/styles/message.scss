@@ -220,11 +220,6 @@ code{
     }
 }
 
-.message:is(.notitle){
-    .messageTitle{
-        display: none!important;
-    }
-}
 
 .message:is(.start){
     padding-top: 25px;
@@ -249,12 +244,15 @@ code{
     }
 }
 
-.message:is(.sticker) {
-    padding-top: 5px;
+.message:is(.notitle){
+    padding-top: 0;
+    .messageTitle{
+        display: none!important;
+    }
 }
 
-.message:not(.notitle){
-    margin-top: -25px;
+.message:is(.sticker) {
+    padding-top: 5px;
 }
 
 .message:is(.self){

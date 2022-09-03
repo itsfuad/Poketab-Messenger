@@ -74,9 +74,18 @@ function check(){
     return validateKey() && validateUser();
 }
 
+let errTimeout = undefined;
+
 function errlog(id, msg){
     let err = document.getElementById(id);
     err.innerHTML = msg;
+    err.classList.add('shake');
+    if (errTimeout == undefined){
+        errTimeout = setTimeout(()=>{
+            err.classList.remove('shake');
+            errTimeout = undefined;
+        }, 500);
+    }
 }
 
 function wait(){
