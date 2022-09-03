@@ -342,6 +342,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
         document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
     }
     lastPageLength = messages.scrollTop;
+    checkgaps(lastMsg?.id);
     updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
 }
 
@@ -705,10 +706,11 @@ function getReact(type, messageId, uid){
                 count++;
             });
             document.getElementById(messageId).classList.add('react');
-            document.getElementById(messageId).querySelector('.seenBy').style.marginTop = '12px';
+            checkgaps(messageId);
         }else{
             document.getElementById(messageId).classList.remove('react');
-            document.getElementById(messageId).querySelector('.seenBy').style.marginTop = '0';
+            document.getElementById(messageId).querySelector('.seenBy').style.marginTop = '0px';
+            checkgaps(messageId);
         }
         updateScroll();
     }catch(e){
@@ -716,6 +718,49 @@ function getReact(type, messageId, uid){
     }
 }
 
+
+function checkgaps(targetId){
+    try{
+        let target = document.getElementById(targetId);
+        let after = target?.nextElementSibling;
+
+        if (target.classList.contains('react')){
+            if (target.querySelector('.seenBy').hasChildNodes()){
+                target.style.marginBottom = "0px";
+                target.querySelectorAll('.seenBy img').forEach(elem => elem.style.marginTop = "12px");
+            }else{
+                target.style.marginBottom = "12px";
+            }
+        }else{
+            target.style.marginBottom = "0px";
+            target.querySelector('.seenBy').hasChildNodes() ? target.querySelectorAll('.seenBy img').forEach(elem => elem.style.marginTop = "0px") : null;
+        }
+
+        if (target != null && after != null && target?.dataset.uid === after?.dataset.uid){
+            if (target.dataset.uid == myId){
+                if ((Math.abs(target.querySelector('.messageContainer').getBoundingClientRect().bottom - after.querySelector('.messageContainer').getBoundingClientRect().top) > 2)){
+                    target.querySelector('.messageMain > *').style.borderBottomRightRadius = "15px";
+                    after.querySelector('.messageMain > *').style.borderTopRightRadius = "15px";
+                }else{
+                    if (!target.classList.contains('end') && !after.classList.contains('start')){
+                        target.querySelector('.messageMain > *').style.borderBottomRightRadius = "3px";
+                        after.querySelector('.messageMain > *').style.borderTopRightRadius = "3px";
+                    }
+                }
+            }else{
+                if ((Math.abs(target.querySelector('.messageContainer').getBoundingClientRect().bottom - after.querySelector('.messageContainer').getBoundingClientRect().top) > 2)){
+                    target.querySelector('.messageMain > *').style.borderBottomLeftRadius = "15px";
+                    after.querySelector('.messageMain > *').style.borderTopLeftRadius = "15px";
+                }else{
+                    if (!target.classList.contains('end') && !after.classList.contains('start')){
+                        target.querySelector('.messageMain > *').style.borderBottomLeftRadius = "3px";
+                        after.querySelector('.messageMain > *').style.borderTopLeftRadius = "3px";
+                    }
+                }
+            }
+        }
+    }catch(e){console.log(e)}
+}
 
 // util functions
 function pinchZoom (imageElement) {
@@ -1351,15 +1396,15 @@ messages.addEventListener('click', (evt) => {
                 try{
                     let target = evt.target.closest('.messageReply')?.dataset.repid;
                     document.querySelectorAll('.message').forEach(element => {
-                        if (element.id != target){
-                            element.style.filter = 'brightness(0.5)';
+                        if (element.id == target){
+                            element.style.filter = 'hue-rotate(20deg)';
+                        }else{
+                            element.style.filter = 'brightness(0.8)';
                         }
                     });
                     setTimeout(() => {
                         document.querySelectorAll('.message').forEach(element => {
-                            if (element.id != target){
-                                element.style.filter = '';
-                            }
+                            element.style.filter = '';
                         });
                     }, 1000);
                     setTimeout(() => {
@@ -1689,7 +1734,7 @@ function sendImageStoreRequest(){
         };
 
         xhr.onload = function(e) {
-            if (this.status == 200) {
+            if (this.status) {
                 fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink, () => {
                     outgoingmessage.play();
                     
@@ -1704,7 +1749,7 @@ function sendImageStoreRequest(){
             }
             else{
                 console.log('error uploading image');
-                elem.querySelector('.sendingImage').textContent = 'Error';
+                elem.querySelector('.sendingImage').textContent = 'Error: ' + this.responseText;
                 fileSocket.emit('fileUploadError', myKey, tempId, 'image');
             }
         }
@@ -1921,6 +1966,7 @@ socket.on('seen', meta => {
         document.querySelectorAll(`.message[data-seen*="${meta.userId}"]`)
         .forEach(elem => {
             elem.querySelector(`.seenBy img[data-user="${meta.userId}"]`)?.remove();
+            checkgaps(elem?.id);
         });
 
         message.dataset.seen = message.dataset.seen ? message.dataset.seen + "|" + meta.userId : meta.userId;
@@ -1928,6 +1974,7 @@ socket.on('seen', meta => {
         element.src = `/images/avatars/${meta.avatar}(custom)-mini.png`;
         element.dataset.user = meta.userId;
         message.querySelector('.seenBy').appendChild(element);
+        checkgaps(message.id);
         updateScroll();
     }
 });

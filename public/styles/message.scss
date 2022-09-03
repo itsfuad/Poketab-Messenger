@@ -53,8 +53,8 @@ code{
         gap: 1px;
         img{
             padding-top: 1px;
-            height: 10px;
-            width: 10px;
+            height: 12px;
+            width: 12px;
         }
         display: flex;
         justify-content: center;
@@ -124,7 +124,7 @@ code{
                 min-height: 100px;
                 object-fit: cover;
                 vertical-align: bottom;
-                border-radius: 15px 15px 15px 8px;
+                border-radius: 15px 15px 15px 8px !important;
             }
         }
         .reactsOfMessage{
@@ -199,6 +199,7 @@ code{
     visibility: hidden;
     opacity: 0;
     transition: 200ms ease-in-out;
+    padding-bottom: 5px;
     &.active{
         visibility: visible;
         opacity: 1;
@@ -226,6 +227,7 @@ code{
 }
 
 .message:is(.start){
+    padding-top: 25px;
     .messageMain{
         & > *{
             border-bottom-left-radius: 3px;
@@ -247,8 +249,17 @@ code{
     }
 }
 
+.message:is(.sticker) {
+    padding-top: 5px;
+}
+
+.message:not(.notitle){
+    margin-top: -25px;
+}
+
 .message:is(.self){
     flex-direction: column;
+    margin-right: 5px;
     .messageContainer{
         flex-direction: row-reverse;
     }
@@ -275,6 +286,9 @@ code{
             border-radius: 15px 15px 8px 15px;
             .image{
                 border-radius: 15px 15px 8px 15px;
+            }
+            .imageReply{
+                border-radius: 15px 15px 15px 8px !important;
             }
         }
         .messageMain{

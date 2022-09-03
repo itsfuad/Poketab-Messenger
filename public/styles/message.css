@@ -56,8 +56,8 @@ code {
 }
 .message .seenBy img {
   padding-top: 1px;
-  height: 10px;
-  width: 10px;
+  height: 12px;
+  width: 12px;
 }
 .message .messageContainer {
   display: flex;
@@ -126,7 +126,7 @@ code {
   -o-object-fit: cover;
      object-fit: cover;
   vertical-align: bottom;
-  border-radius: 15px 15px 15px 8px;
+  border-radius: 15px 15px 15px 8px !important;
 }
 .message .messageBody .reactsOfMessage {
   position: absolute;
@@ -197,6 +197,7 @@ code {
   visibility: hidden;
   opacity: 0;
   transition: 200ms ease-in-out;
+  padding-bottom: 5px;
 }
 .messageTime.active {
   visibility: visible;
@@ -219,6 +220,9 @@ code {
   display: none !important;
 }
 
+.message:is(.start) {
+  padding-top: 25px;
+}
 .message:is(.start) .messageMain > * {
   border-bottom-left-radius: 3px;
   border-top-left-radius: 15px;
@@ -234,8 +238,17 @@ code {
   visibility: visible;
 }
 
+.message:is(.sticker) {
+  padding-top: 5px;
+}
+
+.message:not(.notitle) {
+  margin-top: -25px;
+}
+
 .message:is(.self) {
   flex-direction: column;
+  margin-right: 5px;
 }
 .message:is(.self) .messageContainer {
   flex-direction: row-reverse;
@@ -261,6 +274,9 @@ code {
 }
 .message:is(.self) .messageBody .messageReply .image {
   border-radius: 15px 15px 8px 15px;
+}
+.message:is(.self) .messageBody .messageReply .imageReply {
+  border-radius: 15px 15px 15px 8px !important;
 }
 .message:is(.self) .messageBody .messageMain p {
   padding: 8px;
