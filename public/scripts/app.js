@@ -1072,6 +1072,7 @@ function serverMessage(message, type) {
     }else if(type == 'leave'){
         userTypingMap.delete(message.who);
         document.getElementById('typingIndicator').textContent = getTypingString(userTypingMap);
+        updateScroll();
     }else{
         updateScroll();
     }
