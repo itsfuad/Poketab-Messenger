@@ -1195,9 +1195,18 @@ document.querySelectorAll('.keyCopy').forEach(elem => {
     });
 });
 
-document.getElementById('invite').addEventListener('click', ()=>{
+document.getElementById('invite').addEventListener('click', async () =>{
     //copy inner link
-    copyText(`https://${window.location.host}/join/${myKey}`);
+    try {
+        await navigator.share({
+         title: "Poketab Messanger",
+         text: "Join chat!",
+         url: `https://${window.location.host}/join/${myKey}`,
+        })
+        popupMessage('Shared!');
+     } catch (err) {
+        popupMessage(`${err}`);
+     }
 });
 
 document.querySelector('.theme_option').addEventListener('click', ()=>{
