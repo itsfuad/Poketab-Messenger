@@ -213,12 +213,6 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             title: false
         };
     }
-    if (options.reply){
-        //check if the replyid is available in the message list
-        if (!document.getElementById(replyId)){
-            reply = {data: 'Message is not available on this device', type: 'text'};
-        }
-    }
 
     let classList = ''; //the class list for the message. Initially empty. 
     let lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
@@ -274,21 +268,28 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     let username = userInfoMap.get(uid)?.name;
     let avatar = userInfoMap.get(uid)?.avatar;
     if (username == myName){username = 'You';}
-    let repliedTo = userInfoMap.get(document.getElementById(replyId)?.dataset?.uid)?.name;
-    if (repliedTo == myName){repliedTo = 'You';}
-    if (repliedTo == username){repliedTo = 'self';}
 
     let template, html;
     let replyMsg, replyFor;
-    if (reply.type === 'text' || reply.type === 'file'){
-        replyMsg = reply.data;
-        replyFor = 'message';
-    }else if (reply.type === 'image'){
-        replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .image').outerHTML.replace('class="image"', 'class="image imageReply"')
-        replyFor = 'image';
-    }else if (reply.type === 'sticker'){
-        replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .sticker').outerHTML.replace('class="sticker"', 'class="sticker imageReply"')
-        replyFor = 'image';
+    let repliedTo;
+    if (options.reply){
+        //check if the replyid is available in the message list
+        repliedTo = userInfoMap.get(document.getElementById(replyId || "")?.dataset?.uid)?.name;
+        if (repliedTo == myName){repliedTo = 'You';}
+        if (repliedTo == username){repliedTo = 'self';}
+        if (!document.getElementById(replyId)){
+            reply = {data: 'Message is not available on this device', type: 'text'};
+        }
+        if (reply.type === 'text' || reply.type === 'file'){
+            replyMsg = reply.data;
+            replyFor = 'message';
+        }else if (reply.type === 'image'){
+            replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .image').outerHTML.replace('class="image"', 'class="image imageReply"')
+            replyFor = 'image';
+        }else if (reply.type === 'sticker'){
+            replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .sticker').outerHTML.replace('class="sticker"', 'class="sticker imageReply"')
+            replyFor = 'image';
+        }
     }
     //console.dir(reply);
     if (type === 'file'){
@@ -721,40 +722,42 @@ function getReact(type, messageId, uid){
 
 function checkgaps(targetId){
     try{
-        let target = document.getElementById(targetId);
-        let after = target?.nextElementSibling;
-
-        if (target.classList.contains('react')){
-            if (target.querySelector('.seenBy').hasChildNodes()){
-                target.style.marginBottom = "0px";
-                target.querySelectorAll('.seenBy img').forEach(elem => elem.style.marginTop = "12px");
-            }else{
-                target.style.marginBottom = "12px";
-            }
-        }else{
-            target.style.marginBottom = "0px";
-            target.querySelector('.seenBy').hasChildNodes() ? target.querySelectorAll('.seenBy img').forEach(elem => elem.style.marginTop = "0px") : null;
-        }
-
-        if (target != null && after != null && target?.dataset.uid === after?.dataset.uid){
-            if (target.dataset.uid == myId){
-                if ((Math.abs(target.querySelector('.messageContainer').getBoundingClientRect().bottom - after.querySelector('.messageContainer').getBoundingClientRect().top) > 2)){
-                    target.querySelector('.messageMain > *').style.borderBottomRightRadius = "15px";
-                    after.querySelector('.messageMain > *').style.borderTopRightRadius = "15px";
+        if (targetId){
+            let target = document.getElementById(targetId);
+            let after = target?.nextElementSibling;
+    
+            if (target.classList.contains('react')){
+                if (target.querySelector('.seenBy').hasChildNodes()){
+                    target.style.marginBottom = "0px";
+                    target.querySelectorAll('.seenBy img').forEach(elem => elem.style.marginTop = "12px");
                 }else{
-                    if (!target.classList.contains('end') && !after.classList.contains('start')){
-                        target.querySelector('.messageMain > *').style.borderBottomRightRadius = "3px";
-                        after.querySelector('.messageMain > *').style.borderTopRightRadius = "3px";
-                    }
+                    target.style.marginBottom = "12px";
                 }
             }else{
-                if ((Math.abs(target.querySelector('.messageContainer').getBoundingClientRect().bottom - after.querySelector('.messageContainer').getBoundingClientRect().top) > 2)){
-                    target.querySelector('.messageMain > *').style.borderBottomLeftRadius = "15px";
-                    after.querySelector('.messageMain > *').style.borderTopLeftRadius = "15px";
+                target.style.marginBottom = "0px";
+                target.querySelector('.seenBy').hasChildNodes() ? target.querySelectorAll('.seenBy img').forEach(elem => elem.style.marginTop = "0px") : null;
+            }
+    
+            if (target != null && after != null && target?.dataset.uid === after?.dataset.uid){
+                if (target.dataset.uid == myId){
+                    if ((Math.abs(target.querySelector('.messageContainer').getBoundingClientRect().bottom - after.querySelector('.messageContainer').getBoundingClientRect().top) > 2)){
+                        target.querySelector('.messageMain > *').style.borderBottomRightRadius = "15px";
+                        after.querySelector('.messageMain > *').style.borderTopRightRadius = "15px";
+                    }else{
+                        if (!target.classList.contains('end') && !after.classList.contains('start')){
+                            target.querySelector('.messageMain > *').style.borderBottomRightRadius = "3px";
+                            after.querySelector('.messageMain > *').style.borderTopRightRadius = "3px";
+                        }
+                    }
                 }else{
-                    if (!target.classList.contains('end') && !after.classList.contains('start')){
-                        target.querySelector('.messageMain > *').style.borderBottomLeftRadius = "3px";
-                        after.querySelector('.messageMain > *').style.borderTopLeftRadius = "3px";
+                    if ((Math.abs(target.querySelector('.messageContainer').getBoundingClientRect().bottom - after.querySelector('.messageContainer').getBoundingClientRect().top) > 2)){
+                        target.querySelector('.messageMain > *').style.borderBottomLeftRadius = "15px";
+                        after.querySelector('.messageMain > *').style.borderTopLeftRadius = "15px";
+                    }else{
+                        if (!target.classList.contains('end') && !after.classList.contains('start')){
+                            target.querySelector('.messageMain > *').style.borderBottomLeftRadius = "3px";
+                            after.querySelector('.messageMain > *').style.borderTopLeftRadius = "3px";
+                        }
                     }
                 }
             }
@@ -1734,18 +1737,17 @@ function sendImageStoreRequest(){
         };
 
         xhr.onload = function(e) {
-            if (this.status) {
-                fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink, () => {
-                    outgoingmessage.play();
-                    
-                    document.getElementById(tempId).classList.add('delevered');
-                    document.getElementById(tempId).dataset.downloaded = 'true';
-                    
-                    if (elem){
-                        elem.querySelector('.sendingImage').remove();
-                        elem.querySelector('.image').style.filter = 'none';
-                    }
-                });
+            if (this.status == 200) {
+                outgoingmessage.play();
+                
+                document.getElementById(tempId).classList.add('delevered');
+                document.getElementById(tempId).dataset.downloaded = 'true';
+                
+                if (elem){
+                    elem.querySelector('.sendingImage').remove();
+                    elem.querySelector('.image').style.filter = 'none';
+                }
+                fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
             }
             else{
                 console.log('error uploading image');
@@ -1797,12 +1799,11 @@ function sendFileStoreRequest(){
 
         if (this.status == 200) {
             //fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink, (id) => {
-            fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink, () => {
-                outgoingmessage.play();
-                document.getElementById(tempId).classList.add('delevered');
-                document.getElementById(tempId).dataset.downloaded = 'true';
-                elem.querySelector('.progress').style.visibility = 'hidden';
-            });
+            outgoingmessage.play();
+            document.getElementById(tempId).classList.add('delevered');
+            document.getElementById(tempId).dataset.downloaded = 'true';
+            elem.querySelector('.progress').style.visibility = 'hidden';
+            fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
         }
         else{
             console.log('error uploading file');
@@ -1829,6 +1830,53 @@ function base64ToFile(base64, filename){
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+let newMsgTimeOut = undefined;
+
+function notifyUser(message, username, avatar){
+    if (!("Notification" in window)) {
+        // Check if the browser supports notifications
+        alert("This browser does not support desktop notification");
+    } else if (Notification.permission === "granted") {
+        // Check whether notification permissions have already been granted;
+        // if so, create a notification
+        if (!document.hasFocus()){
+            document.querySelector('title').text = `${username} messaged`;
+            if (newMsgTimeOut == undefined){
+                newMsgTimeOut = setTimeout(() => {
+                    document.querySelector('title').text = "Inbox";
+                    newMsgTimeOut = undefined;
+                }, 3000);
+            }
+            const notification = new Notification(username, {
+                body: message.type == "Text" ? message.data : message.type,
+                icon: `/images/avatars/${avatar}(custom).png`,
+            });
+        }
+        // …
+    } else if (Notification.permission !== "denied") {
+        // We need to ask the user for permission
+        Notification.requestPermission().then((permission) => {
+            // If the user accepts, let's create a notification
+            if (permission === "granted") {
+                if (!document.hasFocus()){
+                    document.querySelector('title').text = `${username} messaged`;
+                    if (newMsgTimeOut == undefined){
+                        newMsgTimeOut = setTimeout(() => {
+                            document.querySelector('title').text = "Inbox";
+                            newMsgTimeOut = undefined;
+                        }, 3000);
+                    }
+                    const notification = new Notification(username, {
+                        body: message.type == "Text" ? message.data : message.type,
+                        icon: `/images/avatars/${avatar}(custom).png`
+                    });
+                }
+            }
+        });
+    }   
+}
+
 
 document.getElementById('lightbox__save').addEventListener('click', ()=>{
     saveImage();
@@ -1909,6 +1957,9 @@ socket.on('connect', () => {
             }
             document.getElementById('preload').style.display = 'none';
             popupMessage('Connected to server');
+            if ("Notification" in window){
+                Notification.requestPermission();
+            }
         }
     });
 });
@@ -1958,6 +2009,7 @@ socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
         stickerSound.play();
     }
     insertNewMessage(message, type, id, uid, reply, replyId, options, {});
+    notifyUser({data: message, type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uid)?.name, userInfoMap.get(uid)?.avatar);
 });
 
 socket.on('seen', meta => {

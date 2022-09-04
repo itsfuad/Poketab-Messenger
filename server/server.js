@@ -258,9 +258,8 @@ fileSocket.on('connection', (socket) => {
     callback(id);
   });
 
-  socket.on('fileUploadEnd', (id, key, downlink, callback) => {
+  socket.on('fileUploadEnd', (id, key, downlink) => {
     socket.broadcast.to(key).emit('fileDownloadReady', id, downlink);
-    callback();
     //socket.emit('fileSent', tempId, id, type, size);
   });
 
