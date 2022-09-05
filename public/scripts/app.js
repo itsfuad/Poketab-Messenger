@@ -1091,6 +1091,7 @@ let selectedStickerGroup, selectedStickerGroupCount;
 selectedStickerGroup = Stickers[0].name;
 selectedStickerGroupCount = Stickers[0].count;
 
+
 function loadStickers(){
     stickers = '';
     stickerNames = Stickers.map(sticker => {
@@ -1699,7 +1700,7 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
     //localStorage.removeItem('selectedImage');
 });
 
-function sendImageStoreRequest(){
+async function sendImageStoreRequest(){
     let image = new Image();
     image.src = selectedImage.data;
     image.mimetype = selectedImage.ext;
@@ -1718,6 +1719,8 @@ function sendImageStoreRequest(){
 
         let progress = 0;
         fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: resized.data.length, height: resized.height, width: resized.width, name: selectedFile.name}, myKey, (id) => {
+            outgoingmessage.play();
+            document.getElementById(tempId).classList.add('delevered');
             document.getElementById(tempId).id = id;
             tempId = id;
             lastSeenMessage = id;
@@ -1747,16 +1750,12 @@ function sendImageStoreRequest(){
         };
 
         xhr.onload = function(e) {
-            if (this.status == 200) {
-                outgoingmessage.play();
-                
-                document.getElementById(tempId).classList.add('delevered');
-                document.getElementById(tempId).dataset.downloaded = 'true';
-                
+            if (this.status == 200) {                
                 if (elem){
                     elem.querySelector('.sendingImage').remove();
                     elem.querySelector('.image').style.filter = 'none';
                 }
+                document.getElementById(tempId).dataset.downloaded = 'true';
                 fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
             }
             else{
@@ -1769,7 +1768,7 @@ function sendImageStoreRequest(){
     }
 }
 
-function sendFileStoreRequest(){
+async function sendFileStoreRequest(){
     let tempId = makeId();
     scrolling = false;
     insertNewMessage(selectedFile.data, 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name});
@@ -1778,6 +1777,8 @@ function sendFileStoreRequest(){
     let elem = document.getElementById(tempId)?.querySelector('.messageMain');
 
     fileSocket.emit('fileUploadStart', 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey, (id) => {
+        outgoingmessage.play();
+        document.getElementById(tempId).classList.add('delevered');
         document.getElementById(tempId).id = id;
         tempId = id;
         lastSeenMessage = id;
@@ -1809,8 +1810,6 @@ function sendFileStoreRequest(){
 
         if (this.status == 200) {
             //fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink, (id) => {
-            outgoingmessage.play();
-            document.getElementById(tempId).classList.add('delevered');
             document.getElementById(tempId).dataset.downloaded = 'true';
             elem.querySelector('.progress').style.visibility = 'hidden';
             fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
@@ -2088,7 +2087,7 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
     }else{
         insertNewMessage('', type, id, uId, reply, replyId, options, metadata);
         let elem = document.getElementById(id).querySelector('.messageMain');
-        elem.querySelector('.progress').textContent = `User sending...`;
+        elem.querySelector('.progress').textContent = `↑ Sending`;
     }
 });
 
@@ -2107,7 +2106,6 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
     if (!fileBuffer.has(id)){
         return;
     }
-
     let data = fileBuffer.get(id);
     let type = data.type;
     let element = document.getElementById(id).querySelector('.messageMain');

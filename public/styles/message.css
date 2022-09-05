@@ -310,6 +310,10 @@ code {
   visibility: visible;
 }
 
+.fileIcon {
+  padding: 0 10px;
+}
+
 .messageMain .sendingImage {
   position: absolute;
   top: 50%;
@@ -355,6 +359,7 @@ code {
 .fileInfo .fileName {
   text-decoration: underline;
   padding-left: 3px;
+  min-width: 64px;
 }
 .fileInfo .filemeta {
   font-size: 0.5rem;

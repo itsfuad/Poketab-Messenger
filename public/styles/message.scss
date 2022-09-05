@@ -334,6 +334,10 @@ code{
     }
 }
 
+.fileIcon{
+    padding: 0 10px;
+}
+
 .messageMain{
         .sendingImage{
             position: absolute;
@@ -379,6 +383,7 @@ code{
     .fileName{
         text-decoration: underline;
         padding-left: 3px;
+        min-width: 64px;
     }
     .filemeta{
         font-size: .5rem;
