@@ -1046,6 +1046,10 @@ function copyText(text){
     if (text == null){
         text = targetMessage.message;
     }
+    if (!navigator.clipboard){
+        popupMessage(`This browser does't support clipboard access`);
+        return;
+    }
     navigator.clipboard.writeText(text);
     popupMessage(`Copied to clipboard`);
 }
@@ -1200,6 +1204,10 @@ document.querySelectorAll('.keyCopy').forEach(elem => {
 document.getElementById('invite').addEventListener('click', async () =>{
     //copy inner link
     try {
+        if (!navigator.share){
+            popupMessage('Sharing in not supported by this browser');
+            return;
+        }
         await navigator.share({
          title: "Poketab Messanger",
          text: "Join chat!",
