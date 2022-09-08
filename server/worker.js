@@ -1,37 +1,31 @@
-const fs = require('fs');
+const { readdir, rm } = require('fs/promises');
+
 const { keys, users, fileStore } = require('./keys/cred');
 
 function deleteKeys(){
-    //console.log(keys);
     for (let [key, value] of keys){
-        //console.dir(`${key} ${value.using}, ${value.created}, ${Date.now()}`);
         if (value.using != true && Date.now() - value.created > 120000){
         keys.delete(key);
-        console.log(`Key ${key} deleted`);
+            //console.log(`Key ${key} deleted`);
         }
     }
 }
 
 function deleteFiles(){
-    //read fileStore.json
-    let json = fs.readFileSync('fileStore.json', 'utf8');
-    if (json.length > 0) {
-        let files = JSON.parse(json);
-        for (let file in files){
-        if (!keys.has(file)){
-            //delete file
-            files[file].forEach(function(filename){
-                if (fs.existsSync('uploads/'+filename)){
-                    fs.unlinkSync('uploads/'+filename);
-                    console.log(`File deleted for key ${file}`);
-                }
-            });
-            //remove file from fileStore.json
-            delete files[file];
-            fs.writeFileSync('fileStore.json', JSON.stringify(files));
-        }
-        }
-    }
+    readdir('uploads').then(files => {
+        files.map( file => {
+            if (!fileStore.has(file) && file != 'dummy.txt'){
+                //console.log('deleting file ' + file);
+                rm(`uploads/${file}`);
+            }else if (fileStore.has(file) && !keys.has(fileStore.get(file).key)){
+                //console.log('Added to delete queue');
+                fileStore.delete(file);
+            }
+        });
+    }).catch(err => {
+        console.log(err);
+    });
+
 }
 
 function markForDelete(userId, key, filename){
@@ -42,7 +36,7 @@ function markForDelete(userId, key, filename){
         //console.log(file);
         if (users.getMaxUser(key) == file.uids.size) {
             console.log('Deleting file');
-            fs.unlinkSync(`./uploads/${filename}`);
+            rm(`uploads/${filename}`);
             fileStore.delete(filename);
         }
     }
@@ -53,5 +47,6 @@ function clean(){
     setInterval(deleteKeys, 1000);
     setInterval(deleteFiles, 2000);
 }
+
 
 module.exports = { clean, markForDelete };

@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const multer = require('multer');
-const fs = require('fs');
+const { access } = require('fs/promises');
 const uuid = require('uuid').v4;
 const { store } = require('../keys/cred');
 
@@ -36,11 +36,12 @@ router.post('/', (req, res) => {
 router.get('/:id', (req, res) => {
     //console.log(req.params);
     //console.log(fileStore);
-    if (fs.existsSync(`uploads/${req.params.id}`)) {
+    access(`uploads/${req.params.id}`)
+    .then(() => {
         res.sendFile(`uploads/${req.params.id}`, { root: __dirname + '/../..' });
-    } else {
+    }).catch(err => {
         res.status(404).send('Not found');
-    }
+    });
 });
 
 module.exports = router;
