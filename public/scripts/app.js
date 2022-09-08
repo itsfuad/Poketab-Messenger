@@ -1742,6 +1742,7 @@ async function sendImageStoreRequest(){
         //base64 to file 
         let file = base64ToFile(resized.data, selectedImage.name);
         let formData = new FormData();
+        formData.append('uid', myId);
         formData.append('key', myKey);
         formData.append('file', file);
 
@@ -1799,8 +1800,9 @@ async function sendFileStoreRequest(){
     let file = base64ToFile(selectedFile.data, selectedFile.name);
     
     let formData = new FormData();
-    formData.append('file', file);
+    formData.append('uid', myId);
     formData.append('key', myKey);
+    formData.append('file', file);
 
     clearFinalTarget();
     //upload image via xhr request

@@ -558,6 +558,9 @@ img{
     display: grid;
     place-items: center;
     background: #ffffff17;
+    & *{
+        cursor: pointer;
+    }
 }
 
 

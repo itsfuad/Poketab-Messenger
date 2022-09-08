@@ -26,7 +26,7 @@ router.post('/', (req, res) => {
             console.log('File cannot be stored:', err.message);
             res.send({ error: err.message });
         } else {
-            store(req.file.filename, {filename: req.file.filename, downloaded: 0, key: req.body.key});
+            store(req.file.filename, {filename: req.file.filename, key: req.body.key, uids: new Set([req.body.uid])});
             //fileStore[req.file.filename] = {filename: req.file.filename, downloaded: 0, key: req.body.key};
             res.send({ success: true, downlink: req.file.filename});
         }

@@ -199,7 +199,7 @@ code {
   visibility: hidden;
   opacity: 0;
   transition: 200ms ease-in-out;
-  padding-bottom: 5px;
+  padding-bottom: 10px;
 }
 .messageTime.active {
   visibility: visible;
@@ -314,6 +314,10 @@ code {
   padding: 0 10px;
 }
 
+.messageMain .image {
+  -o-object-fit: contain;
+     object-fit: contain;
+}
 .messageMain .sendingImage {
   position: absolute;
   top: 50%;

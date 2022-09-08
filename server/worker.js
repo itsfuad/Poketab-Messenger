@@ -21,10 +21,10 @@ function deleteFiles(){
         if (!keys.has(file)){
             //delete file
             files[file].forEach(function(filename){
-            if (fs.existsSync('uploads/'+filename)){
-                fs.unlinkSync('uploads/'+filename);
-                //console.log(`File deleted for key ${file}`);
-            }
+                if (fs.existsSync('uploads/'+filename)){
+                    fs.unlinkSync('uploads/'+filename);
+                    console.log(`File deleted for key ${file}`);
+                }
             });
             //remove file from fileStore.json
             delete files[file];
@@ -38,11 +38,12 @@ function markForDelete(userId, key, filename){
     //{filename: req.file.filename, downloaded: 0, keys: [], uids: []}
     let file = fileStore.get(filename);
     if (file){
-        file.downloaded++;
-        if (users.getMaxUser(key) == fileStore.get(filename).downloaded + 1) {
-        console.log('Deleting file');
-        fs.unlinkSync(`./uploads/${filename}`);
-        fileStore.delete(filename);
+        file.uids = file.uids != null ? file.uids.add(userId) : new Set();
+        //console.log(file);
+        if (users.getMaxUser(key) == file.uids.size) {
+            console.log('Deleting file');
+            fs.unlinkSync(`./uploads/${filename}`);
+            fileStore.delete(filename);
         }
     }
 }

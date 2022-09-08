@@ -201,7 +201,7 @@ code{
     visibility: hidden;
     opacity: 0;
     transition: 200ms ease-in-out;
-    padding-bottom: 5px;
+    padding-bottom: 10px;
     &.active{
         visibility: visible;
         opacity: 1;
@@ -339,18 +339,21 @@ code{
 }
 
 .messageMain{
-        .sendingImage{
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: max-content;
-            color: white;
-            font-size: 0.8rem;
-            display: grid;
-            place-items: center;
-            z-index: 12;
-        }
+    .image{
+        object-fit: contain;
+    }
+    .sendingImage{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: max-content;
+        color: white;
+        font-size: 0.8rem;
+        display: grid;
+        place-items: center;
+        z-index: 12;
+    }
 }
 
 .emoji .messageMain p:is(.text){

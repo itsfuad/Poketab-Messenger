@@ -553,6 +553,9 @@ img {
   place-items: center;
   background: rgba(255, 255, 255, 0.0901960784);
 }
+.upload_image *, .upload_file *, .location * {
+  cursor: pointer;
+}
 
 input[type=file] {
   display: none;
