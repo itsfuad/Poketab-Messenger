@@ -45,6 +45,7 @@ code{
     display: flex;
     flex-direction: row;
     align-items: flex-end;
+    position: relative;
     .seenBy{
         display: flex;
         flex-direction: row;
@@ -62,6 +63,7 @@ code{
         justify-content: center;
         align-items: center;
         align-content: center;
+        
     }
     .messageContainer{
         display: flex;

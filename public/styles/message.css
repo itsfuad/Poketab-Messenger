@@ -42,6 +42,7 @@ code {
   display: flex;
   flex-direction: row;
   align-items: flex-end;
+  position: relative;
 }
 .message .seenBy {
   display: flex;
