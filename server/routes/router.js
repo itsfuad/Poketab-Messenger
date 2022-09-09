@@ -21,15 +21,15 @@ let upload = multer({
 router.post('/', (req, res) => {
     //validate
     //store
-    upload(req, res, async (err) => {
+    upload(req, res, (err) => {
         if (err) {
             console.log('File cannot be stored:', err.message);
             res.send({ error: err.message });
         } else {
-            console.log('Temporary file stored.');
             store(req.file.filename, {filename: req.file.filename, key: req.body.key, uids: new Set([req.body.uid])});
             //fileStore[req.file.filename] = {filename: req.file.filename, downloaded: 0, key: req.body.key};
             res.send({ success: true, downlink: req.file.filename});
+            console.log('Temporary file stored.');
         }
     });
 });
