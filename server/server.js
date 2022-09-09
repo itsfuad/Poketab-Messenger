@@ -12,10 +12,10 @@ require('dotenv').config();
 const version = process.env.npm_package_version || "Development";
 const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
-const { isRealString, validateUserName, avList } = require('./utils/validation');
-const { makeid, keyformat } = require('./utils/functions');
-const { keys, uids, users } = require('./keys/cred');
-const { clean, markForDelete } = require('./worker')
+const { isRealString, validateUserName, avList } = require('./utils/_validation');
+const { makeid, keyformat } = require('./utils/_functions');
+const { keys, uids, users } = require('./keys/_cred');
+const { clean, markForDelete } = require('./_worker')
 
 clean();
 

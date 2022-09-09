@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "module": "ES2020",
+      "noImplicitAny": true,
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "sourceMap": true,
+      "target": "ES2016"
+    },
+    "files": [
+        "./server/_worker.ts",
+        "./server/keys/_cred.ts",
+        "./server/utils/_users.ts",
+        "./server/utils/_functions.ts",
+        "./server/utils/_validation.ts"
+    ]
+}
