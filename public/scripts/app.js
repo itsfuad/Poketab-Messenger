@@ -1714,7 +1714,7 @@ async function sendImageStoreRequest(){
     image.mimetype = selectedImage.ext;
     image.onload = async function() {
         let resized = resizeImage(image, image.mimetype);
-        let thumbnail = resizeImage(image, image.mimetype, 50);
+        let thumbnail = resizeImage(image, image.mimetype, 25);
         let tempId = makeId();
         scrolling = false;
 

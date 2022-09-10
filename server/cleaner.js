@@ -1,6 +1,6 @@
 const { readdir, rm } = require('fs/promises');
-
 const { keys, users, fileStore } = require('./keys/cred');
+
 
 function deleteKeys(){
     for (let [key, value] of keys){
@@ -15,7 +15,7 @@ function deleteFiles(){
     readdir('uploads').then(files => {
         files.map( file => {
             if (!fileStore.has(file) && file != 'dummy.txt'){
-                //console.log('deleting file ' + file);
+                console.log('deleting file ' + file);
                 rm(`uploads/${file}`);
             }else if (fileStore.has(file) && !keys.has(fileStore.get(file).key)){
                 //console.log('Added to delete queue');
@@ -35,7 +35,7 @@ function markForDelete(userId, key, filename){
         file.uids = file.uids != null ? file.uids.add(userId) : new Set();
         //console.log(file);
         if (users.getMaxUser(key) == file.uids.size) {
-            console.log('Deleting file');
+            console.log('Deleting file ' + filename);
             rm(`uploads/${filename}`);
             fileStore.delete(filename);
         }
@@ -45,8 +45,7 @@ function markForDelete(userId, key, filename){
 function clean(){
     console.log('Running cleaner...');
     setInterval(deleteKeys, 1000);
-    setInterval(deleteFiles, 2000);
+    setInterval(deleteFiles, 5000);
 }
-
 
 module.exports = { clean, markForDelete };
