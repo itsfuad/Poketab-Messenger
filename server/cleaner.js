@@ -45,7 +45,7 @@ function markForDelete(userId, key, filename){
 function clean(){
     console.log('Running cleaner...');
     setInterval(deleteKeys, 1000);
-    //setInterval(deleteFiles, 5000);
+    setInterval(deleteFiles, 2000);
 }
 
 module.exports = { clean, markForDelete };

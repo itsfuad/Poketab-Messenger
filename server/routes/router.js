@@ -6,11 +6,12 @@ const { store } = require('../keys/cred');
 
 let storage = multer.diskStorage({
     destination: (_, file, cb) => cb(null, 'uploads/'),
-    filename: (_, file, cb) => {
+    filename: (req, file, cb) => {
         if (file.size >= 15000000){
             cb(new Error("File size more than 15mb"), filename);
         }else{
             const filename = `poketab-${uuid()}-${file.originalname}`;
+            store(filename, { filename: filename, key: req.body.key, uids: new Set([req.body.uid]) });
             cb(null, filename);
         }
     },
@@ -30,7 +31,6 @@ router.post('/', async (req, res) => {
             console.log('File cannot be stored:', err.message);
             res.send({ error: err.message });
         } else {
-            store(req.file.filename, { filename: req.file.filename, key: req.body.key, uids: new Set([req.body.uid]) });
             //fileStore[req.file.filename] = {filename: req.file.filename, downloaded: 0, key: req.body.key};
             res.send({ success: true, downlink: req.file.filename });
             console.log('Temporary file stored.');
