@@ -89,6 +89,7 @@ let finalTarget = {
 };
 
 let lastSeenMessage = null;
+let lastNotification = undefined;
 
 //first load functions 
 //if user device is mobile
@@ -348,6 +349,9 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 }
 
 window.addEventListener('focus', () => {
+    if (lastNotification != undefined){
+        lastNotification.close();
+    }
     socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
 });
 
@@ -1867,9 +1871,11 @@ function notifyUser(message, username, avatar){
                     newMsgTimeOut = undefined;
                 }, 3000);
             }
-            const notification = new Notification(username, {
+            //if (lastNotification != undefined) {lastNotification.close();}
+            lastNotification = new Notification(username, {
                 body: message.type == "Text" ? message.data : message.type,
                 icon: `/images/avatars/${avatar}(custom).png`,
+                tag: username,
             });
         }
         // …
@@ -1886,9 +1892,11 @@ function notifyUser(message, username, avatar){
                             newMsgTimeOut = undefined;
                         }, 3000);
                     }
-                    const notification = new Notification(username, {
+                    //if (lastNotification != undefined) {lastNotification.close();}
+                    lastNotification = new Notification(username, {
                         body: message.type == "Text" ? message.data : message.type,
-                        icon: `/images/avatars/${avatar}(custom).png`
+                        icon: `/images/avatars/${avatar}(custom).png`,
+                        tag: username,
                     });
                 }
             }
@@ -2028,7 +2036,7 @@ socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
         stickerSound.play();
     }
     insertNewMessage(message, type, id, uid, reply, replyId, options, {});
-    notifyUser({data: message, type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uid)?.name, userInfoMap.get(uid)?.avatar);
+    notifyUser({data: type == 'text' ? message : '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uid)?.name, userInfoMap.get(uid)?.avatar);
 });
 
 socket.on('seen', meta => {
@@ -2099,6 +2107,7 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
         let elem = document.getElementById(id).querySelector('.messageMain');
         elem.querySelector('.progress').textContent = `↑ Sending`;
     }
+    notifyUser({data: '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uId)?.name, userInfoMap.get(uId)?.avatar);
 });
 
 fileSocket.on('fileUploadError', (id, type) => {
