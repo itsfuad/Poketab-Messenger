@@ -6,6 +6,10 @@
   scrollbar-width: none;
 }
 
+html {
+  font-size: 16px;
+}
+
 :root {
   --red: indianred;
   --primary-dark: #111d2a;
@@ -162,7 +166,7 @@ body {
 }
 
 .stickerBtn {
-  padding: 3px 5px 5px 10px;
+  padding: 0 0 2px 5px;
   display: grid;
   place-items: center;
 }
@@ -549,6 +553,9 @@ img {
   place-items: center;
   background: rgba(255, 255, 255, 0.0901960784);
 }
+.upload_image *, .upload_file *, .location * {
+  cursor: pointer;
+}
 
 input[type=file] {
   display: none;
@@ -613,16 +620,16 @@ input[type=file] {
   cursor: pointer;
 }
 
-.fa-image, .fa-location-crosshairs, .fa-paper-plane, .fa-file-lines, .fa-paperclip {
-  font-size: 1.5rem;
+i[class^=fa-] {
+  color: var(--secondary-dark);
+  font-size: 1.2rem;
+}
+
+.fa-paper-plane, .fa-paperclip, .fa-note-sticky {
+  font-size: 1.5rem !important;
   padding: 5px;
   color: var(--secondary-dark);
   cursor: pointer;
-}
-
-i[class^=fa-] {
-  font-size: 1.2rem;
-  color: var(--secondary-dark);
 }
 
 #typingIndicator {
@@ -641,6 +648,15 @@ i[class^=fa-] {
   border-radius: 25px;
   background: rgba(255, 255, 255, 0.0901960784);
   scrollbar-width: none;
+}
+#textbox::-moz-placeholder {
+  color: rgba(255, 255, 255, 0.5411764706);
+}
+#textbox:-ms-input-placeholder {
+  color: rgba(255, 255, 255, 0.5411764706);
+}
+#textbox::placeholder {
+  color: rgba(255, 255, 255, 0.5411764706);
 }
 
 .footer {
@@ -936,6 +952,17 @@ i[class^=fa-] {
 .reactorContainer ul li .uname {
   width: 100%;
   padding-left: 8px;
+}
+
+.hideSvgSoThatItSupportsFirefox {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
 }
 
 @media (orientation: landscape) and (min-device-aspect-ratio: 1/1) {

@@ -74,9 +74,18 @@ function check(){
     return validateKey() && validateUser();
 }
 
+let errTimeout = undefined;
+
 function errlog(id, msg){
     let err = document.getElementById(id);
     err.innerHTML = msg;
+    err.classList.add('shake');
+    if (errTimeout == undefined){
+        errTimeout = setTimeout(()=>{
+            err.classList.remove('shake');
+            errTimeout = undefined;
+        }, 500);
+    }
 }
 
 function wait(){
@@ -111,7 +120,9 @@ if ('serviceWorker' in navigator){
     window.addEventListener('load', () => {
         navigator.serviceWorker
         .register('./serviceWorkerPoketabS.min.js')
-        .then(reg => console.log("Service Worker Registered"))
+        .then(reg => {
+            console.log("Service Worker Registered")
+        })
         .catch(err => console.log(`Service Worker: Error ${err}`));
     });
 }

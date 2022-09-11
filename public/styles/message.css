@@ -41,6 +41,30 @@ code {
 .message {
   display: flex;
   flex-direction: row;
+  align-items: flex-end;
+  position: relative;
+}
+.message .seenBy {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  position: absolute;
+  right: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+.message .seenBy img {
+  padding-top: 1px;
+  height: 12px;
+  width: 12px;
+}
+.message .messageContainer {
+  display: flex;
+  flex-direction: row;
   list-style: none;
   align-items: flex-end;
   gap: 3px;
@@ -52,7 +76,7 @@ code {
   display: none;
 }
 .message .sent i {
-  font-size: 0.5rem;
+  font-size: 0.5rem !important;
   padding: 0;
   color: var(--foreground-dark);
 }
@@ -105,7 +129,7 @@ code {
   -o-object-fit: cover;
      object-fit: cover;
   vertical-align: bottom;
-  border-radius: 15px 15px 15px 8px;
+  border-radius: 15px 15px 15px 8px !important;
 }
 .message .messageBody .reactsOfMessage {
   position: absolute;
@@ -113,8 +137,8 @@ code {
   z-index: 15;
   flex-direction: row;
   gap: 5px;
-  background: var(--focus-dark);
-  border-radius: 5px;
+  background: var(--msg-get-reply);
+  border-radius: 10px;
   padding: 0 5px;
   z-index: 15;
   display: none;
@@ -176,6 +200,7 @@ code {
   visibility: hidden;
   opacity: 0;
   transition: 200ms ease-in-out;
+  padding-bottom: 10px;
 }
 .messageTime.active {
   visibility: visible;
@@ -194,10 +219,9 @@ code {
   display: flex;
 }
 
-.message:is(.notitle) .messageTitle {
-  display: none !important;
+.message:is(.start) {
+  padding-top: 25px;
 }
-
 .message:is(.start) .messageMain > * {
   border-bottom-left-radius: 3px;
   border-top-left-radius: 15px;
@@ -213,7 +237,26 @@ code {
   visibility: visible;
 }
 
+.message:is(.notitle) {
+  padding-top: 0;
+}
+.message:is(.notitle) .messageTitle {
+  display: none !important;
+}
+
+.message:is(.sticker) {
+  padding-top: 5px;
+}
+
 .message:is(.self) {
+  flex-direction: column;
+  margin-right: 5px;
+}
+.message:is(.self) .seenBy {
+  position: unset;
+  right: unset;
+}
+.message:is(.self) .messageContainer {
   flex-direction: row-reverse;
 }
 .message:is(.self) .sent {
@@ -237,6 +280,9 @@ code {
 }
 .message:is(.self) .messageBody .messageReply .image {
   border-radius: 15px 15px 8px 15px;
+}
+.message:is(.self) .messageBody .messageReply .imageReply {
+  border-radius: 15px 15px 15px 8px !important;
 }
 .message:is(.self) .messageBody .messageMain p {
   padding: 8px;
@@ -265,6 +311,14 @@ code {
   visibility: visible;
 }
 
+.fileIcon {
+  padding: 0 10px;
+}
+
+.messageMain .image {
+  -o-object-fit: contain;
+     object-fit: contain;
+}
 .messageMain .sendingImage {
   position: absolute;
   top: 50%;
@@ -310,6 +364,7 @@ code {
 .fileInfo .fileName {
   text-decoration: underline;
   padding-left: 3px;
+  min-width: 64px;
 }
 .fileInfo .filemeta {
   font-size: 0.5rem;

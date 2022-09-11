@@ -6,6 +6,10 @@
     scrollbar-width: none;
 }
 
+html{
+    font-size: 16px;
+}
+
 :root{
     --red: indianred;
     --primary-dark: #111d2a;
@@ -170,7 +174,7 @@ body{
 }
 
 .stickerBtn{
-    padding: 3px 5px 5px 10px;
+    padding: 0 0 2px 5px;
     display: grid;
     place-items: center;
 }
@@ -554,6 +558,9 @@ img{
     display: grid;
     place-items: center;
     background: #ffffff17;
+    & *{
+        cursor: pointer;
+    }
 }
 
 
@@ -620,17 +627,18 @@ input[type=file] {
     }
 }
 
-.fa-image, .fa-location-crosshairs, .fa-paper-plane, .fa-file-lines, .fa-paperclip {
-    font-size: 1.5rem;
+i[class^=fa-]{
+    color: var(--secondary-dark);
+    font-size: 1.2rem;
+}
+
+.fa-paper-plane, .fa-paperclip, .fa-note-sticky {
+    font-size: 1.5rem !important;
     padding: 5px;
     color: var(--secondary-dark);
     cursor: pointer;
 }
 
-i[class^=fa-]{
-    font-size: 1.2rem;
-    color: var(--secondary-dark);
-}
 
 #typingIndicator{
     padding-left: 10px;
@@ -650,6 +658,9 @@ i[class^=fa-]{
     border-radius: 25px;
     background: #ffffff17;
     scrollbar-width: none;
+    &::placeholder{
+        color: #ffffff8a;
+    }
 }
 
 .footer{
@@ -944,6 +955,17 @@ i[class^=fa-]{
             }
         }
     }
+}
+
+.hideSvgSoThatItSupportsFirefox {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
 }
 
 @media (orientation: landscape) and (min-device-aspect-ratio: 1 / 1){

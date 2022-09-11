@@ -44,17 +44,42 @@ code{
 .message{
     display: flex;
     flex-direction: row;
-    list-style: none;
     align-items: flex-end;
-    gap: 3px;
-    font-size: 0.8rem;
-    width: 100%;
     position: relative;
+    .seenBy{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 1px;
+        position: absolute;
+        right: 10px;
+        img{
+            padding-top: 1px;
+            height: 12px;
+            width: 12px;
+        }
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        
+    }
+    .messageContainer{
+        display: flex;
+        flex-direction: row;
+        list-style: none;
+        align-items: flex-end;
+        gap: 3px;
+        font-size: 0.8rem;
+        width: 100%;
+        position: relative;
+    }
 
     .sent{
         display: none;
         i{
-            font-size: 0.5rem;
+            font-size: 0.5rem !important;
             padding: 0;
             color: var(--foreground-dark);
         }
@@ -103,7 +128,7 @@ code{
                 min-height: 100px;
                 object-fit: cover;
                 vertical-align: bottom;
-                border-radius: 15px 15px 15px 8px;
+                border-radius: 15px 15px 15px 8px !important;
             }
         }
         .reactsOfMessage{
@@ -112,8 +137,8 @@ code{
             z-index: 15;
             flex-direction: row;
             gap: 5px;
-            background: var(--focus-dark);
-            border-radius: 5px;
+            background: var(--msg-get-reply);
+            border-radius: 10px;
             padding: 0 5px;
             z-index: 15;
             display: none;
@@ -178,6 +203,7 @@ code{
     visibility: hidden;
     opacity: 0;
     transition: 200ms ease-in-out;
+    padding-bottom: 10px;
     &.active{
         visibility: visible;
         opacity: 1;
@@ -198,13 +224,9 @@ code{
     }
 }
 
-.message:is(.notitle){
-    .messageTitle{
-        display: none!important;
-    }
-}
 
 .message:is(.start){
+    padding-top: 25px;
     .messageMain{
         & > *{
             border-bottom-left-radius: 3px;
@@ -226,8 +248,27 @@ code{
     }
 }
 
+.message:is(.notitle){
+    padding-top: 0;
+    .messageTitle{
+        display: none!important;
+    }
+}
+
+.message:is(.sticker) {
+    padding-top: 5px;
+}
+
 .message:is(.self){
-    flex-direction: row-reverse;
+    flex-direction: column;
+    margin-right: 5px;
+    .seenBy{
+        position: unset;
+        right: unset;
+    }
+    .messageContainer{
+        flex-direction: row-reverse;
+    }
     .sent{
         display: block;
     }
@@ -251,6 +292,9 @@ code{
             border-radius: 15px 15px 8px 15px;
             .image{
                 border-radius: 15px 15px 8px 15px;
+            }
+            .imageReply{
+                border-radius: 15px 15px 15px 8px !important;
             }
         }
         .messageMain{
@@ -292,19 +336,26 @@ code{
     }
 }
 
+.fileIcon{
+    padding: 0 10px;
+}
+
 .messageMain{
-        .sendingImage{
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: max-content;
-            color: white;
-            font-size: 0.8rem;
-            display: grid;
-            place-items: center;
-            z-index: 12;
-        }
+    .image{
+        object-fit: contain;
+    }
+    .sendingImage{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: max-content;
+        color: white;
+        font-size: 0.8rem;
+        display: grid;
+        place-items: center;
+        z-index: 12;
+    }
 }
 
 .emoji .messageMain p:is(.text){
@@ -337,6 +388,7 @@ code{
     .fileName{
         text-decoration: underline;
         padding-left: 3px;
+        min-width: 64px;
     }
     .filemeta{
         font-size: .5rem;

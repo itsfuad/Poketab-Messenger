@@ -197,47 +197,53 @@
     <!-- Message template -->
     <template id="messageTemplate">
         <li class="message {{classList}}" id="{{messageId}}" data-uid="{{uid}}"> <!-- noreply notitle delevered start end self react -->
-            <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
-            <div class="avatar">{{{avatar}}}</div>
-            <div class="messageBody">
-                <div class="messageTitle">{{title}}</div>
-                <div class="messageReply" data-repid="{{repId}}" data-reply-for="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
-                <div class="messageMain">{{{message}}}</div>
-                <div class="reactsOfMessage"></div>
+            <div class="messageContainer">
+                <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
+                <div class="avatar">{{{avatar}}}</div>
+                <div class="messageBody">
+                    <div class="messageTitle">{{title}}</div>
+                    <div class="messageReply" data-repid="{{repId}}" data-reply-for="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
+                    <div class="messageMain">{{{message}}}</div>
+                    <div class="reactsOfMessage"></div>
+                </div>
+                <div class="messageTime">{{time}}</div>
+                <div class="reactedUsers" style="display: none;"></div>
             </div>
-            <div class="messageTime">{{time}}</div>
-            <div class="reactedUsers" style="display: none;"></div>
+            <div class="seenBy"></div>
         </li>
     </template>
 
     <template id="fileTemplate">
         <li class="message {{classList}}" id="{{messageId}}" data-uid="{{uid}}">
-            <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
-            <div class="avatar">{{{avatar}}}</div>
-            <div class="messageBody">
-                <div class="messageTitle">{{title}}</div>
-                <div class="messageReply" data-repid="{{repId}}" data-reply-for="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
-                <div class="messageMain">
-                    <div class="file" data-data="{{data}}" data-ext="{{ext}}">
-                        <div class="fileIcon">
-                            <i class="fa-regular fa-file-lines"></i>
-                        </div>
-                        <div class="fileInfo">
-                            <div class="fileName">{{fileName}}</div>
-                            <div class="filemeta">
-                                <div class="progress"></div>
-                                <div class="fileSize">{{fileSize}}</div>
+            <div class="messageContainer">
+                <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
+                <div class="avatar">{{{avatar}}}</div>
+                <div class="messageBody">
+                    <div class="messageTitle">{{title}}</div>
+                    <div class="messageReply" data-repid="{{repId}}" data-reply-for="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
+                    <div class="messageMain">
+                        <div class="file" data-data="{{data}}" data-ext="{{ext}}">
+                            <div class="fileIcon">
+                                <i class="fa-regular fa-file-lines"></i>
+                            </div>
+                            <div class="fileInfo">
+                                <div class="fileName">{{fileName}}</div>
+                                <div class="filemeta">
+                                    <div class="progress"></div>
+                                    <div class="fileSize">{{fileSize}}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div class="reactsOfMessage"></div>
                 </div>
-                <div class="reactsOfMessage"></div>
+                <div class="messageTime">{{time}}</div>
+                <div class="reactedUsers" style="display: none;"></div>
             </div>
-            <div class="messageTime">{{time}}</div>
-            <div class="reactedUsers" style="display: none;"></div>
+            <div class="seenBy"></div>
         </li>
     </template>
-    <svg style="display: none;" class='hideSvgSoThatItSupportsFirefox'>
+    <svg class='hideSvgSoThatItSupportsFirefox'>
         <filter id='sharpBlur'>
           <feGaussianBlur stdDeviation='5'></feGaussianBlur>
           <feComposite in2='SourceGraphic' operator='in'></feComposite>
