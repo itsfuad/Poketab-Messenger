@@ -44,6 +44,12 @@
             text-decoration: none;
             padding: 10px;
             border-radius: 10px;
+            transition: 300ms;
+        }
+        a:hover{
+            cursor: pointer;
+            transform: translateY(-3px);
+            box-shadow: 0 3px 5px black;
         }
         #login{
             background: #4598ff;
@@ -58,9 +64,46 @@
             flex-direction: row;
             gap: 20px;
         }
+        #logo{
+            position: relative;
+        }
+        .eyesocket{
+            position: absolute;
+            top: 57px;
+            height: 17px;
+            width: 17px;
+            border-radius: 50%;
+            background: #33363a;
+        }
+        .eyesocket.left{
+            left: 29px;
+        }
+        .eyesocket.right{
+            right: 29px;
+        }
+
+        .eye{
+            height: 4px;
+            width: 4px;
+            top: 12px;
+            border-radius: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e9e9e9;
+            position: absolute;
+        }
+
     </style>
     <div class="maincontainer">
-        <img src="/images/avatars/pikachu.png" height="120px" width="120px" alt="logo">
+        <div id="logo">
+            <img src="/images/pikachu.png" height="120px" width="120px" alt="logo">
+            <div class="eyesocket left">
+                <div class="eye"></div>
+            </div>
+            <div class="eyesocket right">
+                <div class="eye"></div>
+            </div>
+        </div>
         <h1>Poketab Messanger</h1>
         <div class="slogan">On the go solution for temporary needs.</div>
         <div class="more">Poketab is an open source project that uses websocket connections for text messaging and other medadata. For media and files it uses its internal filesystem. After users get the media file, the file on the server gets deleted immediately. So you don’t need to worry about your privacy. The files also cannot be accessed from outside. Only the users on the chat can get the files.</div>
@@ -69,5 +112,30 @@
             <a id="github" href="https://github.com/itsfuad/poketab-messanger">View Source</a>
         </div>
     </div>
+    <script>
+        document.addEventListener("mousemove", evt => {
+            const x = evt.clientX;
+            const y = evt.clientY;
+
+            const anchor = document.getElementById('logo');
+            const rect = anchor.getBoundingClientRect();
+            const anchorX = rect.left + rect.width / 2;
+            const anchorY = rect.top + rect.height / 2;
+
+            const angleDeg = angle(x, y, anchorX, anchorY);
+            const eyes = document.querySelectorAll('.eyesocket');
+            eyes.forEach(eye => {
+                eye.style.transform = `rotate(${90 + angleDeg}deg)`;
+            });
+        });
+
+        function angle(cx, cy, ex, ey){
+            const dy = ey - cy;
+            const dx = ex - cx;
+            const rad = Math.atan2(dy, dx);
+            const deg = rad * 180 / Math.PI;
+            return deg;
+        }
+    </script>
 </body>
 </html>
