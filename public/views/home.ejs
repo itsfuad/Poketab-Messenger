@@ -113,7 +113,22 @@
         </div>
     </div>
     <script>
-        document.addEventListener("mousemove", evt => {
+
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (isMobile){
+            console.log("touch input");
+            document.addEventListener("touchmove", evt => {
+                animate(evt.touches[0]);
+            });
+        }else{
+            console.log("mouse input");
+            document.addEventListener("mousemove", evt => {
+                animate(evt);
+            });
+        }
+
+        function animate(evt){
             const x = evt.clientX;
             const y = evt.clientY;
 
@@ -127,7 +142,7 @@
             eyes.forEach(eye => {
                 eye.style.transform = `rotate(${90 + angleDeg}deg)`;
             });
-        });
+        }
 
         function angle(cx, cy, ex, ey){
             const dy = ey - cy;
