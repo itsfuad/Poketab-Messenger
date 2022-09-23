@@ -114,19 +114,12 @@
     </div>
     <script>
 
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-        if (isMobile){
-            console.log("touch input");
-            document.addEventListener("touchmove", evt => {
-                animate(evt.touches[0]);
-            });
-        }else{
-            console.log("mouse input");
-            document.addEventListener("mousemove", evt => {
-                animate(evt);
-            });
-        }
+        document.addEventListener("touchmove", evt => {
+            animate(evt.touches[0]);
+        });
+        document.addEventListener("mousemove", evt => {
+            animate(evt);
+        });
 
         function animate(evt){
             const x = evt.clientX;
