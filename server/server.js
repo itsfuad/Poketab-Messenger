@@ -164,8 +164,9 @@ io.on('connection', (socket) => {
     uids.set(socket.id, params.id);
     users.addUser(params.id, params.name, params.key, params.avatar, params.maxuser || users.getMaxUser(params.key));
     io.to(params.key).emit('updateUserList', users.getAllUsersDetails(params.key));
-    socket.emit('server_message', {color: 'limegreen', text: 'You joined the chat.🔥'}, 'join');
-    socket.broadcast.to(params.key).emit('server_message', {color: 'limegreen', text: `${params.name} joined the chat.🔥`}, 'join');
+    const srvID = uuid.v4();
+    socket.emit('server_message', {color: 'limegreen', text: 'You joined the chat.🔥', id: srvID}, 'join');
+    socket.broadcast.to(params.key).emit('server_message', {color: 'limegreen', text: `${params.name} joined the chat.🔥`, id: srvID}, 'join');
   });
 
 
@@ -207,7 +208,8 @@ io.on('connection', (socket) => {
   socket.on('createLocationMessage', (coord) => {
     let user = users.getUser(uids.get(socket.id));
     if (user) {
-      io.to(user.key).emit('server_message', {color: 'var(--secondary-dark);', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`, user: user.name}, 'location');
+      const srvID = uuid.v4();
+      io.to(user.key).emit('server_message', {color: 'var(--secondary-dark);', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`, user: user.name, id: srvID}, 'location');
     }
   });
 
@@ -231,7 +233,8 @@ io.on('connection', (socket) => {
     uids.delete(socket.id);
     if (user) {
       socket.broadcast.to(user.key).emit('updateUserList', users.getAllUsersDetails(user.key));
-      socket.broadcast.to(user.key).emit('server_message', {color: 'orangered', text: `${user.name} left the chat.🐸`, who: user.uid}, 'leave');
+      const srvID = uuid.v4();
+      socket.broadcast.to(user.key).emit('server_message', {color: 'orangered', text: `${user.name} left the chat.🐸`, who: user.uid, id: srvID}, 'leave');
       console.log(`User ${user.name} disconnected from key ${user.key}`);
       let usercount = users.users.filter(datauser => datauser.key === user.key);
       if (usercount.length === 0) {

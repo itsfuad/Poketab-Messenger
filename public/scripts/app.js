@@ -1071,7 +1071,7 @@ function popupMessage(text){
 }
 
 function serverMessage(message, type) {
-    let html = `<li class="serverMessage" style="color: ${message.color};">${message.text}</li>`;
+    let html = `<li class="serverMessage msg-item" id="${message.id}"> <div class="messageContainer" style="color: ${message.color}"> ${message.text} </div> <div class="seenBy"></div> </li>`;
     //messages.innerHTML += html;
     const fragment = document.createRange().createContextualFragment(html);
     messages.append(fragment);
@@ -1079,10 +1079,19 @@ function serverMessage(message, type) {
         updateScroll('location', `${message.user}'s location`);
     }else if(type == 'leave'){
         userTypingMap.delete(message.who);
+        document.querySelectorAll(`.msg-item[data-seen*="${message.who}"]`)
+        .forEach(elem => {
+            elem.querySelector(`.seenBy img[data-user="${message.who}"]`)?.remove();
+            checkgaps(elem.id);
+        });
         document.getElementById('typingIndicator').textContent = getTypingString(userTypingMap);
         updateScroll();
     }else{
         updateScroll();
+    }
+    lastSeenMessage = message.id;
+    if (document.hasFocus()){
+        socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
     }
 }
 
@@ -2042,7 +2051,7 @@ socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
 socket.on('seen', meta => {
     let message = document.getElementById(meta.messageId);
     if (message && !message.dataset.seen?.includes(meta.userId)){
-        document.querySelectorAll(`.message[data-seen*="${meta.userId}"]`)
+        document.querySelectorAll(`.msg-item[data-seen*="${meta.userId}"]`)
         .forEach(elem => {
             elem.querySelector(`.seenBy img[data-user="${meta.userId}"]`)?.remove();
             checkgaps(elem?.id);

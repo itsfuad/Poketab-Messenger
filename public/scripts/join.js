@@ -12,9 +12,9 @@ function nextbtnEvent(e){
         let key = document.getElementById('key').value;
         socket.emit('joinRequest', key, function(err){
             if (err){
-                document.open();
-                document.write(err);
-                document.close();
+                errlog('keyErr', 'Unauthorised <i class="fa-solid fa-triangle-exclamation" style="color: orange;"></i>');
+                document.getElementById('label').childNodes[0].textContent = 'Chat Key ';
+                document.getElementById('lb__icon').className =  'fa-solid fa-key';
             }
         });
         document.getElementById('label').childNodes[0].textContent = 'Checking ';

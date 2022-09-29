@@ -46,25 +46,7 @@ code{
     flex-direction: row;
     align-items: flex-end;
     position: relative;
-    .seenBy{
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        gap: 1px;
-        position: absolute;
-        right: 10px;
-        img{
-            padding-top: 1px;
-            height: 12px;
-            width: 12px;
-        }
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        align-content: center;
-        
-    }
+
     .messageContainer{
         display: flex;
         flex-direction: row;
@@ -147,6 +129,32 @@ code{
                 cursor: pointer;
             }
         }
+    }
+}
+
+.seenBy{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    position: absolute;
+    right: 5px;
+    img{
+        padding-top: 1px;
+        height: 12px;
+        width: 12px;
+    }
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+
+}
+
+.msg-item:is(.serverMessage){
+    .seenBy{
+        right: 10px;
     }
 }
 
@@ -265,6 +273,7 @@ code{
     .seenBy{
         position: unset;
         right: unset;
+        right: 10px;
     }
     .messageContainer{
         flex-direction: row-reverse;
@@ -419,4 +428,8 @@ code{
     font-size: 0.7rem;
     text-align: center;
     width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
 }
