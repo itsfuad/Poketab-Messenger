@@ -64,6 +64,8 @@ function countDown(){
             navigator.vibrate(1000);
             document.getElementsByClassName('remainingTime')[0].classList.remove('shake');
             document.getElementsByClassName('remainingTime')[1].classList.remove('shake');
+            document.getElementsByClassName('remainingTime')[0].textContent = `${min}:${sec}`;
+            document.getElementsByClassName('remainingTime')[1].textContent = `${min}:${sec}`;
             return;
         }else if(count <= 10){
             document.getElementsByClassName('remainingTime')[0].style.color = '#e33937';
