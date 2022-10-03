@@ -14,6 +14,7 @@ function expiredEvent(err){
     document.getElementById('lb__icon').className =  'fa-regular fa-clone';
     document.getElementById('key').style.color = '#e74945';
     errlog('keyErr', `${err} <i class="fa-solid fa-triangle-exclamation" style="color: orange;"></i>`);
+    errlog('usernameErr', `${err} <i class="fa-solid fa-triangle-exclamation" style="color: orange;"></i>`);
     const fragment = document.createDocumentFragment();
     const i = document.createElement('i');
     i.className = 'fa-solid fa-arrows-rotate';
