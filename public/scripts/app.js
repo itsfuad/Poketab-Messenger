@@ -538,8 +538,11 @@ function deleteMessage(messageId, user){
         if (message.querySelector('.messageReply') != null) {
             message.querySelector('.messageReply').remove();
             message.querySelector('.reactsOfMessage').remove();
+            message.querySelector('.reactedUsers').remove();
             message.classList.remove('reply');
             message.classList.remove('react');
+            message.querySelector('.seenBy').style.marginTop = '0px';
+            checkgaps(messageId);
         }
         let replyMsg = document.querySelectorAll(`[data-repid='${messageId}']`);
         if (replyMsg != null) {
