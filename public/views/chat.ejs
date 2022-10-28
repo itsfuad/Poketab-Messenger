@@ -304,6 +304,7 @@
             document.documentElement.style.setProperty('--msg-get-reply', themeAccent[THEME].msg_get_reply);
             document.documentElement.style.setProperty('--msg-send', themeAccent[THEME].msg_send);
             document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_send_reply);
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
         }
         
         loadTheme();

@@ -1265,6 +1265,7 @@ document.querySelectorAll('.theme').forEach(theme => {
         document.documentElement.style.setProperty('--msg-send', themeAccent[THEME].msg_send);
         document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_get_reply);
         document.querySelector('.themeChooser').classList.remove('active');
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
         hideOptions();
     });
 });
