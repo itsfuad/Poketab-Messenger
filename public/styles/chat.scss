@@ -549,20 +549,6 @@ img{
     }
 }
 
-.upload_image, .upload_file, .location{
-    position: relative;
-    padding: 10px;
-    min-width: 50px;
-    min-height: 50px;
-    border-radius: 55px;
-    display: grid;
-    place-items: center;
-    background: #ffffff17;
-    & *{
-        cursor: pointer;
-    }
-}
-
 
 input[type=file] {
     display: none;
@@ -628,8 +614,11 @@ input[type=file] {
 }
 
 i[class^=fa-]{
-    color: var(--secondary-dark);
     font-size: 1.2rem;
+}
+
+.fa-link, .fa-clone, .fa-location-dot, .fa-reply, .fa-download, .fa-circle-notch{
+    color: var(--secondary-dark);
 }
 
 .fa-paper-plane, .fa-paperclip, .fa-note-sticky {
@@ -639,6 +628,41 @@ i[class^=fa-]{
     cursor: pointer;
 }
 
+
+.upload_image, .upload_file{
+    label{
+        position: relative;
+        padding: 10px;
+        min-width: 50px;
+        min-height: 50px;
+        border-radius: 55px;
+        display: grid;
+        place-items: center;
+        background: var(--secondary-dark);
+        cursor: pointer;
+    }
+}
+
+.location{
+    position: relative;
+    padding: 10px;
+    min-width: 50px;
+    min-height: 50px;
+    border-radius: 55px;
+    display: grid;
+    place-items: center;
+    background: var(--secondary-dark);
+    cursor: pointer;
+}
+
+
+.fa-file-lines, .fa-image, .fa-location-crosshairs{
+    color: white;
+}
+
+.file_preview .fa-file-lines{
+    color: var(--secondary-dark);
+}
 
 #typingIndicator{
     padding-left: 10px;
