@@ -628,6 +628,27 @@ i[class^=fa-]{
     cursor: pointer;
 }
 
+#more{
+    padding: 0 10px;
+    position: relative;
+    transition: 300ms ease-in-out;
+}
+
+
+
+.optionPanel{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+
+.call-btn{
+    position: relative;
+
+}
+
 
 .upload_image, .upload_file{
     label{
@@ -1004,5 +1025,43 @@ i[class^=fa-]{
     }
     .stickersPanel{
         width: 45%;
+    }
+    .call-btn{
+        &::after{
+            transition: 300ms ease-in-out;
+        }
+        &:hover::after{
+            content: "Call";
+            position: absolute;
+            top: 100%;
+            right: -40px;
+            width: max-content;
+            transform: translateX(-50%);
+            background: #fff;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+    }
+
+    #more{
+        &::after{
+            transition: 300ms ease-in-out;
+        }
+        //add tooltip
+        &:hover::after{
+            content: "Active Users";
+            position: absolute;
+            top: 100%;
+            right: -40px;
+            width: max-content;
+            transform: translateX(-50%);
+            background: #fff;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
     }
 }
