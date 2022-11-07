@@ -1435,10 +1435,8 @@ messages.addEventListener('click', (evt) => {
                 try{
                     let target = evt.target.closest('.messageReply')?.dataset.repid;
                     document.querySelectorAll('.message').forEach(element => {
-                        if (element.id == target){
-                            element.style.filter = 'hue-rotate(20deg)';
-                        }else{
-                            element.style.filter = 'brightness(0.8)';
+                        if (element.id != target){
+                            element.style.filter = 'brightness(0.5)';
                         }
                     });
                     setTimeout(() => {
@@ -1943,6 +1941,11 @@ document.getElementById('send-location').addEventListener('click', () => {
     }, (error) => {
         popupMessage(error.message);
     });
+});
+
+document.getElementById('createPollBtn').addEventListener('click', () => {
+    console.log('initiating poll');
+    popupMessage('Poll option will be available soon.');
 });
 
 document.querySelectorAll('.clickable').forEach(elem => {

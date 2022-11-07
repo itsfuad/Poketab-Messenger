@@ -36,9 +36,9 @@
         <div class="navbar">
             <div id="currentlyActive"><i class="fa-solid fa-user"></i> Active: <div id="count"></div></div>
             <div class="optionPanel">                
-                <div class="call-btn clickable">
+                <!--div class="call-btn clickable">
                     <i class="fa-solid fa-phone"></i>
-                </div>
+                </!--div-->
                 <div id="more" class="clickable">
                     <i class="fa-solid fa-ellipsis-vertical"></i>
                 </div>
@@ -92,15 +92,23 @@
                         <div class="upload_file clickable">
                             <label for="file" class="file-input-label"><i class="fa-regular fa-file-lines"></i></label>
                             <input type="file" name="file" id="file">
+                            <div class="text">File</div>
                         </div>
                         <!-- Image Choose -->
                         <div class="upload_image clickable">
                             <label for="photo"><i class="fa-regular fa-image"></i></label>
                             <input type="file" name="photo" id="photo" accept="image/png, image/jpg, image/jpeg, image/gif">
+                            <div class="text">Image</div>
                         </div>
                         <!-- Location input -->
                         <div class="location clickable" id="send-location">
                             <i class="fa-solid fa-location-crosshairs"></i>
+                            <div class="text">Location</div>
+                        </div>
+                        <!-- Poll -->
+                        <div class="poll clickable" id="createPollBtn">
+                            <i class="fa-solid fa-square-poll-horizontal"></i>
+                            <div class="text">Poll</div>
                         </div>
                     </div>
                 </div>

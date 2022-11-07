@@ -532,6 +532,10 @@ img {
   z-index: 1;
 }
 
+.attachments, .stickerBtn {
+  position: relative;
+}
+
 .file_preview {
   display: flex;
   flex-direction: column;
@@ -610,7 +614,7 @@ i[class^=fa-] {
   font-size: 1.2rem;
 }
 
-.fa-link, .fa-clone, .fa-location-dot, .fa-reply, .fa-download, .fa-circle-notch {
+.fa-link, .fa-clone, .fa-location-dot, .fa-reply, .fa-download, .fa-circle-notch, .fa-arrow-down {
   color: var(--secondary-dark);
 }
 
@@ -642,8 +646,8 @@ i[class^=fa-] {
 .upload_image label, .upload_file label {
   position: relative;
   padding: 10px;
-  min-width: 50px;
-  min-height: 50px;
+  width: 50px;
+  height: 50px;
   border-radius: 55px;
   display: grid;
   place-items: center;
@@ -651,11 +655,23 @@ i[class^=fa-] {
   cursor: pointer;
 }
 
-.location {
+.upload_image, .upload_file, #send-location, #createPollBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+}
+.upload_image .text, .upload_file .text, #send-location .text, #createPollBtn .text {
+  font-size: 0.7rem;
+}
+
+.fa-location-crosshairs, .fa-square-poll-horizontal {
   position: relative;
   padding: 10px;
-  min-width: 50px;
-  min-height: 50px;
+  width: 50px;
+  height: 50px;
   border-radius: 55px;
   display: grid;
   place-items: center;
@@ -663,7 +679,7 @@ i[class^=fa-] {
   cursor: pointer;
 }
 
-.fa-file-lines, .fa-image, .fa-location-crosshairs {
+.fa-file-lines, .fa-image, .fa-location-crosshairs, .fa-square-poll-horizontal {
   color: white;
 }
 
@@ -720,12 +736,14 @@ i[class^=fa-] {
   position: relative;
   visibility: hidden;
   opacity: 0;
+  top: 20px;
   transition: 100ms ease-in-out;
 }
 #replyToast.active {
   display: flex;
   visibility: visible;
   opacity: 1;
+  top: 0;
 }
 #replyToast .title, #replyToast .title * {
   color: var(--secondary-dark);
@@ -874,21 +892,32 @@ i[class^=fa-] {
 
 .normalOptionWrapper {
   position: relative;
+  top: 20px;
   width: 100%;
   padding: 5px;
   border-radius: 20px 20px 0 0;
   background: var(--msg-get-reply);
   place-content: center;
   display: grid;
+  transition: 100ms ease-in-out;
 }
 
 .reactOptionsWrapper {
   position: relative;
+  transform: scale(0);
   width: 100%;
   height: 100%;
   padding: 40px 0;
   place-content: center;
   display: grid;
+  transition: 100ms ease-in-out;
+}
+
+#optionsContainerWrapper.active .normalOptionWrapper {
+  top: 0;
+}
+#optionsContainerWrapper.active .reactOptionsWrapper {
+  transform: scale(1);
 }
 
 .options {
@@ -946,8 +975,10 @@ i[class^=fa-] {
   left: 0;
   bottom: 0;
   right: 0;
-  display: grid;
-  place-content: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
   z-index: 90;
   visibility: hidden;
   opacity: 0;
@@ -960,10 +991,13 @@ i[class^=fa-] {
 }
 
 .reactorContainer {
+  position: relative;
+  top: 20px;
   display: flex;
   flex-direction: column;
   background: var(--msg-get-reply);
   padding: 20px;
+  margin-bottom: 80px;
   width: 300px;
   height: 220px;
   overflow-y: scroll;
@@ -993,6 +1027,10 @@ i[class^=fa-] {
   padding-left: 8px;
 }
 
+.reactorContainerWrapper.active .reactorContainer {
+  top: 0;
+}
+
 .hideSvgSoThatItSupportsFirefox {
   border: 0;
   clip: rect(0 0 0 0);
@@ -1016,41 +1054,191 @@ i[class^=fa-] {
   }
   .stickersPanel {
     width: 45%;
+    min-width: 425px;
   }
   .call-btn::after {
-    transition: 300ms ease-in-out;
-  }
-  .call-btn:hover::after {
     content: "Call";
     position: absolute;
     top: 100%;
-    right: -40px;
+    left: 50%;
     width: -webkit-max-content;
     width: -moz-max-content;
     width: max-content;
     transform: translateX(-50%);
-    background: #fff;
+    background: rgba(255, 255, 255, 0.6509803922);
     color: black;
     padding: 5px 10px;
     border-radius: 5px;
     font-size: 0.8rem;
+    transition: 200ms ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .call-btn:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 1s;
   }
   #more::after {
-    transition: 300ms ease-in-out;
-  }
-  #more:hover::after {
     content: "Active Users";
     position: absolute;
     top: 100%;
-    right: -40px;
+    left: 50%;
     width: -webkit-max-content;
     width: -moz-max-content;
     width: max-content;
     transform: translateX(-50%);
-    background: #fff;
+    background: rgba(255, 255, 255, 0.6509803922);
     color: black;
     padding: 5px 10px;
     border-radius: 5px;
     font-size: 0.8rem;
+    transition: 200ms ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+  }
+  #more:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 1s;
+  }
+  .upload_file::after {
+    content: "Upload File";
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    width: -webkit-max-content;
+    width: -moz-max-content;
+    width: max-content;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.6509803922);
+    color: black;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    transition: 200ms ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .upload_file:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 1s;
+  }
+  .upload_image::after {
+    content: "Upload Image";
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    width: -webkit-max-content;
+    width: -moz-max-content;
+    width: max-content;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.6509803922);
+    color: black;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    transition: 200ms ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .upload_image:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 1s;
+  }
+  .stickerBtn::after {
+    content: "Stickers";
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    width: -webkit-max-content;
+    width: -moz-max-content;
+    width: max-content;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.6509803922);
+    color: black;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    transition: 200ms ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .stickerBtn:hover::after {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 1s;
+  }
+  .attachments::after {
+    content: "Attachments";
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    width: -webkit-max-content;
+    width: -moz-max-content;
+    width: max-content;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.6509803922);
+    color: black;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    transition: 200ms ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .attachments:hover::after {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 1s;
+  }
+  #send-location::after {
+    content: "Share your location";
+    font-family: Comic;
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    width: -webkit-max-content;
+    width: -moz-max-content;
+    width: max-content;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.6509803922);
+    color: black;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    transition: 200ms ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+  }
+  #send-location:hover::after {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 1s;
+  }
+  #createPollBtn::after {
+    content: "Create Poll";
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    width: -webkit-max-content;
+    width: -moz-max-content;
+    width: max-content;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.6509803922);
+    color: black;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    transition: 200ms ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+  }
+  #createPollBtn:hover::after {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 1s;
   }
 }/*# sourceMappingURL=chat.css.map */
