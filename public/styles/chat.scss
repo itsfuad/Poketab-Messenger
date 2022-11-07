@@ -1162,6 +1162,55 @@ i[class^=fa-]{
         }
     }
 
+    #send-location{
+        &::after{
+            content: "Share your location";
+            font-family: Comic;
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            width: max-content;
+            transform: translateX(-50%);
+            background: #ffffffa6;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            transition: 200ms ease-in-out;
+            opacity: 0;
+            visibility: hidden;
+        }
+        &:hover::after{
+            visibility: visible;
+            opacity: 1;
+            transition-delay: 1s;
+        }
+    }
+
+    #createPollBtn{
+        &::after{
+            content: "Create Poll";
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            width: max-content;
+            transform: translateX(-50%);
+            background: #ffffffa6;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            transition: 200ms ease-in-out;
+            opacity: 0;
+            visibility: hidden;
+        }
+        &:hover::after{
+            visibility: visible;
+            opacity: 1;
+            transition-delay: 1s;
+        }
+    }
+
     .stickerBtn{
         &::after{
             content: "Stickers";
@@ -1190,55 +1239,6 @@ i[class^=fa-]{
     .attachments{
         &::after{
             content: "Attachments";
-            position: absolute;
-            top: -100%;
-            left: 50%;
-            width: max-content;
-            transform: translateX(-50%);
-            background: #ffffffa6;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            transition: 200ms ease-in-out;
-            opacity: 0;
-            visibility: hidden;
-        }
-        &:hover::after{
-            visibility: visible;
-            opacity: 1;
-            transition-delay: 1s;
-        }
-    }
-
-    #send-location{
-        &::after{
-            content: "Share your location";
-            font-family: Comic;
-            position: absolute;
-            top: -100%;
-            left: 50%;
-            width: max-content;
-            transform: translateX(-50%);
-            background: #ffffffa6;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            transition: 200ms ease-in-out;
-            opacity: 0;
-            visibility: hidden;
-        }
-        &:hover::after{
-            visibility: visible;
-            opacity: 1;
-            transition-delay: 1s;
-        }
-    }
-
-    #createPollBtn{
-        &::after{
-            content: "Create Poll";
             position: absolute;
             top: -100%;
             left: 50%;
