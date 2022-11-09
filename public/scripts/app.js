@@ -301,6 +301,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             avatar: `<img src='/images/avatars/${avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
             messageId: id,
             uid: uid,
+            type: type,
             repId: replyId,
             title: options.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
             data: message,
@@ -318,6 +319,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             avatar: `<img src='/images/avatars/${avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
             messageId: id,
             uid: uid,
+            type: type,
             repId: replyId,
             title: options.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
             message: message,
@@ -1851,7 +1853,7 @@ async function sendFileStoreRequest(){
 function base64ToFile(base64, filename){
     let arr = base64.split(',');
     let mime = arr[0].match(/:(.*?);/)[1];
-    let bstr = atob(arr[1]);
+    let bstr = window.atob(arr[1]);
     let n = bstr.length;
     let u8arr = new Uint8Array(n);
     while(n--){
