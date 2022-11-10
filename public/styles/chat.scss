@@ -122,7 +122,7 @@ body{
     align-items: center;
     border-radius: 12px;
     overflow: hidden;
-    background: var(--msg-get-reply);
+    background: var(--primary-dark);
     transition: 100ms ease-in-out;
     transform: translateX(-50%) scale(0.5);
     transform-origin: bottom;
@@ -230,7 +230,7 @@ img:is(.sticker){
 #sidebar{
     padding: 10px;
     border-radius: 0 5px 5px 0;
-    background: var(--msg-get-reply);
+    background: var(--primary-dark);
     backdrop-filter: blur(10px);
     z-index: 90;
     display: flex;
@@ -362,7 +362,7 @@ img:is(.sticker){
     width: min(85vw, 380px);
     gap: 10px;
     padding: 20px;
-    background: var(--msg-get-reply);
+    background: var(--primary-dark);
     border-radius: 10px;
 }
 
@@ -551,7 +551,7 @@ img{
         width: max-content;
         visibility: visible;
         opacity: 1;
-        background: var(--msg-get-reply);
+        background: var(--primary-dark);
         z-index: 1;
     }
 }
@@ -755,7 +755,7 @@ i[class^=fa-]{
     justify-content: space-between;
     padding: 10px;
     margin: 0 10px;
-    background: var(--msg-get-reply);
+    background: var(--primary-dark);
     border-radius: 10px;
     position: relative;
     visibility: hidden;
@@ -919,7 +919,7 @@ i[class^=fa-]{
     width: 100%;
     padding: 5px;
     border-radius: 20px 20px 0 0;
-    background: var(--msg-get-reply);
+    background: var(--primary-dark);
     place-content: center;
     display: grid;
     transition: 100ms ease-in-out;
@@ -956,7 +956,7 @@ i[class^=fa-]{
     width: max-content;
     align-items: center;
     border-radius: 10px;
-    background: var(--msg-get-reply);
+    background: var(--primary-dark);
     transition: 100ms ease-in-out;
     & > *{
         transition: 100ms ease-in;
@@ -1022,7 +1022,7 @@ i[class^=fa-]{
     top: 20px;
     display: flex;
     flex-direction: column;
-    background: var(--msg-get-reply);
+    background: var(--primary-dark);
     padding: 20px;
     margin-bottom: 80px;
     width: 300px;
