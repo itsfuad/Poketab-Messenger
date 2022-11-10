@@ -133,6 +133,20 @@ body {
   -webkit-user-drag: none;
 }
 
+.horizontal-flow {
+  display: flex;
+  flex-direction: row;
+  width: 90%;
+  border-radius: 10px;
+}
+.horizontal-flow .fa-angle-left, .horizontal-flow .fa-angle-right {
+  color: var(--secondary-dark);
+}
+.horizontal-flow .fa-angle-left:hover, .horizontal-flow .fa-angle-right:hover {
+  cursor: pointer;
+  background: var(--focus-dark);
+}
+
 .stickerGroups {
   display: flex;
   flex-direction: row;
@@ -151,9 +165,11 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  padding: 3px 10px;
   align-items: center;
   gap: 10px;
+  padding: 4px;
+  width: 100%;
+  overflow-x: scroll;
 }
 .stickerGroups .names > img {
   height: 30px;

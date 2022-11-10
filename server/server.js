@@ -124,8 +124,9 @@ app.post('/chat', (req, res) => {
   if (keys.has(key) || devMode){
     let user = users.getUserList(key);
     let max_users = users.getMaxUser(key) ?? maxuser;
+    //console.log(max_users);
     let uid = uuid.v4();
-    if (user.length >= max_users){
+    if (user.length >= max_users || max_users > 10){
       res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
     }else{
       res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, devMode: devMode});
@@ -327,5 +328,5 @@ auth.on('connection', (socket) => {
 
 
 server.listen(port, () => {
-    console.log(`TCP Server listening on port ${port}`);
+    console.log(`Server is up on port ${port}`);
 });

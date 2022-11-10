@@ -188,7 +188,7 @@ code {
   max-width: 100%;
   min-height: 100px;
   min-width: 100px;
-  background: var(--msg-get);
+  background: rgba(255, 255, 255, 0.0901960784);
 }
 .messageMain img.sticker {
   background: none;
@@ -299,9 +299,6 @@ code {
 }
 .message:is(.self) .messageBody .messageMain > * {
   border-radius: 15px 3px 3px 15px;
-}
-.message:is(.self) .messageBody .messageMain img {
-  background: var(--msg-send);
 }
 .message:is(.self):is(.start) .messageMain > * {
   border-bottom-right-radius: 3px;

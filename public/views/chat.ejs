@@ -106,10 +106,10 @@
                             <div class="text">Location</div>
                         </div>
                         <!-- Poll -->
-                        <div class="poll clickable" id="createPollBtn">
+                        <!--div class="poll clickable" id="createPollBtn">
                             <i class="fa-solid fa-square-poll-horizontal"></i>
                             <div class="text">Poll</div>
-                        </div>
+                        </!div-->
                     </div>
                 </div>
                 <textarea name="chatInputBox" id="textbox" class="select" rows="1" placeholder="Message..."></textarea>
@@ -119,7 +119,11 @@
         </div>
         <div class="stickersPanel" id="stickersPanel">
             <div class="stickerGroups">
-                <div class="names" id="selectStickerGroup"></div>
+                <div class="horizontal-flow">
+                    <i class="fa-solid fa-angle-left"></i>
+                    <div class="names" id="selectStickerGroup"></div>
+                    <i class="fa-solid fa-angle-right"></i>
+                </div>
                 <i class="fa-solid fa-xmark clickable" id="closeStickersPanel"></i>
             </div>
             <div class="stickers" id="stickers">Loading&nbsp;<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--secondary-dark)"></i></div>

@@ -140,6 +140,22 @@ body{
         -webkit-user-drag: none;
     }
 }
+
+.horizontal-flow{
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    //background: aquamarine;
+    border-radius: 10px;
+    .fa-angle-left, .fa-angle-right{
+        color: var(--secondary-dark);
+        &:hover{
+            cursor: pointer;
+            background: var(--focus-dark);
+        }
+    }
+}
+
 .stickerGroups{
     display: flex;
     flex-direction: row;
@@ -157,9 +173,11 @@ body{
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
-        padding: 3px 10px;
         align-items: center;
         gap: 10px;
+        padding: 4px;
+        width: 100%;
+        overflow-x: scroll;
     
         & > img{
             height: 30px;

@@ -193,7 +193,7 @@ code{
         max-width: 100%;
         min-height: 100px;
         min-width: 100px;
-        background: var(--msg-get);
+        background: #ffffff17;
         &.sticker{
             background: none;
         }
@@ -317,9 +317,6 @@ code{
             & > *{
                 border-radius: 15px 3px 3px 15px;
             }
-            img{
-                background: var(--msg-send);
-            }
         }
     }
     &:is(.start){
@@ -433,3 +430,4 @@ code{
     align-items: flex-end;
     justify-content: center;
 }
+

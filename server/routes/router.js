@@ -4,10 +4,11 @@ const { access } = require('fs/promises');
 const uuid = require('uuid').v4;
 const { store } = require('../keys/cred');
 
+
 let storage = multer.diskStorage({
     destination: (_, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => {
-        if (file.size >= 15000000){
+        if (file.size >= 15 * 1024 * 1024){
             cb(new Error("File size more than 15mb"), filename);
         }else{
             const filename = `poketab-${uuid()}-${file.originalname}`;
@@ -19,7 +20,7 @@ let storage = multer.diskStorage({
 
 let upload = multer({ 
     storage: storage,
-    limits: { fileSize: 15000000 },
+    limits: { fileSize: 15 * 1024 * 1024 },
 }).single('file'); //name field name
 
 router.post('/', async (req, res) => {
@@ -29,10 +30,11 @@ router.post('/', async (req, res) => {
     upload(req, res, (err) => {
         if (err) {
             console.log('File cannot be stored:', err.message);
-            res.send({ error: err.message });
+            //send error response
+            res.status(400).send({error: err.message});
         } else {
             //fileStore[req.file.filename] = {filename: req.file.filename, downloaded: 0, key: req.body.key};
-            res.send({ success: true, downlink: req.file.filename });
+            res.status(200).send({ success: true, downlink: req.file.filename });
             console.log('Temporary file stored.');
         }
     });
@@ -46,8 +48,8 @@ router.get('/:id', (req, res) => {
     .then(() => {
         res.sendFile(`uploads/${req.params.id}`, { root: __dirname + '/../..' });
     }).catch(err => {
-        console.log(`Error file access: ${err}`);
-        res.status(404).send('Not found');
+        console.log(`${err}`);
+        res.status(404).send({ error: 'File not found' });
     });
 });
 

@@ -1106,6 +1106,9 @@ function vibrate(){
     }
 }
 
+
+
+
 let stickerNames;
 let stickers = '';
 let selectedStickerGroup, selectedStickerGroupCount;
@@ -1113,21 +1116,28 @@ let selectedStickerGroup, selectedStickerGroupCount;
 selectedStickerGroup = Stickers[0].name;
 selectedStickerGroupCount = Stickers[0].count;
 
+const stickersGrp = document.getElementById('selectStickerGroup');
 
 function loadStickers(){
     stickers = '';
     stickerNames = Stickers.map(sticker => {
-        return `<img src="/stickers/${sticker.name}/animated/${sticker.icon}.webp" alt="${sticker.name}" data-name="${sticker.name}" class="stickerName clickable">`;
+        if (sticker.name != selectedStickerGroup){
+            return `<img src="/stickers/${sticker.name}/animated/${sticker.icon}.webp" alt="${sticker.name}" data-name="${sticker.name}" class="stickerName clickable">`;
+        }
     }).join('');
+
+    stickerNames = `<img src="/stickers/${selectedStickerGroup}/animated/${Stickers.find(sticker => sticker.name == selectedStickerGroup).icon}.webp" alt="${selectedStickerGroup}" data-name="${selectedStickerGroup}" class="stickerName clickable selected">` + stickerNames;
 
     for (let i = 1; i <= selectedStickerGroupCount; i++) {
         stickers += `<img src="/stickers/${selectedStickerGroup}/static/${i}.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/animated/${i}" class="stickerpack clickable">`;
     }
 
-    document.getElementById('selectStickerGroup').innerHTML = stickerNames;
+    stickersGrp.innerHTML = stickerNames;
     document.getElementById('stickers').innerHTML = stickers;
+
     //document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["THEME"]].msg_send;
-    document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').dataset.selected = 'true';
+    const selectedSticker = document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]');
+    selectedSticker.dataset.selected = 'true';
 }
 
 function showStickersPanel(){
@@ -1144,6 +1154,22 @@ document.getElementById('closeStickersPanel').addEventListener('click', () => {
     lastPageLength = messages.scrollTop;
     closeStickersPanel();
     updateScroll();
+});
+
+document.querySelector('.fa-angle-left').addEventListener('click', () => {
+    //scroll to left by 60px
+    stickersGrp.scrollTo({
+        left: stickersGrp.scrollLeft - 60,
+        behavior: 'smooth'
+    });
+});
+
+document.querySelector('.fa-angle-right').addEventListener('click', () => {
+    //scroll to right by 60px
+    stickersGrp.scrollTo({
+        left: stickersGrp.scrollLeft + 60,
+        behavior: 'smooth'
+    });
 });
 
 function closeStickersPanel(){
@@ -1495,6 +1521,7 @@ deleteOption.addEventListener('click', ()=>{
 });
 
 photoButton.addEventListener('change', ()=>{
+
     ImagePreview();
 });
 
@@ -1503,6 +1530,13 @@ fileButton.addEventListener('change', ()=>{
 });
 
 function ImagePreview(fileFromClipboard = null){
+    let file = fileFromClipboard || photoButton.files[0];
+
+    if (file.size > 15 * 1024 * 1024){
+        popupMessage('File size too large');
+        return;
+    }
+
     document.getElementById('previewImage').querySelector('#imageSend').style.display = 'none';
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
@@ -1510,7 +1544,7 @@ function ImagePreview(fileFromClipboard = null){
     const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
     document.getElementById('selectedImage').append(fragment);
     document.getElementById('previewImage')?.classList?.add('active');
-    let file = fileFromClipboard || photoButton.files[0];
+
     let reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (e) => {
@@ -1730,7 +1764,8 @@ async function sendImageStoreRequest(){
     image.src = selectedImage.data;
     image.mimetype = selectedImage.ext;
     image.onload = async function() {
-        let resized = resizeImage(image, image.mimetype);
+        //let resized = resizeImage(image, image.mimetype);
+        let resized = {data: image.src, height: image.height, width: image.width};
         let thumbnail = resizeImage(image, image.mimetype, 25);
         let tempId = makeId();
         scrolling = false;
@@ -1786,7 +1821,7 @@ async function sendImageStoreRequest(){
             }
             else{
                 console.log('error uploading image');
-                elem.querySelector('.sendingImage').textContent = 'Error: ' + this.responseText;
+                elem.querySelector('.sendingImage').textContent = this.responseText;
                 fileSocket.emit('fileUploadError', myKey, tempId, 'image');
             }
         }
@@ -1944,11 +1979,12 @@ document.getElementById('send-location').addEventListener('click', () => {
         popupMessage(error.message);
     });
 });
-
+/*
 document.getElementById('createPollBtn').addEventListener('click', () => {
     console.log('initiating poll');
     popupMessage('Poll option will be available soon.');
 });
+*/
 
 document.querySelectorAll('.clickable').forEach(elem => {
     elem.addEventListener('click', () => {
