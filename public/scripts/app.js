@@ -630,7 +630,6 @@ function downloadFile(){
 
 function optionsReactEvent(e){
     let target = e.target?.classList[0];
-    console.log(target);
     if (target){
         sendReact(target);
     }
@@ -1352,7 +1351,6 @@ document.querySelectorAll('.theme').forEach(theme => {
 });
 
 showMoreReactBtn.addEventListener('click', ()=>{
-    console.log('show more');
     updateReactsChooser();
 });
 
@@ -1377,7 +1375,6 @@ document.querySelector('.moreReacts').addEventListener('click', (evt)=>{
     //if target is not self
     if (target != document.querySelector('.moreReacts')){
         let react = target.textContent;
-        console.log(react);
         sendReact(react);
         hideOptions();
     }
@@ -2312,6 +2309,7 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
             }
         }else if (this.status == 404){
             console.log('404');
+            progressContainer.textContent = 'File deleted';
         }
     }
     xhr.send();
