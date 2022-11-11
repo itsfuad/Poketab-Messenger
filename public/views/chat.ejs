@@ -18,11 +18,17 @@
     <!--The side menu-->
     <div id="sidebar_wrapper">
         <div id="sidebar">
-            <div id="keyname" class="clickable keyCopy"><i class="fa-regular fa-clone"></i><span><%=myKey_%></span></div>
+            <div class="topbar">
+                <div id="keyname" class="clickable keyCopy"><i class="fa-regular fa-clone"></i><span><%=myKey_%></span></div>
+            </div>
             <ul id="userlist"></ul>
             <div class="footer_options">
                 <div class="theme_option clickable"><i class="fa-solid fa-palette"></i>Theme</div>
                 <div id="logout" class="clickable"><i class="fa-solid fa-arrow-right-from-bracket"></i>Log Out</div>
+            </div>
+            <div class="credits">
+                <div class="version">Version: <%=version%></div>
+                <div class="author">Developed by <%=developer%></div>
             </div>
         </div>
         <div class="close_area"></div>
@@ -90,19 +96,19 @@
                     <div class="attachmentContainer">
                         <!-- File Choose -->
                         <div class="upload_file clickable">
-                            <label for="file" class="file-input-label"><i class="fa-regular fa-file-lines"></i></label>
+                            <label for="file" class="file-input-label"><i class="fa-regular fa-file-lines fa-shake"></i></label>
                             <input type="file" name="file" id="file">
                             <div class="text">File</div>
                         </div>
                         <!-- Image Choose -->
                         <div class="upload_image clickable">
-                            <label for="photo"><i class="fa-regular fa-image"></i></label>
+                            <label for="photo"><i class="fa-regular fa-image fa-shake"></i></label>
                             <input type="file" name="photo" id="photo" accept="image/png, image/jpg, image/jpeg, image/gif">
                             <div class="text">Image</div>
                         </div>
                         <!-- Location input -->
                         <div class="location clickable" id="send-location">
-                            <i class="fa-solid fa-location-crosshairs"></i>
+                            <i class="fa-solid fa-location-crosshairs fa-shake"></i>
                             <div class="text">Location</div>
                         </div>
                         <!-- Poll -->
@@ -138,16 +144,14 @@
     <div id="optionsContainerWrapper">
         <div class="close_area"></div>
         <div id="optionsContainer">
-            <div class="reactOptionsWrapper">
+            <div class="reactOptionsWrapper" data-closed="true">
                 <ul id="reactOptions" class="options">
-                    <div class="💙">💙</div>
-                    <div class="😂">😂</div>
-                    <div class="😮">😮</div>
-                    <div class="😢">😢</div>
-                    <div class="😠">😠</div>
-                    <div class="👍🏻">👍🏻</div>
-                    <div class="👎🏻">👎🏻</div>
+                    <!--Reacts-->
+                    <div class="more" id="showMoreReactBtn"><i class="fa-solid fa-plus"></i></div>
                 </ul>
+                <div class="moreReacts">
+                    <!-- Add more emojis -->
+                </div>
             </div>
             <div class="normalOptionWrapper">
                 <ul id="normalOptions" class="options">

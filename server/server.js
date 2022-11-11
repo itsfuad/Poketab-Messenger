@@ -7,9 +7,15 @@ const cors = require('cors');
 const socketIO = require('socket.io');
 const uuid = require("uuid");
 
+const { Worker } = require('worker_threads');
+const { reactArray } = require('./utils/validation.js');
+
 require('dotenv').config();
 
 const version = process.env.npm_package_version || "Development";
+const developer = "Fuad Hasan";
+
+console.log(developer);
 const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
 const { isRealString, validateUserName, avList } = require('./utils/validation');
@@ -33,7 +39,7 @@ const port = process.env.PORT || 3000;
 let app = express();
 let server = http.createServer(app);
 let io = socketIO(server,{
-  maxHttpBufferSize: 1e8, pingTimeout: 60000,
+  maxHttpBufferSize: 1e6, pingTimeout: 60000,
   async_handlers: true
 });
 
@@ -129,7 +135,7 @@ app.post('/chat', (req, res) => {
     if (user.length >= max_users || max_users > 10){
       res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
     }else{
-      res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, devMode: devMode});
+      res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, devMode: devMode, developer: developer});
     }
   }else{
     //send invalid key message
@@ -176,8 +182,18 @@ io.on('connection', (socket) => {
     if (user && isRealString(message)) {
       let id = uuid.v4();
       message = message.replace(/>/gi, "&gt;").replace(/</gi, "&lt;");
-      socket.broadcast.to(user.key).emit('newMessage', message, type, id, uId, reply, replyId, options);
-      callback(id);
+      
+      if (type === 'text'){
+        //create new Worker
+        const worker = new Worker('./server/worker.js', {workerData: {message: message}});
+        worker.on('message', (data) => {
+          socket.broadcast.to(user.key).emit('newMessage', data, type, id, uId, reply, replyId, options);
+          callback(id);
+        });
+      }else{
+        socket.broadcast.to(user.key).emit('newMessage', message, type, id, uId, reply, replyId, options);
+        callback(id);
+      }
     }
   });
 
@@ -191,7 +207,7 @@ io.on('connection', (socket) => {
 
   socket.on('react', (target, messageId, myId) => {
     let user = users.getUser(uids.get(socket.id));
-    if (user) {
+    if (user && reactArray.primary.includes(target) || reactArray.expanded.includes(target)) {
       io.to(user.key).emit('getReact', target, messageId, myId);
     }
   });
@@ -210,7 +226,7 @@ io.on('connection', (socket) => {
     let user = users.getUser(uids.get(socket.id));
     if (user) {
       const srvID = uuid.v4();
-      io.to(user.key).emit('server_message', {color: 'var(--secondary-dark);', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot" style="padding: 10px 5px 10px 0;"></i>${user.name}'s location</a>`, user: user.name, id: srvID}, 'location');
+      io.to(user.key).emit('server_message', {color: 'var(--secondary-dark);', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot fa-flip" style="padding: 15px 5px; --fa-animation-duration: 2s; font-size: 2rem;"></i>${user.name}'s location</a>`, user: user.name, id: srvID}, 'location');
     }
   });
 

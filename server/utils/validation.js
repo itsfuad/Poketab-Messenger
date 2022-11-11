@@ -39,5 +39,19 @@ function validateUserName(username){
   return (name_format.test(username) && username.trim().length > 0);
 }
 
+const reactArray = {
+  primary: ['💙', '😂','😮','😢','😠', '🙂'], //this will be added in a reverse order
+  expanded: [
+      '❤️','😍','😡','👏','👌🏻', '👍🏻',
+      '👎🏻', '👀','🤣','🤔','🤦','🤷',
+      '🙆‍♀️','🤦‍♂️','🤷‍♂️','🙆‍♂️','🙄','🤭',
+      '🤫','🤩','🤯','🤮','🤢','🤧',
+      '🤠','🤡','🤥','🤤','🤬','🤪',
+      '🤨','🤗','🤑','🤓','🤫','😶',
+      '😐','😑','😬','😏','😒','😳',
+      '😞','😟','😤','😭','😪','😴',
+      '😵','😲', '😷','😱','😨','😰',]
+};
+
   
-module.exports = {isRealString, validateUserName, avList};
+module.exports = {isRealString, validateUserName, avList, reactArray};

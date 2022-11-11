@@ -255,10 +255,26 @@ img:is(.sticker) {
 #sidebar #userlist .user {
   display: flex;
   flex-direction: row;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   gap: 5px;
   font-weight: 900;
+}
+#sidebar #userlist .user .avt {
+  position: relative;
+}
+#sidebar #userlist .user .avt img {
+  display: block;
+  border: 2px solid var(--option-color);
+  border-radius: 25px;
+  background: var(--option-color);
+}
+#sidebar #userlist .user .avt .activeStatus {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 0.5rem;
+  color: lime;
 }
 #sidebar .footer_options {
   display: flex;
@@ -393,6 +409,7 @@ img {
   font-size: 0.7rem;
   transition: 0.1s ease-in-out;
   color: #fff;
+  background: var(--primary-dark);
   flex-direction: row;
   align-content: center;
   align-items: center;
@@ -579,7 +596,8 @@ input[type=file] {
   left: 0;
   height: 100%;
   width: 100%;
-  background: #192838;
+  background: #111d2a url("/images/backgrounds/pattern.jpg");
+  background-blend-mode: darken;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -697,6 +715,17 @@ i[class^=fa-] {
 
 .fa-file-lines, .fa-image, .fa-location-crosshairs, .fa-square-poll-horizontal {
   color: white;
+  --fa-animation-duration: 2s;
+}
+
+.fa-image {
+  -webkit-animation-delay: 0.3s;
+          animation-delay: 0.3s;
+}
+
+.fa-location-crosshairs {
+  -webkit-animation-delay: 0.6s;
+          animation-delay: 0.6s;
 }
 
 .file_preview .fa-file-lines {
@@ -738,6 +767,22 @@ i[class^=fa-] {
   justify-content: center;
   align-items: center;
   padding-bottom: 10px;
+}
+
+.credits {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.5rem;
+  padding-top: 5px;
+  gap: 5px;
+  color: grey;
+}
+.credits .version, .credits .author {
+  color: currentColor;
 }
 
 #replyToast {
@@ -827,7 +872,8 @@ i[class^=fa-] {
   left: 0;
   width: 100%;
   height: 100%;
-  background: #0d1a24;
+  background: #111d2a url("/images/backgrounds/pattern.jpg");
+  background-blend-mode: darken;
   z-index: 100;
   visibility: hidden;
   opacity: 0;
@@ -884,8 +930,7 @@ i[class^=fa-] {
   left: 0;
   bottom: 0;
   right: 0;
-  grid-template-rows: 1fr 30%;
-  display: none;
+  display: flex;
   visibility: hidden;
   opacity: 0;
   -webkit-backdrop-filter: blur(2px) brightness(0.5);
@@ -904,11 +949,13 @@ i[class^=fa-] {
   justify-content: flex-end;
   align-items: center;
   bottom: 0;
+  width: 100%;
+  gap: 50px;
 }
 
 .normalOptionWrapper {
   position: relative;
-  top: 20px;
+  top: 0px;
   width: 100%;
   padding: 5px;
   border-radius: 20px 20px 0 0;
@@ -920,13 +967,49 @@ i[class^=fa-] {
 
 .reactOptionsWrapper {
   position: relative;
-  transform: scale(0);
-  width: 100%;
-  height: 100%;
-  padding: 40px 0;
+  transform: scale(1);
+  width: -webkit-min-content;
+  width: -moz-min-content;
+  width: min-content;
+  max-height: 35px;
   place-content: center;
   display: grid;
   transition: 100ms ease-in-out;
+  background: var(--option-color);
+  border-radius: 10px;
+}
+.reactOptionsWrapper.more {
+  max-height: 200px;
+}
+
+.moreReacts {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+  font-size: 1.3rem;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 5px 20px;
+  height: 100%;
+  overflow-y: scroll;
+  visibility: hidden;
+  opacity: 0;
+  transition: 100ms ease-in-out;
+}
+.moreReacts.active {
+  visibility: visible;
+  opacity: 1;
+}
+.moreReacts > div {
+  padding: 5px;
+  border-radius: 10px;
+}
+.moreReacts > div:hover {
+  cursor: pointer;
+  background: var(--focus-dark);
 }
 
 #optionsContainerWrapper.active .normalOptionWrapper {
@@ -947,7 +1030,6 @@ i[class^=fa-] {
   width: max-content;
   align-items: center;
   border-radius: 10px;
-  background: var(--primary-dark);
   transition: 100ms ease-in-out;
 }
 .options > * {
@@ -955,18 +1037,23 @@ i[class^=fa-] {
 }
 .options > :hover {
   cursor: pointer;
-}
-.options > :hover {
-  transform: scale(1.1);
+  background: var(--focus-dark);
+  border-radius: 10px;
 }
 .options:is(#reactOptions) {
   gap: 5px;
   font-size: 1.3rem;
   padding: 3px 10px;
+  background: var(--primary-dark);
 }
 .options:is(#reactOptions) > div {
   border-radius: 10px;
   padding: 5px;
+  filter: saturate(0.8);
+}
+.options:is(#reactOptions) > div:hover {
+  cursor: pointer;
+  filter: saturate(1.2);
 }
 .options:is(#normalOptions) > div {
   display: flex;

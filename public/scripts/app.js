@@ -2,11 +2,11 @@
 'use strict';
 
 //bundles
-
+/*
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
-
+*/
 console.log('loaded');
 
 //variables
@@ -25,6 +25,8 @@ const downloadOption = document.querySelector('.downloadOption');
 const deleteOption = document.querySelector('.deleteOption');
 const replyOption = document.querySelector('.replyOption');
 const fileDropZone = document.querySelector('.fileDropZone');
+const showMoreReactBtn = document.getElementById('showMoreReactBtn');
+
 
 const incommingmessage = new Audio('/sounds/incommingmessage.mp3');
 const outgoingmessage = new Audio('/sounds/outgoingmessage.mp3');
@@ -43,7 +45,36 @@ const fileButton = document.getElementById('file');
 
 let isTyping = false, timeout = undefined;
 
-const reactArray = ['💙', '😂','😮','😢','😠','👍🏻','👎🏻'];
+const reactArray = {
+    primary: ['💙', '😂','😮','😢','😠', '🙂'], //this will be added in a reverse order
+    expanded: [
+        '❤️','😍','😡','👏','👌🏻', '👍🏻',
+        '👎🏻', '👀','🤣','🤔','🤦','🤷',
+        '🙆‍♀️','🤦‍♂️','🤷‍♂️','🙆‍♂️','🙄','🤭',
+        '🤫','🤩','🤯','🤮','🤢','🤧',
+        '🤠','🤡','🤥','🤤','🤬','🤪',
+        '🤨','🤗','🤑','🤓','🤫','😶',
+        '😐','😑','😬','😏','😒','😳',
+        '😞','😟','😤','😭','😪','😴',
+        '😵','😲', '😷','😱','😨','😰',]
+};
+
+function loadReacts(){
+
+    reactArray.primary.forEach((react) => {
+        let reacts = document.getElementById('reactOptions');
+        //add html before the last child
+        reacts.insertAdjacentHTML('afterbegin', `<div class="${react}">${react}</div>`);
+    });
+
+    reactArray.expanded.forEach(react => {
+        let moreReacts = document.querySelector('.moreReacts');
+        moreReacts.innerHTML += `<div class=${react}>${react}</div>`;
+    });
+}
+
+loadReacts();
+
 //here we add the usernames who are typing
 const userTypingMap = new Map();
 //all the user and their info is stored in this map
@@ -358,16 +389,8 @@ window.addEventListener('focus', () => {
 });
 
 function getCurrentTime(){
-    //return time in hh:mm a format
-    let date = new Date();
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let ampm = hours >= 12 ? 'pm' : 'am';
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    minutes = minutes < 10 ? '0' + minutes : minutes;
-    let strTime = hours + ':' + minutes + ' ' + ampm;
-    return strTime;
+    //return time in hh:mm a format using Intl.DateTimeFormat
+    return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).format(new Date());
 }
 
 function messageFilter(message){
@@ -396,7 +419,7 @@ function emojiParser(text){
     emojiMap.set('o3o', '😗');
     emojiMap.set('^3^', '😙');
     emojiMap.set('^_^', '😊');
-    emojiMap.set('<3', '💙');
+    emojiMap.set('<3', '❤️');
     emojiMap.set('>_<', '😣');
     emojiMap.set('>_>', '😒');
     emojiMap.set('-_-', '😑');
@@ -455,6 +478,10 @@ function showOptions(type, sender, target){
     document.querySelectorAll(`#reactOptions div`).forEach(
         option => option.style.background = 'none'
     );
+    document.querySelectorAll(`.moreReacts div`).forEach(
+        option => option.style.background = 'none'
+    );
+    document.getElementById('showMoreReactBtn').style.background = 'none';
     if (target.classList.contains('imageReply')){
         return;
     }
@@ -496,8 +523,14 @@ function showOptions(type, sender, target){
     if (clicked){ //if the message has my reaction
         //get how many reactions the message has
         let clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
-        //selected react color
-        document.querySelector(`#reactOptions .${clickedElement}`).style.background = themeAccent[THEME].secondary;
+        //console.log(clickedElement);
+        if (reactArray.primary.includes(clickedElement)){ //if the message has my primary reaction
+            //selected react color
+            document.querySelector(`#reactOptions .${clickedElement}`).style.background = themeAccent[THEME].secondary;
+        }else if (reactArray.expanded.includes(clickedElement)){ //if the message has my secondary reaction
+            document.getElementById('showMoreReactBtn').style.background = themeAccent[THEME].secondary;
+            document.querySelector(`.moreReacts .${clickedElement}`).style.background = themeAccent[THEME].secondary;
+        }
     }
     //show the options
     let options = document.getElementById('optionsContainerWrapper');
@@ -510,8 +543,9 @@ function showOptions(type, sender, target){
 }
 
 function optionsMainEvent(e){
-    let target = e.target?.parentNode?.classList[0];
-    if (target){
+    let target = e.target;
+    //console.log(target);
+    if (target.classList.contains('close_area') || target.id == 'optionsContainer'){
         hideOptions();
     }
     optionsReactEvent(e);
@@ -596,17 +630,25 @@ function downloadFile(){
 
 function optionsReactEvent(e){
     let target = e.target?.classList[0];
-    let messageId = targetMessage.id;
+    console.log(target);
     if (target){
-        if (reactArray.includes(target)){
-            socket.emit('react', target, messageId, myId);
-            hideOptions();
-        }
+        sendReact(target);
+    }
+}
+
+function sendReact(react){
+    if (reactArray.primary.includes(react) || reactArray.expanded.includes(react)){
+        let messageId = targetMessage.id;
+        socket.emit('react', react, messageId, myId);
+        hideOptions();
     }
 }
 
 function hideOptions(){
     let options = document.getElementById('optionsContainerWrapper');
+    let container = document.querySelector('.reactOptionsWrapper');
+    container.dataset.closed = 'false';
+    updateReactsChooser();
     options.classList.remove('active');
     document.getElementById('sidebar_wrapper').classList.remove('active');
     document.querySelector('.themeChooser').classList.remove('active');
@@ -1039,15 +1081,15 @@ function resizeImage(img, mimetype, q = 1080) {
 }
   
 function linkify(inputText) {
-let replacedText, replacePattern1, replacePattern2, replacePattern3;
-replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
-replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
-replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
-replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
-replacePattern3 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
-replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
-//get the first link
-return replacedText;
+    let replacedText, replacePattern1, replacePattern2, replacePattern3;
+    replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+    replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
+    replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+    replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
+    replacePattern3 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
+    replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
+    //get the first link
+    return replacedText;
 }
 
 
@@ -1239,8 +1281,19 @@ document.getElementById('more').addEventListener('click', ()=>{
     document.getElementById('focus_glass').classList.add('active');
 });
 
+let timeoutClone;
 document.querySelectorAll('.keyCopy').forEach(elem => {
-    elem.addEventListener('click', ()=>{
+    elem.addEventListener('click', (evt)=>{
+        let target = evt.target.closest('.keyCopy').querySelector('.fa-clone');
+        target.classList.replace('fa-clone', 'fa-check');
+        target.classList.replace('fa-regular', 'fa-solid');
+        target.style.color = 'var(--secondary-dark)';
+        if (timeoutClone) {clearTimeout(timeoutClone)};
+        timeoutClone = setTimeout(() => {
+            target.classList.replace('fa-check', 'fa-clone');
+            target.classList.replace('fa-solid', 'fa-regular');
+            target.style.color = 'var(--secondary-dark)';
+        }, 1000);
         copyText(myKey);
     });
 });
@@ -1298,6 +1351,37 @@ document.querySelectorAll('.theme').forEach(theme => {
     });
 });
 
+showMoreReactBtn.addEventListener('click', ()=>{
+    console.log('show more');
+    updateReactsChooser();
+});
+
+function updateReactsChooser(){
+    let container = document.querySelector('.reactOptionsWrapper');
+    let closed = container.dataset.closed == 'true';
+    if (closed){
+        container.style.maxHeight = '200px';
+        container.dataset.closed = 'false';
+        container.querySelector('.fa-solid').classList.replace('fa-plus', 'fa-chevron-up');
+        document.querySelector('.moreReacts').classList.add('active');
+    }else{
+        container.style.maxHeight = '35px';
+        container.dataset.closed = 'true';
+        container.querySelector('.fa-solid').classList.replace('fa-chevron-up', 'fa-plus');
+        document.querySelector('.moreReacts').classList.remove('active');
+    }
+}
+
+document.querySelector('.moreReacts').addEventListener('click', (evt)=>{
+    let target = evt.target;
+    //if target is not self
+    if (target != document.querySelector('.moreReacts')){
+        let react = target.textContent;
+        console.log(react);
+        sendReact(react);
+        hideOptions();
+    }
+}); 
 
 messages.addEventListener('scroll', () => {
     scroll = messages.scrollTop;
@@ -1510,12 +1594,14 @@ window.addEventListener('resize',()=>{
 
 replyOption.addEventListener('click', showReplyToast);
 copyOption.addEventListener('click', () => {
+    hideOptions();
     copyText(null);
 });
 downloadOption.addEventListener('click', downloadHandler);
 deleteOption.addEventListener('click', ()=>{
     let uid = document.getElementById(targetMessage.id)?.dataset?.uid;
     if (uid){
+        hideOptions();
         socket.emit('deletemessage', targetMessage.id, uid, myName, myId);
     }
 });
@@ -1541,7 +1627,7 @@ function ImagePreview(fileFromClipboard = null){
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
-    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
+    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-gear fa-spin"></i>`);
     document.getElementById('selectedImage').append(fragment);
     document.getElementById('previewImage')?.classList?.add('active');
 
@@ -1665,7 +1751,7 @@ window.addEventListener('offline', function(e) {
     document.querySelector('.offline .icon i').classList.replace('fa-wifi', 'fa-circle-exclamation');
     document.querySelector('.offline .text').textContent = 'You are offline!';
     document.querySelector('.offline').classList.add('active');
-    document.querySelector('.offline').style.background = 'var(--msg-get-reply)';
+    document.querySelector('.offline').style.background = 'var(--primary-dark)';
 });
 
 window.addEventListener('online', function(e) {
@@ -2055,7 +2141,7 @@ socket.on('updateUserList', users => {
         document.getElementById('userlist').removeChild(document.getElementById('userlist').firstChild);
     }
     users.forEach(user => {
-        let html = `<li class="user" data-uid="${user.uid}"><img src="/images/avatars/${user.avatar}(custom).png" height="30px" width="30px"/>${user.uid == myId ? user.name + ' (You)' : user.name}</li>`;
+        let html = `<li class="user" data-uid="${user.uid}"> <div class="avt"> <img src="/images/avatars/${user.avatar}(custom).png" height="30px" width="30px"/> <i class="fa-solid fa-circle activeStatus"></i> </div> ${user.uid == myId ? user.name + ' (You)' : user.name}</li>`;
         if (user.uid == myId){
             //document.getElementById('userlist').innerHTML = html + document.getElementById('userlist').innerHTML;
             const fragment = document.createRange().createContextualFragment(html);
