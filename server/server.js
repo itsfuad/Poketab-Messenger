@@ -30,7 +30,7 @@ const apiRequestLimiter = rateLimit({
     max: 100, // limit each IP to 100 requests per windowMs
     message: "Too many requests. Temporarily blocked from PokeTab server. Please try again later",
     standardHeaders: false, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: true // Disable the `X-RateLimit-*` headers
+    legacyHeaders: false // Disable the `X-RateLimit-*` headers
 });
 
 const publicPath = path.join(__dirname, '../public');
