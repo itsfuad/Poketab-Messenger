@@ -255,7 +255,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
         message = `<p class='text'>${message}</p>`
     }else if(type === 'image'){ //if the message is an image
         popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
-        message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'>Wait..</div>`; //insert the image
+        message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading</div>`; //insert the image
     }else if (type === 'sticker'){
         popupmsg = 'Sticker';
         message = `<img class='sticker' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
@@ -2236,7 +2236,7 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
     }else{
         insertNewMessage('', type, id, uId, reply, replyId, options, metadata);
         let elem = document.getElementById(id).querySelector('.messageMain');
-        elem.querySelector('.progress').textContent = `↑ Sending`;
+        elem.querySelector('.progress').textContent = `↑ Uploading`;
     }
     notifyUser({data: '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uId)?.name, userInfoMap.get(uId)?.avatar);
 });
@@ -2274,7 +2274,7 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
     xhr.onprogress = async function(e) {
         if (e.lengthComputable && progressContainer) {
             let percentComplete = Math.round((e.loaded / e.total) * 100);
-            progressContainer.textContent = `${percentComplete}%`;
+            progressContainer.textContent = `↓ ${percentComplete}%`;
         }
     }
 

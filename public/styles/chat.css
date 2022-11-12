@@ -611,8 +611,8 @@ input[type=file] {
   left: 0;
   height: 100%;
   width: 100%;
-  background: #111d2a url("/images/backgrounds/pattern-mini.webp");
-  background-blend-mode: multiply;
+  background: #111d2a url("/images/backgrounds/pattern-mini.png");
+  background-repeat: repeat;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -647,7 +647,7 @@ input[type=file] {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 }
 .option .close:hover {
   background: rgba(255, 255, 255, 0.0784313725);
@@ -667,7 +667,7 @@ i[class^=fa-] {
   font-size: 1.2rem;
 }
 
-.fa-link, .fa-clone, .fa-location-dot, .fa-reply, .fa-download, .fa-circle-notch, .fa-arrow-down {
+.fa-link, .fa-clone, .fa-location-dot, .fa-reply, .fa-download, .fa-circle-notch, .fa-arrow-down, .fa-gear {
   color: var(--secondary-dark);
 }
 
@@ -891,8 +891,9 @@ i[class^=fa-] {
   left: 0;
   width: 100%;
   height: 100%;
-  background: #111d2a url("/images/backgrounds/pattern.jpg");
-  background-blend-mode: darken;
+  background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
   z-index: 100;
   visibility: hidden;
   opacity: 0;
