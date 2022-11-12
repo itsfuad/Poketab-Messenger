@@ -1161,35 +1161,29 @@ const stickersGrp = document.getElementById('selectStickerGroup');
 
 function loadStickerHeader(){
     stickerNames = Stickers.map(sticker => {
-        if (sticker.name != selectedStickerGroup){
-            return `<img src="/stickers/${sticker.name}/animated/${sticker.icon}.webp" alt="${sticker.name}" data-name="${sticker.name}" class="stickerName clickable">`;
-        }
+        return `<img src="/stickers/${sticker.name}/animated/${sticker.icon}.webp" alt="${sticker.name}" data-name="${sticker.name}" class="stickerName clickable">`;
     }).join('');
 
-    stickerNames = `<img src="/stickers/${selectedStickerGroup}/animated/${Stickers.find(sticker => sticker.name == selectedStickerGroup).icon}.webp" alt="${selectedStickerGroup}" data-name="${selectedStickerGroup}" class="stickerName clickable selected">` + stickerNames;
     stickersGrp.innerHTML = stickerNames;
 }
 
-loadStickerHeader();
 
 function loadStickers(){
     stickers = '';
-
-
     for (let i = 1; i <= selectedStickerGroupCount; i++) {
-        stickers += `<img src="/stickers/${selectedStickerGroup}/static/${i}.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/animated/${i}" class="stickerpack clickable">`;
+        stickers += `<img src="/stickers/${selectedStickerGroup}/static/${i}-mini.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/animated/${i}" class="stickerpack clickable">`;
     }
-
     document.getElementById('stickers').innerHTML = stickers;
-
     //document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["THEME"]].msg_send;
     const selectedSticker = document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]');
     selectedSticker.dataset.selected = 'true';
 }
 
+loadStickerHeader();
+loadStickers();
+
 function showStickersPanel(){
     updateScroll();
-    loadStickers();
     document.getElementById('stickersPanel').style.display = 'flex';
     setTimeout(() => {
         document.getElementById('focus_glass').classList.add('active');
@@ -1242,13 +1236,7 @@ document.getElementById('selectStickerGroup').addEventListener('click', e => {
         });
         selectedStickerGroup = e.target.dataset.name;
         selectedStickerGroupCount = Stickers.find(sticker => sticker.name === selectedStickerGroup).count;
-        stickers = '';
-        for (let i = 1; i <= selectedStickerGroupCount; i++) {
-            stickers += `<img src="/stickers/${selectedStickerGroup}/static/${i}.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/animated/${i}" class="stickerpack clickable">`;
-        }
-        //document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["THEME"]].msg_send;
-        document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').dataset.selected = 'true';
-        document.getElementById('stickers').innerHTML = stickers;
+        loadStickers();
     }
 });
 
@@ -1650,7 +1638,7 @@ function ImagePreview(fileFromClipboard = null){
         }
         const fragment = document.createRange().createContextualFragment(`<img src="${data}" alt="image" class="image-message" />`);
         document.getElementById('selectedImage').append(fragment);
-        document.getElementById('previewImage').querySelector('#imageSend').style.display = 'block';
+        document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
     }
     //clear photoButton
     photoButton.value = '';
@@ -1704,7 +1692,7 @@ function FilePreview(fileFromClipboard = null){
         }
         const fragment = document.createRange().createContextualFragment(`<div class='file_preview'><i class="fa-regular fa-file-lines"></i><div>File: ${filename.length >= 25 ? filename.substring(0, 10) + '...' + filename.substring(filename.length - 10, filename.length) : filename}</div><div>Size: ${size}</div></div>`);
         document.getElementById('selectedImage').append(fragment);
-        document.getElementById('previewImage').querySelector('#imageSend').style.display = 'block';
+        document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
     }
     //clear photoButton 
     photoButton.value = '';

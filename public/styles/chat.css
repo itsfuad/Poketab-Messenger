@@ -233,6 +233,9 @@ img:is(.sticker) {
   padding-bottom: 20px;
   font-weight: 300;
 }
+#sidebar #keyname:hover {
+  filter: brightness(0.9);
+}
 #sidebar #keyname, #sidebar #keyname * {
   color: var(--secondary-dark);
   padding: 5px;
@@ -291,6 +294,9 @@ img:is(.sticker) {
   align-items: center;
   font-size: 0.8rem;
 }
+#sidebar #logout:hover {
+  filter: brightness(0.9);
+}
 #sidebar #logout, #sidebar #logout i {
   color: white;
   background: indianred;
@@ -299,6 +305,9 @@ img:is(.sticker) {
 #sidebar .theme_option {
   font-weight: 800;
   font-size: 0.8rem;
+}
+#sidebar .theme_option:hover {
+  filter: brightness(0.9);
 }
 #sidebar .theme_option, #sidebar .theme_option i {
   display: flex;
@@ -507,11 +516,17 @@ img {
   gap: 10px;
   border-radius: 15px;
 }
+.chatBox .welcomeText .link-copy:hover {
+  filter: brightness(0.9);
+}
 .chatBox .welcomeText #invite {
   background: var(--secondary-dark);
   color: var(--foreground-light);
   padding: 5px 24px;
   border-radius: 24px;
+}
+.chatBox .welcomeText #invite:hover {
+  filter: brightness(0.9);
 }
 
 ::-webkit-scrollbar {
@@ -596,8 +611,8 @@ input[type=file] {
   left: 0;
   height: 100%;
   width: 100%;
-  background: #111d2a url("/images/backgrounds/pattern.jpg");
-  background-blend-mode: darken;
+  background: #111d2a url("/images/backgrounds/pattern-mini.webp");
+  background-blend-mode: multiply;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -632,13 +647,17 @@ input[type=file] {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+}
+.option .close:hover {
+  background: rgba(255, 255, 255, 0.0784313725);
 }
 .option > div {
   width: 50px;
   height: 50px;
   display: grid;
   place-items: center;
+  justify-content: center;
 }
 .option > div:hover {
   cursor: pointer;
@@ -1156,7 +1175,7 @@ i[class^=fa-] {
     width: 50%;
   }
   .stickersPanel {
-    width: 45%;
+    width: 40%;
     min-width: 425px;
   }
   .call-btn::after {

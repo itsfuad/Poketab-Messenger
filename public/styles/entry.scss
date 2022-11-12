@@ -124,7 +124,9 @@ input[type='number']::-webkit-inner-spin-button{
 }
 
 body{
-    background: #111d2a;
+    background: #111d2a url('/images/backgrounds/pattern2-mini.webp');
+    background-blend-mode: multiply;
+    
     color: white;
     display: flex;
     flex-direction: column;
@@ -150,6 +152,7 @@ body{
     place-items: center;
     overflow: hidden;
     padding-top: 40px;
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0));
 }
 
 .redirect{
@@ -172,6 +175,9 @@ fieldset{
     }
     a{
         color: #4598ff;
+        &:hover{
+            color: #3b88e7;
+        }
     }
 }
 
@@ -214,10 +220,21 @@ fieldset{
         justify-content: center;
         align-items: center;
     }
+    input[type='text']{
+        &:hover{
+            background: #313b46;
+        }
+        &:focus{
+            border: 2px solid #4598ff;
+        }
+    }
     button{
         background: #4598ff;
         color: white;
         cursor: pointer;
+        &:hover{
+            background: #3b88e7;
+        }
     }
 }
 

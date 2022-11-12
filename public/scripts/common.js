@@ -20,10 +20,12 @@ let e_users = [];
 function validateKey(){
     let key = document.getElementById('key').value;
     if(key.length == 0){
+        document.getElementById('key').focus();
         errlog('keyErr', '*Key is required');
         return false;
     }
     if(!keyformat.test(key)){
+        document.getElementById('key').focus();
         errlog('keyErr', '*Key is not valid');
         return false;
     }
@@ -41,18 +43,22 @@ function validateUser(){
         }
     }
     if (username.length == 0){
+        document.getElementById('username').focus();
         errlog('usernameErr', '*Username is required');
         return false;
     }
     if(username.length < 3 || username.length > 20){
+        document.getElementById('username').focus();
         errlog('usernameErr', '*Name must be between 3 and 20 characters');
         return false;
     }
     if(!usernameformat.test(username)){
+        document.getElementById('username').focus();
         errlog('usernameErr', '*Cannot contain special charecters or space');
         return false;
     }
     if (e_users.includes(username)){
+        document.getElementById('username').focus();
         errlog('usernameErr', 'Username exists <i class="fa-solid fa-triangle-exclamation" style="color: orange;"></i>');
         return false;
     }

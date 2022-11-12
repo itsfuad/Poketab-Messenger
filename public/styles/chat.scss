@@ -240,6 +240,9 @@ img:is(.sticker){
     #keyname{
         padding-bottom: 20px;
         font-weight: 300;
+        &:hover{
+            filter: brightness(0.9);
+        }
     }
     #keyname, #keyname *{
         color: var(--secondary-dark);
@@ -298,6 +301,9 @@ img:is(.sticker){
         display: flex;
         align-items: center;
         font-size: .8rem;
+        &:hover{
+            filter: brightness(0.9);
+        }
     }
     #logout, #logout i{
         color: white;
@@ -307,6 +313,9 @@ img:is(.sticker){
     .theme_option{
         font-weight: 800;
         font-size: 0.8rem;
+        &:hover{
+            filter: brightness(0.9);
+        }
     }
     .theme_option, .theme_option i{
         display: flex;
@@ -512,12 +521,18 @@ img{
             padding: 5px 24px;
             gap: 10px;
             border-radius: 15px;
+            &:hover{
+                filter: brightness(0.9);
+            }
         }
         #invite{
             background: var(--secondary-dark);
             color: var(--foreground-light);
             padding: 5px 24px;
             border-radius: 24px;
+            &:hover{
+                filter: brightness(0.9);
+            }
         }
     }
 }
@@ -605,8 +620,8 @@ input[type=file] {
     left: 0;
     height: 100%;
     width: 100%;
-    background: #111d2a url('/images/backgrounds/pattern.jpg');
-    background-blend-mode: darken;
+    background: #111d2a url('/images/backgrounds/pattern-mini.webp');
+    background-blend-mode: multiply;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -641,12 +656,18 @@ input[type=file] {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    & .close{
+        &:hover{
+            background: #ffffff14;
+        }
+    }
     & > div{
         width: 50px;
         height: 50px;
         display: grid;
         place-items: center;
+        justify-content: center;
         &:hover{
             cursor: pointer;
         }
@@ -1162,7 +1183,7 @@ i[class^=fa-]{
         width: 50%;
     }
     .stickersPanel{
-        width: 45%;
+        width: 40%;
         min-width: 425px;
     }
 
