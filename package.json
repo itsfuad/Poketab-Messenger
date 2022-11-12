@@ -30,6 +30,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "compression-webpack-plugin": "^10.0.0",
     "jest": "^28.1.0",
     "nodemon": "^2.0.15",
     "webpack": "^5.72.1",

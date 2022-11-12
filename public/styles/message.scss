@@ -87,10 +87,14 @@ code{
             color: var(--secondary-dark);
             transform: translateY(20px);
             padding: 3px;
-            display: block;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 5px;
         }
         .messageReply{
             background: var(--msg-get-reply);
+            color: #ffffff60;
             border-radius: 15px 15px 15px 8px;
             width: max-content;
             max-width: 110%;
@@ -242,7 +246,7 @@ code{
         }
     }
     .messageTitle{
-        display: block;
+        display: flex;
     }
 }
 .message:is(.end){
@@ -327,7 +331,7 @@ code{
             }
         }
         .messageTitle{
-            display: block;
+            display: flex;
         }
     }
     &:is(.end){

@@ -30,7 +30,7 @@ const apiRequestLimiter = rateLimit({
     max: 100, // limit each IP to 100 requests per windowMs
     message: "Too many requests. Temporarily blocked from PokeTab server. Please try again later",
     standardHeaders: false, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false // Disable the `X-RateLimit-*` headers
+    legacyHeaders: true // Disable the `X-RateLimit-*` headers
 });
 
 const publicPath = path.join(__dirname, '../public');
@@ -135,7 +135,7 @@ app.post('/chat', (req, res) => {
     if (user.length >= max_users || max_users > 10){
       res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
     }else{
-      res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, devMode: devMode, developer: developer});
+      res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
     }
   }else{
     //send invalid key message

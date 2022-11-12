@@ -333,7 +333,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             uid: uid,
             type: type,
             repId: replyId,
-            title: options.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+            title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
             data: message,
             fileName: metadata.name,
             fileSize: metadata.size,
@@ -351,7 +351,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             uid: uid,
             type: type,
             repId: replyId,
-            title: options.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+            title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
             message: message,
             replyMsg: replyMsg,
             replyFor: replyFor,
@@ -1158,8 +1158,8 @@ selectedStickerGroupCount = Stickers[0].count;
 
 const stickersGrp = document.getElementById('selectStickerGroup');
 
-function loadStickers(){
-    stickers = '';
+
+function loadStickerHeader(){
     stickerNames = Stickers.map(sticker => {
         if (sticker.name != selectedStickerGroup){
             return `<img src="/stickers/${sticker.name}/animated/${sticker.icon}.webp" alt="${sticker.name}" data-name="${sticker.name}" class="stickerName clickable">`;
@@ -1167,12 +1167,19 @@ function loadStickers(){
     }).join('');
 
     stickerNames = `<img src="/stickers/${selectedStickerGroup}/animated/${Stickers.find(sticker => sticker.name == selectedStickerGroup).icon}.webp" alt="${selectedStickerGroup}" data-name="${selectedStickerGroup}" class="stickerName clickable selected">` + stickerNames;
+    stickersGrp.innerHTML = stickerNames;
+}
+
+loadStickerHeader();
+
+function loadStickers(){
+    stickers = '';
+
 
     for (let i = 1; i <= selectedStickerGroupCount; i++) {
         stickers += `<img src="/stickers/${selectedStickerGroup}/static/${i}.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/animated/${i}" class="stickerpack clickable">`;
     }
 
-    stickersGrp.innerHTML = stickerNames;
     document.getElementById('stickers').innerHTML = stickers;
 
     //document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["THEME"]].msg_send;

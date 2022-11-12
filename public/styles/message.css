@@ -84,10 +84,14 @@ code {
   color: var(--secondary-dark);
   transform: translateY(20px);
   padding: 3px;
-  display: block;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
 }
 .message .messageBody .messageReply {
   background: var(--msg-get-reply);
+  color: rgba(255, 255, 255, 0.3764705882);
   border-radius: 15px 15px 15px 8px;
   width: -webkit-max-content;
   width: -moz-max-content;
@@ -232,7 +236,7 @@ code {
   border-top-left-radius: 15px;
 }
 .message:is(.start) .messageTitle {
-  display: block;
+  display: flex;
 }
 
 .message:is(.end) .messageMain > * {
@@ -305,7 +309,7 @@ code {
   border-top-right-radius: 15px;
 }
 .message:is(.self):is(.start) .messageTitle {
-  display: block;
+  display: flex;
 }
 .message:is(.self):is(.end) .messageMain > * {
   border-bottom-right-radius: 15px;
