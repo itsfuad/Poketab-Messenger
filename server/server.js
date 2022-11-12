@@ -15,7 +15,7 @@ require('dotenv').config();
 const version = process.env.npm_package_version || "Development";
 const developer = "Fuad Hasan";
 
-console.log(developer);
+//console.log(developer);
 const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
 const { isRealString, validateUserName, avList } = require('./utils/validation');
