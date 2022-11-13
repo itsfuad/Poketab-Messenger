@@ -95,6 +95,10 @@ code{
         .messageReply{
             background: var(--msg-get-reply);
             color: #ffffff60;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 5px;
             border-radius: 15px 15px 15px 8px;
             width: max-content;
             max-width: 110%;
@@ -102,6 +106,11 @@ code{
             cursor: pointer;
             z-index: 10;
             padding: 8px 8px 25px 8px;
+            i {
+                padding: 2px 0 0 0;
+                color: #ffffff60;
+                font-size: 1rem !important;
+            }
             &.imageReply{
                 padding: 0;
             }

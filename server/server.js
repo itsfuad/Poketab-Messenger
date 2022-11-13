@@ -21,7 +21,7 @@ const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 const { isRealString, validateUserName, avList } = require('./utils/validation');
 const { makeid, keyformat } = require('./utils/functions');
 const { keys, uids, users } = require('./keys/cred');
-const { clean, markForDelete } = require('./cleaner')
+const { clean, markForDelete } = require('./cleaner');
 
 clean();
 

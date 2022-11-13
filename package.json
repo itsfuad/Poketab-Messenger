@@ -1,6 +1,6 @@
 {
   "name": "poketab_messanger",
-  "version": "22.0.10",
+  "version": "22.0.11",
   "description": "Realtime messaging application",
   "main": "server/server.js",
   "scripts": {
@@ -25,6 +25,7 @@
     "express-rate-limit": "^6.6.0",
     "multer": "^1.4.5-lts.1",
     "mustache": "^4.2.0",
+    "path-browserify": "^1.0.1",
     "socket.io": "^4.5.2",
     "socket.io-client": "^4.5.2",
     "uuid": "^8.3.2"

@@ -92,6 +92,10 @@ code {
 .message .messageBody .messageReply {
   background: var(--msg-get-reply);
   color: rgba(255, 255, 255, 0.3764705882);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
   border-radius: 15px 15px 15px 8px;
   width: -webkit-max-content;
   width: -moz-max-content;
@@ -101,6 +105,11 @@ code {
   cursor: pointer;
   z-index: 10;
   padding: 8px 8px 25px 8px;
+}
+.message .messageBody .messageReply i {
+  padding: 2px 0 0 0;
+  color: rgba(255, 255, 255, 0.3764705882);
+  font-size: 1rem !important;
 }
 .message .messageBody .messageReply.imageReply {
   padding: 0;

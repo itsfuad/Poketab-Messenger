@@ -46,29 +46,22 @@ const fileButton = document.getElementById('file');
 let isTyping = false, timeout = undefined;
 
 const reactArray = {
-    primary: ['🌻','💙','😮','😢','😠','😂','🙂'], //this will be added in a reverse order
-    expanded: [
-        '❤️','😍','😡','👏','👌🏻', '👍🏻','👎🏻', 
-        '👀','🤣','🤔','🤦','🤷','🙆‍♀️','🤦‍♂️',
-        '🤷‍♂️','🙆‍♂️','🙄','🤭','🤫','🤩','🤯',
-        '🤮','🤢','🤧','🤠','🤡','🤥','🤤',
-        '🤬','🤪','🤨','🤗','🤑','🤓','🤫',
-        '😶','😐','😑','😬','😏','😒','😳',
-        '😞','😟','😤','😭','😪','😴','😵',
-        '😲', '😷','😱','😨','😰','🙏🏻','😓',],
+    primary: ['🙂', '😂','😠','😢','😮','💙','🌻'],
+    expanded: ['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','🥰','😗','😙','😚','☺','🙂','🤗','🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','☹','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥺','🤠','🤡','🤥','🤫','🤭','🧐','🤓','😈','👿','👹','👺','💀','☠','👻','👽','👾','🤖','💩','😺','😸','😹','😻','😼','😽','🙀','😿','😾','🐱‍👤','🐱‍🏍','🐱‍💻','🐱‍🐉','🐱‍👓','🐱‍🚀','🙈','🙉','🙊','🐵','🐶','🐺','🐱','🦁','🐯','🦒','🦊','🦝','🐮','🐷','🐗','🐭','🐹','🐰','🐻','🐨','🐼','🐸','🦓','🐴','🦄','🐔','🐲','🐽','🐧','🐥','🐤','🐣','🦇','🦋','🐌','🐛','🦟','🦗','🐜','🐝','🐞','🦂','🕷','🕸','🦠','🧞‍♀️','🧞‍♂️','🗣','👀','🦴','🦷','👅','👄','🧠','🦾','🦿','👩🏻','👨🏻','🧑🏻','👧🏻','👦🏻','🧒🏻','👶🏻','👵🏻','👴🏻','🧓🏻','👩🏻‍🦰','👨🏻‍🦰','👩🏻‍🦱','👨🏻‍🦱','👩🏻‍🦲','👨🏻‍🦲','👩🏻‍🦳','👨🏻‍🦳','👱🏻‍♀️','👱🏻‍♂️','👸🏻','🤴🏻','👳🏻‍♀️','👳🏻‍♂️','👲🏻','🧔🏻','👼🏻','🤶🏻','🎅🏻','👮🏻‍♀️','👮🏻‍♂️','🕵🏻‍♀️','🕵🏻‍♂️','💂🏻‍♀️','💂🏻‍♂️','👷🏻‍♀️','👷🏻‍♂️','👩🏻‍⚕️','👨🏻‍⚕️','👩🏻‍🎓','👨🏻‍🎓','👩🏻‍🏫','👨🏻‍🏫','👩🏻‍⚖️','👨🏻‍⚖️','👩🏻‍🌾','👨🏻‍🌾','👩🏻‍🍳','👨🏻‍🍳','👩🏻‍🔧','👨🏻‍🔧','👩🏻‍🏭','👨🏻‍🏭','👩🏻‍💼','👨🏻‍💼','👩🏻‍🔬','👨🏻‍🔬','👩🏻‍💻','👨🏻‍💻','👩🏻‍🎤','👨🏻‍🎤','👩🏻‍🎨','👨🏻‍🎨','👩🏻‍✈️','👨🏻‍✈️','👩🏻‍🚀','👨🏻‍🚀','👩🏻‍🚒','👨🏻‍🚒','🧕🏻','👰🏻','🤵🏻','🤱🏻','🤰🏻','🦸🏻‍♀️','🦸🏻‍♂️','🦹🏻‍♀️','🦹🏻‍♂️','🧙🏻‍♀️','🧙🏻‍♂️','🧚🏻‍♀️','🧚🏻‍♂️','🧛🏻‍♀️','🧛🏻‍♂️','🧜🏻‍♀️','🧜🏻‍♂️','🧝🏻‍♀️','🧝🏻‍♂️','🧟🏻‍♀️','🧟🏻‍♂️','🙍🏻‍♀️','🙍🏻‍♂️','🙎🏻‍♀️','🙎🏻‍♂️','🙅🏻‍♀️','🙅🏻‍♂️','🙆🏻‍♀️','🙆🏻‍♂️','🧏🏻‍♀️','🧏🏻‍♂️','💁🏻‍♀️','💁🏻‍♂️','🙋🏻‍♀️','🙋🏻‍♂️','🙇🏻‍♀️','🙇🏻‍♂️','🤦🏻‍♀️','🤦🏻‍♂️','🤷🏻‍♀️','🤷🏻‍♂️','💆🏻‍♀️','💆🏻‍♂️','💇🏻‍♀️','💇🏻‍♂️','🧖🏻‍♀️','🧖🏻‍♂️','🤹🏻‍♀️','🤹🏻‍♂️','👩🏻‍🦽','👨🏻‍🦽','👩🏻‍🦼','👨🏻‍🦼','👩🏻‍🦯','👨🏻‍🦯','🧎🏻‍♀️','🧎🏻‍♂️','🧍🏻‍♀️','🧍🏻‍♂️','🚶🏻‍♀️','🚶🏻‍♂️','🏃🏻‍♀️','🏃🏻‍♂️','💃🏻','🕺🏻','🧗🏻‍♀️','🧗🏻‍♂️','🧘🏻‍♀️','🧘🏻‍♂️','🛀🏻','🛌🏻','🕴🏻','🏇🏻','🏂🏻','💪🏻','🦵🏻','🦶🏻','👂🏻','🦻🏻','👃🏻','🤏🏻','👈🏻','👉🏻','☝🏻','👆🏻','👇🏻','✌🏻','🤞🏻','🖖🏻','🤘🏻','🤙🏻','🖐🏻','✋🏻','👌🏻','👍🏻','👎🏻','✊🏻','👊🏻','🤛🏻','🤜🏻','🤚🏻','👋🏻','🤟🏻','✍🏻','👏🏻','👐🏻','🙌🏻','🤲🏻','🙏🏻','🤝🏻','💅🏻','📌','❤️','🧡','💛','💚','💙','💜','🤎','🖤','🤍','💔','❣','💕','💞','💓','💗','💖','💘','💝','💟','💌','💢','💥','💤','💦','💨','💫','🕳'],
 };
 
 function loadReacts(){
 
-    reactArray.primary.forEach((react) => {
+    reactArray.primary.slice().reverse().forEach((react) => {
         let reacts = document.getElementById('reactOptions');
         //add html before the last child
-        reacts.insertAdjacentHTML('afterbegin', `<div class="${react}">${react}</div>`);
+        reacts.insertAdjacentHTML('afterbegin', `<div class="${react} react-emoji">${react}</div>`);
     });
 
-    reactArray.expanded.forEach(react => {
-        let moreReacts = document.querySelector('.moreReacts');
-        moreReacts.innerHTML += `<div class=${react}>${react}</div>`;
+    let moreReacts = document.querySelector('.moreReacts');
+    moreReacts.innerHTML = reactArray.expanded.reduce((acc, react) => {
+        acc += `<div class="${react} react-emoji">${react}</div>`;
+        return acc;
     });
 }
 
@@ -338,7 +331,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             fileName: metadata.name,
             fileSize: metadata.size,
             ext: metadata.ext,
-            replyMsg: replyMsg,
+            replyMsg: document.getElementById(replyId)?.dataset?.type === 'file' ? `<i class="fa-solid fa-paperclip"></i> ${replyMsg}` : replyMsg,
             replyFor: replyFor,
             time: getCurrentTime()
         });
@@ -353,7 +346,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             repId: replyId,
             title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
             message: message,
-            replyMsg: replyMsg,
+            replyMsg: document.getElementById(replyId)?.dataset?.type === 'file' ? `<i class="fa-solid fa-paperclip"></i> ${replyMsg}` : replyMsg,
             replyFor: replyFor,
             time: getCurrentTime()
         });
@@ -671,6 +664,8 @@ function showReplyToast(){
     //console.dir(finalTarget);
     if (finalTarget.type == 'image' || finalTarget.type == 'sticker'){
         replyToast.querySelector('.replyData').appendChild(finalTarget.message);
+    }else if (finalTarget.type == 'file'){
+        replyToast.querySelector('.replyData').innerHTML = `<i class="fa-solid fa-paperclip"></i>${finalTarget.message?.substring(0, 50)}`;
     }else{
         replyToast.querySelector('.replyData').textContent = finalTarget.message?.substring(0, 50);
     }
@@ -1242,11 +1237,13 @@ document.getElementById('selectStickerGroup').addEventListener('click', e => {
 
 document.getElementById('stickers').addEventListener('click', e => {
     if (e.target.tagName === 'IMG') {
+        /*
         document.getElementById('stickers').querySelectorAll('.stickerpack')
         .forEach(sticker => {
             sticker.style.background = 'transparent';
         });
-        e.target.style.background = themeAccent[THEME].msg_send;
+        */
+        //e.target.style.background = themeAccent[THEME].msg_send;
         let tempId = makeId();
         //insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, finalTarget.message, finalTarget.id, {});
         stickerSound.play();
@@ -1352,22 +1349,22 @@ function updateReactsChooser(){
     let container = document.querySelector('.reactOptionsWrapper');
     let closed = container.dataset.closed == 'true';
     if (closed){
-        container.style.maxHeight = '200px';
+        //container.style.maxHeight = '200px';
         container.dataset.closed = 'false';
-        container.querySelector('.fa-solid').classList.replace('fa-plus', 'fa-chevron-up');
-        document.querySelector('.moreReacts').classList.add('active');
+        //container.querySelector('.fa-solid').classList.replace('fa-plus', 'fa-chevron-up');
+        document.querySelector('.moreReactsContainer').classList.add('active');
     }else{
-        container.style.maxHeight = '35px';
+        //container.style.maxHeight = '35px';
         container.dataset.closed = 'true';
-        container.querySelector('.fa-solid').classList.replace('fa-chevron-up', 'fa-plus');
-        document.querySelector('.moreReacts').classList.remove('active');
+        //container.querySelector('.fa-solid').classList.replace('fa-chevron-up', 'fa-plus');
+        document.querySelector('.moreReactsContainer').classList.remove('active');
     }
 }
 
 document.querySelector('.moreReacts').addEventListener('click', (evt)=>{
     let target = evt.target;
     //if target is not self
-    if (target != document.querySelector('.moreReacts')){
+    if (target.classList.contains('react-emoji')){
         let react = target.textContent;
         sendReact(react);
         hideOptions();
@@ -1539,7 +1536,7 @@ messages.addEventListener('click', (evt) => {
                     let target = evt.target.closest('.messageReply')?.dataset.repid;
                     document.querySelectorAll('.message').forEach(element => {
                         if (element.id != target){
-                            element.style.filter = 'brightness(0.5)';
+                            element.style.filter = 'brightness(0.7)';
                         }
                     });
                     setTimeout(() => {
@@ -1657,7 +1654,6 @@ function FilePreview(fileFromClipboard = null){
     let filename = file.name;
     let size = file.size;
 
-    let extention = filename.split('.').pop();
     //convert to B, KB, MB
     if (size < 1024){
         size = size + 'b';
@@ -1684,12 +1680,17 @@ function FilePreview(fileFromClipboard = null){
         selectedFile.data = data;
         selectedFile.name = filename;
         selectedFile.size = size;
-        selectedFile.ext = extention;
+        let ext = getExt(filename);
+        selectedFile.ext = ext;
         selectedObject = 'file';
         //document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
         while (document.getElementById('selectedImage').firstChild) {
             document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
         }
+        
+        selectedFile.name = selectedFile.name.split('.')[0] + '.' + ext;
+        filename = selectedFile.name;
+
         const fragment = document.createRange().createContextualFragment(`<div class='file_preview'><i class="fa-regular fa-file-lines"></i><div>File: ${filename.length >= 25 ? filename.substring(0, 10) + '...' + filename.substring(filename.length - 10, filename.length) : filename}</div><div>Size: ${size}</div></div>`);
         document.getElementById('selectedImage').append(fragment);
         document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
@@ -1697,6 +1698,76 @@ function FilePreview(fileFromClipboard = null){
     //clear photoButton 
     photoButton.value = '';
     fileButton.value = '';
+}
+
+function getExt(filename){
+
+    let ext = filename.split('.').pop();
+
+    let commonfiletypes = ["jpg", "jpeg", "png", "webp", "mp4", "mp3", "docx", "doc", "pdf", "txt", "log", "rar", "zip"];
+
+    if (ext == '' || !commonfiletypes.includes(ext)){
+        //get extention from base64
+        ext = selectedFile.data.split(';')[0].split('/')[1];
+        //if still empty, set to unknown
+        if (ext == ''){
+            ext = 'unknown';
+        }else{
+            //if octet-stream, set to mp3
+            if (ext == 'octet-stream'){
+                ext = 'mp3';
+            }
+            else if (ext == 'vnd.openxmlformats-officedocument.wordprocessingml.document'){
+                ext = 'docx';
+            }
+            else if (ext == 'vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
+                ext = 'xlsx';
+            }
+            else if (ext == 'vnd.openxmlformats-officedocument.presentationml.presentation'){
+                ext = 'pptx';
+            }
+            else if (ext == 'vnd.ms-excel'){
+                ext = 'xls';
+            }
+            else if (ext == 'vnd.ms-powerpoint'){
+                ext = 'ppt';
+            }
+            else if (ext == 'vnd.ms-word'){
+                ext = 'doc';
+            }
+            else if (ext == 'vnd.oasis.opendocument.text'){
+                ext = 'odt';
+            }
+            else if (ext == 'vnd.oasis.opendocument.spreadsheet'){
+                ext = 'ods';
+            }
+            else if (ext == 'vnd.oasis.opendocument.presentation'){
+                ext = 'odp';
+            }
+            else if (ext == 'vnd.oasis.opendocument.graphics'){
+                ext = 'odg';
+            }
+            else if (ext == 'vnd.oasis.opendocument.chart'){
+                ext = 'odc';
+            }
+            else if (ext == 'vnd.oasis.opendocument.formula'){
+                ext = 'odf';
+            }
+            else if (ext == 'vnd.oasis.opendocument.database'){
+                ext = 'odb';
+            }
+            else if (ext == 'vnd.oasis.opendocument.image'){
+                ext = 'odi';
+            }
+            else if (ext == 'vnd.oasis.opendocument.text-master'){
+                ext = 'odm';
+            }
+            else if (ext == 'vnd.oasis.opendocument.text-web'){
+                ext = 'oth';
+            }
+        }
+    }
+    return ext;
 }
 
 

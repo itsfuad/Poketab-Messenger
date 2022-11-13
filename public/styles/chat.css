@@ -103,7 +103,7 @@ body {
 
 .stickersPanel {
   position: fixed;
-  bottom: 0px;
+  bottom: -20px;
   left: 50%;
   height: 42vh;
   min-height: 300px;
@@ -114,11 +114,11 @@ body {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  border-radius: 12px;
+  border-radius: 15px 15px 0 0;
   overflow: hidden;
   background: var(--primary-dark);
   transition: 100ms ease-in-out;
-  transform: translateX(-50%) scale(0.5);
+  transform: translateX(-50%);
   transform-origin: bottom;
   scrollbar-width: none;
   z-index: 20;
@@ -126,8 +126,7 @@ body {
 .stickersPanel.active {
   visibility: visible;
   opacity: 1;
-  bottom: 70px;
-  transform: translateX(-50%) scale(1);
+  bottom: 0;
 }
 .stickersPanel img {
   -webkit-user-drag: none;
@@ -512,8 +511,9 @@ img {
 }
 .chatBox .welcomeText .link-copy {
   background: rgba(255, 255, 255, 0.1215686275);
-  padding: 5px 24px;
+  padding: 5px;
   gap: 10px;
+  width: 230px;
   border-radius: 15px;
 }
 .chatBox .welcomeText .link-copy:hover {
@@ -830,6 +830,14 @@ i[class^=fa-] {
 }
 #replyToast .replyData {
   font-size: 0.7rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: grey;
+}
+#replyToast .replyData i {
+  font-size: 0.8rem;
+  color: grey;
 }
 #replyToast .replyData .image, #replyToast .replyData .sticker {
   max-height: 50px;
@@ -1002,34 +1010,58 @@ i[class^=fa-] {
   max-height: 200px;
 }
 
-.moreReacts {
-  position: relative;
+.moreReactsContainer {
+  position: fixed;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  visibility: hidden;
+  opacity: 0;
+  z-index: 25;
+  background: var(--primary-dark);
+  padding: 5px 20px;
+  border-radius: 15px 15px 0 0;
+}
+.moreReactsContainer.active {
+  visibility: visible;
+  opacity: 1;
+  bottom: 0;
+}
+.moreReactsContainer .horizontal-line {
+  width: 100px;
+  height: 2px;
+  background: var(--option-color);
+  margin: 5px 0;
+}
+.moreReactsContainer .moreReacts {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-  gap: 5px;
   font-size: 1.3rem;
   flex-wrap: wrap;
   width: 100%;
-  padding: 5px 20px;
-  height: 100%;
+  height: 200px;
   overflow-y: scroll;
-  visibility: hidden;
-  opacity: 0;
   transition: 100ms ease-in-out;
+  align-content: flex-start;
+  justify-content: center;
 }
-.moreReacts.active {
-  visibility: visible;
-  opacity: 1;
-}
-.moreReacts > div {
-  padding: 5px;
+.moreReactsContainer .moreReacts > div {
   border-radius: 10px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  filter: saturate(0.8);
+  align-items: center;
+  justify-content: center;
 }
-.moreReacts > div:hover {
+.moreReactsContainer .moreReacts > div:hover {
   cursor: pointer;
   background: var(--focus-dark);
+  filter: saturate(1);
 }
 
 #optionsContainerWrapper.active .normalOptionWrapper {
@@ -1068,8 +1100,12 @@ i[class^=fa-] {
 }
 .options:is(#reactOptions) > div {
   border-radius: 10px;
-  padding: 5px;
+  width: 35px;
+  height: 35px;
+  display: flex;
   filter: saturate(0.8);
+  align-items: center;
+  justify-content: center;
 }
 .options:is(#reactOptions) > div:hover {
   cursor: pointer;
@@ -1166,8 +1202,11 @@ i[class^=fa-] {
 }
 
 @media (orientation: landscape) and (min-device-aspect-ratio: 1/1) {
+  .moreReacts {
+    width: 50%;
+  }
   .chatBox {
-    padding: 0 25%;
+    padding: 0 30%;
   }
   #sidebar_wrapper {
     grid-template-columns: 30% 1fr;
