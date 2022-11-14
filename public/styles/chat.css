@@ -107,7 +107,7 @@ body {
   left: 50%;
   height: 42vh;
   min-height: 300px;
-  width: 95%;
+  width: 100%;
   display: none;
   visibility: hidden;
   opacity: 0;
@@ -135,7 +135,7 @@ body {
 .horizontal-flow {
   display: flex;
   flex-direction: row;
-  width: 90%;
+  width: 100%;
   border-radius: 10px;
 }
 .horizontal-flow .fa-angle-left, .horizontal-flow .fa-angle-right {
@@ -1014,6 +1014,9 @@ i[class^=fa-] {
   position: fixed;
   bottom: -20px;
   left: 50%;
+  width: 100%;
+  height: 42vh;
+  min-height: 280px;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
@@ -1024,6 +1027,7 @@ i[class^=fa-] {
   background: var(--primary-dark);
   padding: 5px 20px;
   border-radius: 15px 15px 0 0;
+  transition: 100ms ease-in-out;
 }
 .moreReactsContainer.active {
   visibility: visible;
@@ -1043,7 +1047,6 @@ i[class^=fa-] {
   font-size: 1.3rem;
   flex-wrap: wrap;
   width: 100%;
-  height: 200px;
   overflow-y: scroll;
   transition: 100ms ease-in-out;
   align-content: flex-start;
@@ -1202,8 +1205,9 @@ i[class^=fa-] {
 }
 
 @media (orientation: landscape) and (min-device-aspect-ratio: 1/1) {
-  .moreReacts {
+  .moreReactsContainer {
     width: 50%;
+    min-width: 425px;
   }
   .chatBox {
     padding: 0 30%;
@@ -1215,7 +1219,9 @@ i[class^=fa-] {
     width: 50%;
   }
   .stickersPanel {
-    width: 40%;
+    height: 42vh;
+    min-height: 280px;
+    width: 50%;
     min-width: 425px;
   }
   .call-btn::after {

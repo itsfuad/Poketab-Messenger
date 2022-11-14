@@ -1186,10 +1186,9 @@ function showStickersPanel(){
     }, 20);
 }
 
-document.getElementById('closeStickersPanel').addEventListener('click', () => {
-    lastPageLength = messages.scrollTop;
+document.getElementById('focus_glass').addEventListener('click', () => {
+    document.getElementById('focus_glass').classList.remove('active');
     closeStickersPanel();
-    updateScroll();
 });
 
 document.querySelector('.fa-angle-left').addEventListener('click', () => {
