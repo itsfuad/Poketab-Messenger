@@ -50,23 +50,6 @@ const reactArray = {
     expanded: ['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','🥰','😗','😙','😚','☺','🙂','🤗','🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','☹','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥺','🤠','🤡','🤥','🤫','🤭','🧐','🤓','😈','👿','👹','👺','💀','☠','👻','👽','👾','🤖','💩','😺','😸','😹','😻','😼','😽','🙀','😿','😾','🐱‍👤','🐱‍🏍','🐱‍💻','🐱‍🐉','🐱‍👓','🐱‍🚀','🙈','🙉','🙊','🐵','🐶','🐺','🐱','🦁','🐯','🦒','🦊','🦝','🐮','🐷','🐗','🐭','🐹','🐰','🐻','🐨','🐼','🐸','🦓','🐴','🦄','🐔','🐲','🐽','🐧','🐥','🐤','🐣','🦇','🦋','🐌','🐛','🦟','🦗','🐜','🐝','🐞','🦂','🕷','🕸','🦠','🧞‍♀️','🧞‍♂️','🗣','👀','🦴','🦷','👅','👄','🧠','🦾','🦿','👩🏻','👨🏻','🧑🏻','👧🏻','👦🏻','🧒🏻','👶🏻','👵🏻','👴🏻','🧓🏻','👩🏻‍🦰','👨🏻‍🦰','👩🏻‍🦱','👨🏻‍🦱','👩🏻‍🦲','👨🏻‍🦲','👩🏻‍🦳','👨🏻‍🦳','👱🏻‍♀️','👱🏻‍♂️','👸🏻','🤴🏻','👳🏻‍♀️','👳🏻‍♂️','👲🏻','🧔🏻','👼🏻','🤶🏻','🎅🏻','👮🏻‍♀️','👮🏻‍♂️','🕵🏻‍♀️','🕵🏻‍♂️','💂🏻‍♀️','💂🏻‍♂️','👷🏻‍♀️','👷🏻‍♂️','👩🏻‍⚕️','👨🏻‍⚕️','👩🏻‍🎓','👨🏻‍🎓','👩🏻‍🏫','👨🏻‍🏫','👩🏻‍⚖️','👨🏻‍⚖️','👩🏻‍🌾','👨🏻‍🌾','👩🏻‍🍳','👨🏻‍🍳','👩🏻‍🔧','👨🏻‍🔧','👩🏻‍🏭','👨🏻‍🏭','👩🏻‍💼','👨🏻‍💼','👩🏻‍🔬','👨🏻‍🔬','👩🏻‍💻','👨🏻‍💻','👩🏻‍🎤','👨🏻‍🎤','👩🏻‍🎨','👨🏻‍🎨','👩🏻‍✈️','👨🏻‍✈️','👩🏻‍🚀','👨🏻‍🚀','👩🏻‍🚒','👨🏻‍🚒','🧕🏻','👰🏻','🤵🏻','🤱🏻','🤰🏻','🦸🏻‍♀️','🦸🏻‍♂️','🦹🏻‍♀️','🦹🏻‍♂️','🧙🏻‍♀️','🧙🏻‍♂️','🧚🏻‍♀️','🧚🏻‍♂️','🧛🏻‍♀️','🧛🏻‍♂️','🧜🏻‍♀️','🧜🏻‍♂️','🧝🏻‍♀️','🧝🏻‍♂️','🧟🏻‍♀️','🧟🏻‍♂️','🙍🏻‍♀️','🙍🏻‍♂️','🙎🏻‍♀️','🙎🏻‍♂️','🙅🏻‍♀️','🙅🏻‍♂️','🙆🏻‍♀️','🙆🏻‍♂️','🧏🏻‍♀️','🧏🏻‍♂️','💁🏻‍♀️','💁🏻‍♂️','🙋🏻‍♀️','🙋🏻‍♂️','🙇🏻‍♀️','🙇🏻‍♂️','🤦🏻‍♀️','🤦🏻‍♂️','🤷🏻‍♀️','🤷🏻‍♂️','💆🏻‍♀️','💆🏻‍♂️','💇🏻‍♀️','💇🏻‍♂️','🧖🏻‍♀️','🧖🏻‍♂️','🤹🏻‍♀️','🤹🏻‍♂️','👩🏻‍🦽','👨🏻‍🦽','👩🏻‍🦼','👨🏻‍🦼','👩🏻‍🦯','👨🏻‍🦯','🧎🏻‍♀️','🧎🏻‍♂️','🧍🏻‍♀️','🧍🏻‍♂️','🚶🏻‍♀️','🚶🏻‍♂️','🏃🏻‍♀️','🏃🏻‍♂️','💃🏻','🕺🏻','🧗🏻‍♀️','🧗🏻‍♂️','🧘🏻‍♀️','🧘🏻‍♂️','🛀🏻','🛌🏻','🕴🏻','🏇🏻','🏂🏻','💪🏻','🦵🏻','🦶🏻','👂🏻','🦻🏻','👃🏻','🤏🏻','👈🏻','👉🏻','☝🏻','👆🏻','👇🏻','✌🏻','🤞🏻','🖖🏻','🤘🏻','🤙🏻','🖐🏻','✋🏻','👌🏻','👍🏻','👎🏻','✊🏻','👊🏻','🤛🏻','🤜🏻','🤚🏻','👋🏻','🤟🏻','✍🏻','👏🏻','👐🏻','🙌🏻','🤲🏻','🙏🏻','🤝🏻','💅🏻','📌','❤️','🧡','💛','💚','💙','💜','🤎','🖤','🤍','💔','❣','💕','💞','💓','💗','💖','💘','💝','💟','💌','💢','💥','💤','💦','💨','💫','🕳'],
 };
 
-function loadReacts(){
-
-    reactArray.primary.slice().reverse().forEach((react) => {
-        let reacts = document.getElementById('reactOptions');
-        //add html before the last child
-        reacts.insertAdjacentHTML('afterbegin', `<div class="${react} react-emoji">${react}</div>`);
-    });
-
-    let moreReacts = document.querySelector('.moreReacts');
-    moreReacts.innerHTML = reactArray.expanded.reduce((acc, react) => {
-        acc += `<div class="${react} react-emoji">${react}</div>`;
-        return acc;
-    });
-}
-
-loadReacts();
-
 //here we add the usernames who are typing
 const userTypingMap = new Map();
 //all the user and their info is stored in this map
@@ -117,6 +100,19 @@ let lastNotification = undefined;
 //first load functions 
 //if user device is mobile
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+//if device has a touch support
+/*
+const hasTouch = 'ontouchstart' in window;
+
+if (hasTouch){
+    // change css :root --position to relative
+    document.documentElement.style.setProperty('--positionForStickers', 'relative');
+}else{
+    // change css :root --position to fixed
+    document.documentElement.style.setProperty('--positionForStickers', 'relative');
+}
+*/
 
 //This class is used to detect the long press on messages and fire the callback function
 class ClickAndHold{
@@ -209,6 +205,23 @@ if(!isMobile){
 
 
 //functions
+
+function loadReacts(){
+
+    reactArray.primary.slice().reverse().forEach((react) => {
+        let reacts = document.getElementById('reactOptions');
+        //add html before the last child
+        reacts.insertAdjacentHTML('afterbegin', `<div class="${react} react-emoji">${react}</div>`);
+    });
+
+    let moreReacts = document.querySelector('.moreReacts');
+    moreReacts.innerHTML = reactArray.expanded.reduce((acc, react) => {
+        acc += `<div class="${react} react-emoji">${react}</div>`;
+        return acc;
+    });
+}
+
+loadReacts();
 
 //sets the app height to the max height of the window
 function appHeight () {
@@ -529,9 +542,25 @@ function showOptions(type, sender, target){
     options.style.display = 'grid';
     setTimeout(() => {
         options.classList.add('active');
-        document.getElementById('focus_glass').classList.add('active');
+        //document.getElementById('focus_glass').classList.add('active');
+        addFocusGlass(false);
         options.addEventListener('click', optionsMainEvent);
     }, 20);
+}
+
+function addFocusGlass(backdrop = true){
+    const focusGlass = document.getElementById('focus_glass');
+    focusGlass.classList.remove('backdrop');
+    focusGlass.classList.add('active');
+    if (backdrop == true){
+        focusGlass.classList.add('backdrop');
+    }
+}
+
+function removeFocusGlass(){
+    const focusGlass = document.getElementById('focus_glass');
+    focusGlass.classList.remove('active');
+    focusGlass.classList.remove('backdrop');
 }
 
 function optionsMainEvent(e){
@@ -649,7 +678,8 @@ function hideOptions(){
         deleteOption.style.display = 'none';
         options.style.display = 'none';
     }, 20);
-    document.getElementById('focus_glass').classList.remove('active');
+    //document.getElementById('focus_glass').classList.remove('active');
+    removeFocusGlass();
     document.querySelector('.reactorContainerWrapper').classList.remove('active');
     options.removeEventListener('click', optionsMainEvent);
 }
@@ -1181,13 +1211,14 @@ function showStickersPanel(){
     updateScroll();
     document.getElementById('stickersPanel').style.display = 'flex';
     setTimeout(() => {
-        document.getElementById('focus_glass').classList.add('active');
+        addFocusGlass(false);
         document.getElementById('stickersPanel').classList.add('active');
-    }, 20);
+    }, 4);
 }
 
 document.getElementById('focus_glass').addEventListener('click', () => {
-    document.getElementById('focus_glass').classList.remove('active');
+    //document.getElementById('focus_glass').classList.remove('active');
+    removeFocusGlass();
     closeStickersPanel();
 });
 
@@ -1208,11 +1239,12 @@ document.querySelector('.fa-angle-right').addEventListener('click', () => {
 });
 
 function closeStickersPanel(){
-    document.getElementById('focus_glass').classList.remove('active');
+    //document.getElementById('focus_glass').classList.remove('active');
+    removeFocusGlass();
     document.getElementById('stickersPanel').classList.remove('active');
     setTimeout(() => {
         document.getElementById('stickersPanel').style.display = 'none';
-    }, 20);
+    }, 4);
 }
 
 
@@ -1267,7 +1299,8 @@ document.getElementById('stickers').addEventListener('click', e => {
 
 document.getElementById('more').addEventListener('click', ()=>{
     document.getElementById('sidebar_wrapper').classList.add('active');
-    document.getElementById('focus_glass').classList.add('active');
+    //document.getElementById('focus_glass').classList.add('active');
+    addFocusGlass();
 });
 
 let timeoutClone;
@@ -1313,7 +1346,8 @@ document.querySelector('.theme_option').addEventListener('click', ()=>{
         });
         document.querySelector(`.themeChooser #${THEME}`).querySelector("img").style.border = "2px solid var(--secondary-dark)";
     }
-    document.getElementById('focus_glass').classList.add('active');
+    //document.getElementById('focus_glass').classList.add('active');
+    addFocusGlass();
     document.querySelector('.themeChooser').classList.add('active');
 });
 
@@ -1333,7 +1367,7 @@ document.querySelectorAll('.theme').forEach(theme => {
         document.documentElement.style.setProperty('--msg-get', themeAccent[THEME].msg_get);
         document.documentElement.style.setProperty('--msg-get-reply', themeAccent[THEME].msg_get_reply);
         document.documentElement.style.setProperty('--msg-send', themeAccent[THEME].msg_send);
-        document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_get_reply);
+        document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_send_reply);
         document.querySelector('.themeChooser').classList.remove('active');
         document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
         hideOptions();
@@ -1433,21 +1467,23 @@ lightboxClose.addEventListener('click', () => {
     }
 });
 
-
 textbox.addEventListener('focus', function () {
     updateScroll();
 });
 
 textbox.addEventListener('blur', ()=>{
-  if (softKeyIsUp){
-    //$('#textbox').trigger('focus');
-    textbox.focus();
-  }
+    focusInput();
 });
 
+function focusInput(){
+    if (softKeyIsUp){
+        textbox.focus();
+    }
+}
+
 document.querySelector('.close_area').addEventListener('click', (evt) => {
-        document.getElementById('sidebar_wrapper').classList.remove('active');
-        hideOptions();
+    document.getElementById('sidebar_wrapper').classList.remove('active');
+    hideOptions();
 });
 
 document.getElementById('attmain').addEventListener('click', (evt) => {
@@ -1527,7 +1563,8 @@ messages.addEventListener('click', (evt) => {
             }
             hideOptions();
             document.querySelector('.reactorContainerWrapper').classList.add('active');
-            document.getElementById('focus_glass').classList.add('active');
+            //document.getElementById('focus_glass').classList.add('active');
+            addFocusGlass(false);
         }
         else if (evt.target?.classList?.contains('messageReply') || evt.target?.classList?.contains('imageReply')){
             if (document.getElementById(evt.target.closest('.messageReply').dataset.repid).dataset.deleted != 'true'){
