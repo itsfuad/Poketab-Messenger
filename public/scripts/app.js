@@ -691,20 +691,20 @@ let yDiff = 0;
 
 // Listen for a swipe on left
 messages.addEventListener('touchstart', (evt) => {
-    xStart = evt.touches[0].clientX;
-    yStart = evt.touches[0].clientY;
-    console.log('Swipe started');
+    if (evt.target.closest('.message')){
+        xStart = evt.touches[0].clientX;
+        yStart = evt.touches[0].clientY;
+        //console.log('Swipe started');
+    }
 });
 
 messages.addEventListener('touchmove', (evt) => {
-    try{
-        if (!xStart) {
-            return;
-        }
-        
+    try{      
         //if target contains class 'messageBody' or is a child of it, then do something
+        //console.log('Swipe moving');
+        //console.log(evt.target);
         if (evt.target.classList.contains('messageBody') || evt.target.closest('.messageBody') && yDiff < 10) {
-            console.log(xDiff);
+            //console.log(xDiff);
             xDiff = xStart - evt.touches[0].clientX;
             yDiff = yStart - evt.touches[0].clientY;
             const msg = evt.target.closest('.message');
@@ -735,30 +735,36 @@ messages.addEventListener('touchmove', (evt) => {
         //console.log('Swipe moved');
     }catch(e){
         console.log(e);
+        popupMessage(e);
     }
 });
 
 // Listen for a swipe on right
 messages.addEventListener('touchend', (evt) => {
     try{
-        console.log('Swipe ended');
-        xDiff = 0;
-        const msg = evt.target.closest('.message');
-        if (!msg){
-            return;
-        }else{
-            const elem = msg.querySelector('.messageContainer');
-            elem.style.transform = `translateX(-${xDiff}px)`;
-            if (elem.dataset.replyTrigger === 'true') {
+        if (evt.target.closest('.message')){
+            //console.log('Swipe ended');
+            xDiff = 0;
+            yDiff = 0;
+            const msg = evt.target.closest('.message');
+            if (!msg){
                 elem.dataset.replyTrigger = 'false';
-                console.log('Reply triggered');
-                //add data to finalTarget
-                OptionEventHandler(evt, false);
-                showReplyToast();
+                return;
+            }else{
+                const elem = msg.querySelector('.messageContainer');
+                elem.style.transform = `translateX(-${xDiff}px)`;
+                if (elem.dataset.replyTrigger === 'true') {
+                    elem.dataset.replyTrigger = 'false';
+                    //console.log('Reply triggered');
+                    //add data to finalTarget
+                    OptionEventHandler(evt, false);
+                    showReplyToast();
+                }
             }
         }
     }catch(e){
         console.log(e);
+        popupMessage(e);
     }
 });
 
