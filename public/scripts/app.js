@@ -745,7 +745,7 @@ messages.addEventListener('touchend', (evt) => {
         if (evt.target.closest('.message')){
             //console.log('Swipe ended');
             xDiff = 0;
-            yDiff = 0;
+            yDiff = 0; //fixed
             const msg = evt.target.closest('.message');
             if (!msg){
                 elem.dataset.replyTrigger = 'false';
