@@ -362,6 +362,16 @@ code{
     }
 }
 
+[data-reply-trigger="true"] .replyIcon{
+    background: var(--msg-get);
+}
+
+.self [data-reply-trigger="true"] .replyIcon{
+    background: var(--msg-send);
+}
+
+
+
 .fileIcon{
     height: 35px;
     width: 35px;

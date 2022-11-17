@@ -227,6 +227,7 @@ img:is(.sticker){
 
 #attmain{
     display: none;
+    z-index: 20;
 }
 
 #sidebar{
@@ -589,7 +590,7 @@ img{
         visibility: visible;
         opacity: 1;
         background: var(--primary-dark);
-        z-index: 1;
+        z-index: 20;
     }
 }
 

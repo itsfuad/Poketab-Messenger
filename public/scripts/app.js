@@ -703,7 +703,7 @@ messages.addEventListener('touchmove', (evt) => {
         //if target contains class 'messageBody' or is a child of it, then do something
         //console.log('Swipe moving');
         //console.log(evt.target);
-        if (evt.target.classList.contains('messageBody') || evt.target.closest('.messageBody') && yDiff < 10) {
+        if (evt.target.classList.contains('messageMain') || evt.target.closest('.messageMain') && yDiff < 10) {
             //console.log(xDiff);
             xDiff = xStart - evt.touches[0].clientX;
             yDiff = yStart - evt.touches[0].clientY;
