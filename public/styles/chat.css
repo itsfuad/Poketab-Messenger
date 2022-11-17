@@ -17,6 +17,7 @@ html {
   --secondary-dark: hsl(213, 98%, 57%);
   --focus-dark: #19283880;
   --option-color: #213142;
+  --glass: #ffffff17;
   --app-height: 100vh;
   --pattern: url("/images/backgrounds/blue_w.webp");
   --positionForStickers: fixed;
@@ -652,6 +653,7 @@ input[type=file] {
 }
 .option .close:hover {
   background: rgba(255, 255, 255, 0.0784313725);
+  border-radius: 50%;
 }
 .option > div {
   width: 50px;
@@ -766,7 +768,7 @@ i[class^=fa-] {
   border: none;
   outline: none;
   border-radius: 25px;
-  background: rgba(255, 255, 255, 0.0901960784);
+  background: var(--glass);
   scrollbar-width: none;
 }
 #textbox::-moz-placeholder {
@@ -821,7 +823,6 @@ i[class^=fa-] {
   transition: 100ms ease-in-out;
 }
 #replyToast.active {
-  display: flex;
   visibility: visible;
   opacity: 1;
   top: 0;
@@ -864,6 +865,8 @@ i[class^=fa-] {
   left: 50%;
   background: var(--primary-dark);
   padding: 5px 10px;
+  min-width: 35px;
+  min-height: 35px;
   border-radius: 25px;
   font-size: 0.8rem;
   transform: translateX(-50%);
@@ -877,7 +880,7 @@ i[class^=fa-] {
   opacity: 0;
   transition: 100ms ease-in-out;
   cursor: pointer;
-  filter: drop-shadow(2px 4px 6px #000);
+  filter: drop-shadow(2px 2px 2px #000);
 }
 .newmessagepopup.active {
   display: flex;

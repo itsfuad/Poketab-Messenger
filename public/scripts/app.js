@@ -477,7 +477,6 @@ function isEmoji(text) {
 }
 
 function showOptions(type, sender, target){
-    vibrate();
     //removes all showing options first if any
     document.querySelector('.reactorContainerWrapper').classList.remove('active');
     document.querySelectorAll(`#reactOptions div`).forEach(
@@ -685,6 +684,85 @@ function hideOptions(){
 }
 
 
+let xStart = null;
+let yStart = null;
+let xDiff = 0;
+let yDiff = 0;
+
+// Listen for a swipe on left
+messages.addEventListener('touchstart', (evt) => {
+    xStart = evt.touches[0].clientX;
+    yStart = evt.touches[0].clientY;
+    console.log('Swipe started');
+});
+
+messages.addEventListener('touchmove', (evt) => {
+    try{
+        if (!xStart) {
+            return;
+        }
+        
+        //if target contains class 'messageBody' or is a child of it, then do something
+        if (evt.target.classList.contains('messageBody') || evt.target.closest('.messageBody') && yDiff < 10) {
+            console.log(xDiff);
+            xDiff = xStart - evt.touches[0].clientX;
+            yDiff = yStart - evt.touches[0].clientY;
+            const msg = evt.target.closest('.message');
+            const elem = msg.querySelector('.messageContainer');
+    
+            //if msg is self
+            if (msg.classList.contains('self')) {
+                if (xDiff > 50){
+                    xDiff = 50;
+                    elem.dataset.replyTrigger = 'true';
+                }else{
+                    elem.dataset.replyTrigger = 'false';
+                }
+                xDiff = xDiff < 0 ? 0 : xDiff;
+                elem.style.transform = `translateX(${-xDiff}px)`;
+            }else{
+                if (xDiff < -50){
+                    xDiff = -50;
+                    elem.dataset.replyTrigger = 'true';
+                }else{
+                    elem.dataset.replyTrigger = 'false';
+                }
+                xDiff = xDiff > 0 ? 0 : xDiff;
+                elem.style.transform = `translateX(${-xDiff}px)`;
+            }
+        }
+    
+        //console.log('Swipe moved');
+    }catch(e){
+        console.log(e);
+    }
+});
+
+// Listen for a swipe on right
+messages.addEventListener('touchend', (evt) => {
+    try{
+        console.log('Swipe ended');
+        xDiff = 0;
+        const msg = evt.target.closest('.message');
+        if (!msg){
+            return;
+        }else{
+            const elem = msg.querySelector('.messageContainer');
+            elem.style.transform = `translateX(-${xDiff}px)`;
+            if (elem.dataset.replyTrigger === 'true') {
+                elem.dataset.replyTrigger = 'false';
+                console.log('Reply triggered');
+                //add data to finalTarget
+                OptionEventHandler(evt, false);
+                showReplyToast();
+            }
+        }
+    }catch(e){
+        console.log(e);
+    }
+});
+
+
 function showReplyToast(){
     hideOptions();
     updateScroll();
@@ -700,11 +778,15 @@ function showReplyToast(){
         replyToast.querySelector('.replyData').textContent = finalTarget.message?.substring(0, 50);
     }
     replyToast.querySelector('.username').textContent = finalTarget.sender;
-    replyToast.classList.add('active');
+    replyToast.style.display = 'flex';
+    setTimeout(() => {
+        replyToast.classList.add('active');
+    }, 10);
 }
 
 function hideReplyToast(){
     replyToast.classList.remove('active');
+    replyToast.style.display = 'none';
     replyToast.querySelector('.replyData').textContent = '';
     replyToast.querySelector('.username').textContent = '';
     lastPageLength = messages.scrollTop;
@@ -911,7 +993,7 @@ function clearFinalTarget(){
     finalTarget.id = '';
 }
 
-function OptionEventHandler(evt){
+function OptionEventHandler(evt, popup = true){
     let type;
     let sender = evt.target.closest('.message').classList.contains('self')? true : false;
     if (evt.target.closest('.messageMain')?.querySelector('.text') ?? null){
@@ -971,9 +1053,10 @@ function OptionEventHandler(evt){
         targetMessage.type = type;
         targetMessage.id = evt.target?.closest('.message')?.id;
     }
-    if (type === 'text' || type === 'image' || type === 'file' || type === 'sticker'){
+    if ((type === 'text' || type === 'image' || type === 'file' || type === 'sticker') && popup){
         showOptions(type, sender, evt.target);
     }
+    vibrate();
 }
 
 
@@ -1195,6 +1278,7 @@ function loadStickerHeader(){
 
 function loadStickers(){
     stickers = '';
+    selectedStickerGroup = localStorage.getItem('selectedStickerGroup') || selectedStickerGroup;
     for (let i = 1; i <= selectedStickerGroupCount; i++) {
         stickers += `<img src="/stickers/${selectedStickerGroup}/static/${i}-mini.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/animated/${i}" class="stickerpack clickable">`;
     }
@@ -1261,6 +1345,8 @@ document.getElementById('selectStickerGroup').addEventListener('click', e => {
             sticker.dataset.selected = 'false';
         });
         selectedStickerGroup = e.target.dataset.name;
+        //save to local storage
+        localStorage.setItem('selectedStickerGroup', selectedStickerGroup);
         selectedStickerGroupCount = Stickers.find(sticker => sticker.name === selectedStickerGroup).count;
         loadStickers();
     }
@@ -1683,7 +1769,7 @@ function FilePreview(fileFromClipboard = null){
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
-    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-circle-notch fa-spin"></i>`);
+    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-gear fa-spin"></i>`);
     document.getElementById('selectedImage').append(fragment);
     document.getElementById('previewImage')?.classList?.add('active');
     let file = fileFromClipboard || fileButton.files[0];

@@ -16,6 +16,7 @@
     --msg-get-reply: hsl(213, 35%, 27%);
     --msg-send: hsl(213, 98%, 57%);
     --msg-send-reply: hsl(213, 88%, 27%);
+    --glass: #ffffff17;
 }
 
 #messages{
@@ -25,6 +26,7 @@
     padding: 5px;
     gap: 2px;
     overflow-y: scroll;
+    overflow-x: hidden;
     color: var(--foreground-dark);
     scroll-behavior: smooth;
     scrollbar-width: none;
@@ -302,6 +304,11 @@ code{
     .avatar{
         display: none;
     }
+    .replyIcon{
+        right: 0;
+        left: unset;
+        transform: translateX(45px);
+    }
     &:is(.noreply){
         .messageTitle{
             display: none;
@@ -356,7 +363,15 @@ code{
 }
 
 .fileIcon{
-    padding: 0 10px;
+    height: 35px;
+    width: 35px;
+    border-radius: 50%;
+    background: #ffffff38;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
 }
 
 .messageMain{
@@ -431,6 +446,24 @@ code{
         color: #7d858c !important;
         height: 34px !important;
         cursor: not-allowed;
+    }
+}
+
+.replyIcon{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
+    background: var(--glass);
+    border-radius: 50%;
+    position: absolute;
+    left: 0;
+    transform: translateX(-40px);
+    i{
+        font-size: 1.2rem;
+        padding: 5px;
+        color:  #ffffff8a;
     }
 }
 

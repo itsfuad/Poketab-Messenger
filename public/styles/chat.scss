@@ -17,6 +17,7 @@ html{
     --secondary-dark: hsl(213, 98%, 57%);
     --focus-dark: #19283880;
     --option-color: #213142;
+    --glass: #ffffff17;
     --app-height: 100vh;
     --pattern: url('/images/backgrounds/blue_w.webp');
 
@@ -664,6 +665,7 @@ input[type=file] {
     & .close{
         &:hover{
             background: #ffffff14;
+            border-radius: 50%;
         }
     }
     & > div{
@@ -783,7 +785,7 @@ i[class^=fa-]{
     border: none;
     outline: none;
     border-radius: 25px;
-    background: #ffffff17;
+    background: var(--glass);
     scrollbar-width: none;
     &::placeholder{
         color: #ffffff8a;
@@ -831,7 +833,6 @@ i[class^=fa-]{
     top: 20px;
     transition: 100ms ease-in-out;
     &.active{
-        display: flex;
         visibility: visible;
         opacity: 1;
         top: 0;
@@ -876,6 +877,8 @@ i[class^=fa-]{
     left: 50%;
     background: var(--primary-dark);
     padding: 5px 10px;
+    min-width: 35px;
+    min-height: 35px;
     border-radius: 25px;
     font-size: .8rem;
     transform: translateX(-50%);
@@ -892,7 +895,7 @@ i[class^=fa-]{
         visibility: visible;
         opacity: 1;
     }
-    filter: drop-shadow(2px 4px 6px #000);
+    filter: drop-shadow(2px 2px 2px #000);
     img{
         height: 30px;
         width: 30px;
