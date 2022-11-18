@@ -196,6 +196,16 @@ io.on('connection', (socket) => {
       }
     }
   });
+  
+  /*
+  socket.on('askForLinkPreview', (url, callback) => {
+    console.log('URL requested: ', url);
+    const worker = new Worker('./server/linkPreviewWorker.js', {workerData: {url: url}});
+    worker.on('message', (data) => {
+      callback(data);
+    });
+  });
+  */
 
   socket.on('seen', (meta) => {
     let user = users.getUser(uids.get(socket.id));

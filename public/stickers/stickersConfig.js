@@ -5,7 +5,7 @@ const Stickers = [
     {"name": "soul", "count": "25", "icon": "14"},
     {"name": "anime", "count": "25", "icon": "22"},
     {"name": "robo", "count": "16", "icon": "14"},
-    {"name": "crab", "count": "25", "icon": "1"},
+    {"name": "crab", "count": "24", "icon": "1"},
     {"name": "cutecat", "count": "33", "icon": "30"},
     {"name": "skully", "count": "26", "icon": "23"},
     {"name": "monkey", "count": "24", "icon": "4"},

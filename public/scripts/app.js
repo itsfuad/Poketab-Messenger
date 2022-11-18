@@ -47,7 +47,7 @@ let isTyping = false, timeout = undefined;
 
 const reactArray = {
     primary: ['🙂', '😂','😠','😢','😮','💙','🌻'],
-    expanded: ['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','🥰','😗','😙','😚','☺','🙂','🤗','🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','☹','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥺','🤠','🤡','🤥','🤫','🤭','🧐','🤓','😈','👿','👹','👺','💀','☠','👻','👽','👾','🤖','💩','😺','😸','😹','😻','😼','😽','🙀','😿','😾','🐱‍👤','🐱‍🏍','🐱‍💻','🐱‍🐉','🐱‍👓','🐱‍🚀','🙈','🙉','🙊','🐵','🐶','🐺','🐱','🦁','🐯','🦒','🦊','🦝','🐮','🐷','🐗','🐭','🐹','🐰','🐻','🐨','🐼','🐸','🦓','🐴','🦄','🐔','🐲','🐽','🐧','🐥','🐤','🐣','🦇','🦋','🐌','🐛','🦟','🦗','🐜','🐝','🐞','🦂','🕷','🕸','🦠','🧞‍♀️','🧞‍♂️','🗣','👀','🦴','🦷','👅','👄','🧠','🦾','🦿','👩🏻','👨🏻','🧑🏻','👧🏻','👦🏻','🧒🏻','👶🏻','👵🏻','👴🏻','🧓🏻','👩🏻‍🦰','👨🏻‍🦰','👩🏻‍🦱','👨🏻‍🦱','👩🏻‍🦲','👨🏻‍🦲','👩🏻‍🦳','👨🏻‍🦳','👱🏻‍♀️','👱🏻‍♂️','👸🏻','🤴🏻','👳🏻‍♀️','👳🏻‍♂️','👲🏻','🧔🏻','👼🏻','🤶🏻','🎅🏻','👮🏻‍♀️','👮🏻‍♂️','🕵🏻‍♀️','🕵🏻‍♂️','💂🏻‍♀️','💂🏻‍♂️','👷🏻‍♀️','👷🏻‍♂️','👩🏻‍⚕️','👨🏻‍⚕️','👩🏻‍🎓','👨🏻‍🎓','👩🏻‍🏫','👨🏻‍🏫','👩🏻‍⚖️','👨🏻‍⚖️','👩🏻‍🌾','👨🏻‍🌾','👩🏻‍🍳','👨🏻‍🍳','👩🏻‍🔧','👨🏻‍🔧','👩🏻‍🏭','👨🏻‍🏭','👩🏻‍💼','👨🏻‍💼','👩🏻‍🔬','👨🏻‍🔬','👩🏻‍💻','👨🏻‍💻','👩🏻‍🎤','👨🏻‍🎤','👩🏻‍🎨','👨🏻‍🎨','👩🏻‍✈️','👨🏻‍✈️','👩🏻‍🚀','👨🏻‍🚀','👩🏻‍🚒','👨🏻‍🚒','🧕🏻','👰🏻','🤵🏻','🤱🏻','🤰🏻','🦸🏻‍♀️','🦸🏻‍♂️','🦹🏻‍♀️','🦹🏻‍♂️','🧙🏻‍♀️','🧙🏻‍♂️','🧚🏻‍♀️','🧚🏻‍♂️','🧛🏻‍♀️','🧛🏻‍♂️','🧜🏻‍♀️','🧜🏻‍♂️','🧝🏻‍♀️','🧝🏻‍♂️','🧟🏻‍♀️','🧟🏻‍♂️','🙍🏻‍♀️','🙍🏻‍♂️','🙎🏻‍♀️','🙎🏻‍♂️','🙅🏻‍♀️','🙅🏻‍♂️','🙆🏻‍♀️','🙆🏻‍♂️','🧏🏻‍♀️','🧏🏻‍♂️','💁🏻‍♀️','💁🏻‍♂️','🙋🏻‍♀️','🙋🏻‍♂️','🙇🏻‍♀️','🙇🏻‍♂️','🤦🏻‍♀️','🤦🏻‍♂️','🤷🏻‍♀️','🤷🏻‍♂️','💆🏻‍♀️','💆🏻‍♂️','💇🏻‍♀️','💇🏻‍♂️','🧖🏻‍♀️','🧖🏻‍♂️','🤹🏻‍♀️','🤹🏻‍♂️','👩🏻‍🦽','👨🏻‍🦽','👩🏻‍🦼','👨🏻‍🦼','👩🏻‍🦯','👨🏻‍🦯','🧎🏻‍♀️','🧎🏻‍♂️','🧍🏻‍♀️','🧍🏻‍♂️','🚶🏻‍♀️','🚶🏻‍♂️','🏃🏻‍♀️','🏃🏻‍♂️','💃🏻','🕺🏻','🧗🏻‍♀️','🧗🏻‍♂️','🧘🏻‍♀️','🧘🏻‍♂️','🛀🏻','🛌🏻','🕴🏻','🏇🏻','🏂🏻','💪🏻','🦵🏻','🦶🏻','👂🏻','🦻🏻','👃🏻','🤏🏻','👈🏻','👉🏻','☝🏻','👆🏻','👇🏻','✌🏻','🤞🏻','🖖🏻','🤘🏻','🤙🏻','🖐🏻','✋🏻','👌🏻','👍🏻','👎🏻','✊🏻','👊🏻','🤛🏻','🤜🏻','🤚🏻','👋🏻','🤟🏻','✍🏻','👏🏻','👐🏻','🙌🏻','🤲🏻','🙏🏻','🤝🏻','💅🏻','📌','❤️','🧡','💛','💚','💙','💜','🤎','🖤','🤍','💔','❣','💕','💞','💓','💗','💖','💘','💝','💟','💌','💢','💥','💤','💦','💨','💫','🕳'],
+    expanded: ['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','🥰','😗','😙','😚','🙂','🤗','🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥺','🤠','🤡','🤥','🤫','🤭','🧐','🤓','😈','👿','👹','👺','💀','☠','👻','👽','👾','🤖','💩','😺','😸','😹','😻','🙈','🙉','🙊','🐵','🐶','🐺','🐱','🦁','🐯','🦒','🦊','🦝','🐮','🐷','🐗','🐭','🐹','🐰','🐻','🐨','🐼','🐸','🦓','🐴','🦄','🐔','🐲','🐽','🐧','🐥','🐤','🐣','🦇','🦋','🐌','🐛','🦟','🦗','🐜','🐝','🐞','🦂','🕷','🕸','🦠','🧞‍♀️','🧞‍♂️','🗣','👀','🦴','🦷','👅','👄','🧠','🦾','🦿','👩🏻','👨🏻','🧑🏻','👧🏻','👦🏻','🧒🏻','👶🏻','👵🏻','👴🏻','🧓🏻','👩🏻‍🦰','👨🏻‍🦰','👩🏻‍🦱','👨🏻‍🦱','👩🏻‍🦲','👨🏻‍🦲','👩🏻‍🦳','👨🏻‍🦳','👱🏻‍♀️','👱🏻‍♂️','👸🏻','🤴🏻','👳🏻‍♀️','👳🏻‍♂️','👲🏻','🧔🏻','👼🏻','🤶🏻','🎅🏻','👮🏻‍♀️','👮🏻‍♂️','🕵🏻‍♀️','🕵🏻‍♂️','💂🏻‍♀️','💂🏻‍♂️','👷🏻‍♀️','👷🏻‍♂️','👩🏻‍⚕️','👨🏻‍⚕️','👩🏻‍🎓','👨🏻‍🎓','👩🏻‍🏫','👨🏻‍🏫','👩🏻‍⚖️','👨🏻‍⚖️','👩🏻‍🌾','👨🏻‍🌾','👩🏻‍🍳','👨🏻‍🍳','👩🏻‍🔧','👨🏻‍🔧','👩🏻‍🏭','👨🏻‍🏭','👩🏻‍💼','👨🏻‍💼','👩🏻‍🔬','👨🏻‍🔬','👩🏻‍💻','👨🏻‍💻','👩🏻‍🎤','👨🏻‍🎤','👩🏻‍🎨','👨🏻‍🎨','👩🏻‍✈️','👨🏻‍✈️','👩🏻‍🚀','👨🏻‍🚀','👩🏻‍🚒','👨🏻‍🚒','🧕🏻','👰🏻','🤵🏻','🤱🏻','🤰🏻','🦸🏻‍♀️','🦸🏻‍♂️','🦹🏻‍♀️','🦹🏻‍♂️','🧙🏻‍♀️','🧙🏻‍♂️','🧚🏻‍♀️','🧚🏻‍♂️','🧛🏻‍♀️','🧛🏻‍♂️','🧜🏻‍♀️','🧜🏻‍♂️','🧝🏻‍♀️','🧝🏻‍♂️','🧟🏻‍♀️','🧟🏻‍♂️','🙍🏻‍♀️','🙍🏻‍♂️','🙎🏻‍♀️','🙎🏻‍♂️','🙅🏻‍♀️','🙅🏻‍♂️','🙆🏻‍♀️','🙆🏻‍♂️','🧏🏻‍♀️','🧏🏻‍♂️','💁🏻‍♀️','💁🏻‍♂️','🙋🏻‍♀️','🙋🏻‍♂️','🙇🏻‍♀️','🙇🏻‍♂️','🤦🏻‍♀️','🤦🏻‍♂️','🤷🏻‍♀️','🤷🏻‍♂️','💆🏻‍♀️','💆🏻‍♂️','💇🏻‍♀️','💇🏻‍♂️','🧖🏻‍♀️','🧖🏻‍♂️','🤹🏻‍♀️','🤹🏻‍♂️','👩🏻‍🦽','👨🏻‍🦽','👩🏻‍🦼','👨🏻‍🦼','👩🏻‍🦯','👨🏻‍🦯','🧎🏻‍♀️','🧎🏻‍♂️','🧍🏻‍♀️','🧍🏻‍♂️','🚶🏻‍♀️','🚶🏻‍♂️','🏃🏻‍♀️','🏃🏻‍♂️','💃🏻','🕺🏻','🧗🏻‍♀️','🧗🏻‍♂️','🧘🏻‍♀️','🧘🏻‍♂️','🛀🏻','🛌🏻','🕴🏻','🏇🏻','🏂🏻','💪🏻','🦵🏻','🦶🏻','👂🏻','🦻🏻','👃🏻','🤏🏻','👈🏻','👉🏻','☝🏻','👆🏻','👇🏻','✌🏻','🤞🏻','🖖🏻','🤘🏻','🤙🏻','🖐🏻','✋🏻','👌🏻','👍🏻','👎🏻','✊🏻','👊🏻','🤛🏻','🤜🏻','🤚🏻','👋🏻','🤟🏻','✍🏻','👏🏻','👐🏻','🙌🏻','🤲🏻','🙏🏻','🤝🏻','💅🏻','📌','❤️','🧡','💛','💚','💙','💜','🤎','🖤','🤍','💔','❣','💕','💞','💓','💗','💖','💘','💝','💟','💌','💢','💥','💤','💦','💨','💫'],
 };
 
 //here we add the usernames who are typing
@@ -1217,15 +1217,20 @@ function copyText(text){
     popupMessage(`Copied to clipboard`);
 }
 
+let popupTimeout = undefined;
 
 function popupMessage(text){
     //$('.popup-message').text(text);
     document.querySelector('.popup-message').textContent = text;
     //$('.popup-message').fadeIn(500);
     document.querySelector('.popup-message').classList.add('active');
-    setTimeout(function () {
+    if (popupTimeout){
+        clearTimeout(popupTimeout);
+    }
+    popupTimeout = setTimeout(function () {
         //$('.popup-message').fadeOut(500);
         document.querySelector('.popup-message').classList.remove('active');
+        popupTimeout = undefined;
     }, 1000);
 }
 
@@ -1267,11 +1272,9 @@ let stickerNames;
 let stickers = '';
 let selectedStickerGroup, selectedStickerGroupCount;
 
-selectedStickerGroup = Stickers[0].name;
-selectedStickerGroupCount = Stickers[0].count;
+selectedStickerGroup = localStorage.getItem('selectedStickerGroup') || Stickers[0].name;
 
 const stickersGrp = document.getElementById('selectStickerGroup');
-
 
 function loadStickerHeader(){
     stickerNames = Stickers.map(sticker => {
@@ -1284,7 +1287,7 @@ function loadStickerHeader(){
 
 function loadStickers(){
     stickers = '';
-    selectedStickerGroup = localStorage.getItem('selectedStickerGroup') || selectedStickerGroup;
+    selectedStickerGroupCount = Stickers.find(sticker => sticker.name == selectedStickerGroup).count;
     for (let i = 1; i <= selectedStickerGroupCount; i++) {
         stickers += `<img src="/stickers/${selectedStickerGroup}/static/${i}-mini.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/animated/${i}" class="stickerpack clickable">`;
     }
@@ -1407,6 +1410,7 @@ document.querySelectorAll('.keyCopy').forEach(elem => {
             target.classList.replace('fa-check', 'fa-clone');
             target.classList.replace('fa-solid', 'fa-regular');
             target.style.color = 'var(--secondary-dark)';
+            timeoutClone = undefined;
         }, 1000);
         copyText(myKey);
     });
@@ -1582,14 +1586,14 @@ document.getElementById('attmain').addEventListener('click', (evt) => {
     document.getElementById('attmain').classList.remove('active');
     setTimeout(()=>{
         document.getElementById('attmain').style.display = 'none';
-    }, 20);
+    }, 4);
 });
 
 document.getElementById('attachment').addEventListener('click', ()=>{
     document.getElementById('attmain').style.display = 'flex';
     setTimeout(()=>{
         document.getElementById('attmain').classList.add('active');
-    }, 20);
+    }, 4);
 });
 
 document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) => {
@@ -1599,12 +1603,19 @@ document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) =
     }
 });
 
+let msgTimeTimeout = undefined;
+let backToNormalTimeout = undefined;
+let scrollIntoViewTimeout = undefined;
 messages.addEventListener('click', (evt) => {
     try {
         if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')){
             evt.target?.closest('.message')?.querySelector('.messageTime')?.classList?.add('active');
-            setTimeout(()=>{
+            if (msgTimeTimeout){
+                clearTimeout(msgTimeTimeout);
+            }
+            msgTimeTimeout = setTimeout(()=>{
                 evt.target?.closest('.message')?.querySelector('.messageTime')?.classList?.remove('active');
+                msgTimeTimeout = undefined;
             }, 1500);
         }
         if (evt.target?.classList?.contains('image') && !evt.target?.classList?.contains('imageReply')){
@@ -1667,14 +1678,22 @@ messages.addEventListener('click', (evt) => {
                             element.style.filter = 'brightness(0.7)';
                         }
                     });
-                    setTimeout(() => {
+                    if (backToNormalTimeout){
+                        clearTimeout(backToNormalTimeout);
+                    }
+                    backToNormalTimeout = setTimeout(() => {
                         document.querySelectorAll('.message').forEach(element => {
                             element.style.filter = '';
                         });
+                        backToNormalTimeout = undefined;
                     }, 1000);
-                    setTimeout(() => {
+                    if (scrollIntoViewTimeout){
+                        clearTimeout(scrollIntoViewTimeout);
+                    }
+                    scrollIntoViewTimeout = setTimeout(() => {
                         document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'start'});
-                    }, 20);
+                        scrollIntoViewTimeout = undefined;
+                    }, 4);
                 }catch(e){
                         popupMessage('Deleted message');
                 }
@@ -1703,7 +1722,7 @@ window.addEventListener('resize',()=>{
   setTimeout(()=>{
     scrolling = false;
     updateScroll();
-  }, 20);
+  }, 4);
   scrolling = temp;
   softKeyIsUp = maxWindowHeight > window.innerHeight ? true : false;
 });
@@ -1808,7 +1827,7 @@ function FilePreview(fileFromClipboard = null){
         selectedFile.data = data;
         selectedFile.name = filename;
         selectedFile.size = size;
-        let ext = getExt(filename);
+        let ext = getExt();
         selectedFile.ext = ext;
         selectedObject = 'file';
         //document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
@@ -1828,74 +1847,125 @@ function FilePreview(fileFromClipboard = null){
     fileButton.value = '';
 }
 
-function getExt(filename){
+const extMapFromBase64 = {
+    'data:image/jpeg;base64': 'jpg',
+    'data:image/png;base64': 'png',
+    'data:image/gif;base64': 'gif',
+    'data:image/bmp;base64': 'bmp',
+    'data:image/webp;base64': 'webp',
+    'data:image/tiff;base64': 'tiff',
+    'data:image/x-icon;base64': 'ico',
+    'data:application/pdf;base64': 'pdf',
+    'data:application/zip;base64': 'zip',
+    'data:application/x-rar-compressed;base64': 'rar',
+    'data:application/x-7z-compressed;base64': '7z',
+    'data:application/x-tar;base64': 'tar', 
+    'data:application/x-bzip;base64': 'bz',
+    'data:application/x-bzip2;base64': 'bz2',
+    'data:application/x-gzip;base64': 'gz',
+    'data:application/x-xz;base64': 'xz',
+    //audio
+    'data:audio/mpeg;base64': 'mp3',
+    'data:audio/ogg;base64': 'ogg',
+    'data:audio/wav;base64': 'wav',
+    'data:audio/x-wav;base64': 'wav',
+    'data:audio/x-pn-wav;base64': 'wav',
+    'data:audio/x-ms-wma;base64': 'wma',
+    'data:audio/x-ms-wax;base64': 'wax',
+    'data:audio/x-aiff;base64': 'aif',
+    'data:audio/x-mpegurl;base64': 'm3u',
+    'data:audio/x-mpegurl;base64': 'm3u',
+    'data:audio/x-scpls;base64': 'pls',
+    'data:audio/x-mpeg;base64': 'mp2',
+    'data:audio/x-mpeg;base64': 'mpa',
+    'data:audio/x-mpeg;base64': 'mpga',
+    'data:audio/x-m4a;base64': 'm4a',
+    'data:audio/x-realaudio;base64': 'ra',
+    //video
+    'data:video/mpeg;base64': 'mpeg',
+    'data:video/mp4;base64': 'mp4',
+    'data:video/quicktime;base64': 'mov',
+    'data:video/x-msvideo;base64': 'avi',
+    'data:video/x-ms-wmv;base64': 'wmv',
+    'data:video/x-ms-asf;base64': 'asf',
+    'data:video/x-ms-asf;base64': 'asx',
+    'data:video/x-flv;base64': 'flv',
+    'data:video/x-m4v;base64': 'm4v',
+    'data:video/x-matroska;base64': 'mkv',
+    'data:video/x-mng;base64': 'mng',
+    //text
+    'data:text/plain;base64': 'txt',
+    'data:text/html;base64': 'html',
+    'data:text/css;base64': 'css',
+    'data:text/javascript;base64': 'js',
+    'data:text/xml;base64': 'xml',
+    'data:text/csv;base64': 'csv',
+    'data:text/x-csv;base64': 'csv',
+    //programming languages
+    'data:text/x-c;base64': 'c',
+    'data:text/x-c++src;base64': 'cpp',
+    'data:text/x-c++hdr;base64': 'hpp',
+    'data:text/x-java;base64': 'java',
+    'data:text/x-python;base64': 'py',
+    'data:text/x-php;base64': 'php',
+    'data:text/x-ruby;base64': 'rb',
+    'data:text/x-sql;base64': 'sql',
+    'data:text/x-csharp;base64': 'cs',
+    //office
+    'data:application/vnd.ms-excel;base64': 'xls',
+    'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64': 'xlsx',
+    'data:application/vnd.ms-powerpoint;base64': 'ppt',
+    'data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64': 'pptx',
+    'data:application/msword;base64': 'doc',
+    'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64': 'docx',
+    'data:application/vnd.oasis.opendocument.text;base64': 'odt',
+    'data:application/vnd.oasis.opendocument.spreadsheet;base64': 'ods',
+    'data:application/vnd.oasis.opendocument.presentation;base64': 'odp',
+    'data:application/vnd.oasis.opendocument.graphics;base64': 'odg',
+    'data:application/vnd.oasis.opendocument.chart;base64': 'odc',
+    'data:application/vnd.oasis.opendocument.formula;base64': 'odf',
+    //common windows files
+    'data:application/x-msdownload;base64': 'exe',
+    'data:application/x-msi;base64': 'msi',
+    'data:application/x-ms-shortcut;base64': 'lnk',
+    'data:application/x-ms-wmd;base64': 'wmd',
+    'data:application/x-ms-wmz;base64': 'wmz',
+    'data:application/x-ms-xbap;base64': 'xbap',
+    'data:application/x-msaccess;base64': 'mdb',
+    'data:application/x-msbinder;base64': 'obd',
+    'data:application/x-mscardfile;base64': 'crd',
+    'data:application/x-msclip;base64': 'clp',
+    'data:application/x-msmediaview;base64': 'mvb',
+    //common mac files
+    'data:application/x-apple-diskimage;base64': 'dmg',
+    'data:application/x-apple-keynote;base64': 'key',
+    'data:application/x-apple-pages;base64': 'pages',
+    'data:application/x-apple-numbers;base64': 'numbers',
+    'data:application/x-apple-systemprofiler;base64': 'spf',
+    'data:application/x-apple-diskcopy;base64': 'dmg',
+    //common linux files
+    'data:application/x-debian-package;base64': 'deb',
+    'data:application/x-redhat-package-manager;base64': 'rpm',
+    'data:application/x-gzip;base64': 'gz',
+    'data:application/x-bzip2;base64': 'bz2',
+    'data:application/x-tar;base64': 'tar',
+    'data:application/x-compressed-tar;base64': 'tar.gz',
+    //common android files
+    'data:application/vnd.android.package-archive;base64': 'apk',
+    //common ios files
+    'data:application/x-itunes-ipa;base64': 'ipa',
+    'data:application/x-itunes-ipg;base64': 'ipg',
+    'data:application/x-itunes-ipsw;base64': 'ipsw',
+    'data:application/x-itunes-ite;base64': 'ite',
+    'data:application/x-itunes-itlp;base64': 'itlp',
+    'data:application/x-itunes-itms;base64': 'itms',
+    'data:application/x-itunes-itpc;base64': 'itpc',
+    //common windows phone files
+    'data:application/x-silverlight-app;base64': 'xap',
+};
 
-    let ext = filename.split('.').pop();
-
-    let commonfiletypes = ["jpg", "jpeg", "png", "webp", "mp4", "mp3", "docx", "doc", "pdf", "txt", "log", "rar", "zip"];
-
-    if (ext == '' || !commonfiletypes.includes(ext)){
-        //get extention from base64
-        ext = selectedFile.data.split(';')[0].split('/')[1];
-        //if still empty, set to unknown
-        if (ext == ''){
-            ext = 'unknown';
-        }else{
-            //if octet-stream, set to mp3
-            if (ext == 'octet-stream'){
-                ext = 'mp3';
-            }
-            else if (ext == 'vnd.openxmlformats-officedocument.wordprocessingml.document'){
-                ext = 'docx';
-            }
-            else if (ext == 'vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
-                ext = 'xlsx';
-            }
-            else if (ext == 'vnd.openxmlformats-officedocument.presentationml.presentation'){
-                ext = 'pptx';
-            }
-            else if (ext == 'vnd.ms-excel'){
-                ext = 'xls';
-            }
-            else if (ext == 'vnd.ms-powerpoint'){
-                ext = 'ppt';
-            }
-            else if (ext == 'vnd.ms-word'){
-                ext = 'doc';
-            }
-            else if (ext == 'vnd.oasis.opendocument.text'){
-                ext = 'odt';
-            }
-            else if (ext == 'vnd.oasis.opendocument.spreadsheet'){
-                ext = 'ods';
-            }
-            else if (ext == 'vnd.oasis.opendocument.presentation'){
-                ext = 'odp';
-            }
-            else if (ext == 'vnd.oasis.opendocument.graphics'){
-                ext = 'odg';
-            }
-            else if (ext == 'vnd.oasis.opendocument.chart'){
-                ext = 'odc';
-            }
-            else if (ext == 'vnd.oasis.opendocument.formula'){
-                ext = 'odf';
-            }
-            else if (ext == 'vnd.oasis.opendocument.database'){
-                ext = 'odb';
-            }
-            else if (ext == 'vnd.oasis.opendocument.image'){
-                ext = 'odi';
-            }
-            else if (ext == 'vnd.oasis.opendocument.text-master'){
-                ext = 'odm';
-            }
-            else if (ext == 'vnd.oasis.opendocument.text-web'){
-                ext = 'oth';
-            }
-        }
-    }
-    return ext;
+function getExt() {
+    return extMapFromBase64[selectedFile.data.substring(0, selectedFile.data.indexOf(','))] || 'file';
 }
 
 
@@ -1918,6 +1988,7 @@ window.addEventListener('dragover', (evt) => {
     }
     timeoutObj = setTimeout(() => {
         fileDropZone.classList.remove('active');
+        timeoutObj = undefined;
     }, 200);
 });
 
@@ -2007,6 +2078,8 @@ sendButton.addEventListener('click', () => {
     isTyping = false;
     socket.emit('stoptyping');
 });
+
+
 
 
 document.getElementById('previewImage').querySelector('.close')?.addEventListener('click', ()=>{
@@ -2431,7 +2504,7 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
         let elem = document.getElementById(id).querySelector('.messageMain');
         setTimeout(() => {
             elem.querySelector('.image').style.filter = 'brightness(0.4) url(#sharpBlur)';
-        }, 20);
+        }, 4);
     }else{
         insertNewMessage('', type, id, uId, reply, replyId, options, metadata);
         let elem = document.getElementById(id).querySelector('.messageMain');
@@ -2518,12 +2591,12 @@ function clearDownload(element, base64data, type){
             element.querySelector('.image').src = base64data;
             element.querySelector('.image').alt = 'image'
             element.querySelector('.image').style.filter = 'none';
-        }, 20);
+        }, 4);
     }else if (type === 'file'){
         setTimeout(() => {
             element.querySelector('.file').dataset.data = base64data;
             element.querySelector('.progress').style.visibility = 'hidden';
-        }, 20);
+        }, 4);
     }
     element.closest('.message').dataset.downloaded = 'true';
 }
