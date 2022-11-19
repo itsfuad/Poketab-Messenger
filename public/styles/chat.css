@@ -801,7 +801,7 @@ i[class^=fa-] {
   justify-content: center;
   align-items: center;
   font-size: 0.5rem;
-  padding-top: 5px;
+  padding: 2px;
   gap: 5px;
   color: grey;
 }
@@ -1050,7 +1050,7 @@ i[class^=fa-] {
   display: flex;
   flex-direction: row;
   align-items: center;
-  font-size: 1.3rem;
+  font-size: 1.6rem;
   flex-wrap: wrap;
   width: 100%;
   overflow-y: scroll;
@@ -1058,16 +1058,16 @@ i[class^=fa-] {
   align-content: flex-start;
   justify-content: center;
 }
-.moreReactsContainer .moreReacts > div {
+.moreReactsContainer .moreReacts .react-emoji {
   border-radius: 10px;
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   display: flex;
   filter: saturate(0.8);
   align-items: center;
   justify-content: center;
 }
-.moreReactsContainer .moreReacts > div:hover {
+.moreReactsContainer .moreReacts .react-emoji:hover {
   cursor: pointer;
   background: var(--focus-dark);
   filter: saturate(1);

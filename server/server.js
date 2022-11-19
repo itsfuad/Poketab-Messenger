@@ -55,7 +55,12 @@ app.set('views', path.join(__dirname, '../public/views'));
 app.set('view engine', 'ejs');
 app.set('trust proxy', 1);
 
-app.use(cors());
+//allow cross origin requests only from the client on poketab.live
+app.use(cors({
+  origin: 'https://poketab.live',
+  optionsSuccessStatus: 200
+}));
+
 app.use(compression());
 app.use(express.static(publicPath));
 app.use(express.json());

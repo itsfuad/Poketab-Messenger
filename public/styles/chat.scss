@@ -812,7 +812,7 @@ i[class^=fa-]{
     justify-content: center;
     align-items: center;
     font-size: 0.5rem;
-    padding-top: 5px;
+    padding: 2px;
     gap: 5px;
     color: grey;
     .version, .author{
@@ -1056,17 +1056,17 @@ i[class^=fa-]{
         display: flex;
         flex-direction: row;
         align-items: center;
-        font-size: 1.3rem;
+        font-size: 1.6rem;
         flex-wrap: wrap;
         width: 100%;
         overflow-y: scroll;
         transition: 100ms ease-in-out;
         align-content: flex-start;
         justify-content: center;
-        & > div{
+        .react-emoji{
             border-radius: 10px;
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             display: flex;
             filter: saturate(0.8);
             align-items: center;
