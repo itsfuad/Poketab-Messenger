@@ -1194,6 +1194,9 @@ i[class^=fa-] {
   width: 100%;
   padding-left: 8px;
 }
+.reactorContainer ul li .r {
+  font-size: 1.2rem;
+}
 
 .reactorContainerWrapper.active .reactorContainer {
   top: 0;
