@@ -559,11 +559,27 @@ img {
   transform: scale(0.5);
   transform-origin: bottom;
 }
+.chatInput .close_area .attachmentButton {
+  transition: 150ms;
+  transform: translateY(20px) scale(0.5);
+}
 .chatInput .close_area.active {
   bottom: 0;
   visibility: visible;
   opacity: 1;
   transform: scale(1);
+}
+.chatInput .close_area.active .attachmentButton {
+  transform: translateY(0px) scale(1);
+}
+.chatInput .close_area.active .attachmentButton:nth-child(1) {
+  transition-delay: 50ms;
+}
+.chatInput .close_area.active .attachmentButton:nth-child(2) {
+  transition-delay: 80ms;
+}
+.chatInput .close_area.active .attachmentButton:nth-child(3) {
+  transition-delay: 110ms;
 }
 .chatInput .attachmentContainer {
   position: absolute;
