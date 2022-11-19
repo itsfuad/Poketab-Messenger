@@ -135,10 +135,8 @@
         </div>
     </div>
 
-
     <!-- Utilities -->
 
-    
     <!-- Options container for reacts and other functionalities -->
     <div id="optionsContainerWrapper">
         <div class="close_area"></div>
@@ -278,75 +276,12 @@
           <feComposite in2='SourceGraphic' operator='in'></feComposite>
         </filter>
     </svg>
-    <script>
-        const myId = "<%=myId_%>";
-        const myName = "<%=myName_%>";
-        const myAvatar = "<%=myAvatar_%>";
-        const myKey = "<%=myKey_%>";
-        const maxUser = "<%=maxUser_%>";
-
-        let THEME = "";
-        const themeAccent = {
-            blue: {
-                secondary: 'hsl(213, 98%, 57%)',
-                foreground: '#e1eeff',
-                msg_get: 'hsl(213, 40%, 57%)',
-                msg_get_reply: 'hsl(213, 35%, 27%)',
-                msg_send: 'hsl(213, 98%, 57%)',
-                msg_send_reply: 'hsl(213, 88%, 27%)'
-            },
-            geometry: {
-                secondary: 'hsl(15, 98%, 57%)',
-                foreground: '#e1eeff',
-                msg_get: 'hsl(15, 40%, 57%)',
-                msg_get_reply: 'hsl(15, 35%, 27%)',
-                msg_send: 'hsl(15, 98%, 57%)',
-                msg_send_reply: 'hsl(15, 88%, 27%)'
-            },
-            dark_mood: {
-                secondary: 'hsl(216, 37%, 44%)',
-                foreground: '#e1eeff',
-                msg_get: 'hsl(216, 27%, 33%)',
-                msg_get_reply: 'hsl(216, 20%, 21%)',
-                msg_send: 'hsl(216, 37%, 44%)',
-                msg_send_reply: 'hsl(216, 32%, 23%)'
-            },
-            forest: {
-                secondary: 'hsl(162, 60%, 42%)',
-                foreground: '#e1eeff',
-                msg_get: 'hsl(162, 18%, 41%)',
-                msg_get_reply: 'hsl(162, 14%, 27%)',
-                msg_send: 'hsl(162, 60%, 42%)',
-                msg_send_reply: 'hsl(162, 32%, 34%)'
-            }
-        }
-
-        function loadTheme(){
-            THEME = localStorage.getItem("theme");
-            if(THEME == null){
-                THEME = "blue";
-                localStorage.setItem("theme", THEME);
-            }
-            document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${THEME}_w.webp')`);
-            document.documentElement.style.setProperty('--secondary-dark', themeAccent[THEME].secondary);
-            document.documentElement.style.setProperty('--msg-get', themeAccent[THEME].msg_get);
-            document.documentElement.style.setProperty('--msg-get-reply', themeAccent[THEME].msg_get_reply);
-            document.documentElement.style.setProperty('--msg-send', themeAccent[THEME].msg_send);
-            document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_send_reply);
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
-        }
-        
-        loadTheme();
-        
-        document.addEventListener('click', ()=> {
-                history.pushState({}, '', "#init");
-                history.pushState({}, '', "#initiated");
-                history.pushState({}, '', "#inbox");
-                window.onpopstate = ()=>{
-                    history.forward();
-                }
-        }, {once: true});
-        
-    </script>
+    <div id="userMetaTemplate">
+        <div id="myId"><%=myId_%></div>
+        <div id="myName"><%=myName_%></div>
+        <div id="myAvatar"><%=myAvatar_%></div>
+        <div id="myKey"><%=myKey_%></div>
+        <div id="maxUser"><%=maxUser_%></div>
+    </div>
 </body>
 </html>

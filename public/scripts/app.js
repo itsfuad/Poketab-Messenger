@@ -45,6 +45,56 @@ const fileButton = document.getElementById('file');
 
 let isTyping = false, timeout = undefined;
 
+const myId = document.getElementById('myId').textContent;
+const myName = document.getElementById('myName').textContent;
+const myAvatar = document.getElementById('myAvatar').textContent;
+const myKey = document.getElementById('myKey').textContent;
+const maxUser = document.getElementById('maxUser').textContent;
+
+const messageTemplate = document.getElementById('messageTemplate').innerHTML;
+const fileTemplate = document.getElementById('fileTemplate').innerHTML;
+
+document.getElementById('userMetaTemplate').remove();
+document.getElementById('messageTemplate').remove();
+document.getElementById('fileTemplate').remove();
+
+let THEME = "";
+
+const themeAccent = {
+    blue: {
+        secondary: 'hsl(213, 98%, 57%)',
+        foreground: '#e1eeff',
+        msg_get: 'hsl(213, 40%, 57%)',
+        msg_get_reply: 'hsl(213, 35%, 27%)',
+        msg_send: 'hsl(213, 98%, 57%)',
+        msg_send_reply: 'hsl(213, 88%, 27%)'
+    },
+    geometry: {
+        secondary: 'hsl(15, 98%, 57%)',
+        foreground: '#e1eeff',
+        msg_get: 'hsl(15, 40%, 57%)',
+        msg_get_reply: 'hsl(15, 35%, 27%)',
+        msg_send: 'hsl(15, 98%, 57%)',
+        msg_send_reply: 'hsl(15, 88%, 27%)'
+    },
+    dark_mood: {
+        secondary: 'hsl(216, 37%, 44%)',
+        foreground: '#e1eeff',
+        msg_get: 'hsl(216, 27%, 33%)',
+        msg_get_reply: 'hsl(216, 20%, 21%)',
+        msg_send: 'hsl(216, 37%, 44%)',
+        msg_send_reply: 'hsl(216, 32%, 23%)'
+    },
+    forest: {
+        secondary: 'hsl(162, 60%, 42%)',
+        foreground: '#e1eeff',
+        msg_get: 'hsl(162, 18%, 41%)',
+        msg_get_reply: 'hsl(162, 14%, 27%)',
+        msg_send: 'hsl(162, 60%, 42%)',
+        msg_send_reply: 'hsl(162, 32%, 34%)'
+    }
+}
+
 const reactArray = {
     primary: ['🙂', '😂','😠','😢','😮','💙','🌻'],
     expanded: ['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','🥰','😗','😙','😚','🙂','🤗','🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥺','🤠','🤡','🤥','🤫','🤭','🧐','🤓','😈','👿','👹','👺','💀','☠','👻','👽','👾','🤖','💩','😺','😸','😹','😻','🙈','🙉','🙊','🐵','🐶','🐺','🐱','🦁','🐯','🦒','🦊','🦝','🐮','🐷','🐗','🐭','🐹','🐰','🐻','🐨','🐼','🐸','🦓','🐴','🦄','🐔','🐲','🐽','🐧','🐥','🐤','🐣','🦇','🦋','🐌','🐛','🦟','🦗','🐜','🐝','🐞','🦂','🕷','🕸','🦠','🧞‍♀️','🧞‍♂️','🗣','👀','🦴','🦷','👅','👄','🧠','🦾','🦿','👩🏻','👨🏻','🧑🏻','👧🏻','👦🏻','🧒🏻','👶🏻','👵🏻','👴🏻','🧓🏻','👩🏻‍🦰','👨🏻‍🦰','👩🏻‍🦱','👨🏻‍🦱','👩🏻‍🦲','👨🏻‍🦲','👩🏻‍🦳','👨🏻‍🦳','👱🏻‍♀️','👱🏻‍♂️','👸🏻','🤴🏻','👳🏻‍♀️','👳🏻‍♂️','👲🏻','🧔🏻','👼🏻','🤶🏻','🎅🏻','👮🏻‍♀️','👮🏻‍♂️','🕵🏻‍♀️','🕵🏻‍♂️','💂🏻‍♀️','💂🏻‍♂️','👷🏻‍♀️','👷🏻‍♂️','👩🏻‍⚕️','👨🏻‍⚕️','👩🏻‍🎓','👨🏻‍🎓','👩🏻‍🏫','👨🏻‍🏫','👩🏻‍⚖️','👨🏻‍⚖️','👩🏻‍🌾','👨🏻‍🌾','👩🏻‍🍳','👨🏻‍🍳','👩🏻‍🔧','👨🏻‍🔧','👩🏻‍🏭','👨🏻‍🏭','👩🏻‍💼','👨🏻‍💼','👩🏻‍🔬','👨🏻‍🔬','👩🏻‍💻','👨🏻‍💻','👩🏻‍🎤','👨🏻‍🎤','👩🏻‍🎨','👨🏻‍🎨','👩🏻‍✈️','👨🏻‍✈️','👩🏻‍🚀','👨🏻‍🚀','👩🏻‍🚒','👨🏻‍🚒','🧕🏻','👰🏻','🤵🏻','🤱🏻','🤰🏻','🦸🏻‍♀️','🦸🏻‍♂️','🦹🏻‍♀️','🦹🏻‍♂️','🧙🏻‍♀️','🧙🏻‍♂️','🧚🏻‍♀️','🧚🏻‍♂️','🧛🏻‍♀️','🧛🏻‍♂️','🧜🏻‍♀️','🧜🏻‍♂️','🧝🏻‍♀️','🧝🏻‍♂️','🧟🏻‍♀️','🧟🏻‍♂️','🙍🏻‍♀️','🙍🏻‍♂️','🙎🏻‍♀️','🙎🏻‍♂️','🙅🏻‍♀️','🙅🏻‍♂️','🙆🏻‍♀️','🙆🏻‍♂️','🧏🏻‍♀️','🧏🏻‍♂️','💁🏻‍♀️','💁🏻‍♂️','🙋🏻‍♀️','🙋🏻‍♂️','🙇🏻‍♀️','🙇🏻‍♂️','🤦🏻‍♀️','🤦🏻‍♂️','🤷🏻‍♀️','🤷🏻‍♂️','💆🏻‍♀️','💆🏻‍♂️','💇🏻‍♀️','💇🏻‍♂️','🧖🏻‍♀️','🧖🏻‍♂️','🤹🏻‍♀️','🤹🏻‍♂️','👩🏻‍🦽','👨🏻‍🦽','👩🏻‍🦼','👨🏻‍🦼','👩🏻‍🦯','👨🏻‍🦯','🧎🏻‍♀️','🧎🏻‍♂️','🧍🏻‍♀️','🧍🏻‍♂️','🚶🏻‍♀️','🚶🏻‍♂️','🏃🏻‍♀️','🏃🏻‍♂️','💃🏻','🕺🏻','🧗🏻‍♀️','🧗🏻‍♂️','🧘🏻‍♀️','🧘🏻‍♂️','🛀🏻','🛌🏻','🕴🏻','🏇🏻','🏂🏻','💪🏻','🦵🏻','🦶🏻','👂🏻','🦻🏻','👃🏻','🤏🏻','👈🏻','👉🏻','☝🏻','👆🏻','👇🏻','✌🏻','🤞🏻','🖖🏻','🤘🏻','🤙🏻','🖐🏻','✋🏻','👌🏻','👍🏻','👎🏻','✊🏻','👊🏻','🤛🏻','🤜🏻','🤚🏻','👋🏻','🤟🏻','✍🏻','👏🏻','👐🏻','🙌🏻','🤲🏻','🙏🏻','🤝🏻','💅🏻','📌','❤️','🧡','💛','💚','💙','💜','🤎','🖤','🤍','💔','❣','💕','💞','💓','💗','💖','💘','💝','💟','💌','💢','💥','💤','💦','💨','💫'],
@@ -100,19 +150,6 @@ let lastNotification = undefined;
 //first load functions 
 //if user device is mobile
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-//if device has a touch support
-/*
-const hasTouch = 'ontouchstart' in window;
-
-if (hasTouch){
-    // change css :root --position to relative
-    document.documentElement.style.setProperty('--positionForStickers', 'relative');
-}else{
-    // change css :root --position to fixed
-    document.documentElement.style.setProperty('--positionForStickers', 'relative');
-}
-*/
 
 //This class is used to detect the long press on messages and fire the callback function
 class ClickAndHold{
@@ -223,6 +260,23 @@ function loadReacts(){
 
 loadReacts();
 
+function loadTheme(){
+    THEME = localStorage.getItem("theme");
+    if(THEME == null){
+        THEME = "blue";
+        localStorage.setItem("theme", THEME);
+    }
+    document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${THEME}_w.webp')`);
+    document.documentElement.style.setProperty('--secondary-dark', themeAccent[THEME].secondary);
+    document.documentElement.style.setProperty('--msg-get', themeAccent[THEME].msg_get);
+    document.documentElement.style.setProperty('--msg-get-reply', themeAccent[THEME].msg_get_reply);
+    document.documentElement.style.setProperty('--msg-send', themeAccent[THEME].msg_send);
+    document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_send_reply);
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
+}
+
+loadTheme();
+
 //sets the app height to the max height of the window
 function appHeight () {
     const doc = document.documentElement;
@@ -306,7 +360,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     let avatar = userInfoMap.get(uid)?.avatar;
     if (username == myName){username = 'You';}
 
-    let template, html;
+    let html;
     let replyMsg, replyFor;
     let repliedTo;
     if (options.reply){
@@ -331,8 +385,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
     //console.dir(reply);
     if (type === 'file'){
         popupmsg = 'File';
-        template = document.getElementById('fileTemplate').innerHTML;
-        html = Mustache.render(template, {
+        html = Mustache.render(fileTemplate, {
             classList: classList,
             avatar: `<img src='/images/avatars/${avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
             messageId: id,
@@ -349,8 +402,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
             time: getCurrentTime()
         });
     }else{
-        template  = document.getElementById('messageTemplate').innerHTML; //loads the template from the html
-        html = Mustache.render(template, {
+        html = Mustache.render(messageTemplate, {
             classList: classList,
             avatar: `<img src='/images/avatars/${avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
             messageId: id,
@@ -2608,3 +2660,12 @@ updateScroll();
 setTimeout(() => {
     document.getElementById('preload').querySelector('.text').textContent = 'Slow internet';
 }, 3000);
+
+document.addEventListener('click', ()=> {
+    history.pushState({}, '', "#init");
+    history.pushState({}, '', "#initiated");
+    history.pushState({}, '', "#inbox");
+    window.onpopstate = ()=>{
+        history.forward();
+    }
+}, {once: true});

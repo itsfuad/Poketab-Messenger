@@ -73,7 +73,9 @@ app.use('/api/files', require('./routes/router'));
 app.use('/api/download', require('./routes/router'));
 
 app.get('/', (_, res) => {
-    res.render('home', {title: 'Get Started'});
+  res.setHeader('Developer', "Fuad Hasan");
+  res.setHeader('Content-Security-Policy', "script-src http://localhost:3000 https://poketab.live");
+  res.render('home', {title: 'Get Started'});
 });
 
 app.get('/admin/:pass', (req, res) => {
@@ -81,17 +83,23 @@ app.get('/admin/:pass', (req, res) => {
     console.log('Admin access granted');
     res.send(Object.fromEntries(keys));
   } else {
+    res.setHeader('Developer', "Fuad Hasan");
+    res.setHeader('Content-Security-Policy', "script-src 'none'");
     res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
   }
 });
 
 app.get('/join', (_, res) => {
+  res.setHeader('Developer', "Fuad Hasan");
+  res.setHeader('Content-Security-Policy', "script-src http://localhost:3000 https://poketab.live");
   res.render('join', {title: 'Join', version: `v.${version}`, key: null, key_label: `Enter key <i id='lb__icon' class="fa-solid fa-key"></i>`});
 });
 
 app.get('/join/:key', (req, res)=>{
   const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
   if (key_format.test(req.params.key)){
+    res.setHeader('Developer', "Fuad Hasan");
+    res.setHeader('Content-Security-Policy', "script-src http://localhost:3000 https://poketab.live");
     res.render('join', {title: 'Join', key_label: `Checking <i id='lb__icon' class="fa-solid fa-circle-notch fa-spin"></i>` , version: `v.${version}`, key: req.params.key});
   }
   else{
@@ -103,10 +111,14 @@ app.get('/create', (req, res) => {
   const key = makeid(12);
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null; //currently ip has nothing to do with our server. May be we can use it for user validation or attacts. 
   keys.set(key, {using: false, created: Date.now(), ip: ip});
+  res.setHeader('Developer', "Fuad Hasan");
+  res.setHeader('Content-Security-Policy', "script-src http://localhost:3000 https://poketab.live");
   res.render('create', {title: 'Create', version: `v.${version}`, key: key});
 });
 
 app.get('/error', (_, res) => {
+  res.setHeader('Developer', "Fuad Hasan");
+  res.setHeader('Content-Security-Policy', "script-src http://localhost:3000 https://poketab.live");
   res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized Access', buttonText: 'Suicide'});
 });
 
@@ -122,11 +134,15 @@ app.post('/chat', (req, res) => {
   let maxuser = req.body.maxuser;
 
   if (!validateUserName(username)){
+    res.setHeader('Developer', "Fuad Hasan");
+    res.setHeader('Content-Security-Policy', "script-src 'none'");
     res.status(400).send({
       error: 'Invalid username format. Please use only alphanumeric characters'
     });
   }
   if (!avList.includes(avatar)){
+    res.setHeader('Developer', "Fuad Hasan");
+    res.setHeader('Content-Security-Policy', "script-src 'none'");
     res.status(400).send({
       error: 'Don\'t try to be oversmart. Choose avatar from the list'
     });
@@ -138,21 +154,31 @@ app.post('/chat', (req, res) => {
     //console.log(max_users);
     let uid = uuid.v4();
     if (user.length >= max_users || max_users > 10){
+      res.setHeader('Developer', "Fuad Hasan");
+      res.setHeader('Content-Security-Policy', "script-src 'none'");
       res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
     }else{
+      res.setHeader('Developer', "Fuad Hasan");
+      res.setHeader('Content-Security-Policy', "script-src http://localhost:3000 https://poketab.live");
       res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
     }
   }else{
     //send invalid key message
+    res.setHeader('Developer', "Fuad Hasan");
+    res.setHeader('Content-Security-Policy', "script-src 'none'");
     res.render('errorRes', {title: 'Not found', errorCode: '404', errorMessage: 'Key session not found', buttonText: 'Renew'});
   }
 });
 
 app.get('/offline', (_, res) => {
+  res.setHeader('Developer', "Fuad Hasan");
+  res.setHeader('Content-Security-Policy', "script-src 'none'");
   res.render('errorRes', {title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline :(', buttonText: 'Refresh'});
 });
 
 app.get('*', (_, res) => {
+  res.setHeader('Developer', "Fuad Hasan");
+  res.setHeader('Content-Security-Policy', "script-src 'none'");
   res.render('errorRes', {title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home'});
 });
 
