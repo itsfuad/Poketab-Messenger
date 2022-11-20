@@ -46,7 +46,7 @@ let io = socketIO(server,{
 let fileSocket = io.of('/file');
 let auth = io.of('/auth');
 
-const devMode = true;
+const devMode = false;
 const script_Src = devMode ? 'http://localhost:3000' : 'https://poketab.live';
 
 app.disable('x-powered-by');
