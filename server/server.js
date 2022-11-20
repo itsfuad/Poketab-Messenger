@@ -46,7 +46,8 @@ let io = socketIO(server,{
 let fileSocket = io.of('/file');
 let auth = io.of('/auth');
 
-const devMode = false;
+const devMode = true;
+const script_Src = devMode ? 'http://localhost:3000' : 'https://poketab.live';
 
 app.disable('x-powered-by');
 
@@ -74,7 +75,7 @@ app.use('/api/download', require('./routes/router'));
 
 app.get('/', (_, res) => {
   res.setHeader('Developer', "Fuad Hasan");
-  res.setHeader('Content-Security-Policy', "script-src 'self'");
+  res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
   res.render('home', {title: 'Get Started'});
 });
 
@@ -84,14 +85,14 @@ app.get('/admin/:pass', (req, res) => {
     res.send(Object.fromEntries(keys));
   } else {
     res.setHeader('Developer', "Fuad Hasan");
-    res.setHeader('Content-Security-Policy', "script-src 'self'");
+    res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
     res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
   }
 });
 
 app.get('/join', (_, res) => {
   res.setHeader('Developer', "Fuad Hasan");
-  res.setHeader('Content-Security-Policy', "script-src 'self'");
+  res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
   res.render('join', {title: 'Join', version: `v.${version}`, key: null, key_label: `Enter key <i id='lb__icon' class="fa-solid fa-key"></i>`});
 });
 
@@ -99,7 +100,7 @@ app.get('/join/:key', (req, res)=>{
   const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
   if (key_format.test(req.params.key)){
     res.setHeader('Developer', "Fuad Hasan");
-    res.setHeader('Content-Security-Policy', "script-src 'self'");
+    res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
     res.render('join', {title: 'Join', key_label: `Checking <i id='lb__icon' class="fa-solid fa-circle-notch fa-spin"></i>` , version: `v.${version}`, key: req.params.key});
   }
   else{
@@ -112,13 +113,13 @@ app.get('/create', (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null; //currently ip has nothing to do with our server. May be we can use it for user validation or attacts. 
   keys.set(key, {using: false, created: Date.now(), ip: ip});
   res.setHeader('Developer', "Fuad Hasan");
-  res.setHeader('Content-Security-Policy', "script-src 'self'");
+  res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
   res.render('create', {title: 'Create', version: `v.${version}`, key: key});
 });
 
 app.get('/error', (_, res) => {
   res.setHeader('Developer', "Fuad Hasan");
-  res.setHeader('Content-Security-Policy', "script-src 'self'");
+  res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
   res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized Access', buttonText: 'Suicide'});
 });
 
@@ -159,7 +160,7 @@ app.post('/chat', (req, res) => {
       res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
     }else{
       res.setHeader('Developer', "Fuad Hasan");
-      res.setHeader('Content-Security-Policy', "script-src 'self'");
+      res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
       res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
     }
   }else{

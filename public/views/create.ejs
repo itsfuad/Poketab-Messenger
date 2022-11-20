@@ -6,7 +6,7 @@
 </head>
 <body>
     <div class="container">
-        <form class="form" method="post" action="/chat" onsubmit="return check();">
+        <form class="form" id="form" method="post" action="/chat">
             <div class="subform" id="form1">
                 <div class="title">
                     <div>Create chat</div>
@@ -23,7 +23,7 @@
                 <div class="redirect">
                     <fieldset>
                         <legend>Or</legend>
-                        <a id="redirect" href="/join" class="noSelect clickable" onclick="return wait();">Join chat</a>
+                        <a id="redirect" href="/join" class="noSelect clickable">Join chat</a>
                     </fieldset>
                 </div>
             </div>

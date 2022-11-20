@@ -94,6 +94,10 @@ function errlog(id, msg){
     }
 }
 
+document.getElementById('form').onsubmit = check;
+
+document.getElementById('redirect').onclick = wait;
+
 function wait(){
     let wait = document.getElementById('wait');
     wait.style.display = 'flex';
