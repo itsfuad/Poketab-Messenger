@@ -3,7 +3,6 @@ const multer = require('multer');
 const { access } = require('fs/promises');
 const uuid = require('uuid').v4;
 const { store } = require('../keys/cred');
-const cors = require('cors');
 
 
 let storage = multer.diskStorage({

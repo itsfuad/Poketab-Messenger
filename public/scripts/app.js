@@ -2306,10 +2306,7 @@ function sleep(ms) {
 let newMsgTimeOut = undefined;
 
 function notifyUser(message, username, avatar){
-    if (!("Notification" in window)) {
-        // Check if the browser supports notifications
-        alert("This browser does not support desktop notification");
-    } else if (Notification.permission === "granted") {
+    if ( ("Notification" in window) && Notification.permission === "granted") {
         // Check whether notification permissions have already been granted;
         // if so, create a notification
         if (!document.hasFocus()){
@@ -2441,6 +2438,8 @@ socket.on('connect', () => {
             popupMessage('Connected to server');
             if ("Notification" in window){
                 Notification.requestPermission();
+            }else{
+                popupMessage('Notifications not supported by your browser');
             }
         }
     });

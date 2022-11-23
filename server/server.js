@@ -4,56 +4,73 @@ const compression = require('compression');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
-const socketIO = require('socket.io');
 const uuid = require("uuid");
+const socketIO = require('socket.io');
 
+const { clean } = require('./cleaner');
+
+//utility functions for the server
+const { validateUserName, avList, isRealString, reactArray } = require('./utils/validation');
+const { keyformat, makeid } = require('./utils/functions');
+const { addKey, deleteKey, keys, uids, users } = require('./keys/cred');
+const { markForDelete } = require('./cleaner');
+
+//importing worker threads
+//The worker threads module provides a way to create multiple environments running on separate threads that can communicate with each other via inter-thread messaging or sharing memory.
 const { Worker } = require('worker_threads');
-const { reactArray } = require('./utils/validation.js');
 
+//import .env variables
 require('dotenv').config();
 
+//versioning and developer name
 const version = process.env.npm_package_version || "Development";
 const developer = "Fuad Hasan";
-
-//console.log(developer);
+//admin password to view running chat numbers and create new chat keys
 const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
-const { isRealString, validateUserName, avList } = require('./utils/validation');
-const { makeid, keyformat } = require('./utils/functions');
-const { keys, uids, users } = require('./keys/cred');
-const { clean, markForDelete } = require('./cleaner');
+const devMode = false; //dev mode
+
+//this blocks the client if they request 1000 requests in 15 minutes
+const apiRequestLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minute
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests. Temporarily blocked from PokeTab server. Please try again later",
+  standardHeaders: false, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false // Disable the `X-RateLimit-*` headers
+});
+
+//public path to serve static files
+const publicPath = path.join(__dirname, '../public');
+//create the express app
+const app = express();
+
+const port = process.env.PORT || 3000;
 
 clean();
 
-const apiRequestLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minute
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: "Too many requests. Temporarily blocked from PokeTab server. Please try again later",
-    standardHeaders: false, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false // Disable the `X-RateLimit-*` headers
-});
+const server = http.createServer(app);
 
-const publicPath = path.join(__dirname, '../public');
-const port = process.env.PORT || 3000;
 
-let app = express();
-let server = http.createServer(app);
-let io = socketIO(server,{
-  maxHttpBufferSize: 1e6, pingTimeout: 60000,
+const io = socketIO(server, {
+  maxHttpBufferSize: 1e6,
+  pingTimeout: 60000,
   async_handlers: true
 });
 
-let fileSocket = io.of('/file');
-let auth = io.of('/auth');
+//file socket handler is used to handle file transfers metadata but not the actual file transfer
+const fileSocket = io.of('/file');
+//handle the key generation request and authentication
+const auth = io.of('/auth');
 
-const devMode = false;
+//if any scripts are injected into the client from other sources, they will be blocked
 const script_Src = devMode ? 'http://localhost:3000' : 'https://poketab.live';
 
+//disable x-powered-by header showing express in the response
 app.disable('x-powered-by');
 
 //view engine setup
 app.set('views', path.join(__dirname, '../public/views'));
-app.set('view engine', 'ejs');
+app.set('view engine', 'ejs'); //set the view engine to ejs [embedded javascript] to allow for dynamic html
 app.set('trust proxy', 1);
 
 //allow cross origin requests only from the client on poketab.live
@@ -62,23 +79,26 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
-app.use(compression());
-app.use(express.static(publicPath));
-app.use(express.json());
-app.use(express.urlencoded({
+app.use(compression()); //compress all responses
+app.use(express.static(publicPath)); //serve static files from the public folder
+app.use(express.json()); //parse json data
+//parse url encoded data in the body of the request
+app.use(express.urlencoded({ 
   extended: false
 }));
-app.use(apiRequestLimiter);
 
-app.use('/api/files', require('./routes/router'));
-app.use('/api/download', require('./routes/router'));
+app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 
+app.use('/api/files', require('./routes/fileAPI')); //route for file uploads
+app.use('/api/download', require('./routes/fileAPI')); //route for file downloads
+
+// default route to serve the client
 app.get('/', (_, res) => {
   res.setHeader('Developer', "Fuad Hasan");
-  res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
   res.render('home', {title: 'Get Started'});
 });
 
+//route to send running chat numbers and create new chat keys to the admin
 app.get('/admin/:pass', (req, res) => {
   if (req.params.pass === ADMIN_PASS) {
     console.log('Admin access granted');
@@ -92,7 +112,6 @@ app.get('/admin/:pass', (req, res) => {
 
 app.get('/join', (_, res) => {
   res.setHeader('Developer', "Fuad Hasan");
-  res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
   res.render('join', {title: 'Join', version: `v.${version}`, key: null, key_label: `Enter key <i id='lb__icon' class="fa-solid fa-key"></i>`});
 });
 
@@ -100,7 +119,6 @@ app.get('/join/:key', (req, res)=>{
   const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
   if (key_format.test(req.params.key)){
     res.setHeader('Developer', "Fuad Hasan");
-    res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
     res.render('join', {title: 'Join', key_label: `Checking <i id='lb__icon' class="fa-solid fa-circle-notch fa-spin"></i>` , version: `v.${version}`, key: req.params.key});
   }
   else{
@@ -113,13 +131,11 @@ app.get('/create', (req, res) => {
   const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null; //currently ip has nothing to do with our server. May be we can use it for user validation or attacts. 
   keys.set(key, {using: false, created: Date.now(), ip: ip});
   res.setHeader('Developer', "Fuad Hasan");
-  res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
   res.render('create', {title: 'Create', version: `v.${version}`, key: key});
 });
 
 app.get('/error', (_, res) => {
   res.setHeader('Developer', "Fuad Hasan");
-  res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
   res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized Access', buttonText: 'Suicide'});
 });
 
@@ -160,7 +176,7 @@ app.post('/chat', (req, res) => {
       res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
     }else{
       res.setHeader('Developer', "Fuad Hasan");
-      res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
+      res.setHeader('Cluster', `ID: ${process.pid}`);
       res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
     }
   }else{
@@ -183,6 +199,11 @@ app.get('*', (_, res) => {
   res.render('errorRes', {title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home'});
 });
 
+
+
+
+
+//socket.io connection
 io.on('connection', (socket) => {
   socket.on('join', (params, callback) => {
     if (!isRealString(params.name) || !isRealString(params.key)) {
@@ -197,7 +218,7 @@ io.on('connection', (socket) => {
       return callback('exists');
     }
     callback();
-    keys.get(params.key) ? keys.get(params.key).using = true: keys.set(params.key, {using: true, created: Date.now()});
+    keys.get(params.key) ? keys.get(params.key).using = true: addKey(params.key, {using: true, created: Date.now()});
     socket.join(params.key);
     users.removeUser(params.id);
     uids.set(socket.id, params.id);
@@ -299,7 +320,8 @@ io.on('connection', (socket) => {
       if (usercount.length === 0) {
         users.removeMaxUser(user.key);
         //delete key from keys
-        keys.delete(user.key);
+        //keys.delete(user.key);
+        deleteKey(user.key);
         console.log(`Session ended with key: ${user.key}`);
       }
       console.log(`${usercount.length == 0 ? "No" : usercount.length} ${usercount.length > 1 ? 'users' : 'user'} left on ${user.key}`);
@@ -385,6 +407,12 @@ auth.on('connection', (socket) => {
 });
 
 
+
+
+
+//fire up the server
 server.listen(port, () => {
-    console.log(`Server is up on port ${port}`);
+  console.log(`Server is up on port ${port} | ${devMode ? 'Development' : 'Production'} mode`);
 });
+
+module.exports = { server };
