@@ -627,6 +627,7 @@ input[type=file] {
   border: none;
   background: none;
   padding-right: 5px;
+  position: relative;
 }
 
 #previewImage {
@@ -1262,7 +1263,7 @@ i[class^=fa-] {
     width: -moz-max-content;
     width: max-content;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
+    background: hsla(0deg, 0%, 100%, 0.75);
     color: black;
     padding: 5px 10px;
     border-radius: 5px;
@@ -1285,7 +1286,7 @@ i[class^=fa-] {
     width: -moz-max-content;
     width: max-content;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
+    background: hsla(0deg, 0%, 100%, 0.75);
     color: black;
     padding: 5px 10px;
     border-radius: 5px;
@@ -1308,7 +1309,7 @@ i[class^=fa-] {
     width: -moz-max-content;
     width: max-content;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
+    background: hsla(0deg, 0%, 100%, 0.75);
     color: black;
     padding: 5px 10px;
     border-radius: 5px;
@@ -1331,7 +1332,7 @@ i[class^=fa-] {
     width: -moz-max-content;
     width: max-content;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
+    background: hsla(0deg, 0%, 100%, 0.75);
     color: black;
     padding: 5px 10px;
     border-radius: 5px;
@@ -1355,7 +1356,7 @@ i[class^=fa-] {
     width: -moz-max-content;
     width: max-content;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
+    background: hsla(0deg, 0%, 100%, 0.75);
     color: black;
     padding: 5px 10px;
     border-radius: 5px;
@@ -1378,7 +1379,7 @@ i[class^=fa-] {
     width: -moz-max-content;
     width: max-content;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
+    background: hsla(0deg, 0%, 100%, 0.75);
     color: black;
     padding: 5px 10px;
     border-radius: 5px;
@@ -1401,7 +1402,7 @@ i[class^=fa-] {
     width: -moz-max-content;
     width: max-content;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
+    background: hsla(0deg, 0%, 100%, 0.75);
     color: black;
     padding: 5px 10px;
     border-radius: 5px;
@@ -1424,7 +1425,7 @@ i[class^=fa-] {
     width: -moz-max-content;
     width: max-content;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
+    background: hsla(0deg, 0%, 100%, 0.75);
     color: black;
     padding: 5px 10px;
     border-radius: 5px;
@@ -1434,6 +1435,29 @@ i[class^=fa-] {
     visibility: hidden;
   }
   .attachments:hover::after {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 1s;
+  }
+  #send::after {
+    content: "Ctrl + Enter";
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    width: -webkit-max-content;
+    width: -moz-max-content;
+    width: max-content;
+    transform: translateX(-50%);
+    background: hsla(0deg, 0%, 100%, 0.75);
+    color: black;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    transition: 200ms ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+  }
+  #send:hover::after {
     visibility: visible;
     opacity: 1;
     transition-delay: 1s;

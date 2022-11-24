@@ -673,7 +673,7 @@ function deleteMessage(messageId, user){
             element.classList.remove('imageReply');
             element.style.background = '#000000c4';
             element.style.color = '#7d858c';
-            element.textContent = `${user == myName ? 'You': user} deleted this message`;
+            element.textContent = `Deleted message`;
           });
         }
         lastPageLength = messages.scrollTop;
