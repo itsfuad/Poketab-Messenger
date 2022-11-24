@@ -50,12 +50,8 @@ clean();
 
 const server = http.createServer(app);
 
-
-const io = socketIO(server, {
-  maxHttpBufferSize: 1e6,
-  pingTimeout: 60000,
-  async_handlers: true
-});
+//socketio server which can handle multiple connections and reconnects from the client
+const io = socketIO(server);
 
 //file socket handler is used to handle file transfers metadata but not the actual file transfer
 const fileSocket = io.of('/file');

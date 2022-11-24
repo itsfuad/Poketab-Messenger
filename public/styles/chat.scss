@@ -423,7 +423,7 @@ img{
     width: 250px;
     border-radius: 10px;
     display: flex;
-    padding: 5px;
+    padding: 8px;
     gap: 5px;
     text-align: center;
     bottom: -20px;
@@ -479,6 +479,11 @@ img{
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    transition: 300ms;
+    &.offl{
+        filter: saturate(0) brightness(0.5);
+    }
+
     .navbar{
         display: flex;
         flex-direction: row;
