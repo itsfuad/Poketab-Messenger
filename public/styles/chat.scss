@@ -479,7 +479,8 @@ img{
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    transition: 300ms;
+    //transition on filter only
+    transition: filter 100ms;
     &.offl{
         filter: saturate(0) brightness(0.5);
     }
