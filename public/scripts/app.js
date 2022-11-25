@@ -1366,29 +1366,41 @@ selectedStickerGroup = localStorage.getItem('selectedStickerGroup') || Stickers[
 
 const stickersGrp = document.getElementById('selectStickerGroup');
 
-function loadStickerHeader(){
-    stickerNames = Stickers.map(sticker => {
-        return `<img src="/stickers/${sticker.name}/animated/${sticker.icon}.webp" alt="${sticker.name}" data-name="${sticker.name}" class="stickerName clickable">`;
-    }).join('');
+let loadedStickerHeader = false;
 
-    stickersGrp.innerHTML = stickerNames;
+function loadStickerHeader(){
+    if (loadedStickerHeader){
+        return;
+    }
+    stickersGrp.innerHTML = '';
+    for (let sticker of Stickers){
+        const img = document.createElement('img');
+        img.src = `/stickers/${sticker.name}/animated/${sticker.icon}.webp`;
+        img.alt = sticker.name;
+        img.dataset.name = sticker.name;
+        img.classList.add('stickerName', 'clickable');
+        stickersGrp.append(img);
+    }
 }
 
 
 function loadStickers(){
-    stickers = '';
     selectedStickerGroupCount = Stickers.find(sticker => sticker.name == selectedStickerGroup).count;
+    const stickersContainer = document.getElementById('stickers');
+    stickersContainer.innerHTML = '';
     for (let i = 1; i <= selectedStickerGroupCount; i++) {
-        stickers += `<img src="/stickers/${selectedStickerGroup}/static/${i}-mini.webp" alt="${selectedStickerGroup}-${i}" data-name="${selectedStickerGroup}/animated/${i}" class="stickerpack clickable">`;
+        const img = document.createElement('img');
+        img.src = `/stickers/${selectedStickerGroup}/static/${i}-mini.webp`;
+        img.alt = `${selectedStickerGroup}-${i}`;
+        img.dataset.name = `${selectedStickerGroup}/animated/${i}`;
+        img.classList.add('stickerpack', 'clickable');
+        stickersContainer.append(img);
     }
-    document.getElementById('stickers').innerHTML = stickers;
-    //document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["THEME"]].msg_send;
+    
     const selectedSticker = document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]');
     selectedSticker.dataset.selected = 'true';
+    document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[localStorage["THEME"]].msg_send;
 }
-
-loadStickerHeader();
-loadStickers();
 
 function showStickersPanel(){
     updateScroll();
@@ -2479,6 +2491,8 @@ socket.on('connect', () => {
             }
             document.getElementById('preload').style.display = 'none';
             popupMessage('Connected to server');
+            loadStickerHeader();
+            loadStickers();
             if ("Notification" in window){
                 Notification.requestPermission();
             }else{
@@ -2699,9 +2713,12 @@ appHeight();
 
 updateScroll();
 
-setTimeout(() => {
-    document.getElementById('preload').querySelector('.text').textContent = 'Slow internet';
-}, 3000);
+//on dom ready
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        document.getElementById('preload').querySelector('.text').textContent = 'Slow internet';
+    }, 3000);
+});
 
 
 document.addEventListener('click', ()=> {
