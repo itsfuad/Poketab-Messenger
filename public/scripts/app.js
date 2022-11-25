@@ -6,6 +6,7 @@
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
+import { PanZoom } from './panzoom';
 
 console.log('loaded');
 
@@ -245,21 +246,41 @@ if(!isMobile){
 //functions
 
 function loadReacts(){
+    //load all the reacts from the react object
     let reacts = document.getElementById('reactOptions');
-    let html = '';
+
     for (let i = 0; i < reactArray.primary.length - 1; i++){
-        html += `<div class="${reactArray.primary[i]} react-emoji">${reactArray.primary[i]}</div>`;
+        const react = document.createElement('div');
+
+        react.classList.add(`${reactArray.primary[i]}`);
+        react.classList.add('react-emoji');
+        react.textContent = reactArray.primary[i];
+     
+        reacts.insertBefore(react, reacts.lastElementChild);
     }
+
     let lastReact = localStorage.getItem('lastReact') || reactArray.last;
     reactArray.primary.includes(lastReact) ? lastReact = '🌻' : lastReact;
-    html += `<div class="${lastReact} react-emoji last">${lastReact}</div>`;
-    reacts.insertAdjacentHTML('afterbegin', html);
+
+    const last = document.createElement('div');
+
+    last.classList.add(`${lastReact}`);
+    last.classList.add('react-emoji');
+    last.classList.add('last');
+    last.textContent = lastReact;
+
+    reacts.insertBefore(last, reacts.lastElementChild);
+
     let moreReacts = document.querySelector('.moreReacts');
-    let moreReactHtml = '';
+
     for (let i = 0; i < reactArray.expanded.length; i++){
-        moreReactHtml += `<div class="${reactArray.expanded[i]} react-emoji">${reactArray.expanded[i]}</div>`;
+       
+        const moreRreact = document.createElement('div');
+        moreRreact.classList.add('react-emoji');
+        moreRreact.classList.add(`${reactArray.expanded[i]}`);
+        moreRreact.textContent = reactArray.expanded[i];
+        moreReacts.appendChild(moreRreact);
     }
-    moreReacts.insertAdjacentHTML('afterbegin', moreReactHtml);
 }
 
 loadReacts();
@@ -427,10 +448,6 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
         socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
     }
 
-    /*
-    messages.innerHTML += html;
-    */
-   //similar to the above but a bit secured
     const fragment = document.createDocumentFragment();
     fragment.append(document.createRange().createContextualFragment(html));
     messages.append(fragment);
@@ -457,6 +474,8 @@ function getCurrentTime(){
 function messageFilter(message){
     message = censorBadWords(message); //check if the message contains bad words
     message = linkify(message); //if the message contains links then linkify the message
+    //secure XSS attacks
+    message = message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     message = message.replaceAll(/```¶/g, '```'); //replace the code block markers
     message = message.replaceAll(/```([^`]+)```/g, '<code>$1</code>'); //if the message contains code then replace it with the code tag
     message = message.replaceAll('¶', '<br>'); //if the message contains new lines then replace them with <br>
@@ -499,6 +518,8 @@ function emojiParser(text){
     emojiMap.set(':yay:', '🥳');
     emojiMap.set(':yolo:', '🤪');
     emojiMap.set(':yikes:', '😱');
+    emojiMap.set(':sweat:', '😅');
+
 
     //find if the message contains the emoji
     for (let [key, value] of emojiMap){
@@ -516,12 +537,6 @@ function emojiParser(text){
     }
     return text;
 }
-
-/*
-function emo_test(str) {
-    return emoji_regex.test(str);
-}
-*/
 
 //returns true if the message contains only emoji
 function isEmoji(text) {
@@ -1711,7 +1726,9 @@ messages.addEventListener('click', (evt) => {
             }
             const fragment = document.createRange().createContextualFragment(`<img src=${evt.target?.src} class='lb'>`);
             document.getElementById('lightbox__image').append(fragment);
-            pinchZoom(document.getElementById('lightbox__image').querySelector('img'));
+            //pinchZoom(document.getElementById('lightbox__image').querySelector('img'));
+            PanZoom(document.getElementById('lightbox__image').querySelector('img'));
+
             document.getElementById('lightbox').classList.add('active');
         }
         else if (evt.target?.classList?.contains('reactsOfMessage') || evt.target?.parentNode?.classList?.contains('reactsOfMessage')){
@@ -1744,7 +1761,8 @@ messages.addEventListener('click', (evt) => {
             //document.getElementById('focus_glass').classList.add('active');
             addFocusGlass(false);
         }
-        else if (evt.target?.classList?.contains('messageReply') || evt.target?.classList?.contains('imageReply')){
+
+        else if (evt.target?.closest('.messageReply') || evt.target?.closest('.imageReply')){
             if (document.getElementById(evt.target.closest('.messageReply').dataset.repid).dataset.deleted != 'true'){
                 try{
                     let target = evt.target.closest('.messageReply')?.dataset.repid;

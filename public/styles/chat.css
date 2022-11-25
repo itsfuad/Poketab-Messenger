@@ -950,6 +950,7 @@ i[class^=fa-] {
   position: fixed;
   top: 0;
   width: 100%;
+  z-index: 10000;
 }
 #lightbox .tool > div {
   padding: 10px;
@@ -973,6 +974,7 @@ i[class^=fa-] {
 #lightbox #lightbox__image img {
   width: 100%;
   height: 100%;
+  cursor: move;
 }
 
 .fa-xmark {
@@ -1271,6 +1273,7 @@ i[class^=fa-] {
     transition: 200ms ease-in-out;
     opacity: 0;
     visibility: hidden;
+    z-index: 100;
   }
   .call-btn:hover::after {
     opacity: 1;
@@ -1294,6 +1297,7 @@ i[class^=fa-] {
     transition: 200ms ease-in-out;
     opacity: 0;
     visibility: hidden;
+    z-index: 100;
   }
   #more:hover::after {
     opacity: 1;
@@ -1317,6 +1321,7 @@ i[class^=fa-] {
     transition: 200ms ease-in-out;
     opacity: 0;
     visibility: hidden;
+    z-index: 100;
   }
   .upload_file:hover::after {
     opacity: 1;
@@ -1340,6 +1345,7 @@ i[class^=fa-] {
     transition: 200ms ease-in-out;
     opacity: 0;
     visibility: hidden;
+    z-index: 100;
   }
   .upload_image:hover::after {
     opacity: 1;
@@ -1364,6 +1370,7 @@ i[class^=fa-] {
     transition: 200ms ease-in-out;
     opacity: 0;
     visibility: hidden;
+    z-index: 100;
   }
   #send-location:hover::after {
     visibility: visible;
@@ -1387,6 +1394,7 @@ i[class^=fa-] {
     transition: 200ms ease-in-out;
     opacity: 0;
     visibility: hidden;
+    z-index: 100;
   }
   #createPollBtn:hover::after {
     visibility: visible;
@@ -1410,6 +1418,7 @@ i[class^=fa-] {
     transition: 200ms ease-in-out;
     opacity: 0;
     visibility: hidden;
+    z-index: 100;
   }
   .stickerBtn:hover::after {
     visibility: visible;
@@ -1433,6 +1442,7 @@ i[class^=fa-] {
     transition: 200ms ease-in-out;
     opacity: 0;
     visibility: hidden;
+    z-index: 100;
   }
   .attachments:hover::after {
     visibility: visible;
@@ -1456,6 +1466,7 @@ i[class^=fa-] {
     transition: 200ms ease-in-out;
     opacity: 0;
     visibility: hidden;
+    z-index: 100;
   }
   #send:hover::after {
     visibility: visible;

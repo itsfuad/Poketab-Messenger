@@ -229,8 +229,9 @@ io.on('connection', (socket) => {
   socket.on('message', (message, type, uId, reply, replyId, options, callback) => {
     let user = users.getUser(uids.get(socket.id));
     if (user && isRealString(message)) {
+      
       let id = uuid.v4();
-      message = message.replace(/>/gi, "&gt;").replace(/</gi, "&lt;");
+      message = message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
       
       if (type === 'text'){
         //create new Worker
