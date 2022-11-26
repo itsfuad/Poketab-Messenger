@@ -475,7 +475,15 @@ function messageFilter(message){
     message = censorBadWords(message); //check if the message contains bad words
     message = linkify(message); //if the message contains links then linkify the message
     //secure XSS attacks
-    message = message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    message = message.replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#x27;')
+                    .replace(/\//g, '&#x2F;')
+                    .replace(/`/g, '&#96;')
+                    .replace(/=/g, '&#x3D;');
+
     message = message.replaceAll(/```¶/g, '```'); //replace the code block markers
     message = message.replaceAll(/```([^`]+)```/g, '<code>$1</code>'); //if the message contains code then replace it with the code tag
     message = message.replaceAll('¶', '<br>'); //if the message contains new lines then replace them with <br>
@@ -1867,8 +1875,20 @@ function ImagePreview(fileFromClipboard = null){
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
-    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-gear fa-spin"></i>`);
-    document.getElementById('selectedImage').append(fragment);
+    //const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-gear fa-spin"></i>`);
+    //document.getElementById('selectedImage').append(fragment);
+
+    const loadingElement = document.createElement('span');
+    loadingElement.classList.add('load');
+    loadingElement.style.color = themeAccent[THEME].secondary;
+    
+    const loadingIcon = document.createElement('i');
+    loadingIcon.classList.add('fa-solid', 'fa-gear', 'fa-spin');
+
+    loadingElement.append(loadingIcon);
+    loadingElement.append('Reading binary data&nbsp;');
+    document.getElementById('selectedImage').append(loadingElement);
+
     document.getElementById('previewImage')?.classList?.add('active');
 
     let reader = new FileReader();
@@ -1899,8 +1919,19 @@ function FilePreview(fileFromClipboard = null){
     while (document.getElementById('selectedImage').firstChild) {
         document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
     }
-    const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-gear fa-spin"></i>`);
-    document.getElementById('selectedImage').append(fragment);
+    //const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-gear fa-spin"></i>`);
+    //document.getElementById('selectedImage').append(fragment);
+    const loadingElement = document.createElement('span');
+    loadingElement.classList.add('load');
+    loadingElement.style.color = themeAccent[THEME].secondary;
+    
+    const loadingIcon = document.createElement('i');
+    loadingIcon.classList.add('fa-solid', 'fa-gear', 'fa-spin');
+
+    loadingElement.append(loadingIcon);
+    loadingElement.append('Reading binary data&nbsp;');
+    document.getElementById('selectedImage').append(loadingElement);
+
     document.getElementById('previewImage')?.classList?.add('active');
     let file = fileFromClipboard || fileButton.files[0];
     let filename = file.name;

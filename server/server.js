@@ -85,14 +85,15 @@ app.use(express.urlencoded({
 
 app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 
-app.use('/api/files', require('./routes/fileAPI')); //route for file uploads
-app.use('/api/download', require('./routes/fileAPI')); //route for file downloads
 
 // default route to serve the client
 app.get('/', (_, res) => {
   res.setHeader('Developer', "Fuad Hasan");
   res.render('home', {title: 'Get Started'});
 });
+
+app.use('/api/files', require('./routes/fileAPI')); //route for file uploads
+app.use('/api/download', require('./routes/fileAPI')); //route for file downloads
 
 //route to send running chat numbers and create new chat keys to the admin
 app.get('/admin/:pass', (req, res) => {
@@ -231,7 +232,14 @@ io.on('connection', (socket) => {
     if (user && isRealString(message)) {
       
       let id = uuid.v4();
-      message = message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+      message = message.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;')
+                      .replace(/'/g, '&#x27;')
+                      .replace(/\//g, '&#x2F;')
+                      .replace(/`/g, '&#96;')
+                      .replace(/=/g, '&#x3D;');
       
       if (type === 'text'){
         //create new Worker

@@ -11,7 +11,7 @@
     "test-watch": "nodemon --exec 'npm test'"
   },
   "engines": {
-    "node": "17"
+    "node": "18.x"
   },
   "author": "Fuad Hasan",
   "license": "ISC",
