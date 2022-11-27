@@ -232,14 +232,8 @@ io.on('connection', (socket) => {
     if (user && isRealString(message)) {
       
       let id = uuid.v4();
-      message = message.replace(/&/g, '&amp;')
-                      .replace(/</g, '&lt;')
-                      .replace(/>/g, '&gt;')
-                      .replace(/"/g, '&quot;')
-                      .replace(/'/g, '&#x27;')
-                      .replace(/\//g, '&#x2F;')
-                      .replace(/`/g, '&#96;')
-                      .replace(/=/g, '&#x3D;');
+      
+      message = message.replace(/&/g, '&#38;').replace(/</g, '&#60;').replace(/>/g, '&#62;').replace(/"/g, '&#34;').replace(/'/g, '&#39;').replace(/\//g, '&#47;');
       
       if (type === 'text'){
         //create new Worker

@@ -473,16 +473,14 @@ function getCurrentTime(){
 
 function messageFilter(message){
     message = censorBadWords(message); //check if the message contains bad words
+    //secure XSS attacks with html entity numbers
+    message.replaceAll('<', '&#60;');
+    message.replaceAll('>', '&#62;');
+    message.replaceAll('"', '&#34;');
+    message.replaceAll("'", '&#39;');
+    message.replaceAll('&', '&#38;');
+    
     message = linkify(message); //if the message contains links then linkify the message
-    //secure XSS attacks
-    message = message.replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#x27;')
-                    .replace(/\//g, '&#x2F;')
-                    .replace(/`/g, '&#96;')
-                    .replace(/=/g, '&#x3D;');
 
     message = message.replaceAll(/```¶/g, '```'); //replace the code block markers
     message = message.replaceAll(/```([^`]+)```/g, '<code>$1</code>'); //if the message contains code then replace it with the code tag
@@ -1291,17 +1289,24 @@ function resizeImage(img, mimetype, q = 1080) {
 }
   
 function linkify(inputText) {
-    let replacedText, replacePattern1, replacePattern2, replacePattern3;
-    replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
-    replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
-    replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
-    replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
-    replacePattern3 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
-    replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
-    //get the first link
-    return replacedText;
-}
+    //URLs starting with http://, https://, www.
 
+    //if input text contains a link, then make it clickable
+    if (inputText.includes('http://') || inputText.includes('https://') || inputText.includes('www.')){
+        //wrap the link in an anchor tag and return the text
+        //find for https:// or http:// or www.
+        let regex = /(https?:\/\/|www\.)[^\s]+/g;
+        return inputText.replace(regex, function(url) {
+            //if the url does not contain http:// or https://, then add http://
+            if (!/^(?:f|ht)tps?\:\/\//.test(url)) {
+                url = "http://" + url;
+            }
+            return '<a href="' + url + '">' + url + '</a>';
+        });
+    }else{
+        return inputText;
+    }
+}
 
 function copyText(text){
     if (text == null){
