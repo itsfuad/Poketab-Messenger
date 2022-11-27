@@ -233,7 +233,11 @@ io.on('connection', (socket) => {
       
       let id = uuid.v4();
       
-      message = message.replace(/&/g, '&#38;').replace(/</g, '&#60;').replace(/>/g, '&#62;').replace(/"/g, '&#34;').replace(/'/g, '&#39;').replace(/\//g, '&#47;');
+      message.replaceAll('<', '&#60;');
+      message.replaceAll('>', '&#62;');
+      message.replaceAll('"', '&#34;');
+      message.replaceAll("'", '&#39;');
+      message.replaceAll('&', '&#38;');
       
       if (type === 'text'){
         //create new Worker
