@@ -1351,15 +1351,17 @@ function loadStickers(){
     
 	const selectedSticker = document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]');
 	selectedSticker.dataset.selected = 'true';
-	document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[THEME].msg_send;
+	//document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]').style.background = themeAccent[THEME].msg_send;
 }
 
 function showStickersPanel(){
-	updateScroll();
+	//updateScroll();
 	document.getElementById('stickersPanel').style.display = 'flex';
 	setTimeout(() => {
 		addFocusGlass(false);
 		document.getElementById('stickersPanel').classList.add('active');
+		const grp = document.getElementById('selectStickerGroup');
+		grp.querySelector(`img[data-name="${selectedStickerGroup}"]`).scrollIntoView({behavior: 'smooth', block: 'center', inline: 'center'});
 	}, 4);
 }
 
