@@ -569,28 +569,10 @@ function showOptions(type, sender, target){
 	//if the message is a text message
 	if (type === 'text'){
 		copyOption.style.display = 'flex';
-	}else if (type === 'image'){ //if the message is an image
-		if (target.closest('.message')?.dataset.downloaded != 'true'){  
-			if (target.closest('.message')?.dataset.uid == myId){
-				popupMessage('Not sent yet');
-			}else{
-				popupMessage('Not downloaded yet');
-			}
-			console.log('%cNot availabe yet', 'color: red');
-			return;
+	}else if (type === 'image' || type === 'file'){ //if the message is an image
+		if (target.closest('.message')?.dataset.downloaded == 'true'){
+			downloadOption.style.display = 'flex';
 		}
-		downloadOption.style.display = 'flex';
-	}else if (type === 'file'){ //if the message is a file
-		if (target.closest('.message')?.dataset.downloaded != 'true'){  
-			if (target.closest('.message')?.dataset.uid == myId){
-				popupMessage('Not sent yet');
-			}else{
-				popupMessage('Not downloaded yet');
-			}
-			console.log('%cNot availabe yet', 'color: red');
-			return;
-		}
-		downloadOption.style.display = 'flex';
 	}
 	if (sender === true){ //if the message is sent by me
 		deleteOption.style.display = 'flex'; //then shgell the delete option
@@ -702,6 +684,15 @@ function deleteMessage(messageId, user){
 }
 
 function downloadHandler(){
+	if (document.getElementById(targetMessage.id).dataset.downloaded != 'true'){
+		//if sender is me
+		if (targetMessage.sender == 'You'){
+			popupMessage('Not uploaded yet');
+		}else{
+			popupMessage('Not downloaded yet');
+		}
+		return;
+	}
 	if (targetMessage.type === 'image'){
 		document.querySelector('#lightbox__image img').src = targetMessage.message.src;
 		saveImage();
@@ -788,26 +779,16 @@ messages.addEventListener('touchstart', (evt) => {
 });
 
 messages.addEventListener('touchmove', (evt) => {
-	try{      
+	try{
 		const msg = evt.target.closest('.message');
-		//if target contains class 'messageBody' or is a child of it, then do something
-		//console.log('Swipe moving');
-		//console.log(evt.target);
-		/*
-        if (msg.dataset.type == 'file' || msg.dataset.type == 'image'){
-            if (msg.dataset.downloaded != 'true'){
-                return;
-            }
-        }
-        */
 
-		if (evt.target.classList.contains('messageMain') || evt.target.closest('.messageMain') && yDiff < 10 && msg.dataset.deleted != 'true' && msg.classList.contains('delevered')){            
+		if (evt.target.classList.contains('messageMain') || evt.target.closest('.messageMain') && yDiff < 10 && msg.dataset.deleted != 'true'){            
 			//console.log(xDiff);
 			xDiff = xStart - evt.touches[0].clientX;
 			yDiff = yStart - evt.touches[0].clientY;
 			const elem = msg.querySelector('.messageContainer');
 			//if msg is self
-			if (msg.classList.contains('self')) {
+			if (msg.classList.contains('self') && msg.classList.contains('delevered')) {
 				if (xDiff > 50){
 					xDiff = 50;
 					elem.dataset.replyTrigger = 'true';
@@ -1831,8 +1812,8 @@ function ImagePreview(fileFromClipboard = null){
 	const loadingIcon = document.createElement('i');
 	loadingIcon.classList.add('fa-solid', 'fa-gear', 'fa-spin');
 
+	loadingElement.textContent = 'Reading binary data';
 	loadingElement.append(loadingIcon);
-	loadingElement.append('Reading binary data&nbsp;');
 	document.getElementById('selectedImage').append(loadingElement);
 
 	document.getElementById('previewImage')?.classList?.add('active');
@@ -1874,8 +1855,8 @@ function FilePreview(fileFromClipboard = null){
 	const loadingIcon = document.createElement('i');
 	loadingIcon.classList.add('fa-solid', 'fa-gear', 'fa-spin');
 
+	loadingElement.textContent = 'Reading binary data';
 	loadingElement.append(loadingIcon);
-	loadingElement.append('Reading binary data&nbsp;');
 	document.getElementById('selectedImage').append(loadingElement);
 
 	document.getElementById('previewImage')?.classList?.add('active');
