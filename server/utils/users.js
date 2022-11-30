@@ -25,6 +25,9 @@ class Users {
 		let namesArray = users.map((user) => user.name);
 		return namesArray;
 	}
+	hasUser(key){
+		return this.users.some((user) => user.key === key);
+	}
 	getAllUsersDetails(key){
 		let users = this.users.filter((user) => user.key === key);
 		return users;

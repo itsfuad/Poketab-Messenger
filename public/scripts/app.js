@@ -2204,7 +2204,6 @@ async function sendImageStoreRequest(){
 		//base64 to file 
 		let file = base64ToFile(resized.data, selectedImage.name);
 		let formData = new FormData();
-		formData.append('uid', myId);
 		formData.append('key', myKey);
 		formData.append('file', file);
 
@@ -2262,7 +2261,6 @@ async function sendFileStoreRequest(){
 	let file = base64ToFile(selectedFile.data, selectedFile.name);
     
 	let formData = new FormData();
-	formData.append('uid', myId);
 	formData.append('key', myKey);
 	formData.append('file', file);
 
@@ -2597,7 +2595,7 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 	fileBuffer.delete(id);
 
 	let xhr = new XMLHttpRequest();
-	xhr.open('GET', `${location.origin}/api/download/${downlink}`, true);
+	xhr.open('GET', `${location.origin}/api/download/${downlink}/${myKey}`, true);
 	xhr.responseType = 'blob';
 	xhr.onprogress = async function(e) {
 		if (e.lengthComputable && progressContainer) {
@@ -2667,7 +2665,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		document.getElementById('preload').querySelector('.text').textContent = 'Slow internet';
 	}, 3000);
 });
-
 
 document.addEventListener('click', ()=> {
 	history.pushState({}, '', '#init');
