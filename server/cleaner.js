@@ -36,7 +36,7 @@ function markForDelete(userId, key, filename){
 		file.uids = file.uids != null ? file.uids.add(userId) : new Set();
 		//console.log(file);
 		if (users.getMaxUser(key) == file.uids.size) {
-			console.log('Deleting file ' + filename);
+			console.log('Marked for delete: ' + filename);
 			rm(`uploads/${filename}`);
 			//fileStore.delete(filename);
 			deleteFileStore(filename);

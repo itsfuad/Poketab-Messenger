@@ -11,7 +11,6 @@ let storage = multer.diskStorage({
 		if (file.size >= 15 * 1024 * 1024){
 			cb(new Error('File size more than 15mb'));
 		}else{
-			console.log(req.body);
 			if (keys.has(req.body.key)){
 				const filename = `poketab-${uuid()}-${file.originalname}`;
 				store(filename, { filename: filename, key: req.body.key, uids: new Set([req.body.uid]) });
@@ -43,8 +42,6 @@ router.post('/', (req, res) => {
 });
 
 router.get('/:id/:key', (req, res) => {
-	//console.log(req.params);
-	//console.log(fileStore);
 	if (keys.has(req.params.key)){
 		access(`uploads/${req.params.id}`)
 			.then(() => {
