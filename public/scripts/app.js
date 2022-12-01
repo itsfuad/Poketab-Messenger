@@ -1862,8 +1862,7 @@ function ImagePreview(fileFromClipboard = null){
 
 	loadingElement.textContent = 'Reading binary data';
 	loadingElement.append(loadingIcon);
-	document.getElementById('selectedImage').append(loadingElement)
-
+	document.getElementById('selectedImage').append(loadingElement);
 	document.getElementById('previewImage')?.classList?.add('active');
 
 	let reader = new FileReader();
