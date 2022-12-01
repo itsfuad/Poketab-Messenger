@@ -45,7 +45,7 @@
                 <!--div class="call-btn clickable">
                     <i class="fa-solid fa-phone"></i>
                 </!--div-->
-                <div id="more" class="clickable">
+                <div id="more" class="clickable" title="Active users & more">
                     <i class="fa-solid fa-ellipsis-vertical"></i>
                 </div>
             </div>
@@ -54,7 +54,7 @@
         <ul id="messages">
             <div class="welcome_wrapper">
                 <li class="welcomeText">
-                    <div class="link-copy clickable keyCopy">
+                    <div class="link-copy clickable keyCopy" title="Click to copy">
                         <i class="fa-solid fa-link"></i>
                         <span><%=myKey%></span>
                         <i class="fa-regular fa-clone"></i>
@@ -64,7 +64,7 @@
                     <% } else { %>
                         <span>Send join link to your friend</span>
                     <% } %>
-                    <span id="invite" class="clickable">Invite</span>
+                    <span id="invite" class="clickable" title="Click to invite">Invite</span>
                 </li>
             </div>
             <!-- All messages will be added here -->
@@ -89,9 +89,9 @@
             </div>
             <div id="typingIndicator"></div>
             <div class="chatInput">
-                <div class="stickerBtn clickable"><i class="fa-solid fa-note-sticky"></i></div>
+                <div class="stickerBtn clickable" title="Send stickers"><i class="fa-solid fa-note-sticky"></i></div>
                 <!-- Text input -->
-                <div class="attachments clickable" id="attachment"><i class="fa-solid fa-paperclip"></i></div>
+                <div class="attachments clickable" id="attachment" title="Send attactments"><i class="fa-solid fa-paperclip"></i></div>
                 <div class="close_area" id="attmain">
                     <div class="attachmentContainer">
                         <!-- File Choose -->
@@ -120,7 +120,7 @@
                 </div>
                 <textarea name="chatInputBox" id="textbox" class="select" rows="1" placeholder="Message..."></textarea>
                 <!-- Send Button-->
-                <button id="send"><i class="fa-solid fa-paper-plane"></i></button>
+                <button id="send" title="Ctrl + Enter"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
         <div class="stickersPanel" id="stickersPanel">
@@ -144,7 +144,7 @@
             <div class="reactOptionsWrapper" data-closed="true">
                 <ul id="reactOptions" class="options">
                     <!--Reacts-->
-                    <div class="more" id="showMoreReactBtn"><i class="fa-solid fa-plus"></i></div>
+                    <div class="more" title="More reactions" id="showMoreReactBtn"><i class="fa-solid fa-plus"></i></div>
                 </ul>
             </div>
             <div class="normalOptionWrapper">
