@@ -206,10 +206,6 @@ body {
   background: rgba(255, 255, 255, 0.0901960784);
 }
 
-.messageMain img:is(.sticker) {
-  background: rgba(255, 255, 255, 0.0901960784) !important;
-}
-
 img:is(.sticker) {
   width: 100px;
   height: 100px;
@@ -657,6 +653,7 @@ input[type=file] {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 10px;
 }
 #previewImage #selectedImage img {
   position: relative;

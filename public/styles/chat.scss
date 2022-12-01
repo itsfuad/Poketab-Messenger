@@ -217,9 +217,6 @@ body{
     }
 }
 
-.messageMain img:is(.sticker){
-    background: #ffffff17 !important;
-}
 
 img:is(.sticker){
     width: 100px;
@@ -673,6 +670,7 @@ input[type=file] {
         display: flex;
         justify-content: center;
         align-items: center;
+        gap: 10px;
         img{
             position: relative;
             max-height: 100%;

@@ -417,7 +417,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 			replyFor = 'image';
 		}
 	}
-	//console.dir(reply);
+
 	if (type === 'file'){
 		popupmsg = 'File';
 		html = Mustache.render(fileTemplate, {
@@ -1281,10 +1281,18 @@ function popupMessage(text){
 }
 
 function serverMessage(message, type) {
-	let html = `<li class="serverMessage msg-item" id="${message.id}"> <div class="messageContainer" style="color: ${message.color}"> ${message.text} </div> <div class="seenBy"></div> </li>`;
-	//messages.innerHTML += html;
-	const fragment = document.createRange().createContextualFragment(html);
-	messages.append(fragment);
+	const serverMessageElement = document.createElement('li');
+	serverMessageElement.classList.add('serverMessage', 'msg-item');
+	serverMessageElement.id = message.id;
+	const messageContainer = document.createElement('div');
+	messageContainer.classList.add('messageContainer');
+	messageContainer.style.color = message.color;
+	messageContainer.textContent = message.text;
+	const seenBy = document.createElement('div');
+	seenBy.classList.add('seenBy');
+	serverMessageElement.appendChild(messageContainer);
+	serverMessageElement.appendChild(seenBy);
+	messages.appendChild(serverMessageElement);
 	if (type == 'location'){
 		updateScroll('location', `${message.user}'s location`);
 	}else if(type == 'leave'){
@@ -1699,9 +1707,12 @@ messages.addEventListener('click', (evt) => {
 			while (document.getElementById('lightbox__image').firstChild) {
 				document.getElementById('lightbox__image').removeChild(document.getElementById('lightbox__image').firstChild);
 			}
-			const src = sanitize(evt.target?.src);
-			const fragment = document.createRange().createContextualFragment(`<img src=${src} class='lb'>`);
-			document.getElementById('lightbox__image').append(fragment);
+
+			const imageElement = document.createElement('img');
+			imageElement.src = evt.target?.src;
+			imageElement.classList.add('lb');
+			document.getElementById('lightbox__image').appendChild(imageElement);
+
 			//pinchZoom(document.getElementById('lightbox__image').querySelector('img'));
 			PanZoom(document.getElementById('lightbox__image').querySelector('img'));
 
@@ -1721,14 +1732,22 @@ messages.addEventListener('click', (evt) => {
 					//let name = userList.find(user => user.uid == element.dataset.uid).name;
 					let name = userInfoMap.get(element.dataset.uid).name;
 					if (name == myName){name = 'You';}
+					const listItem = document.createElement('li');
+					const avatarImage = document.createElement('img');
+					avatarImage.src = `/images/avatars/${avatar}(custom).png`;
+					avatarImage.height = 30;
+					avatarImage.width = 30;
+					const nameSpan = document.createElement('span');
+					nameSpan.classList.add('uname');
+					nameSpan.textContent = name;
+					const reactSpan = document.createElement('span');
+					reactSpan.classList.add('r');
+					reactSpan.textContent = element.textContent;
+					listItem.append(avatarImage, nameSpan, reactSpan);
 					if (element.dataset.uid == myId){
-						//container.innerHTML = `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>` + container.innerHTML;
-						const fragment = document.createRange().createContextualFragment(`<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>`);
-						container.prepend(fragment);
+						container.prepend(listItem);
 					}else{
-						//container.innerHTML += `<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>`;
-						const fragment = document.createRange().createContextualFragment(`<li><img src='/images/avatars/${avatar}(custom).png' height='30px' width='30px'><span class='uname'>${name}</span><span class='r'>${element.textContent}</span></li>`);
-						container.append(fragment);
+						container.appendChild(listItem);
 					}
 				});
 			}
@@ -1833,8 +1852,6 @@ function ImagePreview(fileFromClipboard = null){
 	while (document.getElementById('selectedImage').firstChild) {
 		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
 	}
-	//const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-gear fa-spin"></i>`);
-	//document.getElementById('selectedImage').append(fragment);
 
 	const loadingElement = document.createElement('span');
 	loadingElement.classList.add('load');
@@ -1845,7 +1862,7 @@ function ImagePreview(fileFromClipboard = null){
 
 	loadingElement.textContent = 'Reading binary data';
 	loadingElement.append(loadingIcon);
-	document.getElementById('selectedImage').append(loadingElement);
+	document.getElementById('selectedImage').append(loadingElement)
 
 	document.getElementById('previewImage')?.classList?.add('active');
 
@@ -1863,8 +1880,11 @@ function ImagePreview(fileFromClipboard = null){
 		while (document.getElementById('selectedImage').firstChild) {
 			document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
 		}
-		const fragment = document.createRange().createContextualFragment(`<img src="${data}" alt="image" class="image-message" />`);
-		document.getElementById('selectedImage').append(fragment);
+		const imageElement = document.createElement('img');
+		imageElement.src = data;
+		imageElement.alt = 'image';
+		imageElement.classList.add('image-message');
+		document.getElementById('selectedImage').append(imageElement);
 		document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
 	};
 	//clear photoButton
@@ -1877,8 +1897,7 @@ function FilePreview(fileFromClipboard = null){
 	while (document.getElementById('selectedImage').firstChild) {
 		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
 	}
-	//const fragment = document.createRange().createContextualFragment(`<span class='load' style='color: ${themeAccent[THEME].secondary};'>Reading binary data</span>&nbsp;<i class="fa-solid fa-gear fa-spin"></i>`);
-	//document.getElementById('selectedImage').append(fragment);
+
 	const loadingElement = document.createElement('span');
 	loadingElement.classList.add('load');
 	loadingElement.style.color = themeAccent[THEME].secondary;
@@ -1933,8 +1952,16 @@ function FilePreview(fileFromClipboard = null){
 		filename = sanitize(selectedFile.name);
 		size = sanitize(selectedFile.size);
 		filename = filename.length >= 25 ? filename.substring(0, 10) + '...' + filename.substring(filename.length - 10, filename.length) : filename;
-		const fragment = document.createRange().createContextualFragment(`<div class='file_preview'><i class="fa-regular fa-file-lines"></i><div>File: ${filename}</div><div>Size: ${size}</div></div>`);
-		document.getElementById('selectedImage').append(fragment);
+		const fileElement = document.createElement('div');
+		fileElement.classList.add('file_preview');
+		const fileIcon = document.createElement('i');
+		fileIcon.classList.add('fa-regular', 'fa-file-lines');
+		const fileName = document.createElement('div');
+		fileName.textContent = `File: ${filename}`;
+		const fileSize = document.createElement('div');
+		fileSize.textContent = `Size: ${size}`;
+		fileElement.append(fileIcon, fileName, fileSize);
+		document.getElementById('selectedImage').appendChild(fileElement);
 		document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
 	};
 	//clear photoButton 
@@ -2487,15 +2514,29 @@ socket.on('updateUserList', users => {
 		document.getElementById('userlist').removeChild(document.getElementById('userlist').firstChild);
 	}
 	users.forEach(user => {
-		let html = `<li class="user" data-uid="${user.uid}"> <div class="avt"> <img src="/images/avatars/${user.avatar}(custom).png" height="30px" width="30px"/> <i class="fa-solid fa-circle activeStatus"></i> </div> ${user.uid == myId ? user.name + ' (You)' : user.name}</li>`;
+		//let html = `<li class="user" data-uid="${user.uid}"> <div class="avt"> <img src="/images/avatars/${user.avatar}(custom).png" height="30px" width="30px"/> <i class="fa-solid fa-circle activeStatus"></i> </div> ${user.uid == myId ? user.name + ' (You)' : user.name}</li>`;
+		const listItem = document.createElement('li');
+		listItem.classList.add('user');
+		listItem.setAttribute('data-uid', user.uid);
+		const avt = document.createElement('div');
+		avt.classList.add('avt');
+		const img = document.createElement('img');
+		img.src = `/images/avatars/${user.avatar}(custom).png`;
+		img.height = 30;
+		img.width = 30;
+		const status = document.createElement('i');
+		status.classList.add('fa-solid', 'fa-circle', 'activeStatus');
+		avt.appendChild(img);
+		avt.appendChild(status);
+		const userSpan = document.createElement('span');
+		userSpan.textContent = user.uid == myId ? user.name + ' (You)' : user.name;
+		listItem.append(avt, userSpan);
 		if (user.uid == myId){
 			//document.getElementById('userlist').innerHTML = html + document.getElementById('userlist').innerHTML;
-			const fragment = document.createRange().createContextualFragment(html);
-			document.getElementById('userlist').prepend(fragment);
+			document.getElementById('userlist').prepend(listItem);
 		}else{
 			//document.getElementById('userlist').innerHTML += html;
-			const fragment = document.createRange().createContextualFragment(html);
-			document.getElementById('userlist').append(fragment);
+			document.getElementById('userlist').appendChild(listItem);
 		}
 	});
 });

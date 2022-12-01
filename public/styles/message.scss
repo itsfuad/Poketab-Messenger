@@ -119,6 +119,7 @@ code{
             }
             .imageReply{
                 filter: brightness(0.5) !important;
+                background: #ffffff17 !important;
                 position: relative;
                 max-height: 150px;
                 max-width: 150px;
@@ -210,9 +211,6 @@ code{
         min-height: 100px;
         min-width: 100px;
         background: #ffffff17;
-        &.sticker{
-            background: none;
-        }
     }
     & > *{
         border-radius: 3px 15px 15px 3px;
@@ -277,6 +275,10 @@ code{
     .messageTitle{
         display: none!important;
     }
+}
+
+.messageMain img:is(.sticker){
+    background: #ffffff17 !important;
 }
 
 .message:is(.sticker) {
