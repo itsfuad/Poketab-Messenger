@@ -97,6 +97,8 @@ const themeAccent = {
 	}
 };
 
+const themeArray = ['blue', 'geometry', 'dark_mood', 'forest'];
+
 const reactArray = {
 	primary: ['💙', '😆','😠','😢','😮','🙂','🌻'],
 	last: '🌻',
@@ -261,6 +263,11 @@ function loadReacts(){
 	}
 
 	let lastReact = localStorage.getItem('lastReact') || reactArray.last;
+
+	if (!reactArray.expanded.includes(lastReact)){
+		lastReact = '🌻';
+	}
+
 	reactArray.primary.includes(lastReact) ? lastReact = '🌻' : lastReact;
 
 	const last = document.createElement('div');
@@ -288,7 +295,7 @@ loadReacts();
 
 function loadTheme(){
 	THEME = localStorage.getItem('theme');
-	if(THEME == null){
+	if(THEME == null || themeArray.includes(THEME) == false){
 		THEME = 'blue';
 		localStorage.setItem('theme', THEME);
 	}
@@ -341,9 +348,11 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		message = `<p class='text'>${message}</p>`;
 	}else if(type === 'image'){ //if the message is an image
 		popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
+		message = sanitize(message); //sanitize the message
 		message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading</div>`; //insert the image
 	}else if (type === 'sticker'){
 		popupmsg = 'Sticker';
+		message = sanitize(message);
 		message = `<img class='sticker' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
 	}else if(type != 'text' && type != 'image' && type != 'file' && type != 'sticker'){ //if the message is not a text or image message
 		throw new Error('Invalid message type');
@@ -472,14 +481,21 @@ function getCurrentTime(){
 	return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).format(new Date());
 }
 
+function sanitize(str){
+	if (str == undefined || str == '' || str == null){return '';}
+	str.replaceAll('<', '&#60;');
+	str.replaceAll('>', '&#62;');
+	str.replaceAll('"', '&#34;');
+	str.replaceAll('\'', '&#39;');
+	str.replaceAll('&', '&#38;');
+	return str;
+}
+
 function messageFilter(message){
 	message = censorBadWords(message); //check if the message contains bad words
 	//secure XSS attacks with html entity numbers
-	message.replaceAll('<', '&#60;');
-	message.replaceAll('>', '&#62;');
-	message.replaceAll('"', '&#34;');
-	message.replaceAll('\'', '&#39;');
-	message.replaceAll('&', '&#38;');
+
+	message = sanitize(message);
     
 	message = linkify(message); //if the message contains links then linkify the message
 
@@ -1223,6 +1239,7 @@ function linkify(inputText) {
 		//find for https:// or http:// or www.
 		let regex = /(https?:\/\/|www\.)[^\s]+/g;
 		return inputText.replace(regex, function(url) {
+			url = sanitize(url);
 			//if the url does not contain http:// or https://, then add http://
 			if (!/^(?:f|ht)tps?:\/\//.test(url)) {
 				url = 'http://' + url;
@@ -1319,6 +1336,12 @@ function loadStickerHeader(){
 
 
 function loadStickers(){
+	//if selectedStickerGroup is not contained in Stickers, then set it to the first sticker group
+	if (!Stickers.some(sticker => sticker.name == selectedStickerGroup)){
+		selectedStickerGroup = Stickers[0].name;
+		localStorage.setItem('selectedStickerGroup', selectedStickerGroup);
+	}
+
 	selectedStickerGroupCount = Stickers.find(sticker => sticker.name == selectedStickerGroup).count;
 	const stickersContainer = document.getElementById('stickers');
 	stickersContainer.innerHTML = '';
@@ -1475,6 +1498,10 @@ document.getElementById('invite').addEventListener('click', async () =>{
 document.querySelector('.theme_option').addEventListener('click', ()=>{
 	hideOptions();
 	if(THEME){
+		if (themeArray.includes(THEME) == false){
+			THEME = 'blue';
+			localStorage.setItem('theme', THEME);
+		}
 		document.querySelector('.themeChooser').querySelectorAll('.theme').forEach(theme => {
 			theme.querySelector('img').style.border = '';
 		});
@@ -1672,7 +1699,8 @@ messages.addEventListener('click', (evt) => {
 			while (document.getElementById('lightbox__image').firstChild) {
 				document.getElementById('lightbox__image').removeChild(document.getElementById('lightbox__image').firstChild);
 			}
-			const fragment = document.createRange().createContextualFragment(`<img src=${evt.target?.src} class='lb'>`);
+			const src = sanitize(evt.target?.src);
+			const fragment = document.createRange().createContextualFragment(`<img src=${src} class='lb'>`);
 			document.getElementById('lightbox__image').append(fragment);
 			//pinchZoom(document.getElementById('lightbox__image').querySelector('img'));
 			PanZoom(document.getElementById('lightbox__image').querySelector('img'));
@@ -1902,9 +1930,10 @@ function FilePreview(fileFromClipboard = null){
 		}
         
 		selectedFile.name = selectedFile.name.split('.')[0] + '.' + ext;
-		filename = selectedFile.name;
-
-		const fragment = document.createRange().createContextualFragment(`<div class='file_preview'><i class="fa-regular fa-file-lines"></i><div>File: ${filename.length >= 25 ? filename.substring(0, 10) + '...' + filename.substring(filename.length - 10, filename.length) : filename}</div><div>Size: ${size}</div></div>`);
+		filename = sanitize(selectedFile.name);
+		size = sanitize(selectedFile.size);
+		filename = filename.length >= 25 ? filename.substring(0, 10) + '...' + filename.substring(filename.length - 10, filename.length) : filename;
+		const fragment = document.createRange().createContextualFragment(`<div class='file_preview'><i class="fa-regular fa-file-lines"></i><div>File: ${filename}</div><div>Size: ${size}</div></div>`);
 		document.getElementById('selectedImage').append(fragment);
 		document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
 	};
