@@ -292,7 +292,7 @@ io.on('connection', (socket) => {
 		let user = users.getUser(uids.get(socket.id));
 		if (user) {
 			const srvID = uuid.v4();
-			io.to(user.key).emit('server_message', {color: 'var(--secondary-dark);', text: `<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot fa-flip" style="padding: 15px 5px; --fa-animation-duration: 2s; font-size: 2rem;"></i>${user.name}'s location</a>`, user: user.name, id: srvID}, 'location');
+			io.to(user.key).emit('server_message', {color: 'var(--secondary-dark);', coordinate: {longitude: coord.longitude, latitude: coord.latitude}, user: user.name, id: srvID}, 'location');
 		}
 	});
 

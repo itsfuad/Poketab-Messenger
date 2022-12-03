@@ -2,7 +2,7 @@
 'use strict';
 
 //bundles
-////last added 1763 no line
+//!last added 1763 no line
 
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
@@ -330,143 +330,147 @@ function makeId(length = 10){
 //this function inserts a message in the chat box
 function insertNewMessage(message, type, id, uid, reply, replyId, options, metadata){
 	//detect if the message has a reply or not
-
-	if (!options){
-		options = {
-			reply: false,
-			title: false
-		};
-	}
-
-	let classList = ''; //the class list for the message. Initially empty. 
-	let lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
-	let popupmsg = ''; //the message to be displayed in the popup if user scrolled up 
-	let messageIsEmoji = isEmoji(message); //detect if the message is an emoji or not
-	if (type === 'text'){ //if the message is a text message
-		popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
-		message = messageFilter(message); //filter the message
-		message = `<p class='text'>${message}</p>`;
-	}else if(type === 'image'){ //if the message is an image
-		popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
-		message = sanitize(message); //sanitize the message
-		message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading</div>`; //insert the image
-	}else if (type === 'sticker'){
-		popupmsg = 'Sticker';
-		message = sanitize(message);
-		message = `<img class='sticker' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
-	}else if(type != 'text' && type != 'image' && type != 'file' && type != 'sticker'){ //if the message is not a text or image message
-		throw new Error('Invalid message type');
-	}
-	if(uid == myId){ //if the message is sent by the user is me
-		classList += ' self'; 
-	}
-
-	if (lastMsg?.dataset?.uid != uid || messageIsEmoji || type === 'sticker'){ // if the last message is not from the same user
-		//set the message as it is the first and last message of the user
-		//first message has the top corner rounded
-		//last message has the bottom corner rounded
-		classList += ' start end'; 
-	}else  if (lastMsg?.dataset?.uid == uid){ //if the last message is from the same user
-		if (!options.reply && !lastMsg?.classList.contains('emoji') && !lastMsg?.classList.contains('sticker')){ //and the message is not a reply
-			lastMsg?.classList.remove('end'); //then remove the bottom corner rounded from the last message
+	try{
+		if (!options){
+			options = {
+				reply: false,
+				title: false
+			};
+		}
+	
+		let classList = ''; //the class list for the message. Initially empty. 
+		let lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
+		let popupmsg = ''; //the message to be displayed in the popup if user scrolled up 
+		let messageIsEmoji = isEmoji(message); //detect if the message is an emoji or not
+		if (type === 'text'){ //if the message is a text message
+			popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
+			message = messageFilter(message); //filter the message
+			message = `<p class='text'>${message}</p>`;
+		}else if(type === 'image'){ //if the message is an image
+			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
+			message = sanitize(message); //sanitize the message
+			message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading</div>`; //insert the image
+		}else if (type === 'sticker'){
+			popupmsg = 'Sticker';
+			message = sanitize(message);
+			message = `<img class='sticker' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
+		}else if(type != 'text' && type != 'image' && type != 'file' && type != 'sticker'){ //if the message is not a text or image message
+			throw new Error('Invalid message type');
+		}
+		if(uid == myId){ //if the message is sent by the user is me
+			classList += ' self'; 
+		}
+	
+		if (lastMsg?.dataset?.uid != uid || messageIsEmoji || type === 'sticker'){ // if the last message is not from the same user
+			//set the message as it is the first and last message of the user
+			//first message has the top corner rounded
+			//last message has the bottom corner rounded
+			classList += ' start end'; 
+		}else  if (lastMsg?.dataset?.uid == uid){ //if the last message is from the same user
+			if (!options.reply && !lastMsg?.classList.contains('emoji') && !lastMsg?.classList.contains('sticker')){ //and the message is not a reply
+				lastMsg?.classList.remove('end'); //then remove the bottom corner rounded from the last message
+			}else{
+				classList += ' start';
+			}
+			classList += ' end';
+		}
+		if(messageIsEmoji){ //if the message is an emoji or sticker
+			lastMsg?.classList.add('end');
+			classList += ' emoji';
+		}
+		if (type === 'sticker'){
+			lastMsg?.classList.add('end');
+			classList += ' sticker';
+		}
+		if(!options.reply){
+			classList += ' noreply';
+		}
+		if ((!options.title || !classList.includes('start'))){
+			classList += ' notitle';
+		}
+		else if (classList.includes('self') && classList.includes('noreply')){
+			classList += ' notitle';
+		}
+		let username = userInfoMap.get(uid)?.name;
+		let avatar = userInfoMap.get(uid)?.avatar;
+		if (username == myName){username = 'You';}
+	
+		let html;
+		let replyMsg, replyFor;
+		let repliedTo;
+		if (options.reply){
+			//check if the replyid is available in the message list
+			repliedTo = userInfoMap.get(document.getElementById(replyId || '')?.dataset?.uid)?.name;
+			if (repliedTo == myName){repliedTo = 'You';}
+			if (repliedTo == username){repliedTo = 'self';}
+			if (!document.getElementById(replyId)){
+				reply = {data: 'Message is not available on this device', type: 'text'};
+			}
+			if (reply.type === 'text' || reply.type === 'file'){
+				replyMsg = reply.data;
+				replyFor = 'message';
+			}else if (reply.type === 'image'){
+				replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .image').outerHTML.replace('class="image"', 'class="image imageReply"');
+				replyFor = 'image';
+			}else if (reply.type === 'sticker'){
+				replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .sticker').outerHTML.replace('class="sticker"', 'class="sticker imageReply"');
+				replyFor = 'image';
+			}
+		}
+	
+		if (type === 'file'){
+			popupmsg = 'File';
+			html = Mustache.render(fileTemplate, {
+				classList: classList,
+				avatarSrc: `/images/avatars/${avatar}(custom).png`,
+				messageId: id,
+				uid: uid,
+				type: type,
+				repId: replyId,
+				title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+				data: message,
+				fileName: metadata.name,
+				fileSize: metadata.size,
+				ext: metadata.ext,
+				replyMsg: document.getElementById(replyId)?.dataset?.type === 'file' ? `<i class="fa-solid fa-paperclip"></i> ${replyMsg}` : replyMsg,
+				replyFor: replyFor,
+				time: getCurrentTime()
+			});
 		}else{
-			classList += ' start';
+			html = Mustache.render(messageTemplate, {
+				classList: classList,
+				avatarSrc: `/images/avatars/${avatar}(custom).png`,
+				messageId: id,
+				uid: uid,
+				type: type,
+				repId: replyId,
+				title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+				message: message,
+				replyMsg: document.getElementById(replyId)?.dataset?.type === 'file' ? `<i class="fa-solid fa-paperclip"></i> ${replyMsg}` : replyMsg,
+				replyFor: replyFor,
+				time: getCurrentTime()
+			});
 		}
-		classList += ' end';
-	}
-	if(messageIsEmoji){ //if the message is an emoji or sticker
-		lastMsg?.classList.add('end');
-		classList += ' emoji';
-	}
-	if (type === 'sticker'){
-		lastMsg?.classList.add('end');
-		classList += ' sticker';
-	}
-	if(!options.reply){
-		classList += ' noreply';
-	}
-	if ((!options.title || !classList.includes('start'))){
-		classList += ' notitle';
-	}
-	else if (classList.includes('self') && classList.includes('noreply')){
-		classList += ' notitle';
-	}
-	let username = userInfoMap.get(uid)?.name;
-	let avatar = userInfoMap.get(uid)?.avatar;
-	if (username == myName){username = 'You';}
-
-	let html;
-	let replyMsg, replyFor;
-	let repliedTo;
-	if (options.reply){
-		//check if the replyid is available in the message list
-		repliedTo = userInfoMap.get(document.getElementById(replyId || '')?.dataset?.uid)?.name;
-		if (repliedTo == myName){repliedTo = 'You';}
-		if (repliedTo == username){repliedTo = 'self';}
-		if (!document.getElementById(replyId)){
-			reply = {data: 'Message is not available on this device', type: 'text'};
+	
+		lastSeenMessage = id;
+	
+		if (document.hasFocus()){
+			socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
 		}
-		if (reply.type === 'text' || reply.type === 'file'){
-			replyMsg = reply.data;
-			replyFor = 'message';
-		}else if (reply.type === 'image'){
-			replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .image').outerHTML.replace('class="image"', 'class="image imageReply"');
-			replyFor = 'image';
-		}else if (reply.type === 'sticker'){
-			replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .sticker').outerHTML.replace('class="sticker"', 'class="sticker imageReply"');
-			replyFor = 'image';
+	
+		const fragment = document.createDocumentFragment();
+		fragment.append(document.createRange().createContextualFragment(html));
+		messages.append(fragment);
+		if (reply.type == 'image' || reply.type == 'sticker'){
+			document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
 		}
+		lastPageLength = messages.scrollTop;
+		checkgaps(lastMsg?.id);
+		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
+	}catch(err){
+		console.error(err);
+		popupMessage(err);
 	}
-
-	if (type === 'file'){
-		popupmsg = 'File';
-		html = Mustache.render(fileTemplate, {
-			classList: classList,
-			avatar: `<img src='/images/avatars/${avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
-			messageId: id,
-			uid: uid,
-			type: type,
-			repId: replyId,
-			title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
-			data: message,
-			fileName: metadata.name,
-			fileSize: metadata.size,
-			ext: metadata.ext,
-			replyMsg: document.getElementById(replyId)?.dataset?.type === 'file' ? `<i class="fa-solid fa-paperclip"></i> ${replyMsg}` : replyMsg,
-			replyFor: replyFor,
-			time: getCurrentTime()
-		});
-	}else{
-		html = Mustache.render(messageTemplate, {
-			classList: classList,
-			avatar: `<img src='/images/avatars/${avatar}(custom).png' width='30px' height='30px' alt='avatar' />`,
-			messageId: id,
-			uid: uid,
-			type: type,
-			repId: replyId,
-			title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
-			message: message,
-			replyMsg: document.getElementById(replyId)?.dataset?.type === 'file' ? `<i class="fa-solid fa-paperclip"></i> ${replyMsg}` : replyMsg,
-			replyFor: replyFor,
-			time: getCurrentTime()
-		});
-	}
-
-	lastSeenMessage = id;
-
-	if (document.hasFocus()){
-		socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
-	}
-
-	const fragment = document.createDocumentFragment();
-	fragment.append(document.createRange().createContextualFragment(html));
-	messages.append(fragment);
-	if (reply.type == 'image' || reply.type == 'sticker'){
-		document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
-	}
-	lastPageLength = messages.scrollTop;
-	checkgaps(lastMsg?.id);
-	updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
 }
 
 window.addEventListener('focus', () => {
@@ -493,12 +497,9 @@ function sanitize(str){
 
 function messageFilter(message){
 	message = censorBadWords(message); //check if the message contains bad words
-	//secure XSS attacks with html entity numbers
-
+	//secure XSS attacks with html entity number
 	message = sanitize(message);
-    
 	message = linkify(message); //if the message contains links then linkify the message
-
 	message = message.replaceAll(/```¶/g, '```'); //replace the code block markers
 	message = message.replaceAll(/```([^`]+)```/g, '<code>$1</code>'); //if the message contains code then replace it with the code tag
 	message = message.replaceAll('¶', '<br>'); //if the message contains new lines then replace them with <br>
@@ -542,7 +543,6 @@ function emojiParser(text){
 	emojiMap.set(':yolo:', '🤪');
 	emojiMap.set(':yikes:', '😱');
 	emojiMap.set(':sweat:', '😅');
-
 
 	//find if the message contains the emoji
 	for (let [key, value] of emojiMap){
@@ -609,8 +609,6 @@ function showOptions(type, sender, target){
 			document.querySelector(`#reactOptions .${clickedElement}`).style.background = themeAccent[THEME].secondary;
 		}
 		if (reactArray.expanded.includes(clickedElement)){
-                        
-			//!hasPrimary ? document.getElementById('showMoreReactBtn').style.background = themeAccent[THEME].secondary : "";
 			document.querySelector(`.moreReacts .${clickedElement}`).style.background = themeAccent[THEME].secondary;
 		}
 		if (reactArray.expanded.includes(clickedElement) && !reactArray.primary.includes(clickedElement)){
@@ -1284,27 +1282,43 @@ function serverMessage(message, type) {
 	const serverMessageElement = document.createElement('li');
 	serverMessageElement.classList.add('serverMessage', 'msg-item');
 	serverMessageElement.id = message.id;
+	const seenBy = document.createElement('div');
+	seenBy.classList.add('seenBy');
 	const messageContainer = document.createElement('div');
 	messageContainer.classList.add('messageContainer');
 	messageContainer.style.color = message.color;
-	messageContainer.textContent = message.text;
-	const seenBy = document.createElement('div');
-	seenBy.classList.add('seenBy');
-	serverMessageElement.appendChild(messageContainer);
-	serverMessageElement.appendChild(seenBy);
-	messages.appendChild(serverMessageElement);
 	if (type == 'location'){
+		//<a href='https://www.google.com/maps?q=${coord.latitude},${coord.longitude}' target='_blank'><i class="fa-solid fa-location-dot fa-flip" style="padding: 15px 5px; --fa-animation-duration: 2s; font-size: 2rem;"></i>${user.name}'s location</a>
+		const locationLink = document.createElement('a');
+		locationLink.href = `https://www.google.com/maps?q=${message.coordinate.latitude},${message.coordinate.longitude}`;
+		locationLink.target = '_blank';
+		locationLink.textContent = `${message.user}'s location`;
+		const locationIcon = document.createElement('i');
+		locationIcon.classList.add('fa-solid', 'fa-location-dot', 'fa-flip');
+		locationIcon.style.padding = '15px 5px';
+		locationIcon.style['--fa-animation-duration'] = '2s';
+		locationIcon.style.fontSize = '2rem';
+		locationLink.prepend(locationIcon);
+		messageContainer.append(locationLink);
+		serverMessageElement.append(messageContainer, seenBy);
+		messages.appendChild(serverMessageElement);
 		updateScroll('location', `${message.user}'s location`);
 	}else if(type == 'leave'){
+		messageContainer.textContent = message.text;
+		serverMessageElement.append(messageContainer, seenBy);
+		messages.appendChild(serverMessageElement);
 		userTypingMap.delete(message.who);
 		document.querySelectorAll(`.msg-item[data-seen*="${message.who}"]`)
 			.forEach(elem => {
 				elem.querySelector(`.seenBy img[data-user="${message.who}"]`)?.remove();
-				checkgaps(elem.id);
+				//checkgaps(elem.id);
 			});
 		document.getElementById('typingIndicator').textContent = getTypingString(userTypingMap);
 		updateScroll();
 	}else{
+		messageContainer.textContent = message.text;
+		serverMessageElement.append(messageContainer, seenBy);
+		messages.appendChild(serverMessageElement);
 		updateScroll();
 	}
 	lastSeenMessage = message.id;
@@ -1714,6 +1728,7 @@ messages.addEventListener('click', (evt) => {
 			document.getElementById('lightbox__image').appendChild(imageElement);
 
 			//pinchZoom(document.getElementById('lightbox__image').querySelector('img'));
+			// eslint-disable-next-line no-undef
 			PanZoom(document.getElementById('lightbox__image').querySelector('img'));
 
 			document.getElementById('lightbox').classList.add('active');
@@ -1832,7 +1847,6 @@ deleteOption.addEventListener('click', ()=>{
 });
 
 photoButton.addEventListener('change', ()=>{
-
 	ImagePreview();
 });
 
@@ -2433,6 +2447,7 @@ document.getElementById('send-location').addEventListener('click', () => {
 		popupMessage(error.message);
 	});
 });
+
 /*
 document.getElementById('createPollBtn').addEventListener('click', () => {
     console.log('initiating poll');
@@ -2440,6 +2455,7 @@ document.getElementById('createPollBtn').addEventListener('click', () => {
 });
 */
 
+//play clicky sound on click on each clickable elements
 document.querySelectorAll('.clickable').forEach(elem => {
 	elem.addEventListener('click', () => {
 		clickSound.currentTime = 0;
@@ -2447,7 +2463,7 @@ document.querySelectorAll('.clickable').forEach(elem => {
 	});
 });
 
-
+//listen for file paste
 window.addEventListener('paste', (e) => {
 	if (e.clipboardData) {
 		let items = e.clipboardData.items;
@@ -2473,7 +2489,6 @@ window.addEventListener('paste', (e) => {
 
 
 //sockets
-
 socket.on('connect', () => {
 	const params = {
 		name: myName,
@@ -2502,7 +2517,7 @@ socket.on('connect', () => {
 		}
 	});
 });
-
+//updates current user list
 socket.on('updateUserList', users => {
 	users.forEach(user => {
 		userInfoMap.set(user.uid, user);
@@ -2584,7 +2599,6 @@ socket.on('seen', meta => {
 	}
 });
 
-
 socket.on('getReact', (target, messageId, myId) => {
 	getReact(target, messageId, myId);
 });
@@ -2613,12 +2627,13 @@ socket.on('disconnect', () => {
 	console.log('disconnected');
 	popupMessage('Disconnected from server');
 });
-
+//files metadata will be sent on different socket
 fileSocket.on('connect', () => {
 	console.log('fileSocket connected');
 	fileSocket.emit('join', myKey);
 });
 
+//gets an intermediate thumbnail and file metadata
 fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, options, metadata) => {
 	incommingmessage.play();
 	fileBuffer.set(id, {type: type, data: '', uId: uId, reply: reply, replyId: replyId, options: options, metadata: metadata});
@@ -2636,6 +2651,7 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
 	notifyUser({data: '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uId)?.name, userInfoMap.get(uId)?.avatar);
 });
 
+//if any error occurrs, the show the error
 fileSocket.on('fileUploadError', (id, type) => {
 	let element = document.getElementById(id).querySelector('.messageMain');
 	let progressContainer;
@@ -2647,6 +2663,7 @@ fileSocket.on('fileUploadError', (id, type) => {
 	progressContainer.textContent = 'Upload Error';
 });
 
+//if the file has been uploded to the server by other users, then start downloading
 fileSocket.on('fileDownloadReady', (id, downlink) => {
 	if (!fileBuffer.has(id)){
 		return;
@@ -2705,6 +2722,7 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 	updateScroll();
 });
 
+//clear the previous thumbnail when user gets the file completely
 function clearDownload(element, base64data, type){
 	outgoingmessage.play();
 	if (type === 'image'){
@@ -2724,17 +2742,26 @@ function clearDownload(element, base64data, type){
 	element.closest('.message').dataset.downloaded = 'true';
 }
 
+//set the app height based on different browser topbar or bottom bar height
 appHeight();
 
+//scroll up the message container
 updateScroll();
 
-//on dom ready
+//on dom ready, show 'Slow internet' if 3 sec has been passed
 document.addEventListener('DOMContentLoaded', () => {
 	setTimeout(() => {
+		document.getElementById('preload').querySelector('.text').textContent = 'Logging in';
+	}, 1000);
+	//show slow internet if 5 sec has been passed
+	setTimeout(() => {
 		document.getElementById('preload').querySelector('.text').textContent = 'Slow internet';
-	}, 3000);
+	}, 5000);
 });
 
+
+//This code blocks the back button to go back on the login page.
+//This action is needed because if the user goes back, he/she has to login again. 
 document.addEventListener('click', ()=> {
 	history.pushState({}, '', '#init');
 	history.pushState({}, '', '#initiated');
