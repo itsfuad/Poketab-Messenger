@@ -787,8 +787,8 @@ let yDiff = 0;
 // Listen for a swipe on left
 messages.addEventListener('touchstart', (evt) => {
 	if (evt.target.closest('.message')){
-		xStart = evt.touches[0].clientX;
-		yStart = evt.touches[0].clientY;
+		xStart = (evt.touches[0].clientX/3);
+		yStart = (evt.touches[0].clientY/3);
 		//console.log('Swipe started');
 	}
 });
@@ -796,26 +796,39 @@ messages.addEventListener('touchstart', (evt) => {
 messages.addEventListener('touchmove', (evt) => {
 	try{
 		const msg = evt.target.closest('.message');
-
-		if (evt.target.classList.contains('messageMain') || evt.target.closest('.messageMain') && yDiff < 10 && msg.dataset.deleted != 'true'){            
+		
+		if (evt.target.classList.contains('messageMain') || evt.target.closest('.messageMain') && msg.dataset.deleted != 'true'){            
 			//console.log(xDiff);
-			xDiff = xStart - evt.touches[0].clientX;
-			yDiff = yStart - evt.touches[0].clientY;
+			xDiff = xStart - (evt.touches[0].clientX/3);
+			yDiff = yStart - (evt.touches[0].clientY/3);
+			/*
+			//the angle of the swipe
+			const deg = (Math.atan2(yDiff, xDiff) * 180 / Math.PI);
+			console.log(deg);
+			*/
+
+			if (Math.abs(xDiff) < Math.abs(yDiff)){
+				return;
+			}
+
 			const elem = msg.querySelector('.messageContainer');
+			const replyIcon = msg.querySelector('.replyIcon');
 			//if msg is self
-			if (msg.classList.contains('self') && msg.classList.contains('delevered')) {
-				if (xDiff > 50){
-					xDiff = 50;
+			if (msg.classList.contains('self') && msg.classList.contains('delevered') /*&& deg <= 20 && deg >= -20*/) {
+				if (xDiff >= 40){
+					//xDiff = 50;
 					elem.dataset.replyTrigger = 'true';
+					replyIcon.style.transform = `translateX(${xDiff}px)`;
 				}else{
 					elem.dataset.replyTrigger = 'false';
 				}
 				xDiff = xDiff < 0 ? 0 : xDiff;
 				elem.style.transform = `translateX(${-xDiff}px)`;
-			}else{
-				if (xDiff < -50){
-					xDiff = -50;
+			}else /*if(deg <= 160 && deg >= -160 && !msg.classList.contains('self'))*/{
+				if (xDiff <= -40){
+					//xDiff = -50;
 					elem.dataset.replyTrigger = 'true';
+					replyIcon.style.transform = `translateX(${xDiff}px)`;
 				}else{
 					elem.dataset.replyTrigger = 'false';
 				}
@@ -843,7 +856,13 @@ messages.addEventListener('touchend', (evt) => {
 				return;
 			}else{
 				const elem = msg.querySelector('.messageContainer');
-				elem.style.transform = `translateX(-${xDiff}px)`;
+				const replyIcon = msg.querySelector('.replyIcon');
+				if (elem.closest('.message').classList.contains('self')){
+					replyIcon.style.transform = 'translateX(40px)';
+				}else{
+					replyIcon.style.transform = 'translateX(-40px)';
+				}
+				elem.style.transform = 'translateX(0px)';
 				if (elem.dataset.replyTrigger === 'true') {
 					elem.dataset.replyTrigger = 'false';
 					//console.log('Reply triggered');
@@ -2753,13 +2772,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	setTimeout(() => {
 		document.getElementById('preload').querySelector('.text').textContent = 'Logging in';
 	}, 1000);
-	//show slow internet if 5 sec has been passed
+	//show slow internet if 3 sec has been passed
 	setTimeout(() => {
 		document.getElementById('preload').querySelector('.text').textContent = 'Slow internet';
-	}, 5000);
+	}, 8000);
 });
 
-
+/*
 //This code blocks the back button to go back on the login page.
 //This action is needed because if the user goes back, he/she has to login again. 
 document.addEventListener('click', ()=> {
@@ -2770,3 +2789,4 @@ document.addEventListener('click', ()=> {
 		history.forward();
 	};
 }, {once: true});
+*/

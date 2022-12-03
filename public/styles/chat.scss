@@ -438,7 +438,7 @@ img{
     &.active{
         visibility: visible;
         opacity: 1;
-        bottom: 85px;
+        bottom: 12px;
     }
     i{
         color: white !important;
@@ -898,8 +898,8 @@ i[class^=fa-]{
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    position: absolute;
-    top: -35px;
+    position: relative;
+    bottom: 5px;
     left: 50%;
     background: var(--primary-dark);
     padding: 5px 10px;
