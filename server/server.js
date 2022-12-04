@@ -28,7 +28,7 @@ const developer = 'Fuad Hasan';
 //admin password to view running chat numbers and create new chat keys
 const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
-const devMode = true; //dev mode
+const devMode = false; //dev mode
 
 //this blocks the client if they request 1000 requests in 15 minutes
 const apiRequestLimiter = rateLimit({
