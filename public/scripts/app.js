@@ -3,12 +3,12 @@
 
 //bundles
 //!last added 1763 no line
-
+/*
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
 import { PanZoom } from './panzoom';
-
+*/
 console.log('loaded');
 
 //variables
@@ -883,7 +883,7 @@ function showReplyToast(){
 	hideOptions();
 	updateScroll();
 	textbox.focus();
-
+	document.querySelector('.newmessagepopup').classList.add('toastActive');
 	finalTarget = Object.assign({}, targetMessage);
 	//console.dir(finalTarget);
 	if (finalTarget.type == 'image' || finalTarget.type == 'sticker'){
@@ -906,6 +906,7 @@ function hideReplyToast(){
 	replyToast.querySelector('.replyData').textContent = '';
 	replyToast.querySelector('.username').textContent = '';
 	lastPageLength = messages.scrollTop;
+	document.querySelector('.newmessagepopup').classList.remove('toastActive');
 	clearTargetMessage();
 }
 

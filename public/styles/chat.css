@@ -880,8 +880,8 @@ i[class^=fa-] {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  position: relative;
-  bottom: 5px;
+  position: absolute;
+  bottom: 30px;
   left: 50%;
   background: var(--primary-dark);
   padding: 5px 10px;
@@ -895,7 +895,7 @@ i[class^=fa-] {
   width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
-  display: none;
+  display: flex;
   visibility: hidden;
   opacity: 0;
   transition: 100ms ease-in-out;
@@ -903,9 +903,12 @@ i[class^=fa-] {
   filter: drop-shadow(2px 2px 2px #000);
 }
 .newmessagepopup.active {
-  display: flex;
+  bottom: 65px;
   visibility: visible;
   opacity: 1;
+}
+.newmessagepopup.toastActive {
+  bottom: 135px;
 }
 .newmessagepopup img {
   height: 30px;

@@ -898,8 +898,8 @@ i[class^=fa-]{
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    position: relative;
-    bottom: 5px;
+    position: absolute;
+    bottom: 30px;
     left: 50%;
     background: var(--primary-dark);
     padding: 5px 10px;
@@ -911,15 +911,18 @@ i[class^=fa-]{
     z-index: 10;
     gap: 5px;
     width: max-content;
-    display: none;
+    display: flex;
     visibility: hidden;
     opacity: 0;
     transition: 100ms ease-in-out;
     cursor: pointer;
     &.active{
-        display: flex;
+        bottom: 65px;
         visibility: visible;
         opacity: 1;
+    }
+    &.toastActive{
+        bottom: 135px;
     }
     filter: drop-shadow(2px 2px 2px #000);
     img{
