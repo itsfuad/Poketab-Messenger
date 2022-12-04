@@ -119,6 +119,7 @@ code {
 }
 .message .messageBody .messageReply .imageReply {
   filter: brightness(0.5) !important;
+  background: rgba(255, 255, 255, 0.0901960784) !important;
   position: relative;
   max-height: 150px;
   max-width: 150px;
@@ -206,9 +207,6 @@ code {
   min-width: 100px;
   background: rgba(255, 255, 255, 0.0901960784);
 }
-.messageMain img.sticker {
-  background: none;
-}
 .messageMain > * {
   border-radius: 3px 15px 15px 3px;
   z-index: 10;
@@ -263,6 +261,10 @@ code {
 }
 .message:is(.notitle) .messageTitle {
   display: none !important;
+}
+
+.messageMain img:is(.sticker) {
+  background: rgba(255, 255, 255, 0.0901960784) !important;
 }
 
 .message:is(.sticker) {

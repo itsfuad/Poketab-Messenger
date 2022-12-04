@@ -206,10 +206,6 @@ body {
   background: rgba(255, 255, 255, 0.0901960784);
 }
 
-.messageMain img:is(.sticker) {
-  background: rgba(255, 255, 255, 0.0901960784) !important;
-}
-
 img:is(.sticker) {
   width: 100px;
   height: 100px;
@@ -412,7 +408,7 @@ img {
   width: 250px;
   border-radius: 10px;
   display: flex;
-  padding: 5px;
+  padding: 8px;
   gap: 5px;
   text-align: center;
   bottom: -20px;
@@ -431,7 +427,7 @@ img {
 .offline.active {
   visibility: visible;
   opacity: 1;
-  bottom: 85px;
+  bottom: 12px;
 }
 .offline i {
   color: white !important;
@@ -467,6 +463,10 @@ img {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  transition: filter 100ms;
+}
+.chatBox.offl {
+  filter: saturate(0) brightness(0.5);
 }
 .chatBox .navbar {
   display: flex;
@@ -623,6 +623,7 @@ input[type=file] {
   border: none;
   background: none;
   padding-right: 5px;
+  position: relative;
 }
 
 #previewImage {
@@ -652,6 +653,7 @@ input[type=file] {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 10px;
 }
 #previewImage #selectedImage img {
   position: relative;
@@ -878,8 +880,8 @@ i[class^=fa-] {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  position: absolute;
-  top: -35px;
+  position: relative;
+  bottom: 5px;
   left: 50%;
   background: var(--primary-dark);
   padding: 5px 10px;
@@ -945,6 +947,7 @@ i[class^=fa-] {
   position: fixed;
   top: 0;
   width: 100%;
+  z-index: 10000;
 }
 #lightbox .tool > div {
   padding: 10px;
@@ -968,6 +971,7 @@ i[class^=fa-] {
 #lightbox #lightbox__image img {
   width: 100%;
   height: 100%;
+  cursor: move;
 }
 
 .fa-xmark {
@@ -1248,190 +1252,5 @@ i[class^=fa-] {
     min-height: 280px;
     width: 50%;
     min-width: 425px;
-  }
-  .call-btn::after {
-    content: "Call";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    width: -webkit-max-content;
-    width: -moz-max-content;
-    width: max-content;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    transition: 200ms ease-in-out;
-    opacity: 0;
-    visibility: hidden;
-  }
-  .call-btn:hover::after {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 1s;
-  }
-  #more::after {
-    content: "Active Users";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    width: -webkit-max-content;
-    width: -moz-max-content;
-    width: max-content;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    transition: 200ms ease-in-out;
-    opacity: 0;
-    visibility: hidden;
-  }
-  #more:hover::after {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 1s;
-  }
-  .upload_file::after {
-    content: "Upload File";
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    width: -webkit-max-content;
-    width: -moz-max-content;
-    width: max-content;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    transition: 200ms ease-in-out;
-    opacity: 0;
-    visibility: hidden;
-  }
-  .upload_file:hover::after {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 1s;
-  }
-  .upload_image::after {
-    content: "Upload Image";
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    width: -webkit-max-content;
-    width: -moz-max-content;
-    width: max-content;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    transition: 200ms ease-in-out;
-    opacity: 0;
-    visibility: hidden;
-  }
-  .upload_image:hover::after {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 1s;
-  }
-  #send-location::after {
-    content: "Share your location";
-    font-family: Comic;
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    width: -webkit-max-content;
-    width: -moz-max-content;
-    width: max-content;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    transition: 200ms ease-in-out;
-    opacity: 0;
-    visibility: hidden;
-  }
-  #send-location:hover::after {
-    visibility: visible;
-    opacity: 1;
-    transition-delay: 1s;
-  }
-  #createPollBtn::after {
-    content: "Create Poll";
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    width: -webkit-max-content;
-    width: -moz-max-content;
-    width: max-content;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    transition: 200ms ease-in-out;
-    opacity: 0;
-    visibility: hidden;
-  }
-  #createPollBtn:hover::after {
-    visibility: visible;
-    opacity: 1;
-    transition-delay: 1s;
-  }
-  .stickerBtn::after {
-    content: "Stickers";
-    position: absolute;
-    top: -100%;
-    left: 50%;
-    width: -webkit-max-content;
-    width: -moz-max-content;
-    width: max-content;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    transition: 200ms ease-in-out;
-    opacity: 0;
-    visibility: hidden;
-  }
-  .stickerBtn:hover::after {
-    visibility: visible;
-    opacity: 1;
-    transition-delay: 1s;
-  }
-  .attachments::after {
-    content: "Attachments";
-    position: absolute;
-    top: -100%;
-    left: 50%;
-    width: -webkit-max-content;
-    width: -moz-max-content;
-    width: max-content;
-    transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.6509803922);
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    transition: 200ms ease-in-out;
-    opacity: 0;
-    visibility: hidden;
-  }
-  .attachments:hover::after {
-    visibility: visible;
-    opacity: 1;
-    transition-delay: 1s;
   }
 }/*# sourceMappingURL=chat.css.map */

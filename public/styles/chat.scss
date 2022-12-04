@@ -217,9 +217,6 @@ body{
     }
 }
 
-.messageMain img:is(.sticker){
-    background: #ffffff17 !important;
-}
 
 img:is(.sticker){
     width: 100px;
@@ -423,7 +420,7 @@ img{
     width: 250px;
     border-radius: 10px;
     display: flex;
-    padding: 5px;
+    padding: 8px;
     gap: 5px;
     text-align: center;
     bottom: -20px;
@@ -441,7 +438,7 @@ img{
     &.active{
         visibility: visible;
         opacity: 1;
-        bottom: 85px;
+        bottom: 12px;
     }
     i{
         color: white !important;
@@ -479,6 +476,12 @@ img{
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    //transition on filter only
+    transition: filter 100ms;
+    &.offl{
+        filter: saturate(0) brightness(0.5);
+    }
+
     .navbar{
         display: flex;
         flex-direction: row;
@@ -638,6 +641,7 @@ input[type=file] {
     border: none;
     background: none;
     padding-right: 5px;
+    position: relative;
 }
 
 #previewImage{
@@ -666,6 +670,7 @@ input[type=file] {
         display: flex;
         justify-content: center;
         align-items: center;
+        gap: 10px;
         img{
             position: relative;
             max-height: 100%;
@@ -893,8 +898,8 @@ i[class^=fa-]{
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    position: absolute;
-    top: -35px;
+    position: relative;
+    bottom: 5px;
     left: 50%;
     background: var(--primary-dark);
     padding: 5px 10px;
@@ -957,6 +962,7 @@ i[class^=fa-]{
         position: fixed;
         top: 0;
         width: 100%;
+        z-index: 10000;
         & > div{
             padding: 10px;
             border-radius: 25px;
@@ -979,6 +985,8 @@ i[class^=fa-]{
         img{
             width: 100%;
             height: 100%;
+            //change cursor to drag when hovering over image to indicate that it can be dragged
+            cursor: move;
         }
     }
 }
@@ -1263,200 +1271,5 @@ i[class^=fa-]{
         min-height: 280px;
         width: 50%;
         min-width: 425px;
-    }
-
-
-    .call-btn{
-        &::after{
-            content: "Call";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            width: max-content;
-            transform: translateX(-50%);
-            background: #ffffffa6;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            transition: 200ms ease-in-out;
-            opacity: 0;
-            visibility: hidden;
-        }
-        &:hover::after{
-            opacity: 1;
-            visibility: visible;
-            transition-delay: 1s;
-        }
-    }
-
-    #more{
-        &::after{
-            content: "Active Users";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            width: max-content;
-            transform: translateX(-50%);
-            background: #ffffffa6;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            transition: 200ms ease-in-out;
-            opacity: 0;
-            visibility: hidden;
-        }
-        &:hover::after{
-            opacity: 1;
-            visibility: visible;
-            transition-delay: 1s;
-        }
-    }
-    
-    .upload_file{
-        &::after{
-            content: "Upload File";
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            width: max-content;
-            transform: translateX(-50%);
-            background: #ffffffa6;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            transition: 200ms ease-in-out;
-            opacity: 0;
-            visibility: hidden;
-        }
-        &:hover::after{
-            opacity: 1;
-            visibility: visible;
-            transition-delay: 1s;
-        }
-    }
-
-    .upload_image{
-        &::after{
-            content: "Upload Image";
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            width: max-content;
-            transform: translateX(-50%);
-            background: #ffffffa6;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            transition: 200ms ease-in-out;
-            opacity: 0;
-            visibility: hidden;
-        }
-        &:hover::after{
-            opacity: 1;
-            visibility: visible;
-            transition-delay: 1s;
-        }
-    }
-
-    #send-location{
-        &::after{
-            content: "Share your location";
-            font-family: Comic;
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            width: max-content;
-            transform: translateX(-50%);
-            background: #ffffffa6;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            transition: 200ms ease-in-out;
-            opacity: 0;
-            visibility: hidden;
-        }
-        &:hover::after{
-            visibility: visible;
-            opacity: 1;
-            transition-delay: 1s;
-        }
-    }
-
-    #createPollBtn{
-        &::after{
-            content: "Create Poll";
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            width: max-content;
-            transform: translateX(-50%);
-            background: #ffffffa6;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            transition: 200ms ease-in-out;
-            opacity: 0;
-            visibility: hidden;
-        }
-        &:hover::after{
-            visibility: visible;
-            opacity: 1;
-            transition-delay: 1s;
-        }
-    }
-
-    .stickerBtn{
-        &::after{
-            content: "Stickers";
-            position: absolute;
-            top: -100%;
-            left: 50%;
-            width: max-content;
-            transform: translateX(-50%);
-            background: #ffffffa6;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            transition: 200ms ease-in-out;
-            opacity: 0;
-            visibility: hidden;
-        }
-        
-        &:hover::after{
-            visibility: visible;
-            opacity: 1;
-            transition-delay: 1s;
-        }
-    }
-
-    .attachments{
-        &::after{
-            content: "Attachments";
-            position: absolute;
-            top: -100%;
-            left: 50%;
-            width: max-content;
-            transform: translateX(-50%);
-            background: #ffffffa6;
-            color: black;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            transition: 200ms ease-in-out;
-            opacity: 0;
-            visibility: hidden;
-        }
-        &:hover::after{
-            visibility: visible;
-            opacity: 1;
-            transition-delay: 1s;
-        }
     }
 }
