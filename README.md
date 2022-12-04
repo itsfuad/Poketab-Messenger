@@ -19,6 +19,7 @@ Features -
     3.webp
     ...
     ...
+    19.webp
     20.webp
 ```
 > It's very important to have two folders. If your sticker is not animated then put the files both of the directories.
