@@ -100,7 +100,7 @@ app.get('/admin/:pass', (req, res) => {
 		res.send(Object.fromEntries(keys));
 	} else {
 		res.setHeader('Developer', 'Fuad Hasan');
-		res.setHeader('Content-Security-Policy', `script-src ${script_Src}`);
+		res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 		res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
 	}
 });
