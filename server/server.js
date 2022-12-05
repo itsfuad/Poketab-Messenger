@@ -85,7 +85,7 @@ app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 
 // default route to serve the client
 app.get('/', (_, res) => {
-	res.setHeader('Content-Security-Policy', 'default-src \'self\'; style-src \'nonce-homeStyle\'');
+	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${uuid.v4();}'`);
 	res.setHeader('Developer', 'Fuad Hasan');
 	res.render('home', {title: 'Get Started'});
 });
