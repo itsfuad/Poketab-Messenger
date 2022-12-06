@@ -62,7 +62,7 @@
     </fieldset>
     <%- include ('layout/entryfooter.ejs') %>
     <% if (key) { %>
-        <script>
+        <script nonce="<%=hash%>">
             window.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('next').click();
             });

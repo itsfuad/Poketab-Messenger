@@ -7,6 +7,9 @@ const cors = require('cors');
 const uuid = require('uuid');
 const socketIO = require('socket.io');
 
+//crypto module for generating random keys
+const crypto = require('crypto');
+
 const { clean } = require('./cleaner');
 
 //utility functions for the server
@@ -29,7 +32,6 @@ const developer = 'Fuad Hasan';
 const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
 const devMode = false; //dev mode
-const homeNonce = uuid.v4();
 
 //this blocks the client if they request 1000 requests in 15 minutes
 const apiRequestLimiter = rateLimit({
@@ -68,11 +70,7 @@ app.set('view engine', 'ejs'); //set the view engine to ejs [embedded javascript
 app.set('trust proxy', 1);
 
 //allow cross origin requests only from the client on poketab.live
-app.use(cors({
-	origin: 'https://poketab.live',
-	optionsSuccessStatus: 200
-}));
-
+app.use(cors());
 app.use(compression()); //compress all responses
 app.use(express.static(publicPath)); //serve static files from the public folder
 app.use(express.json()); //parse json data
@@ -83,12 +81,12 @@ app.use(express.urlencoded({
 
 app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 
-
 // default route to serve the client
 app.get('/', (_, res) => {
-	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${homeNonce}'; img-src 'self' data:;`);
+	const styleNonce = crypto.randomBytes(16).toString('hex');
+	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${styleNonce}'; img-src 'self' data:;`);
 	res.setHeader('Developer', 'Fuad Hasan');
-	res.render('home', {title: 'Get Started', hash: homeNonce});
+	res.render('home', {title: 'Get Started', hash: styleNonce});
 });
 
 app.use('/api/files', require('./routes/fileAPI')); //route for file uploads
@@ -115,9 +113,10 @@ app.get('/join', (_, res) => {
 app.get('/join/:key', (req, res)=>{
 	const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
 	if (key_format.test(req.params.key)){
-		res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data:;');
+		const scriptNonce = crypto.randomBytes(16).toString('hex');
+		res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; script-src 'self' 'nonce-${scriptNonce}';`);
 		res.setHeader('Developer', 'Fuad Hasan');
-		res.render('join', {title: 'Join', key_label: 'Checking <i id=\'lb__icon\' class="fa-solid fa-circle-notch fa-spin"></i>' , version: `v.${version}`, key: req.params.key});
+		res.render('join', {title: 'Join', key_label: 'Checking <i id=\'lb__icon\' class="fa-solid fa-circle-notch fa-spin"></i>' , version: `v.${version}`, key: req.params.key, hash: scriptNonce});
 	}
 	else{
 		res.redirect('/join');
@@ -176,6 +175,7 @@ app.post('/chat', (req, res) => {
 			res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
 		}else{
 			res.setHeader('Developer', 'Fuad Hasan');
+			res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data:; style-src \'self\' \'unsafe-inline\';');
 			res.setHeader('Cluster', `ID: ${process.pid}`);
 			res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
 		}
