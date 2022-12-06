@@ -29,6 +29,7 @@ const developer = 'Fuad Hasan';
 const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
 const devMode = false; //dev mode
+const homeNonce = uuid.v4();
 
 //this blocks the client if they request 1000 requests in 15 minutes
 const apiRequestLimiter = rateLimit({
@@ -85,9 +86,9 @@ app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 
 // default route to serve the client
 app.get('/', (_, res) => {
-	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${uuid.v4();}'`);
+	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${homeNonce}'`);
 	res.setHeader('Developer', 'Fuad Hasan');
-	res.render('home', {title: 'Get Started'});
+	res.render('home', {title: 'Get Started', hash: homeNonce});
 });
 
 app.use('/api/files', require('./routes/fileAPI')); //route for file uploads
