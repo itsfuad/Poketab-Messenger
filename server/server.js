@@ -86,7 +86,7 @@ app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 
 // default route to serve the client
 app.get('/', (_, res) => {
-	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${homeNonce}' img-src 'self' data:;`);
+	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${homeNonce}' img-src \'self\' data:;`);
 	res.setHeader('Developer', 'Fuad Hasan');
 	res.render('home', {title: 'Get Started', hash: homeNonce});
 });
@@ -107,7 +107,7 @@ app.get('/admin/:pass', (req, res) => {
 });
 
 app.get('/join', (_, res) => {
-	res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src 'self' data:;');
+	res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data:;');
 	res.setHeader('Developer', 'Fuad Hasan');
 	res.render('join', {title: 'Join', version: `v.${version}`, key: null, key_label: 'Enter key <i id=\'lb__icon\' class="fa-solid fa-key"></i>'});
 });
@@ -115,7 +115,7 @@ app.get('/join', (_, res) => {
 app.get('/join/:key', (req, res)=>{
 	const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
 	if (key_format.test(req.params.key)){
-		res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src 'self' data:;');
+		res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data:;');
 		res.setHeader('Developer', 'Fuad Hasan');
 		res.render('join', {title: 'Join', key_label: 'Checking <i id=\'lb__icon\' class="fa-solid fa-circle-notch fa-spin"></i>' , version: `v.${version}`, key: req.params.key});
 	}
@@ -128,7 +128,7 @@ app.get('/create', (req, res) => {
 	const key = makeid(12);
 	const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null; //currently ip has nothing to do with our server. May be we can use it for user validation or attacts. 
 	keys.set(key, {using: false, created: Date.now(), ip: ip});
-	res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src 'self' data:;');
+	res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data:;');
 	res.setHeader('Developer', 'Fuad Hasan');
 	res.render('create', {title: 'Create', version: `v.${version}`, key: key});
 });
