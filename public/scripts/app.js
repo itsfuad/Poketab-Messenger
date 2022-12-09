@@ -1710,11 +1710,11 @@ document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) =
 	}
 });
 
-let msgTimeTimeout = undefined;
 let backToNormalTimeout = undefined;
 let scrollIntoViewTimeout = undefined;
 messages.addEventListener('click', (evt) => {
 	try {
+		let msgTimeTimeout = undefined;
 		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')){
 			evt.target?.closest('.message')?.querySelector('.messageTime')?.classList?.add('active');
 			if (msgTimeTimeout){
