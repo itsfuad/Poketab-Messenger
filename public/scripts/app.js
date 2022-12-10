@@ -349,7 +349,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		}else if(type === 'image'){ //if the message is an image
 			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
 			message = sanitize(message); //sanitize the message
-			message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading</div>`; //insert the image
+			message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading...</div>`; //insert the image
 		}else if (type === 'sticker'){
 			popupmsg = 'Sticker';
 			message = sanitize(message);
@@ -2305,6 +2305,9 @@ async function sendImageStoreRequest(){
 			if (e.lengthComputable) {
 				progress = (e.loaded / e.total) * 100;
 				elem.querySelector('.sendingImage').textContent = '↑ ' + Math.round(progress) + '%';
+				if (progress === 100){
+					elem.querySelector('.sendingImage').textContent = 'Encoding...';
+				}
 			}
 		};
 
@@ -2319,7 +2322,7 @@ async function sendImageStoreRequest(){
 			}
 			else{
 				console.log('error uploading image');
-				elem.querySelector('.sendingImage').textContent = this.responseText;
+				elem.querySelector('.sendingImage').textContent = 'Upload failed';
 				fileSocket.emit('fileUploadError', myKey, tempId, 'image');
 			}
 		};
@@ -2362,6 +2365,9 @@ async function sendFileStoreRequest(){
 		if (e.lengthComputable) {
 			progress = (e.loaded / e.total) * 100;
 			elem.querySelector('.progress').textContent = '↑ ' + Math.round(progress) + '%';
+			if (progress === 100){
+				elem.querySelector('.progress').textContent = 'Encoding...';
+			}
 		}
 	};
 
@@ -2375,7 +2381,7 @@ async function sendFileStoreRequest(){
 		}
 		else{
 			console.log('error uploading file');
-			elem.querySelector('.progress').textContent = 'Error';
+			elem.querySelector('.progress').textContent = 'Upload failed';
 			fileSocket.emit('fileUploadError', myKey, tempId, 'image');
 		}
 	};
@@ -2666,7 +2672,7 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
 	}else{
 		insertNewMessage('', type, id, uId, reply, replyId, options, metadata);
 		let elem = document.getElementById(id).querySelector('.messageMain');
-		elem.querySelector('.progress').textContent = '↑ Uploading';
+		elem.querySelector('.progress').textContent = '↑ Uploading...';
 	}
 	notifyUser({data: '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uId)?.name, userInfoMap.get(uId)?.avatar);
 });
@@ -2707,6 +2713,9 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 		if (e.lengthComputable && progressContainer) {
 			let percentComplete = Math.round((e.loaded / e.total) * 100);
 			progressContainer.textContent = `↓ ${percentComplete}%`;
+			if (percentComplete === 100){
+				progressContainer.textContent = 'Decoding...';
+			}
 		}
 	};
 
