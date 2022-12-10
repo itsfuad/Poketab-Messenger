@@ -1,8 +1,10 @@
 const router = require('express').Router();
 const multer = require('multer');
+const fs = require('fs');
 const { access } = require('fs/promises');
 const uuid = require('uuid').v4;
-const { store, keys } = require('../keys/cred');
+const { store, keys, fileStore } = require('../keys/cred');
+const path = require('path');
 
 
 let storage = multer.diskStorage({
@@ -13,7 +15,7 @@ let storage = multer.diskStorage({
 		}else{
 			if (keys.has(req.body.key)){
 				const filename = `poketab-${uuid()}-${file.originalname}`;
-				store(filename, { filename: filename, key: req.body.key, uids: new Set([req.body.uid]) });
+				store(filename, { filename: filename, key: req.body.key, ext: req.body.ext, uids: new Set([req.body.uid]) });
 				cb(null, filename);
 			}else{
 				cb(new Error('Unauthorized'));
@@ -25,20 +27,26 @@ let storage = multer.diskStorage({
 let upload = multer({ 
 	storage: storage,
 	limits: { fileSize: 15 * 1024 * 1024 },
-}).single('file'); //name field name
+}); //name field name
 
-router.post('/', (req, res) => {
-	upload(req, res, (err) => {
-		if (err) {
-			console.log('File cannot be stored:', err.message);
-			//send error response
-			res.status(401).send({error: err.message});
-		} else {
-			//fileStore[req.file.filename] = {filename: req.file.filename, downloaded: 0, key: req.body.key};
-			res.status(200).send({ success: true, downlink: req.file.filename });
-			console.log('Temporary file stored.');
-		}
-	});
+router.post('/', upload.single('file'), (req, res, next) => {
+	/*
+	if (err) {
+		console.log('File cannot be stored:', err.message);
+		//send error response
+		res.status(401).send({error: err.message});
+	} else {
+		//fileStore[req.file.filename] = {filename: req.file.filename, downloaded: 0, key: req.body.key};
+		res.status(200).send({ success: true, downlink: req.file.filename });
+		console.log('Temporary file stored.');
+	}
+	*/
+	if (req.file){
+		res.status(200).send({ success: true, downlink: req.file.filename });
+		console.log('Temporary file stored.');
+	}else{
+		res.status(401).send({ error: 'Cannot upload' });
+	}
 });
 
 router.get('/:id/:key', (req, res) => {
@@ -51,7 +59,7 @@ router.get('/:id/:key', (req, res) => {
 				res.status(404).send({ error: 'File not found' });
 			});
 	}else{
-		res.status(401).send({ error: 'Unauthorized to view files' });
+		res.status(403).send({ error: 'Unauthorized to view files' });
 	}
 });
 

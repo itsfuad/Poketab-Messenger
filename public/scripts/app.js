@@ -3,12 +3,12 @@
 
 //bundles
 //!last added 1763 no line
-
+/*
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
 import { PanZoom } from './panzoom';
-
+*/
 console.log('loaded');
 
 //variables
@@ -663,6 +663,16 @@ function deleteMessage(messageId, user){
 		while (message.querySelector('.messageMain').firstChild){
 			message.querySelector('.messageMain').removeChild(message.querySelector('.messageMain').firstChild);
 		}
+
+		//if message is image or file
+		message.querySelectorAll('[data-type="image"], [data-type="file"]')
+			.forEach((elem) => {
+				//delete element and also from the source
+				URL.revokeObjectURL(elem.src);
+				console.log(elem.src, 'deleted');
+				elem.remove();
+			});
+
 		const fragment = document.createDocumentFragment();
 		const p = document.createElement('p');
 		p.textContent = 'Deleted message';
@@ -1828,7 +1838,7 @@ messages.addEventListener('click', (evt) => {
 			hideOptions();
 		}
 	}catch(e){
-		console.log('Message does not exist');
+		console.log('Message does not exist', e);
 	}
 });
 
@@ -1899,6 +1909,7 @@ function ImagePreview(fileFromClipboard = null){
 	document.getElementById('selectedImage').append(loadingElement);
 	document.getElementById('previewImage')?.classList?.add('active');
 
+	/*
 	let reader = new FileReader();
 	reader.readAsDataURL(file);
 	reader.onload = (e) => {
@@ -1920,6 +1931,30 @@ function ImagePreview(fileFromClipboard = null){
 		document.getElementById('selectedImage').append(imageElement);
 		document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
 	};
+	*/
+
+	const fileURL = URL.createObjectURL(file);
+	const imageElement = document.createElement('img');
+	imageElement.src = fileURL;
+	imageElement.alt = 'image';
+	imageElement.classList.add('image-message');
+	imageElement.onload = () => {
+		//URL.revokeObjectURL(fileURL);
+		loadingElement.remove();
+		document.getElementById('selectedImage').append(imageElement);
+		document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
+		selectedImage.data = fileURL;
+		selectedImage.name = file.name ?? 'Photo';
+		selectedImage.ext = file.type.split('/')[1];
+		selectedImage.size = file.size;
+		selectedObject = 'image';
+	};
+	imageElement.onerror = () => {
+		URL.revokeObjectURL(fileURL);
+		loadingElement.remove();
+		popupMessage('Error reading file');
+	};
+
 	//clear photoButton
 	photoButton.value = '';
 	fileButton.value = '';
@@ -1947,6 +1982,8 @@ function FilePreview(fileFromClipboard = null){
 	let filename = file.name;
 	let size = file.size;
 
+	console.log(file, filename, size);
+
 	//convert to B, KB, MB
 	if (size < 1024){
 		size = size + 'b';
@@ -1964,7 +2001,7 @@ function FilePreview(fileFromClipboard = null){
 		}
 		return;
 	}
-
+	/*
 	let reader = new FileReader();
 	reader.readAsDataURL(file);
 	reader.onload = (e) => {
@@ -1997,11 +2034,37 @@ function FilePreview(fileFromClipboard = null){
 		document.getElementById('selectedImage').appendChild(fileElement);
 		document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
 	};
+	*/
+
+	selectedFile.data = file;
+	selectedFile.name = filename;
+	selectedFile.size = size;
+	selectedObject = 'file';
+	//document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
+	while (document.getElementById('selectedImage').firstChild) {
+		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+	}
+	
+	filename = sanitize(selectedFile.name);
+	filename = filename.length >= 25 ? filename.substring(0, 10) + '...' + filename.substring(filename.length - 10, filename.length) : filename;
+	const fileElement = document.createElement('div');
+	fileElement.classList.add('file_preview');
+	const fileIcon = document.createElement('i');
+	fileIcon.classList.add('fa-regular', 'fa-file-lines');
+	const fileName = document.createElement('div');
+	fileName.textContent = `File: ${filename}`;
+	const fileSize = document.createElement('div');
+	fileSize.textContent = `Size: ${size}`;
+	fileElement.append(fileIcon, fileName, fileSize);
+	document.getElementById('selectedImage').appendChild(fileElement);
+	document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
+
 	//clear photoButton 
 	photoButton.value = '';
 	fileButton.value = '';
 }
 
+/*
 const extMapFromBase64 = {
 	'data:image/jpeg;base64': 'jpg',
 	'data:image/png;base64': 'png',
@@ -2115,6 +2178,7 @@ const extMapFromBase64 = {
 function getExt() {
 	return extMapFromBase64[selectedFile.data.substring(0, selectedFile.data.indexOf(','))] || 'file';
 }
+*/
 
 
 let timeoutObj;
@@ -2262,14 +2326,15 @@ async function sendImageStoreRequest(){
 	let image = new Image();
 	image.src = selectedImage.data;
 	image.mimetype = selectedImage.ext;
+	console.log(selectedImage.data);
+	console.log(image);
 	image.onload = async function() {
-		//let resized = resizeImage(image, image.mimetype);
-		let resized = {data: image.src, height: image.height, width: image.width};
+
 		let thumbnail = resizeImage(image, image.mimetype, 50);
 		let tempId = makeId();
 		scrolling = false;
 
-		insertNewMessage(resized.data, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: resized.data.length, height: resized.height, width: resized.width, name: selectedFile.name});
+		insertNewMessage(image.src, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: selectedFile.name});
 		//socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
 		//store image in 100 parts
 
@@ -2277,7 +2342,7 @@ async function sendImageStoreRequest(){
 		elem.querySelector('.image').style.filter = 'brightness(0.4)';
 
 		let progress = 0;
-		fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: resized.data.length, height: resized.height, width: resized.width, name: selectedFile.name}, myKey, (id) => {
+		fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: selectedFile.name}, myKey, (id) => {
 			outgoingmessage.play();
 			document.getElementById(tempId).classList.add('delevered');
 			document.getElementById(tempId).id = id;
@@ -2289,11 +2354,13 @@ async function sendImageStoreRequest(){
 		});
         
 		//make xhr request
-		//convert resized image to xhr file
-		//base64 to file 
-		let file = base64ToFile(resized.data, selectedImage.name);
+
+		//image to file
+		let file = await fetch(image.src).then(r => r.blob()).then(blobFile => new File([blobFile], 'image', {type: image.mimetype}));
+
 		let formData = new FormData();
 		formData.append('key', myKey);
+		formData.append('ext', image.mimetype);
 		formData.append('file', file);
 
 		clearFinalTarget();
@@ -2319,7 +2386,7 @@ async function sendImageStoreRequest(){
 			}
 			else{
 				console.log('error uploading image');
-				elem.querySelector('.sendingImage').textContent = this.responseText;
+				elem.querySelector('.sendingImage').textContent = 'Upload failed';
 				fileSocket.emit('fileUploadError', myKey, tempId, 'image');
 			}
 		};
@@ -2347,15 +2414,15 @@ async function sendFileStoreRequest(){
 	});
 	//document.getElementById(tempId).querySelector('.messageMain').style.filter = 'brightness(0.4)';
     
-	let file = base64ToFile(selectedFile.data, selectedFile.name);
+	const file = selectedFile.data;
     
-	let formData = new FormData();
+	const formData = new FormData();
 	formData.append('key', myKey);
 	formData.append('file', file);
 
 	clearFinalTarget();
 	//upload image via xhr request
-	let xhr = new XMLHttpRequest();
+	const xhr = new XMLHttpRequest();
 	//send file via xhr post request
 	xhr.open('POST', location.origin + '/api/files', true);
 	xhr.upload.onprogress = function(e) {
@@ -2375,13 +2442,13 @@ async function sendFileStoreRequest(){
 		}
 		else{
 			console.log('error uploading file');
-			elem.querySelector('.progress').textContent = 'Error';
+			elem.querySelector('.progress').textContent = 'Upload failed';
 			fileSocket.emit('fileUploadError', myKey, tempId, 'image');
 		}
 	};
 	xhr.send(formData);
 }
-
+/*
 function base64ToFile(base64, filename){
 	let arr = base64.split(',');
 	let bstr = window.atob(arr[1]);
@@ -2392,7 +2459,7 @@ function base64ToFile(base64, filename){
 	}
 	return new File([u8arr], filename+'.qml');
 }
-
+*/
 let newMsgTimeOut = undefined;
 
 function notifyUser(message, username, avatar){
@@ -2707,32 +2774,31 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 		if (e.lengthComputable && progressContainer) {
 			let percentComplete = Math.round((e.loaded / e.total) * 100);
 			progressContainer.textContent = `↓ ${percentComplete}%`;
+			if (percentComplete === 100){
+				progressContainer.textContent = 'Converting...';
+			}
 		}
 	};
 
 	xhr.onload = function() {
 		if (this.status == 200) {
+			
 			let file = this.response;
+			let url = URL.createObjectURL(file);
 
-			let reader = new FileReader();
-			reader.readAsDataURL(file);
-			reader.onloadend = function() {
-        
-				if (element){
-					let base64data = reader.result;
-                    
-					clearDownload(element, base64data, type);
-                   
-					fileSocket.emit('fileDownloaded', myId, myKey, downlink);
-					if (type === 'image'){
-						//update the reply thumbnails with the detailed image if exists
-						document.querySelectorAll(`.messageReply[data-repid="${id}"`)
-							.forEach(elem => {
-								elem.querySelector('.image').src = base64data;
-							});
-					}
+			if (element){
+				
+				clearDownload(element, url, type);
+
+				fileSocket.emit('fileDownloaded', myId, myKey, downlink);
+				if (type === 'image'){
+					//update the reply thumbnails with the detailed image if exists
+					document.querySelectorAll(`.messageReply[data-repid="${id}"`)
+						.forEach(elem => {
+							elem.querySelector('.image').src = url;
+						});
 				}
-			};
+			}
 		}else if (this.status == 404){
 			console.log('404');
 			progressContainer.textContent = 'File deleted';
@@ -2743,19 +2809,18 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 });
 
 //clear the previous thumbnail when user gets the file completely
-function clearDownload(element, base64data, type){
+function clearDownload(element, fileURL, type){
 	outgoingmessage.play();
 	if (type === 'image'){
-       
 		setTimeout(() => {
 			element.querySelector('.sendingImage').remove();
-			element.querySelector('.image').src = base64data;
+			element.querySelector('.image').src = fileURL;
 			element.querySelector('.image').alt = 'image';
 			element.querySelector('.image').style.filter = 'none';
 		}, 10);
 	}else if (type === 'file'){
 		setTimeout(() => {
-			element.querySelector('.file').dataset.data = base64data;
+			element.querySelector('.file').dataset.data = fileURL;
 			element.querySelector('.progress').style.visibility = 'hidden';
 		}, 10);
 	}
@@ -2779,7 +2844,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}, 8000);
 });
 
-
+/*
 //This code blocks the back button to go back on the login page.
 //This action is needed because if the user goes back, he/she has to login again. 
 document.addEventListener('click', ()=> {
@@ -2790,3 +2855,4 @@ document.addEventListener('click', ()=> {
 		history.forward();
 	};
 }, {once: true});
+*/
