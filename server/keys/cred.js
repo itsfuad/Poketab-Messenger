@@ -1,6 +1,6 @@
 const { Users } = require('./../utils/users');
 
-let users = new Users();
+const users = new Users();
 const keys = new Map();
 
 const uids = new Map();
@@ -13,7 +13,6 @@ function store(filename, data){
 function deleteFileStore(filename){
 	console.log('Deleting file ' + filename);
 	fileStore.delete(filename);
-	console.log(fileStore);
 }
 
 function deleteKey(key){
