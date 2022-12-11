@@ -115,13 +115,13 @@ let softKeyIsUp = false; //to check if soft keyboard of phone is up or not
 let scrolling = false; //to check if user is scrolling or not
 let lastPageLength = messages.scrollTop; // after adding a new message the page size gets updated
 let scroll = 0; //total scrolled up or down by pixel
-let selectedImage = {
+const selectedImage = {
 	data: '',
 	name: '',
 	size: '',
 	ext: ''
 };
-let selectedFile = {
+const selectedFile = {
 	data: '',
 	name: '',
 	size: '',
@@ -129,14 +129,14 @@ let selectedFile = {
 };
 let selectedObject = '';
 //the message which fires the event
-let targetMessage = {
+const targetMessage = {
 	sender: '',
 	message: '',
 	type: '',
 	id: '',
 };
 
-let targetFile = {
+const targetFile = {
 	fileName: '',
 	fileData: ''
 };
@@ -223,7 +223,7 @@ class ClickAndHold{
 //detect if user is using a mobile device, if yes then use the click and hold class
 if (isMobile){
 	ClickAndHold.applyTo(messages, 300, (evt)=>{
-		let isDeleted = evt.target.closest('.message').dataset.deleted == 'true' ? true : false;
+		const isDeleted = evt.target.closest('.message').dataset.deleted == 'true' ? true : false;
 		if (!isDeleted){
 			OptionEventHandler(evt);
 		}
@@ -236,8 +236,8 @@ if(!isMobile){
 		evt.preventDefault();
 		evt.stopPropagation();
 		if (evt.which == 3){
-			let isMessage = evt.target.closest('.message') ?? false;
-			let isDeleted = evt.target.closest('.message')?.dataset.deleted == 'true' ? true : false;
+			const isMessage = evt.target.closest('.message') ?? false;
+			const isDeleted = evt.target.closest('.message')?.dataset.deleted == 'true' ? true : false;
 			if (isMessage && !isDeleted){
 				OptionEventHandler(evt);
 			}
@@ -250,7 +250,7 @@ if(!isMobile){
 
 function loadReacts(){
 	//load all the reacts from the react object
-	let reacts = document.getElementById('reactOptions');
+	const reacts = document.getElementById('reactOptions');
 
 	for (let i = 0; i < reactArray.primary.length - 1; i++){
 		const react = document.createElement('div');
@@ -279,7 +279,7 @@ function loadReacts(){
 
 	reacts.insertBefore(last, reacts.lastElementChild);
 
-	let moreReacts = document.querySelector('.moreReacts');
+	const moreReacts = document.querySelector('.moreReacts');
 
 	for (let i = 0; i < reactArray.expanded.length; i++){
        
@@ -319,8 +319,8 @@ function appHeight () {
 //this function generates a random id
 function makeId(length = 10){
 	let result = '';
-	let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-	let charactersLength = characters.length;
+	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+	const charactersLength = characters.length;
 	for (let i = 0; i < length; i++){
 		result += characters.charAt(Math.floor(Math.random() * charactersLength));
 	}
@@ -339,9 +339,9 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		}
 	
 		let classList = ''; //the class list for the message. Initially empty. 
-		let lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
+		const lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
 		let popupmsg = ''; //the message to be displayed in the popup if user scrolled up 
-		let messageIsEmoji = isEmoji(message); //detect if the message is an emoji or not
+		const messageIsEmoji = isEmoji(message); //detect if the message is an emoji or not
 		if (type === 'text'){ //if the message is a text message
 			popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
 			message = messageFilter(message); //filter the message
@@ -392,7 +392,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 			classList += ' notitle';
 		}
 		let username = userInfoMap.get(uid)?.name;
-		let avatar = userInfoMap.get(uid)?.avatar;
+		const avatar = userInfoMap.get(uid)?.avatar;
 		if (username == myName){username = 'You';}
 	
 		let html;
@@ -545,11 +545,11 @@ function emojiParser(text){
 	emojiMap.set(':sweat:', '😅');
 
 	//find if the message contains the emoji
-	for (let [key, value] of emojiMap){
+	for (const [key, value] of emojiMap){
 		if (text.indexOf(key) != -1){
-			let position = text.indexOf(key);
+			const position = text.indexOf(key);
 			//all charecter regex
-			let regex = /[a-zA-Z0-9_!@#$%^&*()+\-=[\]{};':"\\|,.<>/?]/;
+			const regex = /[a-zA-Z0-9_!@#$%^&*()+\-=[\]{};':"\\|,.<>/?]/;
 			//if there is any kind of charecters before or after the match then don't replace it. 
 			if (text.charAt(position - 1).match(regex) || text.charAt(position + key.length).match(regex)){
 				continue;
@@ -597,12 +597,12 @@ function showOptions(type, sender, target){
 		deleteOption.style.display = 'none';
 	}
 	//get if the message has my reaction or not
-	let clicked = Array.from(target?.closest('.message')?.querySelectorAll('.reactedUsers .list')).reduce((acc, curr) => {
+	const clicked = Array.from(target?.closest('.message')?.querySelectorAll('.reactedUsers .list')).reduce((acc, curr) => {
 		return acc || curr.dataset.uid == myId;
 	}, false);
 	if (clicked){ //if the message has my reaction
 		//get how many reactions the message has
-		let clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
+		const clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
 		//console.log(clickedElement);
 		if (reactArray.primary.includes(clickedElement)){ //if the message has my primary reaction
 			//selected react color
@@ -622,7 +622,7 @@ function showOptions(type, sender, target){
 		}
 	}
 	//show the options
-	let options = document.getElementById('optionsContainerWrapper');
+	const options = document.getElementById('optionsContainerWrapper');
 	options.style.display = 'grid';
 	setTimeout(() => {
 		options.classList.add('active');
@@ -648,7 +648,7 @@ function removeFocusGlass(){
 }
 
 function optionsMainEvent(e){
-	let target = e.target;
+	const target = e.target;
 	//console.log(target);
 	if (target.classList.contains('close_area') || target.id == 'optionsContainer'){
 		hideOptions();
@@ -657,12 +657,33 @@ function optionsMainEvent(e){
 }
 
 function deleteMessage(messageId, user){
-	let message = document.getElementById(messageId);
+	const message = document.getElementById(messageId);
 	if (message){ //if the message exists
+
+		if (message.dataset.type == 'image'){
+			//delete the image from the source
+			URL.revokeObjectURL(message.querySelector('.image').src);
+			console.log(message.querySelector('.image').src, 'deleted');
+		}else if (message.dataset.type == 'file'){
+			//delete the file from the source
+			URL.revokeObjectURL(message.querySelector('a').href);
+			console.log(message.querySelector('a').href, 'deleted');
+		}
+
 		//delete all content inside message .messageMain
 		while (message.querySelector('.messageMain').firstChild){
 			message.querySelector('.messageMain').removeChild(message.querySelector('.messageMain').firstChild);
 		}
+
+		//if message is image or file
+		message.querySelectorAll('[data-type="image"], [data-type="file"]')
+			.forEach((elem) => {
+				//delete element and also from the source
+				URL.revokeObjectURL(elem.src);
+				console.log(elem.src, 'deleted');
+				elem.remove();
+			});
+
 		const fragment = document.createDocumentFragment();
 		const p = document.createElement('p');
 		p.textContent = 'Deleted message';
@@ -685,7 +706,7 @@ function deleteMessage(messageId, user){
 			message.querySelector('.seenBy').style.marginTop = '0px';
 			checkgaps(messageId);
 		}
-		let replyMsg = document.querySelectorAll(`[data-repid='${messageId}']`);
+		const replyMsg = document.querySelectorAll(`[data-repid='${messageId}']`);
 		if (replyMsg != null) {
 			replyMsg.forEach(element => {
 				element.classList.remove('imageReply');
@@ -719,7 +740,7 @@ function downloadHandler(){
 function saveImage(){
 	try{
 		console.log('Saving image');
-		let a = document.createElement('a');
+		const a = document.createElement('a');
 		a.href = document.querySelector('#lightbox__image img').src;
 		a.download = `poketab-${Date.now()}`;
 		document.body.appendChild(a);
@@ -731,10 +752,10 @@ function saveImage(){
 }
 
 function downloadFile(){
-	let data = targetFile.fileData;
-	let fileName = targetFile.fileName;
+	const data = targetFile.fileData;
+	const fileName = targetFile.fileName;
 	//let filetype = filename.split('.').pop();
-	let a = document.createElement('a');
+	const a = document.createElement('a');
 	a.href = data;
 	a.download = fileName;
 	document.body.appendChild(a);
@@ -743,7 +764,7 @@ function downloadFile(){
 }
 
 function optionsReactEvent(e){
-	let target = e.target?.classList[0];
+	const target = e.target?.classList[0];
 	if (target){
 		sendReact(target);
 	}
@@ -751,7 +772,7 @@ function optionsReactEvent(e){
 
 function sendReact(react){
 	if (reactArray.primary.includes(react) || reactArray.expanded.includes(react)){
-		let messageId = targetMessage.id;
+		const messageId = targetMessage.id;
 		localStorage.setItem('lastReact', react);
 		socket.emit('react', react, messageId, myId);
 		hideOptions();
@@ -759,8 +780,8 @@ function sendReact(react){
 }
 
 function hideOptions(){
-	let options = document.getElementById('optionsContainerWrapper');
-	let container = document.querySelector('.reactOptionsWrapper');
+	const options = document.getElementById('optionsContainerWrapper');
+	const container = document.querySelector('.reactOptionsWrapper');
 	container.dataset.closed = 'false';
 	updateReactsChooser();
 	options.classList.remove('active');
@@ -911,7 +932,7 @@ function hideReplyToast(){
 }
 
 function arrayToMap(array) {
-	let map = new Map();
+	const map = new Map();
 	array.forEach(element => {
 		map.set(element.textContent, map.get(element.textContent) + 1 || 1);
 	});
@@ -920,10 +941,10 @@ function arrayToMap(array) {
 
 function getReact(type, messageId, uid){
 	try{
-		let target = document.getElementById(messageId).querySelector('.reactedUsers');
-		let exists = target?.querySelector('.list') ?? false;
+		const target = document.getElementById(messageId).querySelector('.reactedUsers');
+		const exists = target?.querySelector('.list') ?? false;
 		if (exists){
-			let list = target.querySelector('.list[data-uid="'+uid+'"]');
+			const list = target.querySelector('.list[data-uid="'+uid+'"]');
 			if (list){
 				if (list.textContent == type){
 					list.remove();
@@ -956,10 +977,10 @@ function getReact(type, messageId, uid){
 		}
     
 		let map = new Map();
-		let list = Array.from(target.querySelectorAll('.list'));
+		const list = Array.from(target.querySelectorAll('.list'));
 		map = arrayToMap(list);
     
-		let reactsOfMessage = document.getElementById(messageId).querySelector('.reactsOfMessage');
+		const reactsOfMessage = document.getElementById(messageId).querySelector('.reactsOfMessage');
 		if (reactsOfMessage && map.size > 0){
 			//reactsOfMessage.innerHTML = '';
 			//delete reactsOfMessage all child nodes
@@ -996,8 +1017,8 @@ function getReact(type, messageId, uid){
 function checkgaps(targetId){
 	try{
 		if (targetId){
-			let target = document.getElementById(targetId);
-			let after = target?.nextElementSibling;
+			const target = document.getElementById(targetId);
+			const after = target?.nextElementSibling;
     
 			if (target.classList.contains('react')){
 				if (target.querySelector('.seenBy').hasChildNodes()){
@@ -1057,7 +1078,7 @@ function clearFinalTarget(){
 
 function OptionEventHandler(evt, popup = true){
 	let type;
-	let sender = evt.target.closest('.message').classList.contains('self')? true : false;
+	const sender = evt.target.closest('.message').classList.contains('self')? true : false;
 	if (evt.target.closest('.messageMain')?.querySelector('.text') ?? null){
 		type = 'text';
 		//targetMessage.sender = userList.find(user => user.uid == evt.target.closest('.message')?.dataset?.uid).name;
@@ -1088,7 +1109,7 @@ function OptionEventHandler(evt, popup = true){
 			targetMessage.sender = 'You';
 		}
         
-		let targetNode = evt.target.closest('.messageMain').querySelector('.image').cloneNode(true);
+		const targetNode = evt.target.closest('.messageMain').querySelector('.image').cloneNode(true);
 		targetMessage.message = targetNode;
 		targetMessage.type = type;
 		targetMessage.id = evt.target?.closest('.message')?.id;
@@ -1110,7 +1131,7 @@ function OptionEventHandler(evt, popup = true){
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
 		}
-		let targetNode = evt.target.closest('.messageMain').querySelector('.sticker').cloneNode(true);
+		const targetNode = evt.target.closest('.messageMain').querySelector('.sticker').cloneNode(true);
 		targetMessage.message = targetNode;
 		targetMessage.type = type;
 		targetMessage.id = evt.target?.closest('.message')?.id;
@@ -1135,7 +1156,7 @@ function updateScroll(avatar = null, text = ''){
 		return;
 	}
 	setTimeout(() => {
-		let messages = document.getElementById('messages');
+		const messages = document.getElementById('messages');
 		messages.scrollTo(0, messages.scrollHeight);
 		lastPageLength = messages.scrollTop;
 	}, 20);
@@ -1222,11 +1243,11 @@ function resizeTextbox(){
 
 
 function resizeImage(img, mimetype, q = 1080) {
-	let canvas = document.createElement('canvas');
+	const canvas = document.createElement('canvas');
 	let width = img.width;
 	let height = img.height;
-	let max_height = q;
-	let max_width = q;
+	const max_height = q;
+	const max_width = q;
 	// calculate the width and height, constraining the proportions
 	if (width > height) {
 		if (width > max_width) {
@@ -1243,7 +1264,7 @@ function resizeImage(img, mimetype, q = 1080) {
 	}
 	canvas.width = width;
 	canvas.height = height;
-	let ctx = canvas.getContext('2d');
+	const ctx = canvas.getContext('2d');
 	ctx.drawImage(img, 0, 0, width, height);
 	return {data: canvas.toDataURL(mimetype, 1), height: height, width: width}; 
 }
@@ -1255,7 +1276,7 @@ function linkify(inputText) {
 	if (inputText.includes('http://') || inputText.includes('https://') || inputText.includes('www.')){
 		//wrap the link in an anchor tag and return the text
 		//find for https:// or http:// or www.
-		let regex = /(https?:\/\/|www\.)[^\s]+/g;
+		const regex = /(https?:\/\/|www\.)[^\s]+/g;
 		return inputText.replace(regex, function(url) {
 			url = sanitize(url);
 			//if the url does not contain http:// or https://, then add http://
@@ -1359,14 +1380,14 @@ selectedStickerGroup = localStorage.getItem('selectedStickerGroup') || Stickers[
 
 const stickersGrp = document.getElementById('selectStickerGroup');
 
-let loadedStickerHeader = false;
+const loadedStickerHeader = false;
 
 function loadStickerHeader(){
 	if (loadedStickerHeader){
 		return;
 	}
 	stickersGrp.innerHTML = '';
-	for (let sticker of Stickers){
+	for (const sticker of Stickers){
 		const img = document.createElement('img');
 		img.src = `/stickers/${sticker.name}/animated/${sticker.icon}.webp`;
 		img.alt = sticker.name;
@@ -1473,7 +1494,7 @@ document.getElementById('stickers').addEventListener('click', e => {
         });
         */
 		//e.target.style.background = themeAccent[THEME].msg_send;
-		let tempId = makeId();
+		const tempId = makeId();
 		//insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, finalTarget.message, finalTarget.id, {});
 		stickerSound.play();
 		scrolling = false;
@@ -1504,7 +1525,7 @@ document.getElementById('more').addEventListener('click', ()=>{
 let timeoutClone;
 document.querySelectorAll('.keyCopy').forEach(elem => {
 	elem.addEventListener('click', (evt)=>{
-		let target = evt.target.closest('.keyCopy').querySelector('.fa-clone');
+		const target = evt.target.closest('.keyCopy').querySelector('.fa-clone');
 		target.classList.replace('fa-clone', 'fa-check');
 		target.classList.replace('fa-regular', 'fa-solid');
 		target.style.color = 'var(--secondary-dark)';
@@ -1582,8 +1603,8 @@ showMoreReactBtn.addEventListener('click', ()=>{
 });
 
 function updateReactsChooser(){
-	let container = document.querySelector('.reactOptionsWrapper');
-	let closed = container.dataset.closed == 'true';
+	const container = document.querySelector('.reactOptionsWrapper');
+	const closed = container.dataset.closed == 'true';
 	if (closed){
 		//container.style.maxHeight = '200px';
 		container.dataset.closed = 'false';
@@ -1598,10 +1619,10 @@ function updateReactsChooser(){
 }
 
 document.querySelector('.moreReacts').addEventListener('click', (evt)=>{
-	let target = evt.target;
+	const target = evt.target;
 	//if target is not self
 	if (target.classList.contains('react-emoji')){
-		let react = target.textContent;
+		const react = target.textContent;
 		sendReact(react);
 		hideOptions();
 	}
@@ -1609,7 +1630,7 @@ document.querySelector('.moreReacts').addEventListener('click', (evt)=>{
 
 messages.addEventListener('scroll', () => {
 	scroll = messages.scrollTop;
-	let scrolled = lastPageLength-scroll;
+	const scrolled = lastPageLength-scroll;
 	if (scroll <= lastPageLength) {
 		if (scrolled >= 50){   
 			scrolling = true;
@@ -1754,8 +1775,8 @@ messages.addEventListener('click', (evt) => {
 			document.getElementById('lightbox').classList.add('active');
 		}
 		else if (evt.target?.classList?.contains('reactsOfMessage') || evt.target?.parentNode?.classList?.contains('reactsOfMessage')){
-			let target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
-			let container = document.querySelector('.reactorContainer ul');
+			const target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
+			const container = document.querySelector('.reactorContainer ul');
 			//container.innerHTML = '';
 			while (container.firstChild) {
 				container.removeChild(container.firstChild);
@@ -1763,7 +1784,7 @@ messages.addEventListener('click', (evt) => {
 			if (target.length > 0){
 				target.forEach(element => {
 					//let avatar = userList.find(user => user.uid == element.dataset.uid).avatar;
-					let avatar = userInfoMap.get(element.dataset.uid).avatar;
+					const avatar = userInfoMap.get(element.dataset.uid).avatar;
 					//let name = userList.find(user => user.uid == element.dataset.uid).name;
 					let name = userInfoMap.get(element.dataset.uid).name;
 					if (name == myName){name = 'You';}
@@ -1795,7 +1816,7 @@ messages.addEventListener('click', (evt) => {
 		else if (evt.target?.closest('.messageReply') || evt.target?.closest('.imageReply')){
 			if (document.getElementById(evt.target.closest('.messageReply').dataset.repid).dataset.deleted != 'true'){
 				try{
-					let target = evt.target.closest('.messageReply')?.dataset.repid;
+					const target = evt.target.closest('.messageReply')?.dataset.repid;
 					document.querySelectorAll('.message').forEach(element => {
 						if (element.id != target){
 							element.style.filter = 'brightness(0.7)';
@@ -1828,7 +1849,7 @@ messages.addEventListener('click', (evt) => {
 			hideOptions();
 		}
 	}catch(e){
-		console.log('Message does not exist');
+		console.log('Message does not exist', e);
 	}
 });
 
@@ -1841,7 +1862,7 @@ document.querySelector('.reactorContainerWrapper').addEventListener('click', (ev
 
 window.addEventListener('resize',()=>{
 	appHeight();
-	let temp = scrolling;
+	const temp = scrolling;
 	//last added
 	lastPageLength = messages.scrollTop;
 	setTimeout(()=>{
@@ -1859,7 +1880,7 @@ copyOption.addEventListener('click', () => {
 });
 downloadOption.addEventListener('click', downloadHandler);
 deleteOption.addEventListener('click', ()=>{
-	let uid = document.getElementById(targetMessage.id)?.dataset?.uid;
+	const uid = document.getElementById(targetMessage.id)?.dataset?.uid;
 	if (uid){
 		hideOptions();
 		socket.emit('deletemessage', targetMessage.id, uid, myName, myId);
@@ -1875,7 +1896,7 @@ fileButton.addEventListener('change', ()=>{
 });
 
 function ImagePreview(fileFromClipboard = null){
-	let file = fileFromClipboard || photoButton.files[0];
+	const file = fileFromClipboard || photoButton.files[0];
 
 	if (file.size > 15 * 1024 * 1024){
 		popupMessage('File size too large');
@@ -1899,6 +1920,7 @@ function ImagePreview(fileFromClipboard = null){
 	document.getElementById('selectedImage').append(loadingElement);
 	document.getElementById('previewImage')?.classList?.add('active');
 
+	/*
 	let reader = new FileReader();
 	reader.readAsDataURL(file);
 	reader.onload = (e) => {
@@ -1906,7 +1928,7 @@ function ImagePreview(fileFromClipboard = null){
 		//localStorage.setItem('selectedImage', data);
 		selectedImage.data = data;
 		selectedImage.name = file.name;
-		selectedImage.ext = file.type.split('/')[1];
+		selectedImage.ext = file.type;
 		selectedImage.size = file.size;
 		selectedObject = 'image';
 		//document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
@@ -1920,6 +1942,30 @@ function ImagePreview(fileFromClipboard = null){
 		document.getElementById('selectedImage').append(imageElement);
 		document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
 	};
+	*/
+
+	const fileURL = URL.createObjectURL(file);
+	const imageElement = document.createElement('img');
+	imageElement.src = fileURL;
+	imageElement.alt = 'image';
+	imageElement.classList.add('image-message');
+	imageElement.onload = () => {
+		loadingElement.remove();
+		document.getElementById('selectedImage').append(imageElement);
+		document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
+		selectedImage.data = fileURL;
+		selectedImage.name = file.name ?? 'Photo';
+		selectedImage.ext = file.type.split('/')[1];
+
+		selectedImage.size = file.size;
+		selectedObject = 'image';
+	};
+	imageElement.onerror = () => {
+		URL.revokeObjectURL(fileURL);
+		loadingElement.remove();
+		popupMessage('Error reading file');
+	};
+	
 	//clear photoButton
 	photoButton.value = '';
 	fileButton.value = '';
@@ -1943,9 +1989,10 @@ function FilePreview(fileFromClipboard = null){
 	document.getElementById('selectedImage').append(loadingElement);
 
 	document.getElementById('previewImage')?.classList?.add('active');
-	let file = fileFromClipboard || fileButton.files[0];
+	const file = fileFromClipboard || fileButton.files[0];
 	let filename = file.name;
 	let size = file.size;
+	const ext = file.type.split('/')[1];
 
 	//convert to B, KB, MB
 	if (size < 1024){
@@ -1965,43 +2012,36 @@ function FilePreview(fileFromClipboard = null){
 		return;
 	}
 
-	let reader = new FileReader();
-	reader.readAsDataURL(file);
-	reader.onload = (e) => {
-		let data = e.target.result;
-		//localStorage.setItem('selectedImage', data);
-		selectedFile.data = data;
-		selectedFile.name = filename;
-		selectedFile.size = size;
-		let ext = getExt();
-		selectedFile.ext = ext;
-		selectedObject = 'file';
-		//document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
-		while (document.getElementById('selectedImage').firstChild) {
-			document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
-		}
-        
-		selectedFile.name = selectedFile.name.split('.')[0] + '.' + ext;
-		filename = sanitize(selectedFile.name);
-		size = sanitize(selectedFile.size);
-		filename = filename.length >= 25 ? filename.substring(0, 10) + '...' + filename.substring(filename.length - 10, filename.length) : filename;
-		const fileElement = document.createElement('div');
-		fileElement.classList.add('file_preview');
-		const fileIcon = document.createElement('i');
-		fileIcon.classList.add('fa-regular', 'fa-file-lines');
-		const fileName = document.createElement('div');
-		fileName.textContent = `File: ${filename}`;
-		const fileSize = document.createElement('div');
-		fileSize.textContent = `Size: ${size}`;
-		fileElement.append(fileIcon, fileName, fileSize);
-		document.getElementById('selectedImage').appendChild(fileElement);
-		document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
-	};
+	selectedFile.data = file;
+	selectedFile.name = sanitize(shortFileName(filename));
+	selectedFile.size = size;
+	selectedFile.ext = ext;
+	selectedObject = 'file';
+	//document.getElementById('selectedImage').innerHTML = `<img src="${data}" alt="image" class="image-message" />`;
+	while (document.getElementById('selectedImage').firstChild) {
+		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+	}
+	
+	filename = selectedFile.name;
+	filename = filename.length >= 25 ? filename.substring(0, 10) + '...' + filename.substring(filename.length - 10, filename.length) : filename;
+	const fileElement = document.createElement('div');
+	fileElement.classList.add('file_preview');
+	const fileIcon = document.createElement('i');
+	fileIcon.classList.add('fa-regular', 'fa-file-lines');
+	const fileName = document.createElement('div');
+	fileName.textContent = `File: ${filename}`;
+	const fileSize = document.createElement('div');
+	fileSize.textContent = `Size: ${size}`;
+	fileElement.append(fileIcon, fileName, fileSize);
+	document.getElementById('selectedImage').appendChild(fileElement);
+	document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
+
 	//clear photoButton 
 	photoButton.value = '';
 	fileButton.value = '';
 }
 
+/*
 const extMapFromBase64 = {
 	'data:image/jpeg;base64': 'jpg',
 	'data:image/png;base64': 'png',
@@ -2115,6 +2155,7 @@ const extMapFromBase64 = {
 function getExt() {
 	return extMapFromBase64[selectedFile.data.substring(0, selectedFile.data.indexOf(','))] || 'file';
 }
+*/
 
 
 let timeoutObj;
@@ -2181,7 +2222,7 @@ sendButton.addEventListener('click', () => {
     
 	resizeTextbox();
 	if (message.length) {
-		let tempId = makeId();
+		const tempId = makeId();
 		scrolling = false;
 		if (message.length > 10000) {
 			message = message.substring(0, 10000);
@@ -2200,7 +2241,7 @@ sendButton.addEventListener('click', () => {
 			message = message.replace(/\s/g, '');
 		}
 
-		let replyData = finalTarget?.type === 'text' ? finalTarget?.message.substring(0, 100) : finalTarget?.message;
+		const replyData = finalTarget?.type === 'text' ? finalTarget?.message.substring(0, 100) : finalTarget?.message;
 
 		insertNewMessage(message, 'text', tempId, myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
 		socket.emit('message', message, 'text', myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function (id) {
@@ -2259,25 +2300,26 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
 });
 
 async function sendImageStoreRequest(){
-	let image = new Image();
+	const image = new Image();
 	image.src = selectedImage.data;
 	image.mimetype = selectedImage.ext;
+	console.log(selectedImage.data);
+	console.log(image);
 	image.onload = async function() {
-		//let resized = resizeImage(image, image.mimetype);
-		let resized = {data: image.src, height: image.height, width: image.width};
-		let thumbnail = resizeImage(image, image.mimetype, 50);
+
+		const thumbnail = resizeImage(image, image.mimetype, 50);
 		let tempId = makeId();
 		scrolling = false;
 
-		insertNewMessage(resized.data, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: resized.data.length, height: resized.height, width: resized.width, name: selectedFile.name});
+		insertNewMessage(image.src, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: '', height: image.height, width: image.width, name: selectedFile.name});
 		//socket.emit('Image', resized, 'image', tempId, myId, finalTarget?.message, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)});
 		//store image in 100 parts
 
-		let elem = document.getElementById(tempId)?.querySelector('.messageMain');
+		const elem = document.getElementById(tempId)?.querySelector('.messageMain');
 		elem.querySelector('.image').style.filter = 'brightness(0.4)';
 
 		let progress = 0;
-		fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: resized.data.length, height: resized.height, width: resized.width, name: selectedFile.name}, myKey, (id) => {
+		fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: selectedFile.name}, myKey, (id) => {
 			outgoingmessage.play();
 			document.getElementById(tempId).classList.add('delevered');
 			document.getElementById(tempId).id = id;
@@ -2289,16 +2331,19 @@ async function sendImageStoreRequest(){
 		});
         
 		//make xhr request
-		//convert resized image to xhr file
-		//base64 to file 
-		let file = base64ToFile(resized.data, selectedImage.name);
-		let formData = new FormData();
+
+		//image to file
+		const file = await fetch(image.src).then(r => r.blob()).then(blobFile => new File([blobFile], 'image', {type: image.mimetype}));
+
+		const formData = new FormData();
 		formData.append('key', myKey);
+		formData.append('ext', image.mimetype);
 		formData.append('file', file);
 
 		clearFinalTarget();
 		//upload image via xhr request
-		let xhr = new XMLHttpRequest();
+		const xhr = new XMLHttpRequest();
+
 		//send file via xhr post request
 		xhr.open('POST', `${location.origin}/api/files`, true);
 		xhr.upload.onprogress = function(e) {
@@ -2333,10 +2378,14 @@ async function sendImageStoreRequest(){
 async function sendFileStoreRequest(){
 	let tempId = makeId();
 	scrolling = false;
-	insertNewMessage(selectedFile.data, 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name});
+
+	const fileObject = new File([selectedFile.data], selectedFile.name, {type: selectedFile.ext});
+	const fileUrl = URL.createObjectURL(fileObject);
+
+	insertNewMessage(fileUrl, 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name});
 
 	let progress = 0;
-	let elem = document.getElementById(tempId)?.querySelector('.messageMain');
+	const elem = document.getElementById(tempId)?.querySelector('.messageMain');
 
 	fileSocket.emit('fileUploadStart', 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey, (id) => {
 		outgoingmessage.play();
@@ -2350,15 +2399,13 @@ async function sendFileStoreRequest(){
 	});
 	//document.getElementById(tempId).querySelector('.messageMain').style.filter = 'brightness(0.4)';
     
-	let file = base64ToFile(selectedFile.data, selectedFile.name);
-    
-	let formData = new FormData();
+	const formData = new FormData();
 	formData.append('key', myKey);
-	formData.append('file', file);
+	formData.append('file', fileObject);
 
 	clearFinalTarget();
 	//upload image via xhr request
-	let xhr = new XMLHttpRequest();
+	const xhr = new XMLHttpRequest();
 	//send file via xhr post request
 	xhr.open('POST', location.origin + '/api/files', true);
 	xhr.upload.onprogress = function(e) {
@@ -2386,17 +2433,6 @@ async function sendFileStoreRequest(){
 		}
 	};
 	xhr.send(formData);
-}
-
-function base64ToFile(base64, filename){
-	let arr = base64.split(',');
-	let bstr = window.atob(arr[1]);
-	let n = bstr.length;
-	let u8arr = new Uint8Array(n);
-	while(n--){
-		u8arr[n] = bstr.charCodeAt(n);
-	}
-	return new File([u8arr], filename+'.qml');
 }
 
 let newMsgTimeOut = undefined;
@@ -2492,16 +2528,16 @@ document.querySelectorAll('.clickable').forEach(elem => {
 //listen for file paste
 window.addEventListener('paste', (e) => {
 	if (e.clipboardData) {
-		let items = e.clipboardData.items;
+		const items = e.clipboardData.items;
 		if (items) {
 			for (let i = 0; i < items.length; i++) {
 				if (items[i].kind === 'file') {
-					let file = items[i].getAsFile();
+					const file = items[i].getAsFile();
 					if (file.type.match('image.*')) {
 						//localStorage.setItem('selectedImage', file);
 						selectedImage.data = file;
 						selectedImage.ext = file.type.split('/')[1];
-						selectedFile.name = file.name;
+						selectedFile.name = shortFileName(file.name);
 						selectedFile.size = file.size;
 						selectedObject = 'image';
 						ImagePreview(file);
@@ -2512,6 +2548,14 @@ window.addEventListener('paste', (e) => {
 	}
 }
 );
+
+function shortFileName(filename){
+	if (filename.length > 30){
+		//then shorten the filename as abc...[last10chars]
+		filename = filename.substring(0, 10) + '...' + filename.substring(filename.length - 10, filename.length);
+	}
+	return filename;
+}
 
 
 //sockets
@@ -2607,7 +2651,7 @@ socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
 });
 
 socket.on('seen', meta => {
-	let message = document.getElementById(meta.messageId);
+	const message = document.getElementById(meta.messageId);
 	if (message && !message.dataset.seen?.includes(meta.userId)){
 		document.querySelectorAll(`.msg-item[data-seen*="${meta.userId}"]`)
 			.forEach(elem => {
@@ -2665,21 +2709,21 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
 	fileBuffer.set(id, {type: type, data: '', uId: uId, reply: reply, replyId: replyId, options: options, metadata: metadata});
 	if (type === 'image'){
 		insertNewMessage(thumbnail, type, id, uId, reply, replyId, options, metadata);
-		let elem = document.getElementById(id).querySelector('.messageMain');
+		const elem = document.getElementById(id).querySelector('.messageMain');
 		setTimeout(() => {
 			elem.querySelector('.image').style.filter = 'brightness(0.4) url(#sharpBlur)';
 		}, 10);
 	}else{
 		insertNewMessage('', type, id, uId, reply, replyId, options, metadata);
-		let elem = document.getElementById(id).querySelector('.messageMain');
-		elem.querySelector('.progress').textContent = '↑ Uploading...';
+		const elem = document.getElementById(id).querySelector('.messageMain');
+		elem.querySelector('.progress').textContent = '↑ Uploading';
 	}
 	notifyUser({data: '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uId)?.name, userInfoMap.get(uId)?.avatar);
 });
 
 //if any error occurrs, the show the error
 fileSocket.on('fileUploadError', (id, type) => {
-	let element = document.getElementById(id).querySelector('.messageMain');
+	const element = document.getElementById(id).querySelector('.messageMain');
 	let progressContainer;
 	if (type === 'image'){
 		progressContainer = element.querySelector('.sendingImage');
@@ -2694,9 +2738,9 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 	if (!fileBuffer.has(id)){
 		return;
 	}
-	let data = fileBuffer.get(id);
-	let type = data.type;
-	let element = document.getElementById(id).querySelector('.messageMain');
+	const data = fileBuffer.get(id);
+	const type = data.type;
+	const element = document.getElementById(id).querySelector('.messageMain');
 	let progressContainer;
 	if (type === 'image'){
 		progressContainer = element.querySelector('.sendingImage');
@@ -2706,42 +2750,38 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 
 	fileBuffer.delete(id);
 
-	let xhr = new XMLHttpRequest();
+	const xhr = new XMLHttpRequest();
 	xhr.open('GET', `${location.origin}/api/download/${downlink}/${myKey}`, true);
 	xhr.responseType = 'blob';
 	xhr.onprogress = async function(e) {
 		if (e.lengthComputable && progressContainer) {
-			let percentComplete = Math.round((e.loaded / e.total) * 100);
+			const percentComplete = Math.round((e.loaded / e.total) * 100);
 			progressContainer.textContent = `↓ ${percentComplete}%`;
 			if (percentComplete === 100){
-				progressContainer.textContent = 'Decoding...';
+				progressContainer.textContent = 'Converting...';
 			}
 		}
 	};
 
 	xhr.onload = function() {
 		if (this.status == 200) {
-			let file = this.response;
+			
+			const file = this.response;
+			const url = URL.createObjectURL(file);
 
-			let reader = new FileReader();
-			reader.readAsDataURL(file);
-			reader.onloadend = function() {
-        
-				if (element){
-					let base64data = reader.result;
-                    
-					clearDownload(element, base64data, type);
-                   
-					fileSocket.emit('fileDownloaded', myId, myKey, downlink);
-					if (type === 'image'){
-						//update the reply thumbnails with the detailed image if exists
-						document.querySelectorAll(`.messageReply[data-repid="${id}"`)
-							.forEach(elem => {
-								elem.querySelector('.image').src = base64data;
-							});
-					}
+			if (element){
+				
+				clearDownload(element, url, type);
+
+				fileSocket.emit('fileDownloaded', myId, myKey, downlink);
+				if (type === 'image'){
+					//update the reply thumbnails with the detailed image if exists
+					document.querySelectorAll(`.messageReply[data-repid="${id}"`)
+						.forEach(elem => {
+							elem.querySelector('.image').src = url;
+						});
 				}
-			};
+			}
 		}else if (this.status == 404){
 			console.log('404');
 			progressContainer.textContent = 'File deleted';
@@ -2752,19 +2792,18 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 });
 
 //clear the previous thumbnail when user gets the file completely
-function clearDownload(element, base64data, type){
+function clearDownload(element, fileURL, type){
 	outgoingmessage.play();
 	if (type === 'image'){
-       
 		setTimeout(() => {
 			element.querySelector('.sendingImage').remove();
-			element.querySelector('.image').src = base64data;
+			element.querySelector('.image').src = fileURL;
 			element.querySelector('.image').alt = 'image';
 			element.querySelector('.image').style.filter = 'none';
 		}, 10);
 	}else if (type === 'file'){
 		setTimeout(() => {
-			element.querySelector('.file').dataset.data = base64data;
+			element.querySelector('.file').dataset.data = fileURL;
 			element.querySelector('.progress').style.visibility = 'hidden';
 		}, 10);
 	}

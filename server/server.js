@@ -4,11 +4,8 @@ const compression = require('compression');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
-const uuid = require('uuid');
-const socketIO = require('socket.io');
-
-//crypto module for generating random keys
 const crypto = require('crypto');
+const socketIO = require('socket.io');
 
 const { clean } = require('./cleaner');
 
@@ -47,7 +44,7 @@ const publicPath = path.join(__dirname, '../public');
 //create the express app
 const app = express();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 52692;
 
 clean();
 
@@ -144,10 +141,10 @@ app.get('/chat', (_, res) => {
 
 app.post('/chat', (req, res) => {
 
-	let username = req.body.username;
-	let key = req.body.key;
-	let avatar = req.body.avatar;
-	let maxuser = req.body.maxuser;
+	const username = req.body.username;
+	const key = req.body.key;
+	const avatar = req.body.avatar;
+	const maxuser = req.body.maxuser;
 
 	if (!validateUserName(username)){
 		res.setHeader('Developer', 'Fuad Hasan');
@@ -165,17 +162,17 @@ app.post('/chat', (req, res) => {
 	}
 	//get current users list on key
 	if (keys.has(key) || devMode){
-		let user = users.getUserList(key);
-		let max_users = users.getMaxUser(key) ?? maxuser;
+		const user = users.getUserList(key);
+		const max_users = users.getMaxUser(key) ?? maxuser;
 		//console.log(max_users);
-		let uid = uuid.v4();
+		const uid = crypto.randomUUID();
 		if (user.length >= max_users || max_users > 10){
 			res.setHeader('Developer', 'Fuad Hasan');
 			res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 			res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
 		}else{
 			res.setHeader('Developer', 'Fuad Hasan');
-			res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data:; style-src \'self\' \'unsafe-inline\';');
+			res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:;');
 			res.setHeader('Cluster', `ID: ${process.pid}`);
 			res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
 		}
@@ -212,8 +209,8 @@ io.on('connection', (socket) => {
 		if (params.avatar === undefined) {
 			return callback('avatar');
 		}
-		let userList = users.getUserList(params.key);
-		let user = userList.includes(params.name);
+		const userList = users.getUserList(params.key);
+		const user = userList.includes(params.name);
 		if (user) {
 			return callback('exists');
 		}
@@ -224,17 +221,17 @@ io.on('connection', (socket) => {
 		uids.set(socket.id, params.id);
 		users.addUser(params.id, params.name, params.key, params.avatar, params.maxuser || users.getMaxUser(params.key));
 		io.to(params.key).emit('updateUserList', users.getAllUsersDetails(params.key));
-		const srvID = uuid.v4();
+		const srvID = crypto.randomUUID();
 		socket.emit('server_message', {color: 'limegreen', text: 'You joined the chat.🔥', id: srvID}, 'join');
 		socket.broadcast.to(params.key).emit('server_message', {color: 'limegreen', text: `${params.name} joined the chat.🔥`, id: srvID}, 'join');
 	});
 
 
 	socket.on('message', (message, type, uId, reply, replyId, options, callback) => {
-		let user = users.getUser(uids.get(socket.id));
+		const user = users.getUser(uids.get(socket.id));
 		if (user && isRealString(message)) {
       
-			let id = uuid.v4();
+			const id = crypto.randomUUID();
       
 			message.replaceAll('<', '&#60;');
 			message.replaceAll('>', '&#62;');
@@ -267,7 +264,7 @@ io.on('connection', (socket) => {
   */
 
 	socket.on('seen', (meta) => {
-		let user = users.getUser(uids.get(socket.id));
+		const user = users.getUser(uids.get(socket.id));
 		if (user){
 			socket.broadcast.to(user.key).emit('seen', meta);
 		}
@@ -275,7 +272,7 @@ io.on('connection', (socket) => {
 
 
 	socket.on('react', (target, messageId, myId) => {
-		let user = users.getUser(uids.get(socket.id));
+		const user = users.getUser(uids.get(socket.id));
 		if (user && reactArray.primary.includes(target) || reactArray.expanded.includes(target)) {
 			io.to(user.key).emit('getReact', target, messageId, myId);
 		}
@@ -283,7 +280,7 @@ io.on('connection', (socket) => {
 
 
 	socket.on('deletemessage', (messageId, msgUid, userName, userId) => {
-		let user = users.getUser(uids.get(socket.id));
+		const user = users.getUser(uids.get(socket.id));
 		if (user) {
 			if (msgUid == userId){
 				io.to(user.key).emit('deleteMessage', messageId, userName);
@@ -292,22 +289,22 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('createLocationMessage', (coord) => {
-		let user = users.getUser(uids.get(socket.id));
+		const user = users.getUser(uids.get(socket.id));
 		if (user) {
-			const srvID = uuid.v4();
+			const srvID = crypto.randomUUID();
 			io.to(user.key).emit('server_message', {color: 'var(--secondary-dark);', coordinate: {longitude: coord.longitude, latitude: coord.latitude}, user: user.name, id: srvID}, 'location');
 		}
 	});
 
 
 	socket.on('typing', () => {
-		let user = users.getUser(uids.get(socket.id));
+		const user = users.getUser(uids.get(socket.id));
 		if (user) {
 			socket.broadcast.to(user.key).emit('typing', user.name, user.uid);
 		}
 	});
 	socket.on('stoptyping', () => {
-		let user = users.getUser(uids.get(socket.id));
+		const user = users.getUser(uids.get(socket.id));
 		if (user) {
 			socket.broadcast.to(user.key).emit('stoptyping', user.uid);
 		}
@@ -315,14 +312,14 @@ io.on('connection', (socket) => {
 
 
 	socket.on('disconnect', () => {
-		let user = users.removeUser(uids.get(socket.id));
+		const user = users.removeUser(uids.get(socket.id));
 		uids.delete(socket.id);
 		if (user) {
 			socket.broadcast.to(user.key).emit('updateUserList', users.getAllUsersDetails(user.key));
-			const srvID = uuid.v4();
+			const srvID = crypto.randomUUID();
 			socket.broadcast.to(user.key).emit('server_message', {color: 'orangered', text: `${user.name} left the chat.🐸`, who: user.uid, id: srvID}, 'leave');
 			console.log(`User ${user.name} disconnected from key ${user.key}`);
-			let usercount = users.users.filter(datauser => datauser.key === user.key);
+			const usercount = users.users.filter(datauser => datauser.key === user.key);
 			if (usercount.length === 0) {
 				users.removeMaxUser(user.key);
 				//delete key from keys
@@ -343,7 +340,7 @@ fileSocket.on('connection', (socket) => {
 	});
 
 	socket.on('fileUploadStart', ( type, thumbnail, uId, reply, replyId, options, metadata, key, callback) => {
-		let id = uuid.v4();
+		const id = crypto.randomUUID();
 		socket.broadcast.to(key).emit('fileDownloadStart', type, thumbnail, id, uId, reply, replyId, options, metadata);
 		callback(id);
 	});
@@ -371,7 +368,7 @@ auth.on('connection', (socket) => {
 			callback('Invalid key');
 			return;
 		}
-		let keyExists = users.getUserList(key).length > 0;
+		const keyExists = users.getUserList(key).length > 0;
 		if (keyExists){
 			socket.emit('createResponse', {exists: keyExists});
 		}
@@ -395,11 +392,11 @@ auth.on('connection', (socket) => {
 		if (!keyformat.test(key)){
 			return;
 		}
-		let keyExists = users.getUserList(key).length > 0;
+		const keyExists = users.getUserList(key).length > 0;
 		if (keyExists){
 			//check if max user is reached
-			let user = users.getUserList(key);
-			let max_users = users.getMaxUser(key) ?? 2;
+			const user = users.getUserList(key);
+			const max_users = users.getMaxUser(key) ?? 2;
 			if (user.length >= max_users){
 				callback('Not Authorized');
 			}else{
