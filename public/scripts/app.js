@@ -349,7 +349,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		}else if(type === 'image'){ //if the message is an image
 			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
 			message = sanitize(message); //sanitize the message
-			message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading</div>`; //insert the image
+			message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading...</div>`; //insert the image
 		}else if (type === 'sticker'){
 			popupmsg = 'Sticker';
 			message = sanitize(message);
@@ -2350,6 +2350,9 @@ async function sendImageStoreRequest(){
 			if (e.lengthComputable) {
 				progress = (e.loaded / e.total) * 100;
 				elem.querySelector('.sendingImage').textContent = '↑ ' + Math.round(progress) + '%';
+				if (progress === 100){
+					elem.querySelector('.sendingImage').textContent = 'Encoding...';
+				}
 			}
 		};
 
@@ -2409,6 +2412,9 @@ async function sendFileStoreRequest(){
 		if (e.lengthComputable) {
 			progress = (e.loaded / e.total) * 100;
 			elem.querySelector('.progress').textContent = '↑ ' + Math.round(progress) + '%';
+			if (progress === 100){
+				elem.querySelector('.progress').textContent = 'Encoding...';
+			}
 		}
 	};
 
