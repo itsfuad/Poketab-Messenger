@@ -925,6 +925,12 @@ i[class^=fa-]{
     &.toastActive{
         bottom: 135px;
     }
+    &.toastActiveImage{
+        bottom: 170px;
+    }
+    &.toastActiveFile{
+        bottom: 154px;
+    }
     filter: drop-shadow(2px 2px 2px #000);
     img{
         height: 30px;

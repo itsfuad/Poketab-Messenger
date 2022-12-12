@@ -2,7 +2,6 @@
 'use strict';
 
 //bundles
-//!last added 1763 no line
 
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
@@ -12,16 +11,17 @@ import { PanZoom } from './panzoom';
 console.log('loaded');
 
 //variables
-const socket = io();
-const fileSocket = io('/file');
+const socket = io(); //main socket to deliver messages
+const fileSocket = io('/file'); //file socket to deliver file metadata [This is not used for file transfer, only for metadata. Files will be transferred using xhr requests]
 //main message Element where all messages are inserted
 const messages = document.getElementById('messages');
-//const emoji_regex = /^(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|[\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|[\ud83c[\ude32-\ude3a]|[\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])+$/;
-const maxWindowHeight = window.innerHeight;
-const replyToast = document.getElementById('replyToast');
-const lightboxClose = document.getElementById('lightbox__close');
-const textbox = document.getElementById('textbox');
-//const options = document.querySelector('.options');
+
+const maxWindowHeight = window.innerHeight; //max height of the window
+const replyToast = document.getElementById('replyToast'); //reply toast element appears when a user clicks on a message to reply
+const lightboxClose = document.getElementById('lightbox__close'); //lightbox close button
+const textbox = document.getElementById('textbox'); //textbox element where user types messages
+
+//all options in the message options menu when a user right clicks on a message or taps and holds on mobile
 const copyOption = document.querySelector('.copyOption');
 const downloadOption = document.querySelector('.downloadOption');
 const deleteOption = document.querySelector('.deleteOption');
@@ -29,7 +29,7 @@ const replyOption = document.querySelector('.replyOption');
 const fileDropZone = document.querySelector('.fileDropZone');
 const showMoreReactBtn = document.getElementById('showMoreReactBtn');
 
-
+//all the audio files used in the app
 const incommingmessage = new Audio('/sounds/incommingmessage.mp3');
 const outgoingmessage = new Audio('/sounds/outgoingmessage.mp3');
 const joinsound = new Audio('/sounds/join.mp3');
@@ -40,6 +40,7 @@ const reactsound = new Audio('/sounds/react.mp3');
 const clickSound = new Audio('/sounds/click.mp3');
 const stickerSound = new Audio('/sounds/sticker.mp3');
 
+//three main types of messages are sent in the app by these three buttons
 const sendButton = document.getElementById('send');
 const photoButton = document.getElementById('photo');
 const fileButton = document.getElementById('file');
@@ -47,21 +48,26 @@ const fileButton = document.getElementById('file');
 
 let isTyping = false, timeout = undefined;
 
+//all the variables that are fetched from the server
 const myId = document.getElementById('myId').textContent;
 const myName = document.getElementById('myName').textContent;
 const myAvatar = document.getElementById('myAvatar').textContent;
 const myKey = document.getElementById('myKey').textContent;
 const maxUser = document.getElementById('maxUser').textContent;
 
+//template messages
 const messageTemplate = document.getElementById('messageTemplate').innerHTML;
 const fileTemplate = document.getElementById('fileTemplate').innerHTML;
 
+//remove the templates from the dom to make it invisible
 document.getElementById('userMetaTemplate').remove();
 document.getElementById('messageTemplate').remove();
 document.getElementById('fileTemplate').remove();
 
+//current theme
 let THEME = '';
 
+//theme colors and backgrounds
 const themeAccent = {
 	blue: {
 		secondary: 'hsl(213, 98%, 57%)',
@@ -97,9 +103,12 @@ const themeAccent = {
 	}
 };
 
+//this array contains all the themes, which helps to traverse through the themes easily
 const themeArray = ['blue', 'geometry', 'dark_mood', 'forest'];
 
+//this array contains all the emojis used in the app
 const reactArray = {
+	//the first 6 emojis are the default emojis
 	primary: ['💙', '😆','😠','😢','😮','🙂','🌻'],
 	last: '🌻',
 	expanded: ['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','🥰','😗','😙','😚','🙂','🤗','🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥺','🤠','🤡','🤥','🤫','🤭','🧐','🤓','😈','👿','👹','👺','💀','☠','👻','👽','👾','🤖','💩','😺','😸','😹','😻','🙈','🙉','🙊','🐵','🐶','🐺','🐱','🦁','🐯','🦒','🦊','🦝','🐮','🐷','🐗','🐭','🐹','🐰','🐻','🐨','🐼','🐸','🦓','🐴','🦄','🐔','🐲','🐽','🐧','🐥','🐤','🐣', '🌻', '🌸', '🥀', '🌼', '🌷', '🌹', '🏵️', '🌺', '🦇','🦋','🐌','🐛','🦟','🦗','🐜','🐝','🐞','🦂','🕷','🕸','🦠','🧞‍♀️','🧞‍♂️','🗣','👀','🦴','🦷','👅','👄','🧠','🦾','🦿','👩🏻','👨🏻','🧑🏻','👧🏻','👦🏻','🧒🏻','👶🏻','👵🏻','👴🏻','🧓🏻','👩🏻‍🦰','👨🏻‍🦰','👩🏻‍🦱','👨🏻‍🦱','👩🏻‍🦲','👨🏻‍🦲','👩🏻‍🦳','👨🏻‍🦳','👱🏻‍♀️','👱🏻‍♂️','👸🏻','🤴🏻','👳🏻‍♀️','👳🏻‍♂️','👲🏻','🧔🏻','👼🏻','🤶🏻','🎅🏻','👮🏻‍♀️','👮🏻‍♂️','🕵🏻‍♀️','🕵🏻‍♂️','💂🏻‍♀️','💂🏻‍♂️','👷🏻‍♀️','👷🏻‍♂️','👩🏻‍⚕️','👨🏻‍⚕️','👩🏻‍🎓','👨🏻‍🎓','👩🏻‍🏫','👨🏻‍🏫','👩🏻‍⚖️','👨🏻‍⚖️','👩🏻‍🌾','👨🏻‍🌾','👩🏻‍🍳','👨🏻‍🍳','👩🏻‍🔧','👨🏻‍🔧','👩🏻‍🏭','👨🏻‍🏭','👩🏻‍💼','👨🏻‍💼','👩🏻‍🔬','👨🏻‍🔬','👩🏻‍💻','👨🏻‍💻','👩🏻‍🎤','👨🏻‍🎤','👩🏻‍🎨','👨🏻‍🎨','👩🏻‍✈️','👨🏻‍✈️','👩🏻‍🚀','👨🏻‍🚀','👩🏻‍🚒','👨🏻‍🚒','🧕🏻','👰🏻','🤵🏻','🤱🏻','🤰🏻','🦸🏻‍♀️','🦸🏻‍♂️','🦹🏻‍♀️','🦹🏻‍♂️','🧙🏻‍♀️','🧙🏻‍♂️','🧚🏻‍♀️','🧚🏻‍♂️','🧛🏻‍♀️','🧛🏻‍♂️','🧜🏻‍♀️','🧜🏻‍♂️','🧝🏻‍♀️','🧝🏻‍♂️','🧟🏻‍♀️','🧟🏻‍♂️','🙍🏻‍♀️','🙍🏻‍♂️','🙎🏻‍♀️','🙎🏻‍♂️','🙅🏻‍♀️','🙅🏻‍♂️','🙆🏻‍♀️','🙆🏻‍♂️','🧏🏻‍♀️','🧏🏻‍♂️','💁🏻‍♀️','💁🏻‍♂️','🙋🏻‍♀️','🙋🏻‍♂️','🙇🏻‍♀️','🙇🏻‍♂️','🤦🏻‍♀️','🤦🏻‍♂️','🤷🏻‍♀️','🤷🏻‍♂️','💆🏻‍♀️','💆🏻‍♂️','💇🏻‍♀️','💇🏻‍♂️','🧖🏻‍♀️','🧖🏻‍♂️','🤹🏻‍♀️','🤹🏻‍♂️','👩🏻‍🦽','👨🏻‍🦽','👩🏻‍🦼','👨🏻‍🦼','👩🏻‍🦯','👨🏻‍🦯','🧎🏻‍♀️','🧎🏻‍♂️','🧍🏻‍♀️','🧍🏻‍♂️','🚶🏻‍♀️','🚶🏻‍♂️','🏃🏻‍♀️','🏃🏻‍♂️','💃🏻','🕺🏻','🧗🏻‍♀️','🧗🏻‍♂️','🧘🏻‍♀️','🧘🏻‍♂️','🛀🏻','🛌🏻','🕴🏻','🏇🏻','🏂🏻','💪🏻','🦵🏻','🦶🏻','👂🏻','🦻🏻','👃🏻','🤏🏻','👈🏻','👉🏻','☝🏻','👆🏻','👇🏻','✌🏻','🤞🏻','🖖🏻','🤘🏻','🤙🏻','🖐🏻','✋🏻','👌🏻','👍🏻','👎🏻','✊🏻','👊🏻','🤛🏻','🤜🏻','🤚🏻','👋🏻','🤟🏻','✍🏻','👏🏻','👐🏻','🙌🏻','🤲🏻','🙏🏻','🤝🏻','💅🏻','📌','❤️','🧡','💛','💚','💙','💜','🤎','🖤','🤍','💔','❣','💕','💞','💓','💗','💖','💘','💝','💟','💌','💢','💥','💤','💦','💨','💫'],
@@ -109,24 +118,30 @@ const reactArray = {
 const userTypingMap = new Map();
 //all the user and their info is stored in this map
 const userInfoMap = new Map();
+//all file meta data is stored in this map which may arrive later
 const fileBuffer = new Map();
 
 let softKeyIsUp = false; //to check if soft keyboard of phone is up or not
 let scrolling = false; //to check if user is scrolling or not
 let lastPageLength = messages.scrollTop; // after adding a new message the page size gets updated
 let scroll = 0; //total scrolled up or down by pixel
+
+//selected image to send
 const selectedImage = {
 	data: '',
 	name: '',
 	size: '',
 	ext: ''
 };
+//selected file to send
 const selectedFile = {
 	data: '',
 	name: '',
 	size: '',
 	ext: ''
 };
+
+//selected message info | file or image
 let selectedObject = '';
 //the message which fires the event
 const targetMessage = {
@@ -135,7 +150,7 @@ const targetMessage = {
 	type: '',
 	id: '',
 };
-
+//the file which fires the event
 const targetFile = {
 	fileName: '',
 	fileData: ''
@@ -246,8 +261,8 @@ if(!isMobile){
 }
 
 
-//functions
-
+//! functions
+//loads react emojis
 function loadReacts(){
 	//load all the reacts from the react object
 	const reacts = document.getElementById('reactOptions');
@@ -666,7 +681,7 @@ function deleteMessage(messageId, user){
 			//console.log(message.querySelector('.image').src, 'deleted');
 		}else if (message.dataset.type == 'file'){
 			//delete the file from the source
-			URL.revokeObjectURL(message.querySelector('a').href);
+			URL.revokeObjectURL(message.querySelector('.file').dataset.data);
 			//console.log(message.querySelector('a').href, 'deleted');
 		}
 
@@ -731,8 +746,10 @@ function downloadHandler(){
 	}
 	if (targetMessage.type === 'image'){
 		document.querySelector('#lightbox__image img').src = targetMessage.message.src;
+		hideOptions();
 		saveImage();
 	}else{
+		hideOptions();
 		downloadFile();
 	}
 }
@@ -740,6 +757,7 @@ function downloadHandler(){
 function saveImage(){
 	try{
 		//console.log('Saving image');
+		popupMessage('Preparing image...');
 		const a = document.createElement('a');
 		a.href = document.querySelector('#lightbox__image img').src;
 		a.download = `poketab-${Date.now()}`;
@@ -752,6 +770,7 @@ function saveImage(){
 }
 
 function downloadFile(){
+	popupMessage('Preparing file...');
 	const data = targetFile.fileData;
 	const fileName = targetFile.fileName;
 	//let filetype = filename.split('.').pop();
@@ -904,10 +923,12 @@ function showReplyToast(){
 	hideOptions();
 	updateScroll();
 	textbox.focus();
-	document.querySelector('.newmessagepopup').classList.add('toastActive');
 	finalTarget = Object.assign({}, targetMessage);
 	//console.dir(finalTarget);
 	if (finalTarget.type == 'image' || finalTarget.type == 'sticker'){
+
+		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
+		document.querySelector('.newmessagepopup').classList.add('toastActiveImage');
 		if (finalTarget.message.src !== replyToast.querySelector('.replyData').firstChild?.src){
 			while (replyToast.querySelector('.replyData').firstChild) {
 				replyToast.querySelector('.replyData').removeChild(replyToast.querySelector('.replyData').firstChild);
@@ -915,12 +936,19 @@ function showReplyToast(){
 			replyToast.querySelector('.replyData').appendChild(finalTarget.message);
 		}
 	}else if (finalTarget.type == 'file'){
-		//replyToast.querySelector('.replyData').innerHTML = `<i class="fa-solid fa-paperclip"></i>${finalTarget.message?.substring(0, 50)}`;
+		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
+		document.querySelector('.newmessagepopup').classList.add('toastActiveFile');
+		while (replyToast.querySelector('.replyData').firstChild) {
+			replyToast.querySelector('.replyData').removeChild(replyToast.querySelector('.replyData').firstChild);
+		}
 		const fileIcon = document.createElement('i');
 		fileIcon.classList.add('fa-solid', 'fa-paperclip');
 		replyToast.querySelector('.replyData').appendChild(fileIcon);
 		replyToast.querySelector('.replyData').appendChild(document.createTextNode(finalTarget.message?.substring(0, 50)));
 	}else{
+		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
+		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
+		document.querySelector('.newmessagepopup').classList.add('toastActive');
 		replyToast.querySelector('.replyData').textContent = finalTarget.message?.substring(0, 50);
 	}
 	replyToast.querySelector('.username').textContent = finalTarget.sender;
@@ -937,6 +965,8 @@ function hideReplyToast(){
 	replyToast.querySelector('.username').textContent = '';
 	lastPageLength = messages.scrollTop;
 	document.querySelector('.newmessagepopup').classList.remove('toastActive');
+	document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
+	document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
 	clearTargetMessage();
 }
 

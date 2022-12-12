@@ -911,6 +911,12 @@ i[class^=fa-] {
 .newmessagepopup.toastActive {
   bottom: 135px;
 }
+.newmessagepopup.toastActiveImage {
+  bottom: 170px;
+}
+.newmessagepopup.toastActiveFile {
+  bottom: 154px;
+}
 .newmessagepopup img {
   height: 30px;
   width: 30px;
