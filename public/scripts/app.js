@@ -887,9 +887,18 @@ function showReplyToast(){
 	finalTarget = Object.assign({}, targetMessage);
 	//console.dir(finalTarget);
 	if (finalTarget.type == 'image' || finalTarget.type == 'sticker'){
-		replyToast.querySelector('.replyData').appendChild(finalTarget.message);
+		if (finalTarget.message.src !== replyToast.querySelector('.replyData').firstChild?.src){
+			while (replyToast.querySelector('.replyData').firstChild) {
+				replyToast.querySelector('.replyData').removeChild(replyToast.querySelector('.replyData').firstChild);
+			}
+			replyToast.querySelector('.replyData').appendChild(finalTarget.message);
+		}
 	}else if (finalTarget.type == 'file'){
-		replyToast.querySelector('.replyData').innerHTML = `<i class="fa-solid fa-paperclip"></i>${finalTarget.message?.substring(0, 50)}`;
+		//replyToast.querySelector('.replyData').innerHTML = `<i class="fa-solid fa-paperclip"></i>${finalTarget.message?.substring(0, 50)}`;
+		const fileIcon = document.createElement('i');
+		fileIcon.classList.add('fa-solid', 'fa-paperclip');
+		fileIcon.textContent = finalTarget.message?.substring(0, 50);
+		replyToast.querySelector('.replyData').appendChild(fileIcon);
 	}else{
 		replyToast.querySelector('.replyData').textContent = finalTarget.message?.substring(0, 50);
 	}
@@ -1365,7 +1374,11 @@ function loadStickerHeader(){
 	if (loadedStickerHeader){
 		return;
 	}
-	stickersGrp.innerHTML = '';
+	//stickersGrp.innerHTML = '';
+	//use other method to clear stickersGrp
+	while (stickersGrp.firstChild){
+		stickersGrp.removeChild(stickersGrp.firstChild);
+	}
 	for (let sticker of Stickers){
 		const img = document.createElement('img');
 		img.src = `/stickers/${sticker.name}/animated/${sticker.icon}.webp`;
@@ -1386,7 +1399,11 @@ function loadStickers(){
 
 	selectedStickerGroupCount = Stickers.find(sticker => sticker.name == selectedStickerGroup).count;
 	const stickersContainer = document.getElementById('stickers');
-	stickersContainer.innerHTML = '';
+	//stickersContainer.innerHTML = '';
+	//use other method to clear stickersContainer
+	while (stickersContainer.firstChild){
+		stickersContainer.removeChild(stickersContainer.firstChild);
+	}
 	for (let i = 1; i <= selectedStickerGroupCount; i++) {
 		const img = document.createElement('img');
 		img.src = `/stickers/${selectedStickerGroup}/static/${i}-mini.webp`;
@@ -1451,7 +1468,14 @@ document.querySelector('.stickerBtn').addEventListener('click', () => {
 
 document.getElementById('selectStickerGroup').addEventListener('click', e => {
 	if (e.target.tagName === 'IMG') {
-		document.getElementById('stickers').innerHTML = 'Loading&nbsp;<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--secondary-dark)"></i>';
+		//document.getElementById('stickers').innerHTML = 'Loading&nbsp;<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--secondary-dark)"></i>';
+		const preload = document.createElement('div');
+		preload.classList.add('preload');
+		const icon = document.createElement('i');
+		icon.classList.add('fa-solid', 'fa-circle-notch', 'fa-spin');
+		icon.style.color = 'var(--secondary-dark)';
+		preload.append(icon);
+		document.getElementById('stickers').append(preload);
 		document.getElementById('selectStickerGroup').querySelectorAll('.stickerName')
 			.forEach(sticker => {
 				sticker.dataset.selected = 'false';
