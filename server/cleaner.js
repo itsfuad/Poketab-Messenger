@@ -2,7 +2,7 @@ const { readdir, rm } = require('fs/promises');
 const { keys, deleteKey, users, fileStore, deleteFileStore } = require('./keys/cred');
 
 function deleteKeys(){
-	for (let [key, value] of keys){
+	for (const [key, value] of keys){
 		if (value.using != true && Date.now() - value.created > 120000){
 			//keys.delete(key);
 			deleteKey(key);
@@ -31,14 +31,13 @@ function deleteFiles(){
 
 function markForDelete(userId, key, filename){
 	//{filename: req.file.filename, downloaded: 0, keys: [], uids: []}
-	let file = fileStore.get(filename);
+	const file = fileStore.get(filename);
 	if (file){
 		file.uids = file.uids != null ? file.uids.add(userId) : new Set();
 		//console.log(file);
 		if (users.getMaxUser(key) == file.uids.size) {
 			console.log('Marked for delete: ' + filename);
 			rm(`uploads/${filename}`);
-			//fileStore.delete(filename);
 			deleteFileStore(filename);
 		}
 	}
