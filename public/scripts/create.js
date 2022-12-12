@@ -38,7 +38,7 @@ function expiredEvent(err){
 function nextbtnEvent(e){
 	e.preventDefault();
 	if (validateKey()){   
-		let key = document.getElementById('key').value;
+		const key = document.getElementById('key').value;
 		socket.emit('createRequest', key, function(err){
 			if (err){
 				expiredEvent(err);
@@ -54,7 +54,7 @@ function countDown(){
 	//count down for two minutes
 	let count = 120;
 	let min, sec;
-	let interval = setInterval(()=>{
+	const interval = setInterval(()=>{
 		count--;
 		if (count <= 0){
 			min = '00';
@@ -90,7 +90,7 @@ function countDown(){
 }
 
 document.querySelector('.copy').addEventListener('click', ()=>{
-	let key = document.getElementById('key').value;
+	const key = document.getElementById('key').value;
 	navigator.clipboard.writeText(`${location.origin}/join/${key}`);
 	document.getElementById('label').style.color = 'limegreen';
 	document.getElementById('label').childNodes[0].textContent = 'Copied ';

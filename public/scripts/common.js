@@ -16,10 +16,10 @@ const enter = document.getElementById('enter');
 const keyformat = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/;
 const usernameformat = /^[a-zA-Z0-9\u0980-\u09FF]{3,20}$/;
 
-let e_users = [];
+const e_users = [];
 
 function validateKey(){
-	let key = document.getElementById('key').value;
+	const key = document.getElementById('key').value;
 	if(key.length == 0){
 		document.getElementById('key').focus();
 		errlog('keyErr', '*Key is required');
@@ -34,8 +34,8 @@ function validateKey(){
 }
 
 function validateUser(){
-	let username = document.getElementById('username').value;
-	let radios = document.getElementsByName('avatar');
+	const username = document.getElementById('username').value;
+	const radios = document.getElementsByName('avatar');
 	let checked = false;
 	for (var i = 0; i < radios.length; i++) {
 		if (radios[i].checked) {
@@ -84,7 +84,7 @@ function check(){
 let errTimeout = undefined;
 
 function errlog(id, msg){
-	let err = document.getElementById(id);
+	const err = document.getElementById(id);
 	err.innerHTML = msg;
 	err.classList.add('shake');
 	if (errTimeout == undefined){
@@ -100,7 +100,7 @@ document.getElementById('form').onsubmit = check;
 document.getElementById('redirect').onclick = wait;
 
 function wait(){
-	let wait = document.getElementById('wait');
+	const wait = document.getElementById('wait');
 	wait.style.display = 'flex';
 }
 

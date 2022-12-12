@@ -10,7 +10,7 @@ function nextbtnEvent(e){
 			elem.textContent = '';
 		});
 	if (validateKey()){   
-		let key = document.getElementById('key').value;
+		const key = document.getElementById('key').value;
 		socket.emit('joinRequest', key, function(err){
 			if (err){
 				errlog('keyErr', 'Unauthorised <i class="fa-solid fa-triangle-exclamation" style="color: orange;"></i>');

@@ -44,7 +44,7 @@ const publicPath = path.join(__dirname, '../public');
 //create the express app
 const app = express();
 
-const port = process.env.PORT || 52692;
+const port = process.env.PORT || 3000;
 
 clean();
 

@@ -299,7 +299,7 @@ img:is(.sticker) {
 }
 #sidebar #logout, #sidebar #logout i {
   color: white;
-  background: indianred;
+  background: red;
   padding: 4px 8px;
 }
 #sidebar .theme_option {

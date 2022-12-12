@@ -118,7 +118,7 @@ code {
   padding: 0;
 }
 .message .messageBody .messageReply .imageReply {
-  filter: brightness(0.5) !important;
+  filter: brightness(0.4) !important;
   background: rgba(255, 255, 255, 0.0901960784) !important;
   position: relative;
   max-height: 150px;
