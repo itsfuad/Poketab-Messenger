@@ -1400,7 +1400,7 @@ function loadStickerHeader(){
 	while (stickersGrp.firstChild){
 		stickersGrp.removeChild(stickersGrp.firstChild);
 	}
-	for (let sticker of Stickers){
+	for (const sticker of Stickers){
 		const img = document.createElement('img');
 		img.src = `/stickers/${sticker.name}/animated/${sticker.icon}.webp`;
 		img.alt = sticker.name;
