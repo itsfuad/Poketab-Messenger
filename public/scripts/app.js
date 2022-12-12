@@ -663,11 +663,11 @@ function deleteMessage(messageId, user){
 		if (message.dataset.type == 'image'){
 			//delete the image from the source
 			URL.revokeObjectURL(message.querySelector('.image').src);
-			console.log(message.querySelector('.image').src, 'deleted');
+			//console.log(message.querySelector('.image').src, 'deleted');
 		}else if (message.dataset.type == 'file'){
 			//delete the file from the source
 			URL.revokeObjectURL(message.querySelector('a').href);
-			console.log(message.querySelector('a').href, 'deleted');
+			//console.log(message.querySelector('a').href, 'deleted');
 		}
 
 		//delete all content inside message .messageMain
@@ -680,7 +680,7 @@ function deleteMessage(messageId, user){
 			.forEach((elem) => {
 				//delete element and also from the source
 				URL.revokeObjectURL(elem.src);
-				console.log(elem.src, 'deleted');
+				//console.log(elem.src, 'deleted');
 				elem.remove();
 			});
 
@@ -739,7 +739,7 @@ function downloadHandler(){
 
 function saveImage(){
 	try{
-		console.log('Saving image');
+		//console.log('Saving image');
 		const a = document.createElement('a');
 		a.href = document.querySelector('#lightbox__image img').src;
 		a.download = `poketab-${Date.now()}`;
@@ -918,8 +918,8 @@ function showReplyToast(){
 		//replyToast.querySelector('.replyData').innerHTML = `<i class="fa-solid fa-paperclip"></i>${finalTarget.message?.substring(0, 50)}`;
 		const fileIcon = document.createElement('i');
 		fileIcon.classList.add('fa-solid', 'fa-paperclip');
-		fileIcon.textContent = finalTarget.message?.substring(0, 50);
 		replyToast.querySelector('.replyData').appendChild(fileIcon);
+		replyToast.querySelector('.replyData').appendChild(document.createTextNode(finalTarget.message?.substring(0, 50)));
 	}else{
 		replyToast.querySelector('.replyData').textContent = finalTarget.message?.substring(0, 50);
 	}
@@ -1608,7 +1608,8 @@ document.querySelectorAll('.theme').forEach(theme => {
 	theme.addEventListener('click', (evt) => {
 		THEME = evt.target.closest('li').id;
 		localStorage.setItem('theme', THEME);
-		console.log(`Theme changed to ${THEME}`);
+		//console.log(`Theme changed to ${THEME}`);
+		popupMessage(`Theme changed to ${THEME}`);
 		//edit css variables
 		document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${THEME}_w.webp')`);
 		document.documentElement.style.setProperty('--secondary-dark', themeAccent[THEME].secondary);
@@ -2327,8 +2328,6 @@ async function sendImageStoreRequest(){
 	const image = new Image();
 	image.src = selectedImage.data;
 	image.mimetype = selectedImage.ext;
-	console.log(selectedImage.data);
-	console.log(image);
 	image.onload = async function() {
 
 		const thumbnail = resizeImage(image, image.mimetype, 50);
@@ -2391,6 +2390,7 @@ async function sendImageStoreRequest(){
 			}
 			else{
 				console.log('error uploading image');
+				popupMessage('Error uploading image');
 				elem.querySelector('.sendingImage').textContent = 'Upload failed';
 				fileSocket.emit('fileUploadError', myKey, tempId, 'image');
 			}
@@ -2452,6 +2452,7 @@ async function sendFileStoreRequest(){
 		}
 		else{
 			console.log('error uploading file');
+			popupMessage('Error uploading file');
 			elem.querySelector('.progress').textContent = 'Upload failed';
 			fileSocket.emit('fileUploadError', myKey, tempId, 'image');
 		}
