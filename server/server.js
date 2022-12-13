@@ -34,7 +34,7 @@ const devMode = false; //dev mode
 const apiRequestLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minute
 	max: 100, // limit each IP to 100 requests per windowMs
-	message: 'Too many requests. Temporarily blocked from PokeTab server. Please try again later',
+	message: 'Too many requests. Temporarily blocked from PokeTab server. Grab a cup of coffee and try again later.',
 	standardHeaders: false, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false // Disable the `X-RateLimit-*` headers
 });
@@ -150,7 +150,7 @@ app.post('/chat', (req, res) => {
 		res.setHeader('Developer', 'Fuad Hasan');
 		res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 		res.status(400).send({
-			error: 'Invalid username format. Please use only alphanumeric characters'
+			error: 'Don\'t try to be oversmart. Use only alphanumeric characters'
 		});
 	}
 	if (!avList.includes(avatar)){
@@ -180,7 +180,7 @@ app.post('/chat', (req, res) => {
 		//send invalid key message
 		res.setHeader('Developer', 'Fuad Hasan');
 		res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-		res.render('errorRes', {title: 'Not found', errorCode: '404', errorMessage: 'Key session not found', buttonText: 'Renew'});
+		res.render('errorRes', {title: 'Not found', errorCode: '404', errorMessage: 'Session Key not found', buttonText: 'Renew'});
 	}
 });
 

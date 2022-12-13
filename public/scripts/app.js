@@ -823,6 +823,8 @@ let xStart = null;
 let yStart = null;
 let xDiff = 0;
 let yDiff = 0;
+let horizontalSwipe = false;
+let touchEnded = true;
 
 // Listen for a swipe on left
 messages.addEventListener('touchstart', (evt) => {
@@ -839,34 +841,44 @@ messages.addEventListener('touchmove', (evt) => {
 		
 		if (evt.target.classList.contains('messageMain') || evt.target.closest('.messageMain') && msg.dataset.deleted != 'true'){            
 			//console.log(xDiff);
+
 			xDiff = xStart - (evt.touches[0].clientX/3);
 			yDiff = yStart - (evt.touches[0].clientY/3);
-
-			if (Math.abs(xDiff) < Math.abs(yDiff)){
-				return;
+			
+			//which direction is swipe was made first time
+			if (horizontalSwipe == false){
+				if (Math.abs(xDiff) > Math.abs(yDiff) && touchEnded){
+					horizontalSwipe = true;
+				}else{
+					horizontalSwipe = false;
+				}
 			}
-
-			const elem = msg.querySelector('.messageContainer');
-			const replyIcon = msg.querySelector('.replyIcon');
-			//if msg is self
-			if (msg.classList.contains('self') && msg.classList.contains('delevered') /*&& deg <= 20 && deg >= -20*/) {
-				if (xDiff >= 40){
-					elem.dataset.replyTrigger = 'true';
-					replyIcon.style.transform = `translateX(${xDiff}px)`;
-				}else{
-					elem.dataset.replyTrigger = 'false';
+			touchEnded = false;
+			//if horizontal
+			if (horizontalSwipe){
+				//console.log('horizontal');
+				const elem = msg.querySelector('.messageContainer');
+				const replyIcon = msg.querySelector('.replyIcon');
+				//if msg is self
+				if (msg.classList.contains('self') && msg.classList.contains('delevered') /*&& deg <= 20 && deg >= -20*/) {
+					if (xDiff >= 40){
+						elem.dataset.replyTrigger = 'true';
+						replyIcon.style.transform = `translateX(${xDiff}px)`;
+					}else{
+						elem.dataset.replyTrigger = 'false';
+					}
+					xDiff = xDiff < 0 ? 0 : xDiff;
+					elem.style.transform = `translateX(${-xDiff}px)`;
+				}else /*if(deg <= 160 && deg >= -160 && !msg.classList.contains('self'))*/{
+					if (xDiff <= -40){
+						elem.dataset.replyTrigger = 'true';
+						replyIcon.style.transform = `translateX(${xDiff}px)`;
+					}else{
+						elem.dataset.replyTrigger = 'false';
+					}
+					xDiff = xDiff > 0 ? 0 : xDiff;
+					elem.style.transform = `translateX(${-xDiff}px)`;
 				}
-				xDiff = xDiff < 0 ? 0 : xDiff;
-				elem.style.transform = `translateX(${-xDiff}px)`;
-			}else /*if(deg <= 160 && deg >= -160 && !msg.classList.contains('self'))*/{
-				if (xDiff <= -40){
-					elem.dataset.replyTrigger = 'true';
-					replyIcon.style.transform = `translateX(${xDiff}px)`;
-				}else{
-					elem.dataset.replyTrigger = 'false';
-				}
-				xDiff = xDiff > 0 ? 0 : xDiff;
-				elem.style.transform = `translateX(${-xDiff}px)`;
 			}
 		}
 		//console.log('Swipe moved');
@@ -880,9 +892,14 @@ messages.addEventListener('touchmove', (evt) => {
 messages.addEventListener('touchend', (evt) => {
 	try{
 		if (evt.target.closest('.message')){
+
+			touchEnded = true;
 			//console.log('Swipe ended');
 			xDiff = 0;
 			yDiff = 0;
+
+			horizontalSwipe = false;
+
 			const msg = evt.target.closest('.message');
 			if (!msg){
 				return;
@@ -1233,7 +1250,7 @@ function getTypingString(userTypingMap){
 				string = `${array[0]}, ${array[1]}, ${array[2]} and ${array.length - 3} other${array.length - 3 > 1 ? 's' : ''}`;
 			}
 		}
-		string += `${array.length > 1 ? ' are ': ' is '} typing...`;
+		string += `${array.length > 1 ? ' are ': ' is '} typing`;
 		return string;
 	}else{
 		return '';
@@ -1367,7 +1384,7 @@ function serverMessage(message, type) {
 			.forEach(elem => {
 				elem.querySelector(`.seenBy img[data-user="${message.who}"]`)?.remove();
 			});
-		document.getElementById('typingIndicator').textContent = getTypingString(userTypingMap);
+		setTypingUsers();
 		updateScroll();
 	}else{
 		messageContainer.textContent = message.text;
@@ -2399,6 +2416,15 @@ function shortFileName(filename){
 	return filename;
 }
 
+function setTypingUsers(){
+	const typingString = getTypingString(userTypingMap);
+	if (typingString == ''){
+		document.getElementById('typingIndicator').classList.remove('active');
+	}else{
+		document.getElementById('typingIndicator').querySelector('.text').textContent = typingString;
+		document.getElementById('typingIndicator').classList.add('active');
+	}
+}
 
 //sockets
 socket.on('connect', () => {
@@ -2415,7 +2441,7 @@ socket.on('connect', () => {
 		} else {
 			console.log('no error');
 			if (userTypingMap.size > 0){
-				document.getElementById('typingIndicator').textContent = getTypingString(userTypingMap);
+				setTypingUsers();
 			}
 			document.getElementById('preload').style.display = 'none';
 			popupMessage('Connected to server');
@@ -2434,6 +2460,9 @@ socket.on('updateUserList', users => {
 	users.forEach(user => {
 		userInfoMap.set(user.uid, user);
 	});
+	if(isTyping){
+		socket.emit('typing');
+	}
 	document.getElementById('count').textContent = `${users.length}/${maxUser}`;
 	while (document.getElementById('userlist').firstChild) {
 		document.getElementById('userlist').removeChild(document.getElementById('userlist').firstChild);
@@ -2518,16 +2547,12 @@ socket.on('deleteMessage', (messageId, userName) => {
 socket.on('typing', (user, id) => {
 	typingsound.play();
 	userTypingMap.set(id, user);
-	document.getElementById('typingIndicator').textContent = getTypingString(userTypingMap);
+	setTypingUsers();
 });
   
 socket.on('stoptyping', (id) => {
 	userTypingMap.delete(id);
-	if (userTypingMap.size == 0) {
-		document.getElementById('typingIndicator').textContent = '';
-	}else{
-		document.getElementById('typingIndicator').textContent = getTypingString(userTypingMap);
-	}
+	setTypingUsers();
 });
 
 //on disconnect

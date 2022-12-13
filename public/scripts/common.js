@@ -16,7 +16,7 @@ const enter = document.getElementById('enter');
 const keyformat = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/;
 const usernameformat = /^[a-zA-Z0-9\u0980-\u09FF]{3,20}$/;
 
-const e_users = [];
+let e_users = [];
 
 function validateKey(){
 	const key = document.getElementById('key').value;
