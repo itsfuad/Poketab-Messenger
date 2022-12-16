@@ -81,7 +81,7 @@ code{
     .messageBody{
         position: relative;
         background: #00000000;
-        max-width: 55%;
+        max-width: 65%;
         display: flex;
         flex-direction: column;
         overflow-wrap: anywhere;
@@ -195,7 +195,7 @@ code{
     &:hover{
         cursor: pointer;
     }
-    p{
+    .text{
         background: var(--msg-get);
         padding: 8px;
         min-width: 32px;
@@ -203,6 +203,8 @@ code{
         flex-direction: column;
         justify-content: center;
         align-items: flex-start;
+        white-space: pre-wrap;
+        display: inline-block;
     }
     img{
         //width: 100%;
@@ -217,6 +219,61 @@ code{
         z-index: 10;
     }
 }
+
+code{
+    font-family: monospace;
+    background: #282c34ed;
+    border-radius: 3px;
+    & *{
+        font-family: monospace !important;
+    }
+}
+
+pre{
+    padding-top: 10px;
+    white-space: pre-wrap;
+    background: #282c34ed;
+    border-radius: 5px;
+    padding: 5px;
+    position: relative;
+    padding-top: 25px;
+    tab-size: 2;
+
+    &::after{
+        position: absolute;
+        content: attr(data-clip);
+        top: 0;
+        right: 0;
+        width: max-content;
+        height: max-content;
+        padding: 3px 4px;
+        background: #ffffff2b;
+        border-radius: 4px;
+        font-size: 0.6rem;
+        margin: 2px;
+        transition: 100ms;
+    }
+
+    &::before{
+        position: absolute;
+        content: attr(data-lang);
+        top: 0;
+        left: 0;
+        width: max-content;
+        height: max-content;
+        padding: 3px 4px;
+        border-radius: 4px;
+        font-size: 0.6rem;
+        margin: 2px;
+        transition: 100ms;
+        color: #ffffff82;
+    }
+
+    code{
+        background: transparent;
+    }
+}
+
 
 .messageTime{
     color: gray;
@@ -330,7 +387,7 @@ code{
             }
         }
         .messageMain{
-            p{
+            .text{
                 padding: 8px;
                 background: var(--msg-send);
             }
@@ -405,7 +462,7 @@ code{
     }
 }
 
-.emoji .messageMain p:is(.text){
+.emoji .messageMain .text{
     background: none !important; 
     font-size:30px !important; 
     padding: 0 !important;
@@ -460,7 +517,7 @@ code{
     .messageReply{
         display: none !important;
     }
-    p{
+    .text{
         background: none !important;
         border: 2px solid #7d858c !important;
         color: #7d858c !important;

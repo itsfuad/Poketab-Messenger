@@ -7,6 +7,7 @@ import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
 import { PanZoom } from './panzoom';
+import Prism from './../libs/prism/prism';
 
 console.log('loaded');
 
@@ -360,7 +361,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		if (type === 'text'){ //if the message is a text message
 			popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
 			message = messageFilter(message); //filter the message
-			message = `<p class='text'>${message}</p>`;
+			message = `<span class='text'>${message}</span>`;
 		}else if(type === 'image'){ //if the message is an image
 			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
 			message = sanitize(message); //sanitize the message
@@ -422,7 +423,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 				reply = {data: 'Message is not available on this device', type: 'text'};
 			}
 			if (reply.type === 'text' || reply.type === 'file'){
-				replyMsg = reply.data;
+				replyMsg = sanitize(reply.data);
 				replyFor = 'message';
 			}else if (reply.type === 'image'){
 				replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .image').outerHTML.replace('class="image"', 'class="image imageReply"');
@@ -482,6 +483,11 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		lastPageLength = messages.scrollTop;
 		checkgaps(lastMsg?.id);
 		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
+		if (type == 'text' && containsCode){
+
+			Prism.highlightAll();
+			containsCode = false;
+		}
 	}catch(err){
 		console.error(err);
 		popupMessage(err);
@@ -502,23 +508,83 @@ function getCurrentTime(){
 
 function sanitize(str){
 	if (str == undefined || str == '' || str == null){return '';}
-	str.replaceAll('<', '&#60;');
-	str.replaceAll('>', '&#62;');
-	str.replaceAll('"', '&#34;');
-	str.replaceAll('\'', '&#39;');
-	str.replaceAll('&', '&#38;');
+	str = str.replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll('\'', '&#39;').replaceAll('/', '&#x2F;');
 	return str;
 }
+
+let containsCode = false;
 
 function messageFilter(message){
 	message = censorBadWords(message); //check if the message contains bad words
 	//secure XSS attacks with html entity number
-	message = sanitize(message);
+	//message = sanitize(message);
 	message = linkify(message); //if the message contains links then linkify the message
-	message = message.replaceAll(/```¶/g, '```'); //replace the code block markers
-	message = message.replaceAll(/```([^`]+)```/g, '<code>$1</code>'); //if the message contains code then replace it with the code tag
-	message = message.replaceAll('¶', '<br>'); //if the message contains new lines then replace them with <br>
+	
+	message = message.trim();
+
+	/*
+
+	let startIndex = 0;
+
+	while (true) {
+		const startPos = message.indexOf('```', startIndex);
+		if (startPos === -1) break;
+	
+		const endPos = message.indexOf('```', startPos + 3);
+		if (endPos === -1) break;
+
+		let language = message.substring(startPos + 3, message.indexOf('\n', startPos + 3)).trim();
+
+		if (!['c', 'cpp', 'c++', 'cs', 'c#', 'css', 'html', 'java', 'js', 'javascript', 'json', 'md', 'php', 'py', 'python', 'rb', 'ruby', 'sh', 'sql', 'txt', 'xml', 'yaml'].includes(language)){
+			language = 'txt';
+			startPos
+		}
+
+		const msg = message.substring(message.indexOf('\n', startPos + 3) + 1, endPos).trim();
+
+		if (msg == '') continue;
+
+		//remove language from code block
+		message = message.substring(0, startPos).trim() + `<span><pre data-lang="${language}" class="line-numbers" data-clip="Copy"><code class="language-${language}">` + msg + '</code></pre></span>' + message.substring(endPos + 3).trim();
+		startIndex = endPos + 5;
+	}
+	
+	startIndex = 0;
+	while (true) {
+		const startPos = message.indexOf('`', startIndex);
+		if (startPos === -1) break;
+	
+		const endPos = message.indexOf('`', startPos + 1);
+		if (endPos === -1) break;
+	
+		message = message.substring(0, startPos).trim() + '<span><code> ' + message.substring(startPos + 1, endPos).trim() + ' </code></span>' + message.substring(endPos + 1).trim();
+		startIndex = endPos + 5;
+	}
+
+	containsCode = message.includes('<code>') || message.includes('<pre');
+
 	return message;
+	*/
+	
+	const codeMetadata = parseCode(message);
+
+	//now we have the code and the language and the normal text
+	//wrap the code in a pre tag and add the language as a class to the pre tag so that we can use prismjs to highlight the code
+	//add the code to the message
+	
+	let tempMessage = message.replace(/```([^]+)```/g, `<pre class="language-${codeMetadata.language} line-numbers" data-lang="${codeMetadata.language}" data-clip="Copy"><code class="language-${codeMetadata.language}">${codeMetadata.code}</code></pre>`);
+	
+	containsCode = tempMessage.includes('<code>') || tempMessage.includes('<pre');
+
+	tempMessage = tempMessage.replace(/`([^`]*)`/g, '<code> $1 </code>');
+
+	return tempMessage;
+}
+
+function parseCode(message){
+	const language = message.match(/```(\w*)/)?.[1] || 'default';
+	const code = message.match(/```([^]+)```/g)?.[0].replace(/```([\w]*)/g, '').trim();
+	return { language, code };
 }
 
 function emojiParser(text){
@@ -701,6 +767,7 @@ function deleteMessage(messageId, user){
 
 		const fragment = document.createDocumentFragment();
 		const p = document.createElement('p');
+		p.classList.add('text');
 		p.textContent = 'Deleted message';
 		fragment.append(p);
 		message.querySelector('.messageMain').append(fragment);
@@ -1127,7 +1194,7 @@ function OptionEventHandler(evt, popup = true){
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
 		}
-		targetMessage.message = evt.target.closest('.messageMain').querySelector('.text').innerText;
+		targetMessage.message = evt.target.closest('.messageMain').querySelector('.text').textContent;
 		targetMessage.type = type;
 		targetMessage.id = evt.target?.closest('.message')?.id;
 	}
@@ -1758,6 +1825,12 @@ messages.addEventListener('click', (evt) => {
 		let msgTimeTimeout = undefined;
 		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')){
 			evt.target?.closest('.message')?.querySelector('.messageTime')?.classList?.add('active');
+			//if target is a pre or code
+			if (evt.target?.tagName == 'PRE' || evt.target?.tagName == 'CODE'){
+				//copy textContent
+				navigator.clipboard.writeText(evt.target?.textContent);
+				popupMessage('Copied to clipboard');
+			}
 			if (msgTimeTimeout){
 				clearTimeout(msgTimeTimeout);
 			}
@@ -2106,7 +2179,6 @@ sendButton.addEventListener('click', () => {
 
 		message = emojiParser(message);
 		//replace spaces with unusual characters
-		message = message.replace(/\n/g, '¶');
 		message = message.replace(/>/g, '&gt;');
 		message = message.replace(/</g, '&lt;');
 

@@ -77,7 +77,7 @@ code {
 .message .messageBody {
   position: relative;
   background: rgba(0, 0, 0, 0);
-  max-width: 55%;
+  max-width: 65%;
   display: flex;
   flex-direction: column;
   overflow-wrap: anywhere;
@@ -191,7 +191,7 @@ code {
 .messageMain:hover {
   cursor: pointer;
 }
-.messageMain p {
+.messageMain .text {
   background: var(--msg-get);
   padding: 8px;
   min-width: 32px;
@@ -199,6 +199,8 @@ code {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
+  white-space: pre-wrap;
+  display: inline-block;
 }
 .messageMain img {
   height: 100%;
@@ -210,6 +212,67 @@ code {
 .messageMain > * {
   border-radius: 3px 15px 15px 3px;
   z-index: 10;
+}
+
+code {
+  font-family: monospace;
+  background: rgba(40, 44, 52, 0.9294117647);
+  border-radius: 3px;
+}
+code * {
+  font-family: monospace !important;
+}
+
+pre {
+  padding-top: 10px;
+  white-space: pre-wrap;
+  background: rgba(40, 44, 52, 0.9294117647);
+  border-radius: 5px;
+  padding: 5px;
+  position: relative;
+  padding-top: 25px;
+  -moz-tab-size: 2;
+    -o-tab-size: 2;
+       tab-size: 2;
+}
+pre::after {
+  position: absolute;
+  content: attr(data-clip);
+  top: 0;
+  right: 0;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  height: -webkit-max-content;
+  height: -moz-max-content;
+  height: max-content;
+  padding: 3px 4px;
+  background: rgba(255, 255, 255, 0.168627451);
+  border-radius: 4px;
+  font-size: 0.6rem;
+  margin: 2px;
+  transition: 100ms;
+}
+pre::before {
+  position: absolute;
+  content: attr(data-lang);
+  top: 0;
+  left: 0;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  height: -webkit-max-content;
+  height: -moz-max-content;
+  height: max-content;
+  padding: 3px 4px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  margin: 2px;
+  transition: 100ms;
+  color: rgba(255, 255, 255, 0.5098039216);
+}
+pre code {
+  background: transparent;
 }
 
 .messageTime {
@@ -313,7 +376,7 @@ code {
 .message:is(.self) .messageBody .messageReply .imageReply {
   border-radius: 15px 15px 15px 8px !important;
 }
-.message:is(.self) .messageBody .messageMain p {
+.message:is(.self) .messageBody .messageMain .text {
   padding: 8px;
   background: var(--msg-send);
 }
@@ -376,7 +439,7 @@ code {
   z-index: 12;
 }
 
-.emoji .messageMain p:is(.text) {
+.emoji .messageMain .text {
   background: none !important;
   font-size: 30px !important;
   padding: 0 !important;
@@ -430,7 +493,7 @@ code {
 .deleted .messageReply {
   display: none !important;
 }
-.deleted p {
+.deleted .text {
   background: none !important;
   border: 2px solid #7d858c !important;
   color: #7d858c !important;

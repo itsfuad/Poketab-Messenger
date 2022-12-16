@@ -1,14 +1,6 @@
 //parent port
 const { parentPort, workerData } = require('worker_threads');
 
-function messageFilter(message){
-	message = censorBadWords(message); //check if the message contains bad words
-	message = message.replaceAll(/```¶/g, '```'); //replace the code block markers
-	message = message.replaceAll(/```([^`]+)```/g, '<code>$1</code>'); //if the message contains code then replace it with the code tag
-	message = message.replaceAll('¶', '<br>'); //if the message contains new lines then replace them with <br>
-	return message;
-}
-
 function censorBadWords(text) {
 	text = text.replace(/fuck/g, 'f**k');
 	text = text.replace(/shit/g, 's**t');
@@ -31,6 +23,13 @@ function censorBadWords(text) {
 	return text;
 }
 
-let message = messageFilter(workerData.message);
+function runner(message){
+	message = censorBadWords(message);
+	message = message.replace(/>/g, '&gt;');
+	message = message.replace(/</g, '&lt;');
+	return message;
+}
+
+const message = runner(workerData.message);
 
 parentPort.postMessage(message);

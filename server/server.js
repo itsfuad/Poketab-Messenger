@@ -233,11 +233,7 @@ io.on('connection', (socket) => {
       
 			const id = crypto.randomUUID();
       
-			message.replaceAll('<', '&#60;');
-			message.replaceAll('>', '&#62;');
-			message.replaceAll('"', '&#34;');
-			message.replaceAll('\'', '&#39;');
-			message.replaceAll('&', '&#38;');
+			//!sanitize html
       
 			if (type === 'text'){
 				//create new Worker
