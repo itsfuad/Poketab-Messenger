@@ -187,6 +187,7 @@ code {
   display: flex;
   color: white;
   position: relative;
+  flex-direction: row;
 }
 .messageMain:hover {
   cursor: pointer;
@@ -282,7 +283,10 @@ pre code {
   visibility: hidden;
   opacity: 0;
   transition: 200ms ease-in-out;
-  padding-bottom: 10px;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
 }
 .messageTime.active {
   visibility: visible;
@@ -375,6 +379,9 @@ pre code {
 }
 .message:is(.self) .messageBody .messageReply .imageReply {
   border-radius: 15px 15px 15px 8px !important;
+}
+.message:is(.self) .messageBody .messageMain {
+  flex-direction: row-reverse;
 }
 .message:is(.self) .messageBody .messageMain .text {
   padding: 8px;

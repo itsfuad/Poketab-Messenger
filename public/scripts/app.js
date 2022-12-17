@@ -483,10 +483,17 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		lastPageLength = messages.scrollTop;
 		checkgaps(lastMsg?.id);
 		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
-		if (type == 'text' && containsCode){
 
-			Prism.highlightAll();
-			containsCode = false;
+		//highlight code
+		const codes = document.getElementById(id).querySelector('.messageMain')?.querySelectorAll('pre');
+		console.log(codes);
+		if (type == 'text' && codes){
+			//Prism.highlightAll();
+			codes.forEach(code => {
+				code.querySelectorAll('code').forEach(c => {
+					Prism.highlightElement(c);
+				});
+			});
 		}
 	}catch(err){
 		console.error(err);
@@ -512,8 +519,6 @@ function sanitize(str){
 	return str;
 }
 
-let containsCode = false;
-
 function messageFilter(message){
 	message = censorBadWords(message); //check if the message contains bad words
 	//secure XSS attacks with html entity number
@@ -522,69 +527,79 @@ function messageFilter(message){
 	
 	message = message.trim();
 
-	/*
-
-	let startIndex = 0;
-
-	while (true) {
-		const startPos = message.indexOf('```', startIndex);
-		if (startPos === -1) break;
-	
-		const endPos = message.indexOf('```', startPos + 3);
-		if (endPos === -1) break;
-
-		let language = message.substring(startPos + 3, message.indexOf('\n', startPos + 3)).trim();
-
-		if (!['c', 'cpp', 'c++', 'cs', 'c#', 'css', 'html', 'java', 'js', 'javascript', 'json', 'md', 'php', 'py', 'python', 'rb', 'ruby', 'sh', 'sql', 'txt', 'xml', 'yaml'].includes(language)){
-			language = 'txt';
-			startPos
-		}
-
-		const msg = message.substring(message.indexOf('\n', startPos + 3) + 1, endPos).trim();
-
-		if (msg == '') continue;
-
-		//remove language from code block
-		message = message.substring(0, startPos).trim() + `<span><pre data-lang="${language}" class="line-numbers" data-clip="Copy"><code class="language-${language}">` + msg + '</code></pre></span>' + message.substring(endPos + 3).trim();
-		startIndex = endPos + 5;
-	}
-	
-	startIndex = 0;
-	while (true) {
-		const startPos = message.indexOf('`', startIndex);
-		if (startPos === -1) break;
-	
-		const endPos = message.indexOf('`', startPos + 1);
-		if (endPos === -1) break;
-	
-		message = message.substring(0, startPos).trim() + '<span><code> ' + message.substring(startPos + 1, endPos).trim() + ' </code></span>' + message.substring(endPos + 1).trim();
-		startIndex = endPos + 5;
-	}
-
-	containsCode = message.includes('<code>') || message.includes('<pre');
+	message = parseCode(message); //parse the code blocks
 
 	return message;
-	*/
-	
-	const codeMetadata = parseCode(message);
-
-	//now we have the code and the language and the normal text
-	//wrap the code in a pre tag and add the language as a class to the pre tag so that we can use prismjs to highlight the code
-	//add the code to the message
-	
-	let tempMessage = message.replace(/```([^]+)```/g, `<pre class="language-${codeMetadata.language} line-numbers" data-lang="${codeMetadata.language}" data-clip="Copy"><code class="language-${codeMetadata.language}">${codeMetadata.code}</code></pre>`);
-	
-	containsCode = tempMessage.includes('<code>') || tempMessage.includes('<pre');
-
-	tempMessage = tempMessage.replace(/`([^`]*)`/g, '<code> $1 </code>');
-
-	return tempMessage;
 }
 
-function parseCode(message){
-	const language = message.match(/```(\w*)/)?.[1] || 'default';
-	const code = message.match(/```([^]+)```/g)?.[0].replace(/```([\w]*)/g, '').trim();
-	return { language, code };
+//this is the code to parse the message
+function parseCode(message) {
+
+	const supportedLanguages = {
+		'js': 'javascript',
+		'ts': 'typescript',
+		'html': 'html',
+		'css': 'css',
+		'json': 'json',
+		'sh': 'bash',
+		'bash': 'bash',
+		'c': 'c',
+		'cpp': 'cpp',
+		'c++': 'cpp',
+		'cs': 'csharp',
+		'c#': 'csharp',
+		'csharp': 'csharp',
+		'go': 'go',
+		'java': 'java',
+		'kotlin': 'kotlin',
+		'kt': 'kotlin',
+		'php': 'php',
+		'py': 'python',
+		'python': 'python',
+		'rb': 'ruby',
+		'ruby': 'ruby',
+		'swift': 'swift',
+		'yaml': 'yaml',
+		'yml': 'yaml',
+		'xml': 'xml',
+		'md': 'markdown',
+		'markdown': 'markdown',
+		'dart': 'dart',
+		'diff': 'diff',
+		'dockerfile': 'dockerfile',
+		'docker': 'dockerfile',
+		'r': 'r',
+		'vb': 'vb',
+		'vbnet': 'vb',
+		'vb.net': 'vb',
+	};
+	//use regex to get the code blocks
+	const regex = /```(.*?)```/gs;
+	const codeBlocks = message.match(regex);
+	//replace the code blocks with pre tags
+	for (let i = 0; i < codeBlocks?.length; i++) {
+		const codeBlock = codeBlocks[i];
+		const language = codeBlock.split('\n')[0].replace('```', '');
+		const codeBlockWithoutBackticks = codeBlock.replace(/```(.*)/g, '');
+		let codeBlockWithPreTags = '';
+		if (supportedLanguages[language]) {
+			codeBlockWithPreTags = `<pre class="line-numbers language-${language}" data-lang="${language}" data-clip="Copy"><code class='${language}'>${codeBlockWithoutBackticks.trim()}</code></pre>`;
+		} else {
+			if (language.split(/\s/).length > 1) {
+				const lang = language.split(' ');
+				if (supportedLanguages[lang[0]]) {
+					codeBlockWithPreTags = `<pre class="line-numbers language-${lang[0]}" data-lang="${[lang[0]]}" data-clip="Copy"><code class='language-${lang[0]}'>\n${lang.slice(1, lang.length).join(' ')}${codeBlockWithoutBackticks.trim()}</code></pre>`;
+				}
+			} else {
+				codeBlockWithPreTags = `<pre class="line-numbers language-text" data-lang="text" data-clip="Copy"><code class='language-text'>${language.trim()}${codeBlockWithoutBackticks.trim()}</code></pre>`;
+			}
+		}
+		message = message.replace(codeBlock, codeBlockWithPreTags);
+	}
+	//replace the inline code with code tags
+	const inlineCodeRegex = /`([^`]+)`/g;
+	message = message.replace(inlineCodeRegex, '<code>$1</code>');
+	return message;
 }
 
 function emojiParser(text){

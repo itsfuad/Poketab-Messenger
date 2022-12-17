@@ -192,6 +192,7 @@ code{
     display: flex;
     color: white;
     position: relative;
+    flex-direction: row;
     &:hover{
         cursor: pointer;
     }
@@ -282,7 +283,10 @@ pre{
     visibility: hidden;
     opacity: 0;
     transition: 200ms ease-in-out;
-    padding-bottom: 10px;
+    white-space: nowrap;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
     &.active{
         visibility: visible;
         opacity: 1;
@@ -387,6 +391,7 @@ pre{
             }
         }
         .messageMain{
+            flex-direction: row-reverse;
             .text{
                 padding: 8px;
                 background: var(--msg-send);

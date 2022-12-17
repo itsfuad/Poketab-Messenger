@@ -235,10 +235,12 @@
                 <div class="messageBody">
                     <div class="messageTitle">{{{title}}}</div>
                     <div class="messageReply" data-repid="{{repId}}" data-reply-for="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
-                    <div class="messageMain">{{{message}}}</div>
+                    <div class="messageMain">
+                        {{{message}}}
+                        <div class="messageTime">{{time}}</div>
+                    </div>
                     <div class="reactsOfMessage"></div>
                 </div>
-                <div class="messageTime">{{time}}</div>
                 <div class="reactedUsers" style="display: none;"></div>
             </div>
             <div class="seenBy"></div>
@@ -269,10 +271,10 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="messageTime">{{time}}</div>
                     </div>
                     <div class="reactsOfMessage"></div>
                 </div>
-                <div class="messageTime">{{time}}</div>
                 <div class="reactedUsers" style="display: none;"></div>
             </div>
             <div class="seenBy"></div>
