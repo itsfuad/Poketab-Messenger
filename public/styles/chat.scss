@@ -131,6 +131,7 @@ body{
     transform: translateX(-50%);
     transform-origin: bottom;
     scrollbar-width: none;
+    filter: drop-shadow(4px 4px 10px #000);
     z-index: 20;
 
     &.active{
@@ -616,6 +617,7 @@ img{
         visibility: visible;
         opacity: 1;
         background: var(--primary-dark);
+        filter: drop-shadow(4px 4px 10px #000);
         z-index: 20;
     }
 }

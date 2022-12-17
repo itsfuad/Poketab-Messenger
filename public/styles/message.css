@@ -427,11 +427,18 @@ pre code {
   flex-direction: column;
 }
 
-.messageMain .image {
+.messageMain .imageContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.messageMain .imageContainer .image {
   -o-object-fit: contain;
      object-fit: contain;
+  border-radius: inherit;
 }
-.messageMain .sendingImage {
+.messageMain .imageContainer .sendingImage {
   position: absolute;
   top: 50%;
   left: 50%;

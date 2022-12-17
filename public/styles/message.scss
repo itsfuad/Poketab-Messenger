@@ -450,21 +450,32 @@ pre{
 }
 
 .messageMain{
-    .image{
-        object-fit: contain;
+
+    .imageContainer{
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .image{
+            object-fit: contain;
+            border-radius: inherit;
+        }
+        
+        .sendingImage{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: max-content;
+            color: white;
+            font-size: 0.8rem;
+            display: grid;
+            place-items: center;
+            z-index: 12;
+        }
     }
-    .sendingImage{
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: max-content;
-        color: white;
-        font-size: 0.8rem;
-        display: grid;
-        place-items: center;
-        z-index: 12;
-    }
+
 }
 
 .emoji .messageMain .text{

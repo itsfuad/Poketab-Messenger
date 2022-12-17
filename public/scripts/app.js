@@ -365,7 +365,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		}else if(type === 'image'){ //if the message is an image
 			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
 			message = sanitize(message); //sanitize the message
-			message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading...</div>`; //insert the image
+			message = `<div class='imageContainer'><img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading...</div></div>`; //insert the image
 		}else if (type === 'sticker'){
 			popupmsg = 'Sticker';
 			message = sanitize(message);
@@ -768,6 +768,10 @@ function deleteMessage(messageId, user){
 
 		//delete all content inside message .messageMain
 		while (message.querySelector('.messageMain').firstChild){
+			//except messageTime class div
+			if (message.querySelector('.messageMain').firstChild.classList?.contains('messageTime')){
+				break;
+			}
 			message.querySelector('.messageMain').removeChild(message.querySelector('.messageMain').firstChild);
 		}
 
@@ -785,7 +789,7 @@ function deleteMessage(messageId, user){
 		p.classList.add('text');
 		p.textContent = 'Deleted message';
 		fragment.append(p);
-		message.querySelector('.messageMain').append(fragment);
+		message.querySelector('.messageMain').prepend(fragment);
 		message.classList.add('deleted');
 		message.dataset.deleted = true;
 		message.querySelector('.messageTitle').textContent = user;
