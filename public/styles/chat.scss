@@ -131,7 +131,7 @@ body{
     transform: translateX(-50%);
     transform-origin: bottom;
     scrollbar-width: none;
-    filter: drop-shadow(4px 4px 10px #000);
+    filter: drop-shadow(2px 2px 5px #000);
     z-index: 20;
 
     &.active{
@@ -240,7 +240,7 @@ img:is(.sticker){
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    filter: drop-shadow(4px 4px 10px #000);
+    filter: drop-shadow(2px 2px 5px #000);
     #keyname{
         padding-bottom: 20px;
         font-weight: 300;
@@ -377,7 +377,7 @@ img:is(.sticker){
     right: 0;
     z-index: 80;
     transition: 100ms ease-in-out;
-    filter: drop-shadow(4px 4px 10px #000);
+    filter: drop-shadow(2px 2px 5px #000);
     &.active{
         //make it visible
         visibility: visible;
@@ -491,14 +491,17 @@ img{
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
+        //position: fixed;
         position: relative;
         top: 0;
         width: 100%;
         z-index: 15;
         font-size: 0.9rem;
         color: var(--foreground-dark);
+        //background: var(--primary-dark);
+        //filter: drop-shadow(0 0 5px black);
         & > div{
-            padding: 10px 20px;
+            padding: 10px;
         }
         i{
             color: inherit;
@@ -617,7 +620,7 @@ img{
         visibility: visible;
         opacity: 1;
         background: var(--primary-dark);
-        filter: drop-shadow(4px 4px 10px #000);
+        filter: drop-shadow(2px 2px 5px #000);
         z-index: 20;
     }
 }
@@ -927,6 +930,7 @@ i[class^=fa-]{
     opacity: 0;
     top: 20px;
     transition: 100ms ease-in-out;
+    filter: drop-shadow(2px 2px 5px black);
     &.active{
         visibility: visible;
         opacity: 1;
@@ -1111,7 +1115,7 @@ i[class^=fa-]{
     place-content: center;
     display: grid;
     transition: 100ms ease-in-out;
-    filter: drop-shadow(4px 4px 10px #000);
+    filter: drop-shadow(2px 2px 5px #000);
 }
 
 .reactOptionsWrapper{
@@ -1147,7 +1151,7 @@ i[class^=fa-]{
     padding: 5px 20px;
     border-radius: 15px 15px 0 0;
     transition: 100ms ease-in-out;
-    filter: drop-shadow(4px 4px 10px #000);
+    filter: drop-shadow(2px 2px 5px #000);
     &.active{
         visibility: visible;
         opacity: 1;
@@ -1222,7 +1226,7 @@ i[class^=fa-]{
         font-size: 1.3rem;
         padding: 3px 10px;
         background: var(--primary-dark);
-        filter: drop-shadow(4px 4px 10px #000);
+        filter: drop-shadow(2px 2px 5px #000);
         & > div{
             border-radius: 10px;
             width: 35px;
