@@ -361,15 +361,15 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		if (type === 'text'){ //if the message is a text message
 			popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
 			message = messageFilter(message); //filter the message
-			message = `<span class='text'>${message}</span>`;
+			message = `<span class='text msg'>${message}</span>`;
 		}else if(type === 'image'){ //if the message is an image
 			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
 			message = sanitize(message); //sanitize the message
-			message = `<div class='imageContainer'><img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading...</div></div>`; //insert the image
+			message = `<div class='imageContainer msg'><img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading...</div></div>`; //insert the image
 		}else if (type === 'sticker'){
 			popupmsg = 'Sticker';
 			message = sanitize(message);
-			message = `<img class='sticker' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
+			message = `<img class='sticker msg' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
 		}else if(type != 'text' && type != 'image' && type != 'file' && type != 'sticker'){ //if the message is not a text or image message
 			throw new Error('Invalid message type');
 		}
@@ -486,7 +486,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 
 		//highlight code
 		const codes = document.getElementById(id).querySelector('.messageMain')?.querySelectorAll('pre');
-		console.log(codes);
+		//console.log(codes);
 		if (type == 'text' && codes){
 			//Prism.highlightAll();
 			codes.forEach(code => {
@@ -766,15 +766,6 @@ function deleteMessage(messageId, user){
 			//console.log(message.querySelector('a').href, 'deleted');
 		}
 
-		//delete all content inside message .messageMain
-		while (message.querySelector('.messageMain').firstChild){
-			//except messageTime class div
-			if (message.querySelector('.messageMain').firstChild.classList?.contains('messageTime')){
-				break;
-			}
-			message.querySelector('.messageMain').removeChild(message.querySelector('.messageMain').firstChild);
-		}
-
 		//if message is image or file
 		message.querySelectorAll('[data-type="image"], [data-type="file"]')
 			.forEach((elem) => {
@@ -789,7 +780,7 @@ function deleteMessage(messageId, user){
 		p.classList.add('text');
 		p.textContent = 'Deleted message';
 		fragment.append(p);
-		message.querySelector('.messageMain').prepend(fragment);
+		message.querySelector('.msg').replaceWith(fragment);
 		message.classList.add('deleted');
 		message.dataset.deleted = true;
 		message.querySelector('.messageTitle').textContent = user;
