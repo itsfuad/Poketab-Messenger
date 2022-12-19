@@ -5,6 +5,7 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const crypto = require('crypto');
+const userAgent = require('express-useragent');
 const socketIO = require('socket.io');
 
 const { clean } = require('./cleaner');
@@ -77,6 +78,49 @@ app.use(express.urlencoded({
 }));
 
 app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
+
+const supportedBrowsers = {
+	'Chrome': '100',
+	'Firefox': '100',
+	'Edge': '100',
+	'Opera': '100',
+	'Safari': '14',
+	'Chromium': '100',
+	'Chromium Webview': '100',
+};
+
+function compareVersions(requiredVersion, currentVersion) {
+	const parts1 = requiredVersion.split('.').map(part => parseInt(part));
+	const parts2 = currentVersion.split('.').map(part => parseInt(part));
+  
+	for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+		if (parts1[i] === undefined) return 1;
+		if (parts2[i] === undefined) return -1;
+		if (parts1[i] < parts2[i]) return 1;
+		if (parts1[i] > parts2[i]) return -1;
+	}
+  
+	return 0;
+}
+
+//check if the user is using a supported browser and version
+//make a middleware to check if the user is using a supported browser and version
+//if not, send a 400 error
+function checkBrowser(req, res, next) {
+	const useragent = userAgent.parse(req.headers['user-agent']);
+	const browser = useragent.browser;
+	const version = useragent.version;
+
+	if (browser in supportedBrowsers != true || compareVersions(supportedBrowsers[browser], version) == -1) {
+		res.setHeader('Content-Security-Policy', 'script-src \'none\';');
+		res.setHeader('Developer', 'Fuad Hasan');
+		res.render('errorRes', {title: 'Alien Detected!', errorCode: '403', errorMessage: 'Use recent Chrome for best performance :)', buttonText: 'Got it'});
+		return;
+	}
+	next();
+}
+
+app.use(checkBrowser); //use the middleware to check if the user is using a supported browser and version
 
 // default route to serve the client
 app.get('/', (_, res) => {
@@ -233,11 +277,7 @@ io.on('connection', (socket) => {
       
 			const id = crypto.randomUUID();
       
-			message.replaceAll('<', '&#60;');
-			message.replaceAll('>', '&#62;');
-			message.replaceAll('"', '&#34;');
-			message.replaceAll('\'', '&#39;');
-			message.replaceAll('&', '&#38;');
+			//!sanitize html
       
 			if (type === 'text'){
 				//create new Worker

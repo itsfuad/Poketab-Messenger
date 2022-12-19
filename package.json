@@ -1,6 +1,6 @@
 {
   "name": "poketab_messanger",
-  "version": "22.2.7",
+  "version": "25.0.1",
   "description": "Realtime messaging application",
   "main": "server/server.js",
   "scripts": {
@@ -23,6 +23,7 @@
     "ejs": "^3.1.7",
     "express": "^4.17.3",
     "express-rate-limit": "^6.6.0",
+    "express-useragent": "^1.0.15",
     "multer": "^1.4.5-lts.1",
     "mustache": "^4.2.0",
     "node-cache": "^5.1.2",

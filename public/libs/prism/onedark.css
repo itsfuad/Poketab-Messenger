@@ -1,0 +1,71 @@
+pre code.hljs {
+    display: block;
+    overflow-x: auto;
+    padding: 1em;
+}
+code.hljs {
+    padding: 3px 5px;
+}
+.hljs {
+    color: #abb2bf;
+    background: #282c34;
+}
+.comment,
+.quote {
+    color: #5c6370;
+    font-style: italic;
+}
+.doctag,
+.formula,
+.keyword {
+    color: #c678dd;
+}
+.deletion,
+.name,
+.section,
+.selector-tag,
+.subst {
+    color: #e06c75;
+}
+.literal {
+    color: #56b6c2;
+}
+.addition,
+.attribute,
+.meta .string,
+.regexp,
+.string {
+    color: #98c379;
+}
+.attr,
+.number,
+.selector-attr,
+.selector-class,
+.selector-pseudo,
+.template-variable,
+.type,
+.variable {
+    color: #d19a66;
+}
+.bullet,
+.link,
+.meta,
+.selector-id,
+.symbol,
+.title {
+    color: #61aeee;
+}
+.built_in,
+.class .title,
+.title.class_ {
+    color: #e6c07b;
+}
+.emphasis {
+    font-style: italic;
+}
+.strong {
+    font-weight: 700;
+}
+.link {
+    text-decoration: underline;
+}

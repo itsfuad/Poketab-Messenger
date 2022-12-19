@@ -7,6 +7,7 @@ import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
 import { PanZoom } from './panzoom';
+import Prism from './../libs/prism/prism';
 
 console.log('loaded');
 
@@ -73,33 +74,33 @@ const themeAccent = {
 		secondary: 'hsl(213, 98%, 57%)',
 		foreground: '#e1eeff',
 		msg_get: 'hsl(213, 40%, 57%)',
-		msg_get_reply: 'hsl(213, 35%, 27%)',
+		msg_get_reply: 'hsl(213, 88%, 27%)',
 		msg_send: 'hsl(213, 98%, 57%)',
-		msg_send_reply: 'hsl(213, 88%, 27%)'
+		msg_send_reply: 'hsl(213, 35%, 27%)',
 	},
 	geometry: {
 		secondary: 'hsl(15, 98%, 57%)',
 		foreground: '#e1eeff',
 		msg_get: 'hsl(15, 40%, 57%)',
-		msg_get_reply: 'hsl(15, 35%, 27%)',
+		msg_get_reply: 'hsl(15, 88%, 27%)',
 		msg_send: 'hsl(15, 98%, 57%)',
-		msg_send_reply: 'hsl(15, 88%, 27%)'
+		msg_send_reply: 'hsl(15, 35%, 27%)',
 	},
 	dark_mood: {
 		secondary: 'hsl(216, 37%, 44%)',
 		foreground: '#e1eeff',
 		msg_get: 'hsl(216, 27%, 33%)',
-		msg_get_reply: 'hsl(216, 20%, 21%)',
+		msg_get_reply: 'hsl(216, 32%, 23%)',
 		msg_send: 'hsl(216, 37%, 44%)',
-		msg_send_reply: 'hsl(216, 32%, 23%)'
+		msg_send_reply: 'hsl(216, 20%, 21%)',
 	},
 	forest: {
 		secondary: 'hsl(162, 60%, 42%)',
 		foreground: '#e1eeff',
 		msg_get: 'hsl(162, 18%, 41%)',
-		msg_get_reply: 'hsl(162, 14%, 27%)',
+		msg_get_reply: 'hsl(162, 32%, 34%)',
 		msg_send: 'hsl(162, 60%, 42%)',
-		msg_send_reply: 'hsl(162, 32%, 34%)'
+		msg_send_reply: 'hsl(162, 14%, 27%)',
 	}
 };
 
@@ -360,15 +361,15 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		if (type === 'text'){ //if the message is a text message
 			popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
 			message = messageFilter(message); //filter the message
-			message = `<p class='text'>${message}</p>`;
+			message = `<span class='text msg'>${message}</span>`;
 		}else if(type === 'image'){ //if the message is an image
 			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
-			message = sanitize(message); //sanitize the message
-			message = `<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading...</div>`; //insert the image
+			message = sanitizeImagePath(message); //sanitize the image path
+			message = `<div class='imageContainer msg'><img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading...</div></div>`; //insert the image
 		}else if (type === 'sticker'){
 			popupmsg = 'Sticker';
-			message = sanitize(message);
-			message = `<img class='sticker' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
+			message = sanitizeImagePath(message);
+			message = `<img class='sticker msg' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
 		}else if(type != 'text' && type != 'image' && type != 'file' && type != 'sticker'){ //if the message is not a text or image message
 			throw new Error('Invalid message type');
 		}
@@ -422,7 +423,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 				reply = {data: 'Message is not available on this device', type: 'text'};
 			}
 			if (reply.type === 'text' || reply.type === 'file'){
-				replyMsg = reply.data;
+				replyMsg = sanitize(reply.data);
 				replyFor = 'message';
 			}else if (reply.type === 'image'){
 				replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .image').outerHTML.replace('class="image"', 'class="image imageReply"');
@@ -482,6 +483,18 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		lastPageLength = messages.scrollTop;
 		checkgaps(lastMsg?.id);
 		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
+
+		//highlight code
+		const codes = document.getElementById(id).querySelector('.messageMain')?.querySelectorAll('pre');
+		//console.log(codes);
+		if (type == 'text' && codes){
+			//Prism.highlightAll();
+			codes.forEach(code => {
+				code.querySelectorAll('code').forEach(c => {
+					Prism.highlightElement(c);
+				});
+			});
+		}
 	}catch(err){
 		console.error(err);
 		popupMessage(err);
@@ -495,6 +508,16 @@ window.addEventListener('focus', () => {
 	socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
 });
 
+function sanitizeImagePath(path){
+	if (path.match(/^[a-zA-Z0-9_\-\/:.]+$/)){
+		//console.log('path is valid');
+		return path;
+	}else{
+		//console.log('path is invalid');
+		return '/images/danger-mini.webp';
+	}
+}
+
 function getCurrentTime(){
 	//return time in hh:mm a format using Intl.DateTimeFormat
 	return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).format(new Date());
@@ -502,22 +525,90 @@ function getCurrentTime(){
 
 function sanitize(str){
 	if (str == undefined || str == '' || str == null){return '';}
-	str.replaceAll('<', '&#60;');
-	str.replaceAll('>', '&#62;');
-	str.replaceAll('"', '&#34;');
-	str.replaceAll('\'', '&#39;');
-	str.replaceAll('&', '&#38;');
+	str = str.replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll('\'', '&#39;').replaceAll('/', '&#x2F;');
 	return str;
 }
 
 function messageFilter(message){
 	message = censorBadWords(message); //check if the message contains bad words
 	//secure XSS attacks with html entity number
-	message = sanitize(message);
+	//message = sanitize(message);
 	message = linkify(message); //if the message contains links then linkify the message
-	message = message.replaceAll(/```¶/g, '```'); //replace the code block markers
-	message = message.replaceAll(/```([^`]+)```/g, '<code>$1</code>'); //if the message contains code then replace it with the code tag
-	message = message.replaceAll('¶', '<br>'); //if the message contains new lines then replace them with <br>
+	
+	message = message.trim();
+
+	message = parseCode(message); //parse the code blocks
+
+	return message;
+}
+
+//this is the code to parse the message
+function parseCode(message) {
+
+	const supportedLanguages = {
+		'js': 'javascript',
+		'ts': 'typescript',
+		'html': 'html',
+		'css': 'css',
+		'json': 'json',
+		'sh': 'bash',
+		'bash': 'bash',
+		'c': 'c',
+		'cpp': 'cpp',
+		'c++': 'cpp',
+		'cs': 'csharp',
+		'c#': 'csharp',
+		'csharp': 'csharp',
+		'go': 'go',
+		'java': 'java',
+		'kotlin': 'kotlin',
+		'kt': 'kotlin',
+		'php': 'php',
+		'py': 'python',
+		'python': 'python',
+		'rb': 'ruby',
+		'ruby': 'ruby',
+		'swift': 'swift',
+		'yaml': 'yaml',
+		'yml': 'yaml',
+		'xml': 'xml',
+		'md': 'markdown',
+		'markdown': 'markdown',
+		'dart': 'dart',
+		'diff': 'diff',
+		'dockerfile': 'dockerfile',
+		'docker': 'dockerfile',
+		'r': 'r',
+		'vb': 'vb',
+		'vbnet': 'vb',
+		'vb.net': 'vb',
+	};
+	//use regex to get the code blocks
+	const regex = /```(.*?)```/gs;
+	const codeBlocks = message.match(regex);
+	//replace the code blocks with pre tags
+	for (let i = 0; i < codeBlocks?.length; i++) {
+		const codeBlock = codeBlocks[i];
+		const language = codeBlock.split('\n')[0].replace('```', '');
+		const codeBlockWithoutBackticks = codeBlock.replace(/```(.*)/g, '');
+		let codeBlockWithPreTags = '';
+		if (supportedLanguages[language]) {
+			codeBlockWithPreTags = `<pre class="line-numbers language-${language}" data-lang="${language}" data-clip="Copy"><code class='${language}'>${codeBlockWithoutBackticks.trim()}</code></pre>`;
+		} else {
+			if (language.split(/\s/).length > 1) {
+				const lang = language.split(' ');
+				if (supportedLanguages[lang[0]]) {
+					codeBlockWithPreTags = `<pre class="line-numbers language-${lang[0]}" data-lang="${[lang[0]]}" data-clip="Copy"><code class='language-${lang[0]}'>\n${lang.slice(1, lang.length).join(' ')}${codeBlockWithoutBackticks.trim()}</code></pre>`;
+				}
+			} else {
+				codeBlockWithPreTags = `<pre class="line-numbers language-text" data-lang="text" data-clip="Copy"><code class='language-text'>${language.trim()}${codeBlockWithoutBackticks.trim()}</code></pre>`;
+			}
+		}
+		message = message.replace(codeBlock, codeBlockWithPreTags);
+	}
+	//replace the inline code with code tags
+	const inlineCodeRegex = /`([^`]+)`/g;
+	message = message.replace(inlineCodeRegex, '<code>$1</code>');
 	return message;
 }
 
@@ -685,11 +776,6 @@ function deleteMessage(messageId, user){
 			//console.log(message.querySelector('a').href, 'deleted');
 		}
 
-		//delete all content inside message .messageMain
-		while (message.querySelector('.messageMain').firstChild){
-			message.querySelector('.messageMain').removeChild(message.querySelector('.messageMain').firstChild);
-		}
-
 		//if message is image or file
 		message.querySelectorAll('[data-type="image"], [data-type="file"]')
 			.forEach((elem) => {
@@ -701,9 +787,10 @@ function deleteMessage(messageId, user){
 
 		const fragment = document.createDocumentFragment();
 		const p = document.createElement('p');
+		p.classList.add('text');
 		p.textContent = 'Deleted message';
 		fragment.append(p);
-		message.querySelector('.messageMain').append(fragment);
+		message.querySelector('.msg').replaceWith(fragment);
 		message.classList.add('deleted');
 		message.dataset.deleted = true;
 		message.querySelector('.messageTitle').textContent = user;
@@ -1127,7 +1214,7 @@ function OptionEventHandler(evt, popup = true){
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
 		}
-		targetMessage.message = evt.target.closest('.messageMain').querySelector('.text').innerText;
+		targetMessage.message = evt.target.closest('.messageMain').querySelector('.text').textContent;
 		targetMessage.type = type;
 		targetMessage.id = evt.target?.closest('.message')?.id;
 	}
@@ -1423,11 +1510,18 @@ function loadStickerHeader(){
 	for (const sticker of Stickers){
 		const img = document.createElement('img');
 		img.src = `/stickers/${sticker.name}/animated/${sticker.icon}.webp`;
+		img.onerror = function(){retryImageLoad(this);};
 		img.alt = sticker.name;
 		img.dataset.name = sticker.name;
 		img.classList.add('stickerName', 'clickable');
 		stickersGrp.append(img);
 	}
+}
+
+function retryImageLoad(img){
+	const src = img.src;
+	img.src = '';
+	img.src = src;
 }
 
 
@@ -1447,6 +1541,7 @@ function loadStickers(){
 	for (let i = 1; i <= selectedStickerGroupCount; i++) {
 		const img = document.createElement('img');
 		img.src = `/stickers/${selectedStickerGroup}/static/${i}-mini.webp`;
+		img.onerror = function(){retryImageLoad(this);};
 		img.alt = `${selectedStickerGroup}-${i}`;
 		img.dataset.name = `${selectedStickerGroup}/animated/${i}`;
 		img.classList.add('stickerpack', 'clickable');
@@ -1758,6 +1853,12 @@ messages.addEventListener('click', (evt) => {
 		let msgTimeTimeout = undefined;
 		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')){
 			evt.target?.closest('.message')?.querySelector('.messageTime')?.classList?.add('active');
+			//if target is a pre or code
+			if (evt.target?.tagName == 'PRE' || evt.target?.tagName == 'CODE'){
+				//copy textContent
+				navigator.clipboard.writeText(evt.target?.textContent);
+				popupMessage('Copied to clipboard');
+			}
 			if (msgTimeTimeout){
 				clearTimeout(msgTimeTimeout);
 			}
@@ -2106,7 +2207,6 @@ sendButton.addEventListener('click', () => {
 
 		message = emojiParser(message);
 		//replace spaces with unusual characters
-		message = message.replace(/\n/g, '¶');
 		message = message.replace(/>/g, '&gt;');
 		message = message.replace(/</g, '&lt;');
 
