@@ -364,11 +364,11 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 			message = `<span class='text msg'>${message}</span>`;
 		}else if(type === 'image'){ //if the message is an image
 			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
-			message = sanitize(message); //sanitize the message
+			message = sanitizeImagePath(message); //sanitize the image path
 			message = `<div class='imageContainer msg'><img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading...</div></div>`; //insert the image
 		}else if (type === 'sticker'){
 			popupmsg = 'Sticker';
-			message = sanitize(message);
+			message = sanitizeImagePath(message);
 			message = `<img class='sticker msg' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
 		}else if(type != 'text' && type != 'image' && type != 'file' && type != 'sticker'){ //if the message is not a text or image message
 			throw new Error('Invalid message type');
@@ -507,6 +507,16 @@ window.addEventListener('focus', () => {
 	}
 	socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
 });
+
+function sanitizeImagePath(path){
+	if (path.match(/^[a-zA-Z0-9_\-\/:.]+$/)){
+		//console.log('path is valid');
+		return path;
+	}else{
+		//console.log('path is invalid');
+		return '/images/danger-mini.webp';
+	}
+}
 
 function getCurrentTime(){
 	//return time in hh:mm a format using Intl.DateTimeFormat
@@ -1500,11 +1510,18 @@ function loadStickerHeader(){
 	for (const sticker of Stickers){
 		const img = document.createElement('img');
 		img.src = `/stickers/${sticker.name}/animated/${sticker.icon}.webp`;
+		img.onerror = function(){retryImageLoad(this);};
 		img.alt = sticker.name;
 		img.dataset.name = sticker.name;
 		img.classList.add('stickerName', 'clickable');
 		stickersGrp.append(img);
 	}
+}
+
+function retryImageLoad(img){
+	const src = img.src;
+	img.src = '';
+	img.src = src;
 }
 
 
@@ -1524,6 +1541,7 @@ function loadStickers(){
 	for (let i = 1; i <= selectedStickerGroupCount; i++) {
 		const img = document.createElement('img');
 		img.src = `/stickers/${selectedStickerGroup}/static/${i}-mini.webp`;
+		img.onerror = function(){retryImageLoad(this);};
 		img.alt = `${selectedStickerGroup}-${i}`;
 		img.dataset.name = `${selectedStickerGroup}/animated/${i}`;
 		img.classList.add('stickerpack', 'clickable');
