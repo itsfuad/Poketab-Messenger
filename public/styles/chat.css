@@ -91,7 +91,7 @@ body {
   height: 100%;
   position: fixed;
   display: grid;
-  grid-template-columns: 70% 1fr;
+  grid-template-columns: 80% 1fr;
   transition: 100ms ease-in-out;
   left: -100%;
   z-index: 90;

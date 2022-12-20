@@ -81,7 +81,7 @@ code{
     .messageBody{
         position: relative;
         background: #00000000;
-        max-width: 65%;
+        max-width: 70%;
         display: flex;
         flex-direction: column;
         overflow-wrap: anywhere;
@@ -103,7 +103,9 @@ code{
             gap: 5px;
             border-radius: 15px 15px 15px 8px;
             width: max-content;
-            max-width: 110%;
+            max-width: 100%;
+            white-space: pre-wrap;
+            text-overflow: ellipsis;
             transform: translateY(20px);
             cursor: pointer;
             z-index: 10;
