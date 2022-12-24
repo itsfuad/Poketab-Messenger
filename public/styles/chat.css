@@ -996,9 +996,9 @@ i[class^=fa-] {
 .newmessagepopup.toastActiveFile {
   bottom: 154px;
 }
-.newmessagepopup img {
-  height: 30px;
-  width: 30px;
+.newmessagepopup .newmessagepopupavatar {
+  height: 20px;
+  width: 20px;
 }
 .newmessagepopup .msg {
   font-size: 0.8rem;

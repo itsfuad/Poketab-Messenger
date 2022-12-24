@@ -365,11 +365,28 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		}else if(type === 'image'){ //if the message is an image
 			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
 			message = sanitizeImagePath(message); //sanitize the image path
-			message = `<div class='imageContainer msg'><img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading...</div></div>`; //insert the image
+			message = `
+			<div class='imageContainer msg'>
+				<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' />
+				<div class="circleProgressLoader" style="stroke-dasharray: 0, 251.2;">
+					<svg class="animated inactive" viewbox="0 0 100 100">
+						<circle cx="50" cy="50" r="45" fill="transparent"/>
+						<path id="progress" stroke-linecap="round" stroke-width="3" stroke="#fff" fill="none"
+							d="M50 10
+								a 40 40 0 0 1 0 80
+								a 40 40 0 0 1 0 -80">
+						</path>
+					</svg>
+					<div class="progressPercent">Uploading...</div>
+				</div>
+			</div>
+			`; //insert the image
 		}else if (type === 'sticker'){
 			popupmsg = 'Sticker';
 			message = sanitizeImagePath(message);
-			message = `<img class='sticker msg' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
+			message = `
+			<img class='sticker msg' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
+			`;
 		}else if(type != 'text' && type != 'image' && type != 'file' && type != 'sticker'){ //if the message is not a text or image message
 			throw new Error('Invalid message type');
 		}
@@ -509,11 +526,17 @@ window.addEventListener('focus', () => {
 });
 
 function sanitizeImagePath(path){
-	if (path.match(/^[a-zA-Z0-9_\-\/:.]+$/)){
-		//console.log('path is valid');
+
+	//path regex will contain normal characters, numbers, underscores, hyphens and base64 characters
+	const regex = /[<>&'"\s]/g;
+
+	if (!path.match(regex)){
+		console.log('path is valid');
+		console.log(path);
 		return path;
 	}else{
-		//console.log('path is invalid');
+		console.log('path is invalid');
+		console.log(path);
 		return '/images/danger-mini.webp';
 	}
 }
@@ -1275,6 +1298,7 @@ function updateScroll(avatar = null, text = ''){
 			document.querySelector('.newmessagepopup .msg').style.display = 'block';
 			document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
 			document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).png`;
+			document.querySelector('.newmessagepopup img').classList.add('newmessagepopupavatar');
 			document.querySelector('.newmessagepopup .msg').textContent = text;
 			document.querySelector('.newmessagepopup').classList.add('active');
 		}
@@ -2312,14 +2336,20 @@ async function sendImageStoreRequest(){
 		//upload image via xhr request
 		const xhr = new XMLHttpRequest();
 
+		const progresCircle = elem.querySelector('.circleProgressLoader');
+		progresCircle.querySelector('.animated').classList.remove('inactive');
+		const progressText = elem.querySelector('.circleProgressLoader .progressPercent');
+
 		//send file via xhr post request
 		xhr.open('POST', `${location.origin}/api/files`, true);
 		xhr.upload.onprogress = function(e) {
 			if (e.lengthComputable) {
 				progress = (e.loaded / e.total) * 100;
-				elem.querySelector('.sendingImage').textContent = '↑ ' + Math.round(progress) + '%';
+				progresCircle.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
+				progressText.textContent = '↑ ' + Math.round(progress) + '%';
 				if (progress === 100){
-					elem.querySelector('.sendingImage').textContent = 'Encoding...';
+					progresCircle.querySelector('.animated').style.visibility = 'hidden';
+					progressText.textContent = 'Encoding...';
 				}
 			}
 		};
@@ -2327,7 +2357,7 @@ async function sendImageStoreRequest(){
 		xhr.onload = function(e) {
 			if (this.status == 200) {                
 				if (elem){
-					elem.querySelector('.sendingImage').remove();
+					elem.querySelector('.circleProgressLoader').remove();
 					elem.querySelector('.image').style.filter = 'none';
 				}
 				document.getElementById(tempId).dataset.downloaded = 'true';
@@ -2336,7 +2366,8 @@ async function sendImageStoreRequest(){
 			else{
 				console.log('error uploading image');
 				popupMessage('Error uploading image');
-				elem.querySelector('.sendingImage').textContent = 'Upload failed';
+				elem.querySelector('.circleProgressLoader .animated').style.visibility = 'hidden';
+				elem.querySelector('.circleProgressLoader .progressPercent').textContent = 'Upload failed';
 				fileSocket.emit('fileUploadError', myKey, tempId, 'image');
 			}
 		};
@@ -2689,7 +2720,7 @@ fileSocket.on('fileUploadError', (id, type) => {
 	const element = document.getElementById(id).querySelector('.messageMain');
 	let progressContainer;
 	if (type === 'image'){
-		progressContainer = element.querySelector('.sendingImage');
+		progressContainer = element.querySelector('.circleProgressLoader .progressPercent');
 	}else{
 		progressContainer = element.querySelector('.progress');
 	}
@@ -2705,23 +2736,32 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 	const type = data.type;
 	const element = document.getElementById(id).querySelector('.messageMain');
 	let progressContainer;
+	let progressText;
 	if (type === 'image'){
-		progressContainer = element.querySelector('.sendingImage');
+		progressContainer = element.querySelector('.circleProgressLoader');
+		progressText = progressContainer.querySelector('.progressPercent');
 	}else{
 		progressContainer = element.querySelector('.progress');
+		progressText = progressContainer;
 	}
-
+	
 	fileBuffer.delete(id);
 
 	const xhr = new XMLHttpRequest();
+
 	xhr.open('GET', `${location.origin}/api/download/${downlink}/${myKey}`, true);
 	xhr.responseType = 'blob';
 	xhr.onprogress = async function(e) {
 		if (e.lengthComputable && progressContainer) {
-			const percentComplete = Math.round((e.loaded / e.total) * 100);
-			progressContainer.textContent = `↓ ${percentComplete}%`;
-			if (percentComplete === 100){
-				progressContainer.textContent = 'Converting...';
+			const progress = Math.round((e.loaded / e.total) * 100);
+			if (type == 'image'){
+				progressContainer.querySelector('.animated')?.classList?.remove('inactive');
+				progressContainer.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
+			}
+			progressText.textContent = '↓ ' + Math.round(progress) + '%';
+			if (progress === 100){
+				progressContainer.querySelector('.animated').style.visibility = 'hidden';
+				progressText.textContent = 'Decoding...';
 			}
 		}
 	};
@@ -2760,7 +2800,7 @@ function clearDownload(element, fileURL, type){
 	outgoingmessage.play();
 	if (type === 'image'){
 		setTimeout(() => {
-			element.querySelector('.sendingImage').remove();
+			element.querySelector('.circleProgressLoader').remove();
 			element.querySelector('.image').src = fileURL;
 			element.querySelector('.image').alt = 'image';
 			element.querySelector('.image').style.filter = 'none';
