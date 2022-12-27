@@ -588,12 +588,12 @@ function sanitizeImagePath(path){
 	const regex = /[<>&'"\s]/g;
 
 	if (!path.match(regex)){
-		console.log('path is valid');
-		console.log(path);
+		//console.log('path is valid');
+		//console.log(path);
 		return path;
 	}else{
-		console.log('path is invalid');
-		console.log(path);
+		//console.log('path is invalid');
+		//console.log(path);
 		return '/images/danger-mini.webp';
 	}
 }
