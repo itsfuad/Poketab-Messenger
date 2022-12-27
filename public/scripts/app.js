@@ -3056,7 +3056,7 @@ function processAudioStream(stream){
 	//register the audio worklet
 	audioContext.audioWorklet.addModule('audioWorklet.js')
 		.then(() => {
-			console.log('Audio Worklet registering..');
+			//console.log('Audio Worklet registering..');
 			//create an audio worklet node
 			const audioWorkletNode = new AudioWorkletNode(audioContext, 'audio-worklet-processor');
 			//create a media stream source

@@ -17,4 +17,4 @@ class Visualizer extends AudioWorkletProcessor {
 registerProcessor('audio-worklet-processor', Visualizer);
    
 
-console.log('WorkletProcessor loaded..!');
+//console.log('WorkletProcessor loaded..!');
