@@ -20,6 +20,7 @@ html {
   --glass: #ffffff17;
   --app-height: 100vh;
   --pattern: url("/images/backgrounds/blue_w.webp");
+  --amplitude: 0px;
   --positionForStickers: fixed;
 }
 
@@ -64,7 +65,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: absolute;
+  position: fixed;
   bottom: 100px;
   left: 50%;
   background: rgba(0, 0, 0, 0.7333333333);
@@ -91,7 +92,7 @@ body {
   height: 100%;
   position: fixed;
   display: grid;
-  grid-template-columns: 70% 1fr;
+  grid-template-columns: 80% 1fr;
   transition: 100ms ease-in-out;
   left: -100%;
   z-index: 90;
@@ -124,7 +125,7 @@ body {
   transform: translateX(-50%);
   transform-origin: bottom;
   scrollbar-width: none;
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
   z-index: 20;
 }
 .stickersPanel.active {
@@ -229,7 +230,7 @@ img:is(.sticker) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
 }
 #sidebar #keyname {
   padding-bottom: 20px;
@@ -366,7 +367,7 @@ img:is(.sticker) {
   right: 0;
   z-index: 80;
   transition: 100ms ease-in-out;
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
 }
 .themeChooser.active {
   visibility: visible;
@@ -567,25 +568,10 @@ img {
   transition: 150ms;
   transform: translateY(20px) scale(0.5);
 }
-.chatInput .close_area.active {
-  bottom: 0;
-  visibility: visible;
-  opacity: 1;
-  transform: scale(1);
+.chatInput .close_area .attachmentButton i {
+  pointer-events: none;
 }
-.chatInput .close_area.active .attachmentButton {
-  transform: translateY(0px) scale(1);
-}
-.chatInput .close_area.active .attachmentButton:nth-child(1) {
-  transition-delay: 50ms;
-}
-.chatInput .close_area.active .attachmentButton:nth-child(2) {
-  transition-delay: 80ms;
-}
-.chatInput .close_area.active .attachmentButton:nth-child(3) {
-  transition-delay: 110ms;
-}
-.chatInput .attachmentContainer {
+.chatInput .close_area .attachmentContainer {
   position: absolute;
   bottom: 70px;
   padding: 20px;
@@ -601,8 +587,54 @@ img {
   visibility: visible;
   opacity: 1;
   background: var(--primary-dark);
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
   z-index: 20;
+}
+.chatInput .close_area .attachmentButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  transform: translateY(0px) scale(1);
+}
+.chatInput .close_area .attachmentButton .text {
+  font-size: 0.7rem;
+}
+.chatInput .close_area .attachmentButton:nth-child(1) {
+  transition-delay: 50ms;
+  -webkit-animation-delay: 50ms;
+          animation-delay: 50ms;
+}
+.chatInput .close_area .attachmentButton:nth-child(2) {
+  transition-delay: 80ms;
+  -webkit-animation-delay: 80ms;
+          animation-delay: 80ms;
+}
+.chatInput .close_area .attachmentButton:nth-child(3) {
+  transition-delay: 110ms;
+  -webkit-animation-delay: 110ms;
+          animation-delay: 110ms;
+}
+.chatInput .close_area .attachmentButton:nth-child(4) {
+  transition-delay: 140ms;
+  -webkit-animation-delay: 140ms;
+          animation-delay: 140ms;
+}
+.chatInput .close_area.active {
+  bottom: 0;
+  visibility: visible;
+  opacity: 1;
+  transform: scale(1);
+}
+.chatInput .close_area.active .attachmentButton {
+  transform: translateY(0px) scale(1);
+}
+
+.fa-shake {
+  color: white;
+  --fa-animation-duration: 2s;
 }
 
 .attachments, .stickerBtn {
@@ -616,12 +648,95 @@ img {
   align-items: center;
   justify-content: center;
 }
-.file_preview .fa-file-lines {
+.file_preview i[class^=fa-] {
   font-size: 4rem;
 }
 
 input[type=file] {
   display: none;
+}
+
+.voiceRecorder {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: none;
+  position: absolute;
+  height: 100%;
+  width: 45px;
+  right: 0;
+  overflow: hidden;
+  transition: 300ms ease-in-out;
+  z-index: 2;
+  isolation: isolate;
+}
+.voiceRecorder::before {
+  position: absolute;
+  content: "";
+  height: 100%;
+  width: var(--recordedAudioPlaybackProgress, 0);
+  background: rgba(0, 0, 0, 0.1490196078);
+  z-index: -1;
+}
+.voiceRecorder.active {
+  width: 100%;
+  background: var(--primary-dark);
+}
+.voiceRecorder.active #audiovisualizer {
+  background: rgba(255, 255, 255, 0.0509803922);
+}
+.voiceRecorder .recordIcon {
+  font-size: 0.6rem !important;
+  color: indianred;
+  -webkit-animation: blink 0.5s infinite alternate;
+          animation: blink 0.5s infinite alternate;
+}
+.voiceRecorder[data-recordingstate=false] .recordIcon {
+  -webkit-animation: none;
+          animation: none;
+}
+.voiceRecorder[data-recordingstate=false] #audiovisualizer {
+  height: 0;
+  width: 0;
+}
+.voiceRecorder #audiovisualizer {
+  position: absolute;
+  background: transparent;
+  height: var(--amplitude, 0);
+  width: var(--amplitude, 0);
+  border-radius: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: -1;
+  transition: 50ms ease-in-out;
+  pointer-events: none;
+}
+.voiceRecorder .recordBtn .fa-microphone {
+  color: hsl(206deg, 14%, 65%) !important;
+}
+.voiceRecorder .btn {
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.voiceRecorder .recording {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: 5px;
+  pointer-events: none;
+}
+.voiceRecorder .recording .recordingText {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.voiceRecorder .recording .recordingTime {
+  font-size: 0.8rem;
 }
 
 #send {
@@ -693,7 +808,7 @@ input[type=file] {
 }
 
 i[class^=fa-] {
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 .fa-link, .fa-clone, .fa-location-dot, .fa-reply, .fa-download, .fa-circle-notch, .fa-arrow-down, .fa-gear {
@@ -707,10 +822,15 @@ i[class^=fa-] {
   cursor: pointer;
 }
 
+.replyData [class^=fa-] {
+  font-size: 1.2rem !important;
+  padding: 5px;
+}
+
 #more {
   padding: 0 10px;
   position: relative;
-  transition: 300ms ease-in-out;
+  transition: 150ms ease-in-out;
 }
 
 .optionPanel {
@@ -725,7 +845,7 @@ i[class^=fa-] {
   position: relative;
 }
 
-.upload_image label, .upload_file label {
+.attachmentButton label {
   position: relative;
   padding: 10px;
   width: 50px;
@@ -737,7 +857,7 @@ i[class^=fa-] {
   cursor: pointer;
 }
 
-.upload_image, .upload_file, #send-location, #createPollBtn {
+.attachmentButton {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -745,7 +865,7 @@ i[class^=fa-] {
   gap: 10px;
   position: relative;
 }
-.upload_image .text, .upload_file .text, #send-location .text, #createPollBtn .text {
+.attachmentButton .text {
   font-size: 0.7rem;
 }
 
@@ -759,25 +879,6 @@ i[class^=fa-] {
   place-items: center;
   background: var(--secondary-dark);
   cursor: pointer;
-}
-
-.fa-file-lines, .fa-image, .fa-location-crosshairs, .fa-square-poll-horizontal {
-  color: white;
-  --fa-animation-duration: 2s;
-}
-
-.fa-image {
-  -webkit-animation-delay: 0.3s;
-          animation-delay: 0.3s;
-}
-
-.fa-location-crosshairs {
-  -webkit-animation-delay: 0.6s;
-          animation-delay: 0.6s;
-}
-
-.file_preview .fa-file-lines {
-  color: var(--secondary-dark);
 }
 
 #typingIndicator {
@@ -859,6 +960,18 @@ i[class^=fa-] {
     transform: translateY(0);
   }
 }
+.inputField {
+  padding: 0;
+  margin: 0;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
 #textbox {
   resize: none;
   padding: 10px 23px 10px 23px;
@@ -866,7 +979,7 @@ i[class^=fa-] {
   max-height: 100px;
   border: none;
   outline: none;
-  border-radius: 25px;
+  border-radius: inherit;
   background: var(--glass);
   scrollbar-width: none;
 }
@@ -920,7 +1033,7 @@ i[class^=fa-] {
   opacity: 0;
   top: 20px;
   transition: 100ms ease-in-out;
-  filter: drop-shadow(2px 2px 5px black);
+  filter: drop-shadow(0 4px 5px black);
 }
 #replyToast.active {
   visibility: visible;
@@ -980,7 +1093,7 @@ i[class^=fa-] {
   opacity: 0;
   transition: 100ms ease-in-out;
   cursor: pointer;
-  filter: drop-shadow(2px 2px 2px #000);
+  filter: drop-shadow(0 4px 5px black);
 }
 .newmessagepopup.active {
   bottom: 65px;
@@ -996,9 +1109,9 @@ i[class^=fa-] {
 .newmessagepopup.toastActiveFile {
   bottom: 154px;
 }
-.newmessagepopup img {
-  height: 30px;
-  width: 30px;
+.newmessagepopup .newmessagepopupavatar {
+  height: 20px;
+  width: 20px;
 }
 .newmessagepopup .msg {
   font-size: 0.8rem;
@@ -1106,7 +1219,7 @@ i[class^=fa-] {
   place-content: center;
   display: grid;
   transition: 100ms ease-in-out;
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
 }
 
 .reactOptionsWrapper {
@@ -1144,7 +1257,7 @@ i[class^=fa-] {
   padding: 5px 20px;
   border-radius: 15px 15px 0 0;
   transition: 100ms ease-in-out;
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
 }
 .moreReactsContainer.active {
   visibility: visible;
@@ -1217,7 +1330,7 @@ i[class^=fa-] {
   font-size: 1.3rem;
   padding: 3px 10px;
   background: var(--primary-dark);
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
 }
 .options:is(#reactOptions) > div {
   border-radius: 10px;
@@ -1239,6 +1352,9 @@ i[class^=fa-] {
   align-items: center;
   gap: 3px;
   padding: 15px;
+}
+.options:is(#normalOptions) > div i, .options:is(#normalOptions) > div span {
+  pointer-events: none;
 }
 .options:is(#normalOptions) > div span {
   font-size: 0.7rem;
@@ -1289,6 +1405,7 @@ i[class^=fa-] {
           backdrop-filter: blur(5px);
   scrollbar-width: none;
   transition: 100ms ease-in-out;
+  filter: drop-shadow(0 4px 5px black);
 }
 .reactorContainer ul {
   display: flex;
@@ -1325,6 +1442,23 @@ i[class^=fa-] {
   width: 1px;
 }
 
+@-webkit-keyframes blink {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 @media (orientation: landscape) and (min-device-aspect-ratio: 1/1) {
   .moreReactsContainer {
     width: 50%;

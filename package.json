@@ -1,6 +1,6 @@
 {
   "name": "poketab_messanger",
-  "version": "25.0.1",
+  "version": "25.0.2",
   "description": "Realtime messaging application",
   "main": "server/server.js",
   "scripts": {
@@ -26,10 +26,8 @@
     "express-useragent": "^1.0.15",
     "multer": "^1.4.5-lts.1",
     "mustache": "^4.2.0",
-    "node-cache": "^5.1.2",
-    "socket.io-client": "^4.5.4",
     "socket.io": "^4.5.4",
-    "uuid": "^8.3.2"
+    "socket.io-client": "^4.5.4"
   },
   "devDependencies": {
     "eslint": "^8.28.0",

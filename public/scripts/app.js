@@ -30,6 +30,19 @@ const replyOption = document.querySelector('.replyOption');
 const fileDropZone = document.querySelector('.fileDropZone');
 const showMoreReactBtn = document.getElementById('showMoreReactBtn');
 
+const recordButton = document.getElementById('recordVoiceButton');
+const cancelVoiceRecordButton = document.getElementById('cancelVoiceRecordButton');
+const recorderElement = document.getElementById('recorderOverlay');
+const micIcon = document.getElementById('micIcon');
+const recorderTimer = document.getElementById('recordingTime');
+
+//use a global variable to store the recorded audio
+let recordedAudio;
+const audioChunks = [];
+let stream;
+let timerInterval, autoStopRecordtimeout;
+let recordCancel = false;
+
 //all the audio files used in the app
 const incommingmessage = new Audio('/sounds/incommingmessage.mp3');
 const outgoingmessage = new Audio('/sounds/outgoingmessage.mp3');
@@ -43,8 +56,9 @@ const stickerSound = new Audio('/sounds/sticker.mp3');
 
 //three main types of messages are sent in the app by these three buttons
 const sendButton = document.getElementById('send');
-const photoButton = document.getElementById('photo');
-const fileButton = document.getElementById('file');
+const photoButton = document.getElementById('photoChooser');
+const fileButton = document.getElementById('fileChooser');
+const audioButton = document.getElementById('audioChooser');
 
 
 let isTyping = false, timeout = undefined;
@@ -59,11 +73,13 @@ const maxUser = document.getElementById('maxUser').textContent;
 //template messages
 const messageTemplate = document.getElementById('messageTemplate').innerHTML;
 const fileTemplate = document.getElementById('fileTemplate').innerHTML;
+const audioTemplate = document.getElementById('audioMessageTemplate').innerHTML;
 
 //remove the templates from the dom to make it invisible
 document.getElementById('userMetaTemplate').remove();
 document.getElementById('messageTemplate').remove();
 document.getElementById('fileTemplate').remove();
+document.getElementById('audioMessageTemplate').remove();
 
 //current theme
 let THEME = '';
@@ -154,7 +170,8 @@ const targetMessage = {
 //the file which fires the event
 const targetFile = {
 	fileName: '',
-	fileData: ''
+	fileData: '',
+	ext: '',
 };
 
 //after the message is varified we store the message info here
@@ -365,12 +382,29 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		}else if(type === 'image'){ //if the message is an image
 			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
 			message = sanitizeImagePath(message); //sanitize the image path
-			message = `<div class='imageContainer msg'><img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' /><div class='sendingImage'> Uploading...</div></div>`; //insert the image
+			message = `
+			<div class='imageContainer msg'>
+				<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' />
+				<div class="circleProgressLoader" style="stroke-dasharray: 0, 251.2;">
+					<svg class="animated inactive" viewbox="0 0 100 100">
+						<circle cx="50" cy="50" r="45" fill="transparent"/>
+						<path id="progress" stroke-linecap="round" stroke-width="3" stroke="#fff" fill="none"
+							d="M50 10
+								a 40 40 0 0 1 0 80
+								a 40 40 0 0 1 0 -80">
+						</path>
+					</svg>
+					<div class="progressPercent">Uploading...</div>
+				</div>
+			</div>
+			`; //insert the image
 		}else if (type === 'sticker'){
 			popupmsg = 'Sticker';
 			message = sanitizeImagePath(message);
-			message = `<img class='sticker msg' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />`;
-		}else if(type != 'text' && type != 'image' && type != 'file' && type != 'sticker'){ //if the message is not a text or image message
+			message = `
+			<img class='sticker msg' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
+			`;
+		}else if(type != 'text' && type != 'image' && type != 'file' && type != 'sticker' && type != 'audio'){ //if the message is not a text or image message
 			throw new Error('Invalid message type');
 		}
 		if(uid == myId){ //if the message is sent by the user is me
@@ -422,6 +456,14 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 			if (!document.getElementById(replyId)){
 				reply = {data: 'Message is not available on this device', type: 'text'};
 			}
+			const replyMap = {
+				'text': 'message',
+				'file': 'message',
+				'audio': 'message',
+				'image': 'image',
+				'sticker': 'image'
+			};
+			/*
 			if (reply.type === 'text' || reply.type === 'file'){
 				replyMsg = sanitize(reply.data);
 				replyFor = 'message';
@@ -432,7 +474,22 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 				replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .sticker').outerHTML.replace('class="sticker"', 'class="sticker imageReply"');
 				replyFor = 'image';
 			}
+			*/
+
+			replyFor = replyMap[reply.type] || 'message';
+
+			if (replyFor === 'message') {
+				replyMsg = sanitize(reply.data);
+			} else {
+				replyMsg = document.getElementById(replyId)?.querySelector(`.messageMain .${reply.type}`).outerHTML.replace(`class="${reply.type}"`, `class="${reply.type} imageReply"`);
+			}
+
 		}
+
+		const replyIconMap = {
+			'file': 'fa-paperclip',
+			'audio': 'fa-music',
+		};
 	
 		if (type === 'file'){
 			popupmsg = 'File';
@@ -444,11 +501,28 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 				type: type,
 				repId: replyId,
 				title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
-				data: message,
+				source: message,
 				fileName: metadata.name,
 				fileSize: metadata.size,
 				ext: metadata.ext,
-				replyMsg: document.getElementById(replyId)?.dataset?.type === 'file' ? `<i class="fa-solid fa-paperclip"></i> ${replyMsg}` : replyMsg,
+				replyMsg: replyIconMap[reply.type] ? `<i class="fa-solid ${replyIconMap[reply.type]}"></i> ${replyMsg}` : replyMsg,
+				replyFor: replyFor,
+				time: getCurrentTime()
+			});
+		}else if (type == 'audio'){
+			popupmsg = 'Audio';
+			html = Mustache.render(audioTemplate, {
+				classList: classList,
+				avatarSrc: `/images/avatars/${avatar}(custom).png`,
+				messageId: id,
+				uid: uid,
+				type: type,
+				repId: replyId,
+				title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+				source: message,
+				length: 'Play',
+				ext: metadata.ext,
+				replyMsg: replyIconMap[reply.type] ? `<i class="fa-solid ${replyIconMap[reply.type]}"></i> ${replyMsg}` : replyMsg,
 				replyFor: replyFor,
 				time: getCurrentTime()
 			});
@@ -462,7 +536,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 				repId: replyId,
 				title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
 				message: message,
-				replyMsg: document.getElementById(replyId)?.dataset?.type === 'file' ? `<i class="fa-solid fa-paperclip"></i> ${replyMsg}` : replyMsg,
+				replyMsg: replyIconMap[reply.type] ? `<i class="fa-solid ${replyIconMap[reply.type]}"></i> ${replyMsg}` : replyMsg,
 				replyFor: replyFor,
 				time: getCurrentTime()
 			});
@@ -509,11 +583,17 @@ window.addEventListener('focus', () => {
 });
 
 function sanitizeImagePath(path){
-	if (path.match(/^[a-zA-Z0-9_\-\/:.]+$/)){
-		//console.log('path is valid');
+
+	//path regex will contain normal characters, numbers, underscores, hyphens and base64 characters
+	const regex = /[<>&'"\s]/g;
+
+	if (!path.match(regex)){
+		console.log('path is valid');
+		console.log(path);
 		return path;
 	}else{
-		//console.log('path is invalid');
+		console.log('path is invalid');
+		console.log(path);
 		return '/images/danger-mini.webp';
 	}
 }
@@ -689,10 +769,17 @@ function showOptions(type, sender, target){
 	if (target.classList.contains('imageReply')){
 		return;
 	}
+
+	const downloadable = {
+		'image': true,
+		'file': true,
+		'audio': true,
+	};
+
 	//if the message is a text message
 	if (type === 'text'){
 		copyOption.style.display = 'flex';
-	}else if (type === 'image' || type === 'file'){ //if the message is an image
+	}else if (downloadable[type]){ //if the message is an image
 		if (target.closest('.message')?.dataset.downloaded == 'true'){
 			downloadOption.style.display = 'flex';
 		}
@@ -735,7 +822,7 @@ function showOptions(type, sender, target){
 		//document.getElementById('focus_glass').classList.add('active');
 		addFocusGlass(false);
 		options.addEventListener('click', optionsMainEvent);
-	}, 20);
+	}, 100);
 }
 
 function addFocusGlass(backdrop = true){
@@ -772,7 +859,7 @@ function deleteMessage(messageId, user){
 			//console.log(message.querySelector('.image').src, 'deleted');
 		}else if (message.dataset.type == 'file'){
 			//delete the file from the source
-			URL.revokeObjectURL(message.querySelector('.file').dataset.data);
+			URL.revokeObjectURL(message.querySelector('.msg').dataset.src);
 			//console.log(message.querySelector('a').href, 'deleted');
 		}
 
@@ -857,13 +944,19 @@ function saveImage(){
 }
 
 function downloadFile(){
-	popupMessage('Preparing file...');
+	popupMessage('Preparing download...');
+
+	const downloadName = {
+		'file': `Poketab-${Date.now()}${targetFile.fileName}`,
+		'audio': `Poketab-${Date.now()}.${targetFile.ext == 'mpeg' ? 'mp3' : targetFile.ext}`,
+	};
+
 	const data = targetFile.fileData;
-	const fileName = targetFile.fileName;
+
 	//let filetype = filename.split('.').pop();
 	const a = document.createElement('a');
 	a.href = data;
-	a.download = fileName;
+	a.download = downloadName[targetMessage.type];
 	document.body.appendChild(a);
 	a.click();
 	document.body.removeChild(a);
@@ -898,7 +991,7 @@ function hideOptions(){
 		downloadOption.style.display = 'none';
 		deleteOption.style.display = 'none';
 		options.style.display = 'none';
-	}, 20);
+	}, 100);
 	//document.getElementById('focus_glass').classList.remove('active');
 	removeFocusGlass();
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
@@ -1031,14 +1124,18 @@ function showReplyToast(){
 			}
 			replyToast.querySelector('.replyData').appendChild(finalTarget.message);
 		}
-	}else if (finalTarget.type == 'file'){
+	}else if (finalTarget.type == 'file' || finalTarget.type == 'audio'){
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
 		document.querySelector('.newmessagepopup').classList.add('toastActiveFile');
 		while (replyToast.querySelector('.replyData').firstChild) {
 			replyToast.querySelector('.replyData').removeChild(replyToast.querySelector('.replyData').firstChild);
 		}
 		const fileIcon = document.createElement('i');
-		fileIcon.classList.add('fa-solid', 'fa-paperclip');
+		const iconSet = {
+			'file': 'fa-paperclip',
+			'audio': 'fa-music',
+		};
+		fileIcon.classList.add('fa-solid', iconSet[finalTarget.type]);
 		replyToast.querySelector('.replyData').appendChild(fileIcon);
 		replyToast.querySelector('.replyData').appendChild(document.createTextNode(finalTarget.message?.substring(0, 50)));
 	}else{
@@ -1051,7 +1148,7 @@ function showReplyToast(){
 	replyToast.style.display = 'flex';
 	setTimeout(() => {
 		replyToast.classList.add('active');
-	}, 10);
+	}, 100);
 }
 
 function hideReplyToast(){
@@ -1122,10 +1219,11 @@ function getReact(type, messageId, uid){
 			let count = 0;
 			map.forEach((value, key) => {
 				if (count >= 2){
-					reactsOfMessage.querySelector('span').remove();
+					reactsOfMessage.querySelector('.react-item').remove();
 				}
 				const fragment = document.createDocumentFragment();
 				const span = document.createElement('span');
+				span.classList.add('react-item');
 				span.textContent = `${key}${value}`;
 				fragment.append(span);
 				reactsOfMessage.append(fragment);
@@ -1206,10 +1304,28 @@ function clearFinalTarget(){
 }
 
 function OptionEventHandler(evt, popup = true){
-	let type;
+
+	const typeList = {
+		'text': true,
+		'image': true,
+		'file': true,
+		'sticker': true,
+		'audio': true,
+		'video': false,
+		'contact': false,
+	};
+
+	//console.log(evt.target);
+
+	const type = evt.target.closest('.message')?.dataset?.type;
+
+	if (!typeList[type] || !evt.target.closest('.msg')){
+		return;
+	}
+
 	const sender = evt.target.closest('.message').classList.contains('self')? true : false;
-	if (evt.target.closest('.messageMain')?.querySelector('.text') ?? null){
-		type = 'text';
+	if (type == 'text'){
+		//text
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
@@ -1218,8 +1334,8 @@ function OptionEventHandler(evt, popup = true){
 		targetMessage.type = type;
 		targetMessage.id = evt.target?.closest('.message')?.id;
 	}
-	else if (evt.target.classList.contains('image') && !evt.target.classList.contains('imageReply')){
-		type = 'image';
+	else if (type == 'image'){
+		//image
 		while (document.querySelector('#lightbox__image').firstChild) {
 			document.querySelector('#lightbox__image').removeChild(document.querySelector('#lightbox__image').firstChild);
 		}
@@ -1238,20 +1354,31 @@ function OptionEventHandler(evt, popup = true){
 		targetMessage.message = targetNode;
 		targetMessage.type = type;
 		targetMessage.id = evt.target?.closest('.message')?.id;
-	}
-	else if (evt.target.closest('.messageMain')?.querySelector('.file') ?? null){
-		type = 'file';
+	}else if (type == 'audio'){
+		// audio
+		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
+		if (targetMessage.sender == myName){
+			targetMessage.sender = 'You';
+		}
+		targetFile.fileName = targetMessage.message = 'Audio message';
+		targetFile.fileData = evt.target.closest('.messageMain').querySelector('.msg').dataset.src;
+		targetFile.ext = evt.target.closest('.messageMain').querySelector('.msg').dataset.ext;
+		targetMessage.type = type;
+		targetMessage.id = evt.target?.closest('.message')?.id;
+	}else if (type == 'file'){
+		//file
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
 		}
 		targetFile.fileName = evt.target.closest('.messageMain').querySelector('.fileName').textContent;
-		targetFile.fileData = evt.target.closest('.messageMain').querySelector('.file').dataset.data;
+		targetFile.fileData = evt.target.closest('.messageMain').querySelector('.msg').dataset.src;
+		targetFile.ext = evt.target.closest('.messageMain').querySelector('.msg').dataset.ext;
 		targetMessage.message = targetFile.fileName;
 		targetMessage.type = type;
 		targetMessage.id = evt.target?.closest('.message')?.id;
-	}else if (evt.target.closest('.messageMain')?.querySelector('.sticker') ?? null){
-		type = 'sticker';
+	}else if (type == 'sticker'){
+		//sticker
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
@@ -1261,8 +1388,10 @@ function OptionEventHandler(evt, popup = true){
 		targetMessage.type = type;
 		targetMessage.id = evt.target?.closest('.message')?.id;
 	}
-	if ((type === 'text' || type === 'image' || type === 'file' || type === 'sticker') && popup){
+	if ((typeList[type]) && popup){
 		showOptions(type, sender, evt.target);
+	}else{
+		console.log('no type');
 	}
 	vibrate();
 }
@@ -1275,6 +1404,7 @@ function updateScroll(avatar = null, text = ''){
 			document.querySelector('.newmessagepopup .msg').style.display = 'block';
 			document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
 			document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).png`;
+			document.querySelector('.newmessagepopup img').classList.add('newmessagepopupavatar');
 			document.querySelector('.newmessagepopup .msg').textContent = text;
 			document.querySelector('.newmessagepopup').classList.add('active');
 		}
@@ -1401,10 +1531,7 @@ function linkify(inputText) {
 		const regex = /(https?:\/\/|www\.)[^\s]+/g;
 		return inputText.replace(regex, function(url) {
 			url = sanitize(url);
-			//if the url does not contain http:// or https://, then add http://
-			if (!/^(?:f|ht)tps?:\/\//.test(url)) {
-				url = 'http://' + url;
-			}
+
 			return '<a href="' + url + '">' + url + '</a>';
 		});
 	}else{
@@ -1586,7 +1713,7 @@ function closeStickersPanel(){
 	document.getElementById('stickersPanel').classList.remove('active');
 	setTimeout(() => {
 		document.getElementById('stickersPanel').style.display = 'none';
-	}, 10);
+	}, 100);
 }
 
 
@@ -1829,14 +1956,14 @@ document.getElementById('attmain').addEventListener('click', () => {
 	document.getElementById('attmain').classList.remove('active');
 	setTimeout(()=>{
 		document.getElementById('attmain').style.display = 'none';
-	}, 10);
+	}, 100);
 });
 
 document.getElementById('attachment').addEventListener('click', ()=>{
 	document.getElementById('attmain').style.display = 'flex';
 	setTimeout(()=>{
 		document.getElementById('attmain').classList.add('active');
-	}, 10);
+	}, 50);
 });
 
 document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) => {
@@ -1851,6 +1978,7 @@ let scrollIntoViewTimeout = undefined;
 messages.addEventListener('click', (evt) => {
 	try {
 		let msgTimeTimeout = undefined;
+		//console.log(evt.target);
 		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')){
 			evt.target?.closest('.message')?.querySelector('.messageTime')?.classList?.add('active');
 			//if target is a pre or code
@@ -1867,7 +1995,7 @@ messages.addEventListener('click', (evt) => {
 				msgTimeTimeout = undefined;
 			}, 1500);
 		}
-		if (evt.target?.classList?.contains('image') && !evt.target?.classList?.contains('imageReply')){
+		if (evt.target?.classList?.contains('imageContainer')){
 			evt.preventDefault();
 			evt.stopPropagation();
 			if (evt.target.closest('.message')?.dataset.downloaded != 'true'){  
@@ -1893,8 +2021,46 @@ messages.addEventListener('click', (evt) => {
 			PanZoom(document.getElementById('lightbox__image').querySelector('img'));
 
 			document.getElementById('lightbox').classList.add('active');
-		}
-		else if (evt.target?.classList?.contains('reactsOfMessage') || evt.target?.parentNode?.classList?.contains('reactsOfMessage')){
+		}else if (evt.target?.closest('.message')?.dataset?.type == 'audio' && evt.target.closest('.main-element')){
+			evt.preventDefault();
+			const target = evt.target;
+			const audioMessage = target.closest('.audioMessage');
+			const audio = audioMessage.querySelector('audio');
+		
+			if (audioMessage){
+				//console.log(evt.target);
+				if (evt.target.classList.contains('main-element')){
+					//if target is current audio
+					if (!audio.paused){
+						if (audioMessage.offsetWidth === 0 || isNaN(audio.duration)) {
+							// do not seek to a position
+							return;
+						}
+						const time = (evt.offsetX / audioMessage.offsetWidth) * audio.duration;
+						seekAudioMessage(audioMessage, time);
+					}
+				}
+		
+				if (target.classList?.contains('fa-play')){
+					if (audio.src !== lastAudioMessagePlay?.src){
+						if (lastAudioMessagePlay){
+							stopAudio(lastAudioMessagePlay.closest('.audioMessage'));
+						}
+						audio.src = audioMessage.dataset.src;
+						//console.log('%cStopping last audio', 'color: red');
+						lastAudioMessagePlay = audio;
+					}
+					//console.log('%cPlaying audio', 'color: green');	
+					playAudio(audioMessage);
+				} else if (target.classList?.contains('fa-pause')){
+					//console.log('%cPausing audio', 'color: blue');
+					pauseAudio(audioMessage);
+				} else if (target.classList?.contains('fa-stop')){
+					//console.log('%cStopped audio', 'color: red');
+					stopAudio(audioMessage);
+				}
+			}
+		}else if (evt.target?.classList?.contains('reactsOfMessage')){
 			const target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
 			const container = document.querySelector('.reactorContainer ul');
 
@@ -1928,9 +2094,7 @@ messages.addEventListener('click', (evt) => {
 			hideOptions();
 			document.querySelector('.reactorContainerWrapper').classList.add('active');
 			addFocusGlass(false);
-		}
-
-		else if (evt.target?.closest('.messageReply') || evt.target?.closest('.imageReply')){
+		}else if (evt.target?.closest('.messageReply') || evt.target?.closest('.imageReply')){
 			if (document.getElementById(evt.target.closest('.messageReply').dataset.repid).dataset.deleted != 'true'){
 				try{
 					const target = evt.target.closest('.messageReply')?.dataset.repid;
@@ -1961,14 +2125,87 @@ messages.addEventListener('click', (evt) => {
 			}else{
 				popupMessage('Deleted message');
 			}
-		}
-		else{
+		}else{
 			hideOptions();
 		}
 	}catch(e){
 		console.log('Message does not exist', e);
 	}
 });
+
+
+let lastAudioMessagePlay = null;
+
+function playAudio(elem){
+	if (lastAudioMessagePlay?.paused) {
+		const audioMessage = elem.closest('.audioMessage');
+		const timeElement = audioMessage.querySelector('.time');
+		audioMessage.querySelector('.play-pause i').classList.replace('fa-play', 'fa-pause');
+
+		const audio = lastAudioMessagePlay = elem.querySelector('audio');
+
+		audio.play();
+
+		audio.addEventListener('timeupdate', () => {
+			//updateAudioMessageTime(audioMessage);
+			//if audio.duration is number
+			if (isFinite(audio.duration)){
+				const percentage = updateAudioMessageTimer(audio, timeElement);
+				audioMessage.style.setProperty('--audioMessageProgress', `${percentage}%`);
+			}else{
+				//console.clear();
+				//console.log('Audio duration is not a number');
+				timeElement.textContent = 'Wait..!';
+			}
+		});
+
+		audio.addEventListener('ended', () => {
+			audioMessage.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
+			audio.currentTime = 0;
+			audioMessage.style.setProperty('--audioMessageProgress', '0%');
+		});
+
+	} else {
+		pauseAudio(elem);
+	}
+}
+
+function stopAudio(elem){
+	const message = elem.closest('.audioMessage');
+	message.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
+	//dataset.playing = 'false';
+	elem.querySelector('audio').currentTime = 0;
+	elem.querySelector('audio').pause();
+	lastAudioMessagePlay = elem.querySelector('audio');
+}
+
+function pauseAudio(elem){
+	const message = elem.closest('.audioMessage');
+	message.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
+	//dataset.playing = 'false';
+	elem.querySelector('audio').pause();
+	lastAudioMessagePlay = elem.querySelector('audio');
+}
+
+
+function seekAudioMessage(audioMessage, time){
+	try{
+		audioMessage.querySelector('audio').currentTime = isNaN(time) ? 0 : time;
+	}catch(e){
+		console.log(e);
+		console.log('seekAudioMessage error - Time: ', time);
+	}
+}
+
+function remainingTime(totalTime, elapsedTime) {
+	// Calculate the remaining time
+	const remaining = Math.floor(totalTime) - Math.floor(elapsedTime);
+	// Calculate the minutes and seconds
+	const minutes = Math.floor(remaining / 60);
+	const seconds = Math.floor(remaining % 60);	
+	// Return the remaining time in the format "00:00"
+	return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+}
 
 
 document.querySelector('.reactorContainerWrapper').addEventListener('click', (evt) => {
@@ -2009,8 +2246,14 @@ photoButton.addEventListener('change', ()=>{
 });
 
 fileButton.addEventListener('change', ()=>{
-	FilePreview();
+	FilePreview(null, false);
 });
+
+audioButton.addEventListener('change', ()=>{
+	FilePreview(null, true);
+});
+
+
 
 function ImagePreview(fileFromClipboard = null){
 	const file = fileFromClipboard || photoButton.files[0];
@@ -2062,9 +2305,10 @@ function ImagePreview(fileFromClipboard = null){
 	//clear photoButton
 	photoButton.value = '';
 	fileButton.value = '';
+	audioButton.value = '';
 }
 
-function FilePreview(fileFromClipboard = null){
+function FilePreview(fileFromClipboard = null, audio = false){
 	document.getElementById('previewImage').querySelector('#imageSend').style.display = 'none';
 	while (document.getElementById('selectedImage').firstChild) {
 		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
@@ -2082,7 +2326,7 @@ function FilePreview(fileFromClipboard = null){
 	document.getElementById('selectedImage').append(loadingElement);
 
 	document.getElementById('previewImage')?.classList?.add('active');
-	const file = fileFromClipboard || fileButton.files[0];
+	const file = fileFromClipboard || (audio ? audioButton.files[0] : fileButton.files[0]);
 	let filename = file.name;
 	let size = file.size;
 	const ext = file.type.split('/')[1];
@@ -2109,7 +2353,7 @@ function FilePreview(fileFromClipboard = null){
 	selectedFile.name = sanitize(shortFileName(filename));
 	selectedFile.size = size;
 	selectedFile.ext = ext;
-	selectedObject = 'file';
+	selectedObject = audio ? 'audio' : 'file';
 	
 	while (document.getElementById('selectedImage').firstChild) {
 		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
@@ -2120,7 +2364,7 @@ function FilePreview(fileFromClipboard = null){
 	const fileElement = document.createElement('div');
 	fileElement.classList.add('file_preview');
 	const fileIcon = document.createElement('i');
-	fileIcon.classList.add('fa-regular', 'fa-file-lines');
+	fileIcon.classList.add('fa-regular', audio ? 'fa-file-audio' : 'fa-file-lines');
 	const fileName = document.createElement('div');
 	fileName.textContent = `File: ${filename}`;
 	const fileSize = document.createElement('div');
@@ -2132,7 +2376,9 @@ function FilePreview(fileFromClipboard = null){
 	//clear photoButton 
 	photoButton.value = '';
 	fileButton.value = '';
+	audioButton.value = '';
 }
+
 
 let timeoutObj;
 
@@ -2166,7 +2412,7 @@ window.addEventListener('drop', (evt) => {
 			if (evt.dataTransfer.files[0].type.includes('image')){
 				ImagePreview(evt.dataTransfer.files[0]);
 			}else{
-				FilePreview(evt.dataTransfer.files[0]);
+				FilePreview(evt.dataTransfer.files[0], false);
 			}
 		}
 	}
@@ -2193,6 +2439,16 @@ window.addEventListener('online', function() {
 });
 
 sendButton.addEventListener('click', () => {
+
+	if (recordedAudio){
+		sendAudioRecord();
+		return;
+	}
+	if (recorderElement.dataset.recordingstate === 'true'){
+		popupMessage('Please stop recording first');
+		return;
+	}
+
 	let message = textbox.value?.trim();
 	textbox.value = '';
     
@@ -2265,7 +2521,9 @@ document.getElementById('previewImage').querySelector('#imageSend')?.addEventLis
 	if (selectedObject === 'image'){
 		sendImageStoreRequest();
 	}else if (selectedObject === 'file'){
-		sendFileStoreRequest();
+		sendFileStoreRequest(null);
+	}else if (selectedObject === 'audio'){
+		sendFileStoreRequest('audio');
 	}
 
 	hideReplyToast();
@@ -2312,14 +2570,20 @@ async function sendImageStoreRequest(){
 		//upload image via xhr request
 		const xhr = new XMLHttpRequest();
 
+		const progresCircle = elem.querySelector('.circleProgressLoader');
+		progresCircle.querySelector('.animated').classList.remove('inactive');
+		const progressText = elem.querySelector('.circleProgressLoader .progressPercent');
+
 		//send file via xhr post request
 		xhr.open('POST', `${location.origin}/api/files`, true);
 		xhr.upload.onprogress = function(e) {
 			if (e.lengthComputable) {
 				progress = (e.loaded / e.total) * 100;
-				elem.querySelector('.sendingImage').textContent = '↑ ' + Math.round(progress) + '%';
+				progresCircle.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
+				progressText.textContent = '↑ ' + Math.round(progress) + '%';
 				if (progress === 100){
-					elem.querySelector('.sendingImage').textContent = 'Encoding...';
+					progresCircle.querySelector('.animated').style.visibility = 'hidden';
+					progressText.textContent = 'Encoding...';
 				}
 			}
 		};
@@ -2327,7 +2591,7 @@ async function sendImageStoreRequest(){
 		xhr.onload = function(e) {
 			if (this.status == 200) {                
 				if (elem){
-					elem.querySelector('.sendingImage').remove();
+					elem.querySelector('.circleProgressLoader').remove();
 					elem.querySelector('.image').style.filter = 'none';
 				}
 				document.getElementById(tempId).dataset.downloaded = 'true';
@@ -2336,7 +2600,8 @@ async function sendImageStoreRequest(){
 			else{
 				console.log('error uploading image');
 				popupMessage('Error uploading image');
-				elem.querySelector('.sendingImage').textContent = 'Upload failed';
+				elem.querySelector('.circleProgressLoader .animated').style.visibility = 'hidden';
+				elem.querySelector('.circleProgressLoader .progressPercent').textContent = 'Upload failed';
 				fileSocket.emit('fileUploadError', myKey, tempId, 'image');
 			}
 		};
@@ -2344,19 +2609,19 @@ async function sendImageStoreRequest(){
 	};
 }
 
-async function sendFileStoreRequest(){
+function sendFileStoreRequest(type = null){
 	let tempId = makeId();
 	scrolling = false;
 
-	const fileObject = new File([selectedFile.data], selectedFile.name, {type: selectedFile.ext});
-	const fileUrl = URL.createObjectURL(fileObject);
-
-	insertNewMessage(fileUrl, 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name});
-
+	//const fileObject = new File([selectedFile.data], selectedFile.name, {type: selectedFile.ext});
+	const fileUrl = URL.createObjectURL(selectedFile.data);
+	
+	insertNewMessage(fileUrl, type ? type : 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name});
+	
 	let progress = 0;
 	const elem = document.getElementById(tempId)?.querySelector('.messageMain');
 
-	fileSocket.emit('fileUploadStart', 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey, (id) => {
+	fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey, (id) => {
 		outgoingmessage.play();
 		document.getElementById(tempId).classList.add('delevered');
 		document.getElementById(tempId).id = id;
@@ -2369,7 +2634,7 @@ async function sendFileStoreRequest(){
 
 	const formData = new FormData();
 	formData.append('key', myKey);
-	formData.append('file', fileObject);
+	formData.append('file', selectedFile.data);
 
 	clearFinalTarget();
 	//upload image via xhr request
@@ -2461,12 +2726,12 @@ textbox.addEventListener('keydown', (evt) => {
 });
 
 document.getElementById('send-location').addEventListener('click', () => {
-	popupMessage('Tracing your location...');
 	if (!navigator.geolocation) {
 		popupMessage('Geolocation not supported by your browser.');
 		return;
 	}
 	navigator.geolocation.getCurrentPosition( (position) => {
+		popupMessage('Tracing your location...');
 		socket.emit('createLocationMessage', {
 			latitude: position.coords.latitude,
 			longitude: position.coords.longitude
@@ -2525,6 +2790,306 @@ function setTypingUsers(){
 		document.getElementById('typingIndicator').classList.add('active');
 	}
 }
+
+
+//record button onclick
+recordButton.addEventListener('click', () => {
+	//recorderElement.classList.add('active');
+	//if the recorder is not recording
+	if(recorderElement.dataset.recordingstate === 'false'){
+		if (recordedAudio && audioChunks.length > 0){
+			//stateDisplay.textContent = 'Stopped';
+			if (recordButton.dataset.playstate == 'stop'){
+				//console.log('%cAudio stop', 'color: red');
+				//stop playing recorded audio
+				stopPlayingRecordedAudio();
+			}else{
+				//play recorded audio
+				playRecordedAudio();
+				//stateDisplay.textContent = 'Playing';
+			}
+		}else{
+			//start recording
+			startRecording();
+			//stateDisplay.textContent = 'Recording';
+		}
+	}else{
+		//stop recording
+		stopRecording();
+		//stateDisplay.textContent = 'Idle';
+	}
+});
+
+//cancel button onclick
+cancelVoiceRecordButton.addEventListener('click', () => {
+	//if the recorder is not recording
+	if(recorderElement.dataset.recordingstate === 'true'){
+		//stop recording
+		stopRecording();
+		popupMessage('Voice message cancelled');
+	}
+	//reset for new recording
+	recordCancel = true;
+	stopRecording();
+	stopPlayingRecordedAudio();
+	resetForNewRecording();
+	//recordButton.textContent = 'record';
+	micIcon.classList.replace('fa-stop', 'fa-microphone');
+	micIcon.classList.replace('fa-play', 'fa-microphone');
+	recordButton.dataset.playstate = 'play';
+	recorderElement.classList.remove('active');
+	//stateDisplay.textContent = 'Idle';
+});
+
+//reset for new recording
+function resetForNewRecording(){
+	//clear the recorded audio
+	//delete from URL
+	if (recordedAudio){
+		URL.revokeObjectURL(recordedAudio.src);
+	}
+	recordedAudio = '';
+	audioChunks.length = 0;
+	//clear the timer
+	recorderTimer.textContent = '00:00';
+	document.documentElement.style.setProperty('--amplitude', '0px');
+}
+
+//start recording
+function startRecording(){
+	//reset for new recording
+	resetForNewRecording();
+	//start recording
+	startRecordingAudio();
+}
+
+//stop recording
+function stopRecording(){
+	//change the recording state to false
+	recorderElement.dataset.recordingstate = 'false';
+	if (recordButton.dataset.playstate === 'stop'){
+		//recordButton.textContent = 'play';
+		micIcon.classList.replace('fa-stop', 'fa-play');
+		micIcon.classList.replace('fa-microphone', 'fa-play');
+		recordButton.dataset.playstate = 'play';
+	}
+	if (autoStopRecordtimeout){
+		clearTimeout(autoStopRecordtimeout);
+	}
+	//stop the timer
+	stopTimer();
+	//stop recording
+	stopRecordingAudio();
+}
+
+//start recording audio
+function startRecordingAudio(){
+	//get the audio stream
+	navigator.mediaDevices.getUserMedia({ audio: true })
+		.then(function(s) {
+			stream = s;
+			//process the audio stream
+			processAudioStream(stream);
+			//create a media recorder
+			//const mediaRecorder = new MediaRecorder(stream);
+			//use low quality audio and mono channel and 32kbps
+			const mediaRecorder = new MediaRecorder(stream, {type: 'audio/mpeg;', audioBitsPerSecond: 32000, audioChannels: 1});
+			//start recording
+			mediaRecorder.start();
+			startTimer();
+			popupMessage('Recording...');
+
+			micIcon.classList.replace('fa-play', 'fa-stop');
+			micIcon.classList.replace('fa-microphone', 'fa-stop');
+			recordButton.dataset.playstate = 'stop';
+			recorderElement.dataset.recordingstate = 'true';
+			recorderElement.classList.add('active');
+
+			recordCancel = false;
+
+			if (autoStopRecordtimeout){
+				clearTimeout(autoStopRecordtimeout);
+			}
+
+			autoStopRecordtimeout = setTimeout(() => {
+				mediaRecorder.stop();
+				stopRecording();
+				//console.log('%cAuto Stop Record', 'color: red');
+			}, 1 * 60 * 1000);
+
+			//when the media recorder stops recording
+			mediaRecorder.onstop = function() {
+				if (!recordCancel){
+					const audioBlob = new Blob(audioChunks);
+					recordedAudio = new Audio();
+					recordedAudio.src = URL.createObjectURL(audioBlob);
+					recordCancel = false;
+					popupMessage('Recorded!');
+					//console.log("recorder state: ", mediaRecorder.state);
+				}
+			};
+			//when the media recorder gets data
+			mediaRecorder.ondataavailable = function(e) {
+				audioChunks.push(e.data);
+			};
+		})
+		.catch(function(err) {
+			console.log('The following error occured: ' + err);
+			popupMessage(err);
+		});
+}
+
+//stop recording audio
+function stopRecordingAudio(){
+	//stop the audio stream
+	stream?.getTracks().forEach(track => track.stop());
+}
+
+function updateAudioMessageTimer(audio, timerDisplay){
+	const currentTime = audio.currentTime;
+	const duration = audio.duration;
+	const percentage = (currentTime / duration) * 100;
+
+	timerDisplay.textContent = remainingTime(duration, currentTime);
+	return percentage;
+}
+
+//play recorded audio
+function playRecordedAudio(){
+
+	micIcon.classList.replace('fa-play', 'fa-stop');
+	micIcon.classList.replace('fa-microphone', 'fa-stop');
+	recorderElement.dataset.recordingstate = 'false';
+	recordButton.dataset.playstate = 'stop';
+
+	if (recordedAudio){
+		//recordedAudio.currentTime = 0;
+		recordedAudio.play();
+
+		recordedAudio.addEventListener('timeupdate', () => {
+			//if recordedaudio.duration is a number
+			if (isFinite(recordedAudio.duration)){
+				const percentage = updateAudioMessageTimer(recordedAudio, recorderTimer);
+				recorderElement.style.setProperty('--recordedAudioPlaybackProgress', percentage + '%');
+			}else{
+				recorderTimer.textContent = 'Wait..!';
+			}
+		});
+
+		recordedAudio.onended = function(){
+			micIcon.classList.replace('fa-stop', 'fa-play');
+			micIcon.classList.replace('fa-microphone', 'fa-play');
+			recordButton.dataset.playstate = 'play';
+
+			recorderTimer.textContent = '00:00';
+			recorderElement.style.setProperty('--recordedAudioPlaybackProgress', '0%');
+		};
+	}
+}
+
+//stop playing recorded audio
+function stopPlayingRecordedAudio(){
+	if (recordedAudio){
+		recordedAudio.pause();
+		recorderElement.style.setProperty('--recordedAudioPlaybackProgress', '0%');
+	}
+	micIcon.classList.replace('fa-stop', 'fa-play');
+	micIcon.classList.replace('fa-microphone', 'fa-play');
+	recordButton.dataset.playstate = 'play';
+}
+
+function sendAudioRecord(){
+	//convert Audio to File
+	fetch(recordedAudio.src)
+		.then(response => response.blob())
+		.then(audioBlob => {
+			// Create a File object from the Blob object
+			const file = new File([audioBlob], `Poketab-recording-${Date.now()}.mp3`, { type: 'audio/mpeg' });
+
+			// You can now use the audioFile object as a File object
+			selectedFile.data = file;
+			selectedFile.name = file.name;
+			selectedFile.size = file.size;
+			selectedFile.ext = 'mp3';
+		
+			selectedObject = 'audio';
+		
+			sendFileStoreRequest('audio');
+			cancelVoiceRecordButton.click();
+		});
+}
+
+//start timer
+function startTimer(){
+	//set the timer to 00:00
+	recorderTimer.textContent = '00:00';
+	stopTimer();
+	//console.log('%cstarted timer', 'color: orange');
+	//set the timer interval
+	let sec = 0;
+	let min = 0;
+	timerInterval = setInterval(() => {
+		sec++;
+		if (sec === 60){
+			sec = 0;
+			min++;
+		}
+		//display the timer
+		recorderTimer.textContent = min.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0');
+	}, 1000);
+}
+
+//stop timer
+function stopTimer(){
+	if (timerInterval){                
+		//clear the timer interval
+		clearInterval(timerInterval);
+		timerInterval = null;
+		recorderTimer.textContent = '00:00';
+		//console.log('%cstopped timer', 'color: red');
+	}
+}
+        
+//write relevant audioWorklet code here of the same function. register the worklet and use it in the processAudioStream function
+function processAudioStream(stream){
+	const audioContext = new AudioContext();
+	//register the audio worklet
+	audioContext.audioWorklet.addModule('audioWorklet.js')
+		.then(() => {
+			//console.log('Audio Worklet registering..');
+			//create an audio worklet node
+			const audioWorkletNode = new AudioWorkletNode(audioContext, 'audio-worklet-processor');
+			//create a media stream source
+			const mediaStreamSource = audioContext.createMediaStreamSource(stream);
+			//connect the media stream source to the audio worklet node
+			mediaStreamSource.connect(audioWorkletNode);
+			//connect the audio worklet node to the destination
+			audioWorkletNode.connect(audioContext.destination);
+
+			//if the audio worklet node gets a message
+			audioWorkletNode.port.onmessage = (e) => {
+				const amplitude = e.data;
+				document.documentElement.style.setProperty('--amplitude', amplitude + 'px');
+			};
+
+			//if the user stops the audio stream
+			stream.oninactive = function(){
+				if (audioContext){
+					audioContext.close();
+					audioWorkletNode.disconnect();
+					mediaStreamSource.disconnect();
+					document.documentElement.style.setProperty('--amplitude', '0px');
+				}
+			};
+		})
+		.catch((err) => {
+			console.log('The following error occured: ' + err);
+		});
+}
+
+
+
+
 
 //sockets
 socket.on('connect', () => {
@@ -2675,7 +3240,7 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
 		const elem = document.getElementById(id).querySelector('.messageMain');
 		setTimeout(() => {
 			elem.querySelector('.image').style.filter = 'brightness(0.4) url(#sharpBlur)';
-		}, 10);
+		}, 50);
 	}else{
 		insertNewMessage('', type, id, uId, reply, replyId, options, metadata);
 		const elem = document.getElementById(id).querySelector('.messageMain');
@@ -2689,7 +3254,7 @@ fileSocket.on('fileUploadError', (id, type) => {
 	const element = document.getElementById(id).querySelector('.messageMain');
 	let progressContainer;
 	if (type === 'image'){
-		progressContainer = element.querySelector('.sendingImage');
+		progressContainer = element.querySelector('.circleProgressLoader .progressPercent');
 	}else{
 		progressContainer = element.querySelector('.progress');
 	}
@@ -2705,23 +3270,32 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 	const type = data.type;
 	const element = document.getElementById(id).querySelector('.messageMain');
 	let progressContainer;
+	let progressText;
 	if (type === 'image'){
-		progressContainer = element.querySelector('.sendingImage');
+		progressContainer = element.querySelector('.circleProgressLoader');
+		progressText = progressContainer.querySelector('.progressPercent');
 	}else{
 		progressContainer = element.querySelector('.progress');
+		progressText = progressContainer;
 	}
-
+	
 	fileBuffer.delete(id);
 
 	const xhr = new XMLHttpRequest();
+
 	xhr.open('GET', `${location.origin}/api/download/${downlink}/${myKey}`, true);
 	xhr.responseType = 'blob';
 	xhr.onprogress = async function(e) {
 		if (e.lengthComputable && progressContainer) {
-			const percentComplete = Math.round((e.loaded / e.total) * 100);
-			progressContainer.textContent = `↓ ${percentComplete}%`;
-			if (percentComplete === 100){
-				progressContainer.textContent = 'Converting...';
+			const progress = Math.round((e.loaded / e.total) * 100);
+			if (type == 'image'){
+				progressContainer.querySelector('.animated')?.classList?.remove('inactive');
+				progressContainer.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
+			}
+			progressText.textContent = '↓ ' + Math.round(progress) + '%';
+			if (progress === 100){
+				type == 'image' ? progressContainer.querySelector('.animated').style.visibility = 'hidden' : null;
+				progressText.textContent = 'Decoding...';
 			}
 		}
 	};
@@ -2760,16 +3334,16 @@ function clearDownload(element, fileURL, type){
 	outgoingmessage.play();
 	if (type === 'image'){
 		setTimeout(() => {
-			element.querySelector('.sendingImage').remove();
+			element.querySelector('.circleProgressLoader').remove();
 			element.querySelector('.image').src = fileURL;
 			element.querySelector('.image').alt = 'image';
 			element.querySelector('.image').style.filter = 'none';
-		}, 10);
-	}else if (type === 'file'){
+		}, 50);
+	}else if (type === 'file' || type === 'audio'){
 		setTimeout(() => {
-			element.querySelector('.file').dataset.data = fileURL;
+			element.querySelector('.msg').dataset.src = fileURL;
 			element.querySelector('.progress').style.visibility = 'hidden';
-		}, 10);
+		}, 50);
 	}
 	element.closest('.message').dataset.downloaded = 'true';
 }

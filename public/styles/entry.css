@@ -87,8 +87,8 @@ html {
   padding-top: 10px;
 }
 .errLog.shake {
-  -webkit-animation: shake 300ms infinite;
-          animation: shake 300ms infinite;
+  -webkit-animation: shake 300ms;
+          animation: shake 300ms;
 }
 
 img {

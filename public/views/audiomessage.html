@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./../styles/message.min.css">
+    <script src="./../libs/fontawesome.js"></script>
+    <title>Audio message Template</title>
+</head>
+<body>
+
+    <div class="messages">
+
+    </div>
+
+    <div class="msg audioMessage" data-src="http://127.0.0.1:5500/public/views/1.mp3" data-length="120">
+        <div class="main-element">
+            <div class="controls">
+                <div class="play-pause"><i class="fa-solid fa-play"></i></div>
+                <div class="stop"><i class="fa-solid fa-stop"></i></div>
+            </div>
+            <div class="progress">100%</div>
+            <div class="time">00:00</div>
+        </div>
+    </div>
+
+    <button>Add Message</button>
+</body>
+
+<style>
+
+    @font-face {
+        font-family: Comic;
+        src: url('./../fonts/comic-webfont.woff2');
+    }
+
+    body{
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        font-family: Comic;
+    }
+
+    .messages{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    [class^="fa-"]{
+        color: whitesmoke;
+    }
+
+    .audioMessage{
+        height: 30px;
+        width: clamp(150px, 50%, 250px);
+        background-color: #1ba4ff;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        cursor: pointer;
+    }
+    .audioMessage::before{
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: var(--audioMessageProgress, 0%);
+        height: 100%;
+        background-color: #2d425d33;
+        z-index: -1;
+    }
+    /* if .controls has the fa-play element then style the .stop class */
+    .audioMessage .controls:has(.fa-play) .stop{
+        visibility: hidden;
+        opacity: 0;
+    }
+
+    .main-element{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        width: 100%;
+        padding: 0 10px;
+        color: white;
+    }
+
+    .main-element .time{
+        background: white;
+        color: #1ba4ff;
+        border-radius: 10px;
+        padding: 2px 5px;
+        font-size: 0.7rem;
+        pointer-events: none;
+    }
+
+    .controls{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 5px;
+        /*background: #1b84ca;*/
+    }
+</style>
+
+<script>
+
+    document.querySelector('button').addEventListener('click', () => {
+        insertNewMessage();
+    });
+    
+
+    let counter = 1;
+
+    function insertNewMessage(){
+        const message = `
+        <div class="msg audioMessage" data-src="${++counter}.mp3" data-duration="120">
+            <div class="main-element">
+                <audio src="${counter}.mp3"></audio>
+                <div class="controls">
+                    <div class="play-pause"><i class="fa-solid fa-play"></i></div>
+                    <div class="stop"><i class="fa-solid fa-stop"></i></div>
+                </div>
+                <div class="time">${remainingTime(120, 0)}</div>
+            </div>
+        </div>
+        `;
+        document.querySelector('.messages').insertAdjacentHTML('beforeend', message);
+    }
+
+
+let lastAudioMessagePlay = null;
+let currentAudioMessageTimeInterval;
+
+function playAudio(elem){
+	if (lastAudioMessagePlay?.paused) {
+		elem.closest('.audioMessage').querySelector('.play-pause i').classList.replace('fa-play', 'fa-pause');
+		elem.querySelector('audio').play();
+        lastAudioMessagePlay = elem.querySelector('audio');
+		// update the time every second
+		currentAudioMessageTimeInterval = setInterval(() => {
+			updateAudioMessageTime(elem.closest('.audioMessage'));
+		}, 1000);
+	} else {
+		elem.closest('.audioMessage').querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
+		elem.querySelector('audio').pause();
+		if (currentAudioMessageTimeInterval){
+			clearInterval(currentAudioMessageTimeInterval);
+		}
+	}
+}
+
+function pauseAudio(elem){
+	const message = elem.closest('.audioMessage');
+	message.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
+	//dataset.playing = 'false';
+	elem.querySelector('audio').pause();
+    lastAudioMessagePlay = elem.querySelector('audio');
+	if (currentAudioMessageTimeInterval){
+		clearInterval(currentAudioMessageTimeInterval);
+	}
+}
+
+function stopAudio(elem){
+	try{
+		if (elem){
+			pauseAudio(elem);
+            seekAudioMessage(elem, 0);
+            updateAudioMessageTime(elem);
+		}
+	}catch (e) {
+		console.log(e);
+	}
+}
+
+function seekAudioMessage(audioMessage, time){
+	audioMessage.querySelector('audio').currentTime = time;
+	updateAudioMessageTime(audioMessage);
+}
+
+function updateAudioMessageTime(audioMessage) {
+	const timeElement = audioMessage.querySelector('.time');
+    const currentAudio = audioMessage.querySelector('audio');
+	timeElement.textContent = remainingTime(currentAudio.duration, currentAudio.currentTime);
+	audioMessage.style.setProperty('--audioMessageProgress', `${(currentAudio.currentTime / currentAudio.duration) * 100}%`);
+	//console.log(currentAudio.currentTime);
+	//if end of audio
+	if (currentAudio.currentTime === currentAudio.duration){
+		stopAudio(audioMessage);
+	}
+}
+
+document.addEventListener('click', (evt) => {
+	const target = evt.target;
+	const audioMessage = target.closest('.audioMessage');
+
+	if (audioMessage){
+
+		console.log(evt.target);
+
+        const audio = audioMessage.querySelector('audio');
+
+		if (evt.target.classList.contains('main-element')){
+            //if target is current audio
+            if (!audio.paused){
+                // seek to the clicked position
+                const time = (evt.offsetX / audioMessage.offsetWidth) * audio.duration;
+                seekAudioMessage(audioMessage, time);
+            }
+		}
+
+        console.log(lastAudioMessagePlay?.src);
+
+		if (target.classList?.contains('fa-play')){
+			if (audioMessage.querySelector('audio').src !== lastAudioMessagePlay?.src){
+				if (lastAudioMessagePlay){
+                    stopAudio(lastAudioMessagePlay.closest('.audioMessage'));
+                    console.log('stopping previous audio');
+                }else{
+                    console.log('Playing new audio');
+                    lastAudioMessagePlay = audioMessage.querySelector('audio');
+                }
+			}
+			console.log('play');
+			playAudio(audioMessage);
+		} else if (target.classList?.contains('fa-pause')){
+			console.log('pause');
+			pauseAudio(audioMessage);
+		} else if (target.classList?.contains('fa-stop')){
+			console.log('stop');
+			stopAudio(audioMessage);
+		}
+	}
+});
+
+function remainingTime(totalTime, elapsedTime) {
+	// Calculate the remaining time
+	const remainingTime = Math.floor(totalTime) - Math.floor(elapsedTime);
+
+	// Convert the remaining time to minutes and seconds
+	const minutes = Math.floor(remainingTime / 60);
+	const seconds = remainingTime % 60;
+
+	// Return the remaining time in the format "00:00"
+	return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+}
+
+
+
+</script>
+
+</html>

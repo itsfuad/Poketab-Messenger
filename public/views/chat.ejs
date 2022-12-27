@@ -104,16 +104,24 @@
                     <div class="attachmentContainer">
                         <!-- File Choose -->
                         <div class="upload_file clickable attachmentButton">
-                            <label for="file" class="file-input-label"><i class="fa-regular fa-file-lines fa-shake"></i></label>
-                            <input type="file" name="file" id="file">
+                            <label for="fileChooser" class="file-input-label"><i class="fa-regular fa-file-lines fa-shake"></i></label>
+                            <input type="file" name="file" id="fileChooser">
                             <div class="text">File</div>
                         </div>
                         <!-- Image Choose -->
                         <div class="upload_image clickable attachmentButton">
-                            <label for="photo"><i class="fa-regular fa-image fa-shake"></i></label>
-                            <input type="file" name="photo" id="photo" accept="image/png, image/jpg, image/jpeg, image/gif">
+                            <label for="photoChooser"><i class="fa-regular fa-image fa-shake"></i></label>
+                            <input type="file" name="photo" id="photoChooser" accept="image/png, image/jpg, image/jpeg, image/gif">
                             <div class="text">Image</div>
                         </div>
+
+                        <!-- Audio Choose -->
+                        <div class="upload_audio clickable attachmentButton">
+                            <label for="audioChooser"><i class="fa-solid fa-music fa-shake"></i></label>
+                            <input type="file" name="audio" id="audioChooser" accept="audio/*">
+                            <div class="text">Audio</div>
+                        </div>
+
                         <!-- Location input -->
                         <div class="location clickable attachmentButton" id="send-location">
                             <i class="fa-solid fa-location-crosshairs fa-shake"></i>
@@ -126,7 +134,25 @@
                         </!div-->
                     </div>
                 </div>
-                <textarea name="chatInputBox" id="textbox" class="select" rows="1" placeholder="Message..."></textarea>
+                <div class="inputField">
+                    <textarea name="chatInputBox" id="textbox" class="select" rows="1" placeholder="Message..."></textarea>
+                    <!-- Microphone -->
+                    <div class="voiceRecorder" id="recorderOverlay" data-recordingstate="false">
+                        <div class="recordBtn btn clickable" id="recordVoiceButton" data-playstate="">
+                            <i class="fa-solid fa-microphone" id="micIcon"></i>
+                        </div>
+                        <div class="recording">
+                            <span class="recordingText"><i class="fa-solid fa-circle recordIcon"></i></span>
+                            <span id="recordingTime" class="recordingTime">00:00</span>
+                        </div>
+                        <div class="cancelBtn btn clickable" id="cancelVoiceRecordButton">
+                            <i class="fa-solid fa-xmark"></i>
+                        </div>
+                        <div id="audiovisualizer"></div>
+                    </div>
+                </div>
+
+                  
                 <!-- Send Button-->
                 <button id="send" title="Ctrl + Enter"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
@@ -259,7 +285,7 @@
                     <div class="messageTitle">{{{title}}}</div>
                     <div class="messageReply" data-repid="{{repId}}" data-reply-for="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
                     <div class="messageMain">
-                        <div class="file msg" data-data="{{data}}" data-ext="{{ext}}">
+                        <div class="file msg" data-src="{{source}}" data-ext="{{ext}}">
                             <div class="fileIcon">
                                 <i class="fa-regular fa-file-lines"></i>
                             </div>
@@ -280,6 +306,41 @@
             <div class="seenBy"></div>
         </li>
     </template>
+
+
+    <template id="audioMessageTemplate">
+        <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}"> <!-- noreply notitle delevered start end self react -->
+            <div class="messageContainer">
+                <div class="replyIcon">
+                    <i class="fa-solid fa-reply"></i>
+                </div>
+                <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
+                <div class="avatar"><img src="{{avatarSrc}}" width='30px' height='30px' alt='avatar'/></div>
+                <div class="messageBody">
+                    <div class="messageTitle">{{{title}}}</div>
+                    <div class="messageReply" data-repid="{{repId}}" data-reply-for="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
+                    <div class="messageMain">
+                        <div class="msg audioMessage" data-length="{{length}}" data-src="{{source}}" data-ext="{{ext}}">
+                            <div class="main-element">
+                                <audio style="display: none;"></audio>
+                                <div class="controls">
+                                    <div class="play-pause control"><i class="fa-solid fa-play"></i></div>
+                                    <div class="stop control"><i class="fa-solid fa-stop"></i></div>
+                                </div>
+                                <div class="progress">Uploading...</div>
+                                <div class="time">{{length}}</div>
+                            </div>
+                        </div>
+                        <div class="messageTime">{{time}}</div>
+                    </div>
+                    <div class="reactsOfMessage"></div>
+                </div>
+                <div class="reactedUsers" style="display: none;"></div>
+            </div>
+            <div class="seenBy"></div>
+        </li>
+    </template>
+
     <svg class='hideSvgSoThatItSupportsFirefox'>
         <filter id='sharpBlur'>
           <feGaussianBlur stdDeviation='5'></feGaussianBlur>
