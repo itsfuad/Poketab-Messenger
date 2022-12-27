@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
 			cb(new Error('File size more than 15mb'));
 		}else{
 			if (keys.has(req.body.key)){
-				const filename = `poketab-${crypto.randomBytes(16).toString('hex')}.${req.body.ext}`;
+				const filename = `poketab-${crypto.randomBytes(16).toString('hex')}`;
 				store(filename, { filename: filename, key: req.body.key, ext: req.body.ext, uids: new Set([req.body.uid]) });
 				cb(null, filename);
 			}else{

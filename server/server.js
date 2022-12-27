@@ -29,7 +29,7 @@ const developer = 'Fuad Hasan';
 //admin password to view running chat numbers and create new chat keys
 const ADMIN_PASS = process.env.ADMIN_PASSWORD;
 
-const devMode = false; //dev mode
+const devMode = true; //dev mode
 
 //this blocks the client if they request 1000 requests in 15 minutes
 const apiRequestLimiter = rateLimit({
@@ -216,7 +216,7 @@ app.post('/chat', (req, res) => {
 			res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
 		}else{
 			res.setHeader('Developer', 'Fuad Hasan');
-			res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:;');
+			res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
 			res.setHeader('Cluster', `ID: ${process.pid}`);
 			res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
 		}

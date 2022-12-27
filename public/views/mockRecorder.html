@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Recorder</title>
+</head>
+<body>
+
+    <style>
+        body{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: rgb(106, 165, 255);
+            position: relative;
+            isolation: isolate;
+        }
+
+        .recorder{
+            z-index: 2;
+        }
+
+        .voiceRecordingTimer{
+            font-size: 20px;
+            background: rgb(255, 255, 255);
+            padding: 5px 15px;
+            border-radius: 5px;
+            z-index: 2;
+        }
+
+        button{
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: rgb(255, 255, 255);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        button:hover{
+            transform: translate(0, -1px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #stop{
+            background-color: rgb(255, 0, 0);
+            color: rgb(255, 255, 255);
+        }
+
+        :root{
+            --amplitude: 0;
+        }
+
+        .visualizer{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.274);
+            height: var(--amplitude, 0);
+            width: var(--amplitude, 0);
+            transition: 100ms ease-in-out;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .state{
+            font-size: 40px;
+            color: aliceblue;
+        }
+    </style>
+
+    <div class="state">Idle</div>
+
+    <div class="recorder" data-recordingstate="false">
+        <button id="recordVoiceButton">Record</button>
+        <button id="cancelVoiceRecordButton">Cancel</button>
+    </div>
+
+    <div class="voiceRecordingTimer">00:00</div>
+
+    <div class="visualizer"></div>
+
+    <script>
+        const stateDisplay = document.querySelector('.state');
+
+        //grab the buttons
+        const recordButton = document.getElementById('recordVoiceButton');
+        const cancelButton = document.getElementById('cancelVoiceRecordButton');
+
+        const recorderElement = document.querySelector('.recorder');
+
+        //grab the timer
+        const timer = document.querySelector('.voiceRecordingTimer');
+
+        //use a global variable to store the recorded audio
+        let recordedAudio;
+        const audioChunks = [];
+        let stream;
+        let timerInterval, autoStopRecordtimeout;
+        let recordCancel = false;
+
+        //record button onclick
+        recordButton.addEventListener('click', () => {
+            //if the recorder is not recording
+            if(recorderElement.dataset.recordingstate === 'false'){
+                if (recordedAudio && audioChunks.length > 0){
+                    //Stop Play recorded audio
+                    stateDisplay.textContent = 'Stopped';
+                    if (recordButton.textContent === 'Stop'){
+                        console.log('%cAudio stop', 'color: red');
+                        //stop playing recorded audio
+                        stopPlayingRecordedAudio();
+                        //change the button text to play
+                        recordButton.textContent = 'Play';
+                    }else{
+                        //play recorded audio
+                        recordButton.textContent = 'Stop';
+                        recorderElement.dataset.recordingstate = 'false';
+                        playRecordedAudio();
+                        stateDisplay.textContent = 'Playing';
+                    }
+                }else{
+                    //start recording
+                    recordButton.textContent = 'Stop';
+                    recordCancel = false;
+                    startRecording();
+                    stateDisplay.textContent = 'Recording';
+                }
+            }else{
+                //stop recording
+                stopRecording();
+                stateDisplay.textContent = 'Idle';
+            }
+        });
+
+        //cancel button onclick
+        cancelButton.addEventListener('click', () => {
+            //if the recorder is not recording
+            if(recorderElement.dataset.recordingstate === 'true'){
+                //stop recording
+                stopRecording();
+            }
+            //reset for new recording
+            recordCancel = true;
+            stopRecording();
+            stopPlayingRecordedAudio();
+            resetForNewRecording();
+            recordButton.textContent = 'Record';
+            stateDisplay.textContent = 'Idle';
+        });
+        
+        //reset for new recording
+        function resetForNewRecording(){
+            //clear the recorded audio
+            //delete from URL
+            if (recordedAudio){
+                URL.revokeObjectURL(recordedAudio.src);
+            }
+            recordedAudio = '';
+            audioChunks.length = 0;
+            //clear the timer
+            timer.textContent = '00:00';
+        }
+
+        //start recording
+        function startRecording(){
+            //reset for new recording
+            resetForNewRecording();
+            //change the recording state to true
+            recorderElement.dataset.recordingstate = 'true';
+            //enable the play button
+            //enable the cancel button
+            cancelButton.disabled = false;
+            //start the timer
+            startTimer();
+            //start recording
+            startRecordingAudio();
+        }
+
+        //stop recording
+        function stopRecording(){
+            //change the recording state to false
+            recorderElement.dataset.recordingstate = 'false';
+            if (recordButton.textContent === 'Stop'){
+                recordButton.textContent = 'Play';
+            }
+            if (autoStopRecordtimeout){
+                clearTimeout(autoStopRecordtimeout);
+            }
+            //stop the timer
+            stopTimer();
+            //stop recording
+            stopRecordingAudio();
+        }
+
+        //start recording audio
+        function startRecordingAudio(){
+            //get the audio stream
+            navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(s) {
+                stream = s;
+                //process the audio stream
+                processAudioStream(stream);
+
+                //create a media recorder
+                const mediaRecorder = new MediaRecorder(stream);
+                //start recording
+                mediaRecorder.start();
+
+                autoStopRecordtimeout = setTimeout(() => {
+                    mediaRecorder.stop();
+                    stopRecording();
+                    //console.log('%cAuto Stop Record', 'color: red');
+                }, 2 * 60 * 1000);
+
+                //when the media recorder stops recording
+                mediaRecorder.onstop = function(e) {
+                    if (!recordCancel){
+                        const audioBlob = new Blob(audioChunks);
+                        recordedAudio = new Audio();
+                        recordedAudio.src = URL.createObjectURL(audioBlob);
+                        recordCancel = false;
+                        //console.log("recorder state: ", mediaRecorder.state);
+                    }
+                }
+                //when the media recorder gets data
+                mediaRecorder.ondataavailable = function(e) {
+                    audioChunks.push(e.data);
+                }
+            })
+            .catch(function(err) {
+                console.log('The following error occured: ' + err);
+            });
+        }
+
+        //stop recording audio
+        function stopRecordingAudio(){
+            //stop the audio stream
+            stream?.getTracks().forEach(track => track.stop());
+        }
+
+        //play recorded audio
+        function playRecordedAudio(){
+            if (recordedAudio){
+                startTimer();
+                recordedAudio.currentTime = 0;
+                recordedAudio.play();
+                recordedAudio.onended = function(){
+                    stopTimer();
+                    if (recordButton.textContent === 'Stop'){
+                        recordButton.textContent = 'Play';
+                    }
+                }
+            }
+        }
+
+        //stop playing recorded audio
+        function stopPlayingRecordedAudio(){
+            if (recordedAudio){
+                recordedAudio.pause();
+                stopTimer();
+            }
+        }
+
+        //start timer
+        function startTimer(){
+            //set the timer to 00:00
+            timer.textContent = '00:00';
+            stopTimer();
+            //console.log('%cstarted timer', 'color: orange');
+            //set the timer interval
+            let sec = 0;
+            let min = 0;
+            timerInterval = setInterval(() => {
+                sec++;
+                if (sec === 60){
+                    sec = 0;
+                    min++;
+                }
+                //display the timer
+                timer.textContent = min.toString().padStart(2, '0') + ':' + sec.toString().padStart(2, '0');
+            }, 1000);
+        }
+
+        //stop timer
+        function stopTimer(){
+            if (timerInterval){                
+                //clear the timer interval
+                clearInterval(timerInterval);
+                timerInterval = null;
+                timer.textContent = '00:00';
+                //console.log('%cstopped timer', 'color: red');
+            }
+        }
+        
+        //write relevant audioWorklet code here of the same function. register the worklet and use it in the processAudioStream function
+        function processAudioStream(stream){
+            const audioContext = new AudioContext();
+            //register the audio worklet
+            audioContext.audioWorklet.addModule('audioWorklet.js')
+            .then(() => {
+                //create an audio worklet node
+                const audioWorkletNode = new AudioWorkletNode(audioContext, 'audio-worklet-processor');
+                //create a media stream source
+                const mediaStreamSource = audioContext.createMediaStreamSource(stream);
+                //connect the media stream source to the audio worklet node
+                mediaStreamSource.connect(audioWorkletNode);
+                //connect the audio worklet node to the destination
+                audioWorkletNode.connect(audioContext.destination);
+
+                //if the audio worklet node gets a message
+                audioWorkletNode.port.onmessage = (e) => {
+                    const amplitude = e.data;
+                    document.documentElement.style.setProperty('--amplitude', amplitude + 'px');
+                }
+
+                //if the user stops the audio stream
+                stream.oninactive = function(){
+                    if (audioContext){
+                        audioContext.close();
+                        audioWorkletNode.disconnect();
+                        mediaStreamSource.disconnect();
+                        document.documentElement.style.setProperty('--amplitude', '0px');
+                    }
+                }
+            })
+            .catch((err) => {
+                console.log('The following error occured: ' + err);
+            });
+        }
+
+
+        
+
+
+        
+
+
+
+
+    </script>
+</body>
+</html>

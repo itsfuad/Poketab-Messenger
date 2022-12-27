@@ -100,7 +100,6 @@ code{
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: 5px;
             border-radius: 15px 15px 15px 8px;
             width: max-content;
             max-width: 100%;
@@ -144,6 +143,9 @@ code{
             z-index: 15;
             display: none;
             width: max-content;
+            .react-item{
+                pointer-events: none;
+            }
             &:hover{
                 cursor: pointer;
             }
@@ -159,10 +161,12 @@ code{
     gap: 1px;
     position: absolute;
     right: 5px;
+    flex-wrap: wrap;
+    max-width: 70px;
     img{
         padding-top: 1px;
-        height: 12px;
-        width: 12px;
+        height: 10px;
+        width: 10px;
     }
     display: flex;
     justify-content: center;
@@ -174,6 +178,8 @@ code{
 .msg-item:is(.serverMessage){
     .seenBy{
         right: 10px;
+        flex-wrap: nowrap;
+        max-width: unset;
     }
 }
 
@@ -230,6 +236,7 @@ code{
     & *{
         font-family: monospace !important;
     }
+    pointer-events: none;
 }
 
 pre{
@@ -355,6 +362,8 @@ pre{
         position: unset;
         right: unset;
         right: 10px;
+        flex-wrap: nowrap;
+        max-width: unset;
     }
     .messageContainer{
         flex-direction: row-reverse;
@@ -397,6 +406,13 @@ pre{
             .text{
                 padding: 8px;
                 background: var(--msg-send);
+            }
+            .audioMessage{
+                background: var(--msg-send);
+
+                .time{
+                    color: var(--msg-send);
+                }
             }
             .file{
                 background: var(--msg-send)
@@ -510,6 +526,8 @@ pre{
     background: var(--msg-get);
     justify-content: center;
     min-width: 150px;
+    max-width: 55vw;
+    width: max-content;
     min-height: 50px;
     .fa-file-lines{
         color: currentColor;
@@ -519,9 +537,11 @@ pre{
 .fileInfo{
     display: flex;
     flex-direction: column;
-    font-size: .7rem;
+    font-size: 0.7rem;
     gap: 5px;
+    padding: 0 5px 0 0;
     align-items: flex-end;
+    width: max-content;
     .fileName, .fileSize{
         display: grid;
         place-items: center;
@@ -531,7 +551,6 @@ pre{
         padding-left: 3px;
         min-width: 64px;
         word-break: break-all;
-        justify-content: end;
     }
     .filemeta{
         font-size: .5rem;
@@ -542,6 +561,90 @@ pre{
         justify-content: space-between;
     }
 }
+
+.audioMessage{
+    height: 34px;
+    width: 250px;
+    background-color: var(--msg-get);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    cursor: pointer;
+
+    &::before{
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: var(--audioMessageProgress, 0%);
+        height: 100%;
+        background: #00000026;
+        z-index: -1;
+    }
+
+    .main-element{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        width: 100%;
+        padding: 0 10px;
+        color: white;
+        .controls{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            
+            .control{
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: 100ms ease-in-out;
+            }
+            /*background: #1b84ca;*/
+            /* if .controls has the fa-play element then style the .stop class */
+            .stop{
+                visibility: visible;
+                opacity: 1;
+                transform: scale(1);
+                transition: 100ms ease-in-out;
+            }
+            &:has(.fa-play) .stop{
+                visibility: hidden;
+                opacity: 0;
+                transform: scale(0);
+            }
+        }
+        .time{
+            background: white;
+            color: var(--msg-get);
+            border-radius: 10px;
+            padding: 2px 5px;
+            font-size: 0.7rem;
+            pointer-events: none;
+            min-width: 45px;
+            width: max-content;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .progress{
+        font-size: 0.6rem;
+    }
+}
+
+
 
 .deleted{
     .messageTitle{
