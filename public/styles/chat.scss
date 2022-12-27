@@ -131,7 +131,7 @@ body{
     transform: translateX(-50%);
     transform-origin: bottom;
     scrollbar-width: none;
-    filter: drop-shadow(2px 2px 5px #000);
+    filter: drop-shadow(0 4px 5px black);
     z-index: 20;
 
     &.active{
@@ -240,7 +240,7 @@ img:is(.sticker){
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    filter: drop-shadow(2px 2px 5px #000);
+    filter: drop-shadow(0 4px 5px black);
     #keyname{
         padding-bottom: 20px;
         font-weight: 300;
@@ -377,7 +377,7 @@ img:is(.sticker){
     right: 0;
     z-index: 80;
     transition: 100ms ease-in-out;
-    filter: drop-shadow(2px 2px 5px #000);
+    filter: drop-shadow(0 4px 5px black);
     &.active{
         //make it visible
         visibility: visible;
@@ -499,7 +499,7 @@ img{
         font-size: 0.9rem;
         color: var(--foreground-dark);
         //background: var(--primary-dark);
-        //filter: drop-shadow(0 0 5px black);
+        //filter: drop-shadow(0 4px 5px black);
         & > div{
             padding: 10px;
         }
@@ -584,6 +584,9 @@ img{
         .attachmentButton{
             transition: 150ms;
             transform: translateY(20px) scale(0.5);
+            i {
+                pointer-events: none;
+            }
         }
 
         .attachmentContainer{
@@ -600,7 +603,7 @@ img{
             visibility: visible;
             opacity: 1;
             background: var(--primary-dark);
-            filter: drop-shadow(2px 2px 5px #000);
+            filter: drop-shadow(0 4px 5px black);
             z-index: 20;
         }
         
@@ -1051,7 +1054,7 @@ i[class^=fa-]{
     opacity: 0;
     top: 20px;
     transition: 100ms ease-in-out;
-    filter: drop-shadow(2px 2px 5px black);
+    filter: drop-shadow(0 4px 5px black);
     &.active{
         visibility: visible;
         opacity: 1;
@@ -1124,7 +1127,7 @@ i[class^=fa-]{
     &.toastActiveFile{
         bottom: 154px;
     }
-    filter: drop-shadow(2px 2px 2px #000);
+    filter: drop-shadow(0 4px 5px black);
     .newmessagepopupavatar{
         height: 20px;
         width: 20px;
@@ -1236,7 +1239,7 @@ i[class^=fa-]{
     place-content: center;
     display: grid;
     transition: 100ms ease-in-out;
-    filter: drop-shadow(2px 2px 5px #000);
+    filter: drop-shadow(0 4px 5px black);
 }
 
 .reactOptionsWrapper{
@@ -1272,7 +1275,7 @@ i[class^=fa-]{
     padding: 5px 20px;
     border-radius: 15px 15px 0 0;
     transition: 100ms ease-in-out;
-    filter: drop-shadow(2px 2px 5px #000);
+    filter: drop-shadow(0 4px 5px black);
     &.active{
         visibility: visible;
         opacity: 1;
@@ -1347,7 +1350,7 @@ i[class^=fa-]{
         font-size: 1.3rem;
         padding: 3px 10px;
         background: var(--primary-dark);
-        filter: drop-shadow(2px 2px 5px #000);
+        filter: drop-shadow(0 4px 5px black);
         & > div{
             border-radius: 10px;
             width: 35px;
@@ -1370,6 +1373,11 @@ i[class^=fa-]{
             align-items: center;
             gap: 3px;
             padding: 15px;
+            
+            i, span {
+                pointer-events: none;
+            }
+
             span{
                 font-size: 0.7rem;
             }
@@ -1421,6 +1429,7 @@ i[class^=fa-]{
     backdrop-filter: blur(5px);
     scrollbar-width: none;
     transition: 100ms ease-in-out;
+    filter: drop-shadow(0 4px 5px black);
     ul{
         display: flex;
         flex-direction: column;

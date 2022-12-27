@@ -2,13 +2,13 @@
 'use strict';
 
 //bundles
-/*
+
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
 import { PanZoom } from './panzoom';
 import Prism from './../libs/prism/prism';
-*/
+
 console.log('loaded');
 
 //variables
@@ -29,6 +29,19 @@ const deleteOption = document.querySelector('.deleteOption');
 const replyOption = document.querySelector('.replyOption');
 const fileDropZone = document.querySelector('.fileDropZone');
 const showMoreReactBtn = document.getElementById('showMoreReactBtn');
+
+const recordButton = document.getElementById('recordVoiceButton');
+const cancelVoiceRecordButton = document.getElementById('cancelVoiceRecordButton');
+const recorderElement = document.getElementById('recorderOverlay');
+const micIcon = document.getElementById('micIcon');
+const recorderTimer = document.getElementById('recordingTime');
+
+//use a global variable to store the recorded audio
+let recordedAudio;
+const audioChunks = [];
+let stream;
+let timerInterval, autoStopRecordtimeout;
+let recordCancel = false;
 
 //all the audio files used in the app
 const incommingmessage = new Audio('/sounds/incommingmessage.mp3');
@@ -1291,7 +1304,6 @@ function clearFinalTarget(){
 }
 
 function OptionEventHandler(evt, popup = true){
-	let type;
 
 	const typeList = {
 		'text': true,
@@ -1303,9 +1315,17 @@ function OptionEventHandler(evt, popup = true){
 		'contact': false,
 	};
 
+	//console.log(evt.target);
+
+	const type = evt.target.closest('.message')?.dataset?.type;
+
+	if (!typeList[type] || !evt.target.closest('.msg')){
+		return;
+	}
+
 	const sender = evt.target.closest('.message').classList.contains('self')? true : false;
-	if (evt.target.closest('.message')?.dataset?.type === 'text'){
-		type = 'text';
+	if (type == 'text'){
+		//text
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
@@ -1314,8 +1334,8 @@ function OptionEventHandler(evt, popup = true){
 		targetMessage.type = type;
 		targetMessage.id = evt.target?.closest('.message')?.id;
 	}
-	else if (evt.target.closest('.message')?.dataset?.type === 'image'){
-		type = 'image';
+	else if (type == 'image'){
+		//image
 		while (document.querySelector('#lightbox__image').firstChild) {
 			document.querySelector('#lightbox__image').removeChild(document.querySelector('#lightbox__image').firstChild);
 		}
@@ -1334,9 +1354,8 @@ function OptionEventHandler(evt, popup = true){
 		targetMessage.message = targetNode;
 		targetMessage.type = type;
 		targetMessage.id = evt.target?.closest('.message')?.id;
-	}else if (evt.target.closest('.message')?.dataset?.type === 'audio'){
+	}else if (type == 'audio'){
 		// audio
-		type = 'audio';
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
@@ -1346,8 +1365,8 @@ function OptionEventHandler(evt, popup = true){
 		targetFile.ext = evt.target.closest('.messageMain').querySelector('.msg').dataset.ext;
 		targetMessage.type = type;
 		targetMessage.id = evt.target?.closest('.message')?.id;
-	}else if (evt.target.closest('.message')?.dataset?.type === 'file'){
-		type = 'file';
+	}else if (type == 'file'){
+		//file
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
@@ -1358,8 +1377,8 @@ function OptionEventHandler(evt, popup = true){
 		targetMessage.message = targetFile.fileName;
 		targetMessage.type = type;
 		targetMessage.id = evt.target?.closest('.message')?.id;
-	}else if (evt.target.closest('.message')?.dataset?.type === 'sticker'){
-		type = 'sticker';
+	}else if (type == 'sticker'){
+		//sticker
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
@@ -1976,7 +1995,7 @@ messages.addEventListener('click', (evt) => {
 				msgTimeTimeout = undefined;
 			}, 1500);
 		}
-		if (evt.target?.classList?.contains('image') && !evt.target?.classList?.contains('imageReply')){
+		if (evt.target?.classList?.contains('imageContainer')){
 			evt.preventDefault();
 			evt.stopPropagation();
 			if (evt.target.closest('.message')?.dataset.downloaded != 'true'){  
@@ -2133,6 +2152,10 @@ function playAudio(elem){
 			if (isFinite(audio.duration)){
 				const percentage = updateAudioMessageTimer(audio, timeElement);
 				audioMessage.style.setProperty('--audioMessageProgress', `${percentage}%`);
+			}else{
+				//console.clear();
+				//console.log('Audio duration is not a number');
+				timeElement.textContent = 'Wait..!';
 			}
 		});
 
@@ -2703,12 +2726,12 @@ textbox.addEventListener('keydown', (evt) => {
 });
 
 document.getElementById('send-location').addEventListener('click', () => {
-	popupMessage('Tracing your location...');
 	if (!navigator.geolocation) {
 		popupMessage('Geolocation not supported by your browser.');
 		return;
 	}
 	navigator.geolocation.getCurrentPosition( (position) => {
+		popupMessage('Tracing your location...');
 		socket.emit('createLocationMessage', {
 			latitude: position.coords.latitude,
 			longitude: position.coords.longitude
@@ -2768,59 +2791,25 @@ function setTypingUsers(){
 	}
 }
 
-const recordButton = document.getElementById('recordVoiceButton');
-//const playButton = document.getElementById('playPreview');
-const cancelVoiceRecordButton = document.getElementById('cancelVoiceRecordButton');
-
-const recorderElement = document.getElementById('recorderOverlay');
-
-const micIcon = document.getElementById('micIcon');
-
-//grab the timer
-const recorderTimer = document.getElementById('recordingTime');
-
-//use a global variable to store the recorded audio
-let recordedAudio;
-const audioChunks = [];
-let stream;
-let timerInterval, autoStopRecordtimeout;
-let recordCancel = false;
 
 //record button onclick
 recordButton.addEventListener('click', () => {
-	recorderElement.classList.add('active');
+	//recorderElement.classList.add('active');
 	//if the recorder is not recording
 	if(recorderElement.dataset.recordingstate === 'false'){
 		if (recordedAudio && audioChunks.length > 0){
-			//Stop Play recorded audio
 			//stateDisplay.textContent = 'Stopped';
 			if (recordButton.dataset.playstate == 'stop'){
 				//console.log('%cAudio stop', 'color: red');
 				//stop playing recorded audio
 				stopPlayingRecordedAudio();
-				//change the button text to play
-				//recordButton.textContent = 'play';
-				micIcon.classList.replace('fa-stop', 'fa-play');
-				micIcon.classList.replace('fa-microphone', 'fa-play');
-				recordButton.dataset.playstate = 'play';
 			}else{
 				//play recorded audio
-				//recordButton.textContent = 'stop';
-				micIcon.classList.replace('fa-play', 'fa-stop');
-				micIcon.classList.replace('fa-microphone', 'fa-stop');
-				recorderElement.dataset.recordingstate = 'false';
-				recordButton.dataset.playstate = 'stop';
 				playRecordedAudio();
 				//stateDisplay.textContent = 'Playing';
 			}
 		}else{
 			//start recording
-			//recordButton.textContent = 'stop';
-			micIcon.classList.replace('fa-play', 'fa-stop');
-			micIcon.classList.replace('fa-microphone', 'fa-stop');
-			recordButton.dataset.playstate = 'stop';
-			recorderElement.dataset.recordingstate = 'true';
-			recordCancel = false;
 			startRecording();
 			//stateDisplay.textContent = 'Recording';
 		}
@@ -2837,6 +2826,7 @@ cancelVoiceRecordButton.addEventListener('click', () => {
 	if(recorderElement.dataset.recordingstate === 'true'){
 		//stop recording
 		stopRecording();
+		popupMessage('Voice message cancelled');
 	}
 	//reset for new recording
 	recordCancel = true;
@@ -2869,10 +2859,6 @@ function resetForNewRecording(){
 function startRecording(){
 	//reset for new recording
 	resetForNewRecording();
-	//change the recording state to true
-	recorderElement.dataset.recordingstate = 'true';
-	//start the timer
-	startTimer();
 	//start recording
 	startRecordingAudio();
 }
@@ -2903,15 +2889,27 @@ function startRecordingAudio(){
 		.then(function(s) {
 			stream = s;
 			//process the audio stream
-			//processAudioStream(stream);
-
+			processAudioStream(stream);
 			//create a media recorder
 			//const mediaRecorder = new MediaRecorder(stream);
 			//use low quality audio and mono channel and 32kbps
 			const mediaRecorder = new MediaRecorder(stream, {type: 'audio/mpeg;', audioBitsPerSecond: 32000, audioChannels: 1});
 			//start recording
 			mediaRecorder.start();
+			startTimer();
 			popupMessage('Recording...');
+
+			micIcon.classList.replace('fa-play', 'fa-stop');
+			micIcon.classList.replace('fa-microphone', 'fa-stop');
+			recordButton.dataset.playstate = 'stop';
+			recorderElement.dataset.recordingstate = 'true';
+			recorderElement.classList.add('active');
+
+			recordCancel = false;
+
+			if (autoStopRecordtimeout){
+				clearTimeout(autoStopRecordtimeout);
+			}
 
 			autoStopRecordtimeout = setTimeout(() => {
 				mediaRecorder.stop();
@@ -2937,6 +2935,7 @@ function startRecordingAudio(){
 		})
 		.catch(function(err) {
 			console.log('The following error occured: ' + err);
+			popupMessage(err);
 		});
 }
 
@@ -2957,6 +2956,12 @@ function updateAudioMessageTimer(audio, timerDisplay){
 
 //play recorded audio
 function playRecordedAudio(){
+
+	micIcon.classList.replace('fa-play', 'fa-stop');
+	micIcon.classList.replace('fa-microphone', 'fa-stop');
+	recorderElement.dataset.recordingstate = 'false';
+	recordButton.dataset.playstate = 'stop';
+
 	if (recordedAudio){
 		//recordedAudio.currentTime = 0;
 		recordedAudio.play();
@@ -2966,6 +2971,8 @@ function playRecordedAudio(){
 			if (isFinite(recordedAudio.duration)){
 				const percentage = updateAudioMessageTimer(recordedAudio, recorderTimer);
 				recorderElement.style.setProperty('--recordedAudioPlaybackProgress', percentage + '%');
+			}else{
+				recorderTimer.textContent = 'Wait..!';
 			}
 		});
 
@@ -2986,6 +2993,9 @@ function stopPlayingRecordedAudio(){
 		recordedAudio.pause();
 		recorderElement.style.setProperty('--recordedAudioPlaybackProgress', '0%');
 	}
+	micIcon.classList.replace('fa-stop', 'fa-play');
+	micIcon.classList.replace('fa-microphone', 'fa-play');
+	recordButton.dataset.playstate = 'play';
 }
 
 function sendAudioRecord(){
@@ -3355,7 +3365,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}, 8000);
 });
 
-/*
+
 //This code blocks the back button to go back on the login page.
 //This action is needed because if the user goes back, he/she has to login again. 
 document.addEventListener('click', ()=> {
@@ -3366,4 +3376,3 @@ document.addEventListener('click', ()=> {
 		history.forward();
 	};
 }, {once: true});
-*/

@@ -453,20 +453,6 @@ pre{
     background: var(--msg-send);
 }
 
-
-
-.fileIcon{
-    height: 35px;
-    width: 35px;
-    border-radius: 50%;
-    background: #ffffff38;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    align-content: center;
-    flex-direction: column;
-}
-
 .messageMain{
 
     .imageContainer{
@@ -478,6 +464,7 @@ pre{
         .image{
             object-fit: contain;
             border-radius: inherit;
+            pointer-events: none;
         }
         
         .circleProgressLoader{
@@ -527,11 +514,23 @@ pre{
     justify-content: center;
     min-width: 150px;
     max-width: 55vw;
-    width: max-content;
     min-height: 50px;
     .fa-file-lines{
         color: currentColor;
     }
+}
+
+.fileIcon{
+    height: 35px;
+    width: 35px;
+    border-radius: 50%;
+    background: #ffffff38;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
+    pointer-events: none;
 }
 
 .fileInfo{
@@ -541,7 +540,7 @@ pre{
     gap: 5px;
     padding: 0 5px 0 0;
     align-items: flex-end;
-    width: max-content;
+    pointer-events: none;
     .fileName, .fileSize{
         display: grid;
         place-items: center;
@@ -604,11 +603,10 @@ pre{
             
             .control{
                 width: 20px;
-                height: 20px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                transition: 100ms ease-in-out;
+                transition: 150ms ease-in-out;
             }
             /*background: #1b84ca;*/
             /* if .controls has the fa-play element then style the .stop class */
@@ -616,7 +614,7 @@ pre{
                 visibility: visible;
                 opacity: 1;
                 transform: scale(1);
-                transition: 100ms ease-in-out;
+                transition: 150ms ease-in-out;
             }
             &:has(.fa-play) .stop{
                 visibility: hidden;
@@ -641,6 +639,7 @@ pre{
 
     .progress{
         font-size: 0.6rem;
+        pointer-events: none;
     }
 }
 

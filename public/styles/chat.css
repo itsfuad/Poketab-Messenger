@@ -125,7 +125,7 @@ body {
   transform: translateX(-50%);
   transform-origin: bottom;
   scrollbar-width: none;
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
   z-index: 20;
 }
 .stickersPanel.active {
@@ -230,7 +230,7 @@ img:is(.sticker) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
 }
 #sidebar #keyname {
   padding-bottom: 20px;
@@ -367,7 +367,7 @@ img:is(.sticker) {
   right: 0;
   z-index: 80;
   transition: 100ms ease-in-out;
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
 }
 .themeChooser.active {
   visibility: visible;
@@ -568,6 +568,9 @@ img {
   transition: 150ms;
   transform: translateY(20px) scale(0.5);
 }
+.chatInput .close_area .attachmentButton i {
+  pointer-events: none;
+}
 .chatInput .close_area .attachmentContainer {
   position: absolute;
   bottom: 70px;
@@ -584,7 +587,7 @@ img {
   visibility: visible;
   opacity: 1;
   background: var(--primary-dark);
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
   z-index: 20;
 }
 .chatInput .close_area .attachmentButton {
@@ -1030,7 +1033,7 @@ i[class^=fa-] {
   opacity: 0;
   top: 20px;
   transition: 100ms ease-in-out;
-  filter: drop-shadow(2px 2px 5px black);
+  filter: drop-shadow(0 4px 5px black);
 }
 #replyToast.active {
   visibility: visible;
@@ -1090,7 +1093,7 @@ i[class^=fa-] {
   opacity: 0;
   transition: 100ms ease-in-out;
   cursor: pointer;
-  filter: drop-shadow(2px 2px 2px #000);
+  filter: drop-shadow(0 4px 5px black);
 }
 .newmessagepopup.active {
   bottom: 65px;
@@ -1216,7 +1219,7 @@ i[class^=fa-] {
   place-content: center;
   display: grid;
   transition: 100ms ease-in-out;
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
 }
 
 .reactOptionsWrapper {
@@ -1254,7 +1257,7 @@ i[class^=fa-] {
   padding: 5px 20px;
   border-radius: 15px 15px 0 0;
   transition: 100ms ease-in-out;
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
 }
 .moreReactsContainer.active {
   visibility: visible;
@@ -1327,7 +1330,7 @@ i[class^=fa-] {
   font-size: 1.3rem;
   padding: 3px 10px;
   background: var(--primary-dark);
-  filter: drop-shadow(2px 2px 5px #000);
+  filter: drop-shadow(0 4px 5px black);
 }
 .options:is(#reactOptions) > div {
   border-radius: 10px;
@@ -1349,6 +1352,9 @@ i[class^=fa-] {
   align-items: center;
   gap: 3px;
   padding: 15px;
+}
+.options:is(#normalOptions) > div i, .options:is(#normalOptions) > div span {
+  pointer-events: none;
 }
 .options:is(#normalOptions) > div span {
   font-size: 0.7rem;
@@ -1399,6 +1405,7 @@ i[class^=fa-] {
           backdrop-filter: blur(5px);
   scrollbar-width: none;
   transition: 100ms ease-in-out;
+  filter: drop-shadow(0 4px 5px black);
 }
 .reactorContainer ul {
   display: flex;

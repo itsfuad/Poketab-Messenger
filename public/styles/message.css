@@ -432,18 +432,6 @@ pre code {
   background: var(--msg-send);
 }
 
-.fileIcon {
-  height: 35px;
-  width: 35px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2196078431);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-  flex-direction: column;
-}
-
 .messageMain .imageContainer {
   position: relative;
   display: flex;
@@ -454,6 +442,7 @@ pre code {
   -o-object-fit: contain;
      object-fit: contain;
   border-radius: inherit;
+  pointer-events: none;
 }
 .messageMain .imageContainer .circleProgressLoader {
   position: absolute;
@@ -500,13 +489,23 @@ pre code {
   justify-content: center;
   min-width: 150px;
   max-width: 55vw;
-  width: -webkit-max-content;
-  width: -moz-max-content;
-  width: max-content;
   min-height: 50px;
 }
 .file .fa-file-lines {
   color: currentColor;
+}
+
+.fileIcon {
+  height: 35px;
+  width: 35px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2196078431);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  flex-direction: column;
+  pointer-events: none;
 }
 
 .fileInfo {
@@ -516,9 +515,7 @@ pre code {
   gap: 5px;
   padding: 0 5px 0 0;
   align-items: flex-end;
-  width: -webkit-max-content;
-  width: -moz-max-content;
-  width: max-content;
+  pointer-events: none;
 }
 .fileInfo .fileName, .fileInfo .fileSize {
   display: grid;
@@ -583,17 +580,16 @@ pre code {
 }
 .audioMessage .main-element .controls .control {
   width: 20px;
-  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: 100ms ease-in-out;
+  transition: 150ms ease-in-out;
 }
 .audioMessage .main-element .controls .stop {
   visibility: visible;
   opacity: 1;
   transform: scale(1);
-  transition: 100ms ease-in-out;
+  transition: 150ms ease-in-out;
 }
 .audioMessage .main-element .controls:has(.fa-play) .stop {
   visibility: hidden;
@@ -617,6 +613,7 @@ pre code {
 }
 .audioMessage .progress {
   font-size: 0.6rem;
+  pointer-events: none;
 }
 
 .deleted .messageTitle {
