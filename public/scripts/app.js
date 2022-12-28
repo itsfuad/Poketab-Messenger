@@ -2,13 +2,13 @@
 'use strict';
 
 //bundles
-
+/*
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
 import { PanZoom } from './panzoom';
 import Prism from './../libs/prism/prism';
-
+*/
 console.log('loaded');
 
 //variables
@@ -3365,7 +3365,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}, 8000);
 });
 
-
+/*
 //This code blocks the back button to go back on the login page.
 //This action is needed because if the user goes back, he/she has to login again. 
 document.addEventListener('click', ()=> {
@@ -3376,3 +3376,4 @@ document.addEventListener('click', ()=> {
 		history.forward();
 	};
 }, {once: true});
+*/

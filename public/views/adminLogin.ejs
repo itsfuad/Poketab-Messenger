@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/avatars/pikachu.png">
+    <title><%= title %> </title>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="images/pikachu-mini.png" alt="PokeTab Logo">
+            <div class="heading">PokeTab Admin Dashbord</div>
+            <div id="admin"><%= admin %> </div>
+        </div>
+        <main>
+        <% if (loginScript) { %>
+            <!-- Admin dashboard to login -->
+            <div id="form">
+                <div class="title">Enter credentials</div>
+                <div class="input-field">
+                    <input type="text" id="username" name="username" required>
+                    <label for="username">Username</label>
+                </div>
+                <div class="input-field">
+                    <input type="password" id="password" name="password" required>
+                    <label for="password">Password</label>
+                </div>
+                <button id="submit" class="button">Login</button>
+            </div>
+            <div id="display"></div>
+        <% } %>
+        <% if (!loginScript) { %>
+            <div id="display"><p>You are logged in</p></div>
+            <div class="buttons">
+                <button class="button" id="fetchData">Fetch</button>
+                <button class="button logout">Logout</button>
+            </div>
+            <script nonce="<%=scripthash%>">
+                const logout = document.querySelector('.logout');
+                logout.addEventListener('click', () => {
+                    fetch('/admin', {
+                        method: 'DELETE'
+                    }).then(res => {
+                        if (res.status === 200){
+                            window.location.reload();
+                        }
+                    });
+                });
+                fetchData.addEventListener('click', () => {
+                    updateActiveUsers();
+                });
+            </script>
+        <% } %>
+        </main>
+    </div>
+    <style nonce="<%=stylehash%>">
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Now;
+        }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus,
+        textarea:-webkit-autofill,
+        textarea:-webkit-autofill:hover,
+        textarea:-webkit-autofill:focus,
+        select:-webkit-autofill,
+        select:-webkit-autofill:hover,
+        select:-webkit-autofill:focus {
+        -webkit-text-fill-color: rgb(0, 0, 0);
+        -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+        box-shadow: 0 0 0px 1000px transparent inset;
+        transition: background-color 5000s ease-in-out 0s;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        *::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        * {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        .container{
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            gap: 20px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .title{
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        #admin{
+            position: absolute;
+            right: 0;
+            padding: 10px;
+            color: white;
+        }
+        .logo{
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            background: #000000;
+            color: wheat;
+            font-size: 0.8rem;
+        }
+        img{
+            width: 50px;
+            height: 50px;
+            display: block;
+            padding: 10px;
+        }
+
+        .button{
+            width: 100%;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            background: #000;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .button:hover{
+            background-color: rgb(17, 17, 17);
+            color: #fff;
+        }
+
+        .logout{
+            width: 100px;
+            background: red !important;
+            width: max-content !important;
+        }
+
+        .logout:hover{
+            background: #ff1717 !important;
+        }
+
+        .buttons{
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 45px;
+            padding: 10px;
+            transition: 100ms ease-in-out;
+        }
+        .buttons .button{
+            width: max-content;
+        }
+
+        .buttons .button:hover{
+            transform: translate(0, -2px);
+        }
+
+        #display{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #display p{
+            margin: 0.5rem;
+            font-size: 0.8rem;
+        }
+        #display p.error{
+            color: red;
+        }
+        #display span{
+            font-size: 1.2rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+
+        .user-list{
+            width: 100%;
+            display: flex;
+            gap: 10px;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            height: 50vh;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            overflow: scroll;
+        }
+
+        .list-item{
+            list-style: none;
+            background: aliceblue;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .user-list > div{
+            padding: 5px;
+        }
+
+        .chat-key{
+            font-size: 1rem;
+        }
+
+        .ip, .created{
+            font-size: 0.8rem;
+        }
+
+        footer{
+            font-size: 0.8rem;
+            margin-top: 2rem;
+        }
+
+    </style>
+    <script nonce="<%=scripthash%>">
+        const display = document.getElementById('display');
+        const admin = document.getElementById('admin');
+
+        function updateActiveUsers(){
+            fetch('/admindata', {
+                method: 'POST'
+            }).then(res => res.json()).then(data => {
+                const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                const formatter = new Intl.DateTimeFormat('en-US', options);
+                if (Object.keys(data).length > 0){
+                    //parse the json data and display it as list
+                    const list = document.createElement('ul');
+                    list.classList.add('user-list');
+                    for (let key in data){
+                        const li = document.createElement('li');
+                        li.classList.add('list-item');
+                        const chatKey = document.createElement('div');
+                        chatKey.textContent = key;
+                        chatKey.classList.add('chat-key');
+                        chatKey.style.color = data[key].using ? '#0089ff' : 'red';
+                        const ip = document.createElement('div');
+                        ip.classList.add('ip');
+                        ip.textContent = `IP: ${data[key].ip}`;
+                        const created = document.createElement('div');
+                        created.classList.add('created');
+                        const formattedDate = formatter.format(new Date(data[key].created));
+                        created.textContent = `Created: ${formattedDate}`;
+                        li.appendChild(chatKey);
+                        li.appendChild(ip);
+                        li.appendChild(created);
+                        list.appendChild(li);
+                    }
+                    const totalUsers = document.createElement('p');
+                    const totalUsing = Object.keys(data).filter(key => data[key].using).length;
+                    totalUsers.textContent = `Active users: ${totalUsing}`;
+                    display.innerHTML = '';
+                    display.appendChild(totalUsers);
+                    display.appendChild(list);
+                } else {
+                    const p = document.createElement('p');
+                    p.textContent = 'No active users';
+                    display.innerHTML = '';
+                    display.appendChild(p);
+                }
+            }).catch(err => {
+                console.log(err);
+                const p = document.createElement('p');
+                p.textContent = 'Invalid credentials';
+                p.classList.add('error');
+                display.innerHTML = '';
+                display.appendChild(p);
+            });
+        }
+    </script>
+    <% if (loginScript) { %>
+        <script nonce="<%=scripthash%>">
+            const username = document.getElementById('username');
+            const password = document.getElementById('password');
+            const form = document.getElementById('form');
+            const submit = document.getElementById('submit');
+            submit.addEventListener('click', function(e){
+                //e.preventDefault();
+                if (username.value === ''){
+                    //get the label of username
+                    const label = document.querySelector('label[for="username"]');
+                    label.style.color = 'red';
+                    label.textContent = 'Username is required';
+                    //focus on username input
+                    username.focus();
+                    return;
+                }
+                if (password.value === ''){
+                    //get the label of password
+                    const label = document.querySelector('label[for="password"]');
+                    label.style.color = 'red';
+                    label.textContent = 'Password is required';
+                    //focus on password input
+                    password.focus();
+                    return;
+                }
+                fetch('/admin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username.value,
+                        password: password.value
+                    })
+                }).then((res) => {
+                    if (res.status === 200){
+                        //do something
+                        const p = document.createElement('p');
+                        p.textContent = 'You are logged in';
+                        display.innerHTML = '';
+                        display.appendChild(p);
+                        admin.textContent = username.value;
+                        //change title
+                        document.title = 'Poketab Admin Dashboard';
+                        form.remove();
+                        const buttons = document.createElement('div');
+                        buttons.classList.add('buttons');
+                        const logout = document.createElement('button');
+                        logout.textContent = 'Logout';
+                        logout.classList.add('button', 'logout');
+                        const fetchData = document.createElement('button');
+                        fetchData.textContent = 'Fetch';
+                        fetchData.classList.add('button');
+                        fetchData.id = 'fetchData';
+                        buttons.appendChild(fetchData);
+                        buttons.appendChild(logout);
+                        //add inside main tag of html
+                        document.querySelector('main').appendChild(buttons);
+                        logout.addEventListener('click', () => {
+                            fetch('/admin', {
+                                method: 'DELETE'
+                            }).then(res => {
+                                if (res.status === 200){
+                                    window.location.reload();
+                                }
+                            });
+                        });
+    
+                        fetchData.addEventListener('click', () => {
+                            updateActiveUsers();
+                        });
+    
+                    }else{
+                        //do something
+                        display.innerHTML = '';
+                        const error = document.createElement('p');
+                        error.textContent = 'Wrong credentials!';
+                        error.classList.add('error');
+                        display.appendChild(error);
+                        //change title
+                        document.title = 'Unauthorized';
+                    }
+                })
+            });
+    
+            //remove the error message when user start typing
+            username.addEventListener('input', function(){
+                const label = document.querySelector('label[for="username"]');
+                label.style.color = 'black';
+                label.textContent = 'Username';
+            });
+    
+            username.addEventListener('blur', function(){
+                const label = document.querySelector('label[for="username"]');
+                label.style.color = 'black';
+                label.textContent = 'Username';
+            })
+    
+            password.addEventListener('input', function(){
+                const label = document.querySelector('label[for="password"]');
+                label.style.color = 'black';
+                label.textContent = 'Password';
+            });
+    
+            password.addEventListener('blur', function(){
+                const label = document.querySelector('label[for="password"]');
+                label.style.color = 'black';
+                label.textContent = 'Password';
+            });
+        </script> 
+        <style nonce="<%=stylehash%>"> 
+            #form{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            
+            #form input{
+                width: 100%;
+                padding: 0.5rem;
+                margin-bottom: 1rem;
+                border: 2px solid rgb(0, 0, 0);
+                border-radius: 5px;
+            }
+    
+            .input-field{
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                justify-content: center;
+                width: 250px;
+            }
+    
+            label{
+                position: absolute;
+                top: 0.6rem;
+                left: 0.5rem;
+                color: black;
+                transition: all 0.3s ease;
+                font-size: 0.8rem;
+                pointer-events: none;
+            }
+            
+            input:focus + label{
+                top: -0.5rem;
+                left: 0;
+                padding: 0 5px 0 0;
+                background: #fff;
+                color: #000;
+            }
+    
+            input:valid:not(:focus) + label{
+                top: -1rem;
+                left: 0;
+                padding: 0 5px 0 0;
+                opacity: 0;
+                font-size: 0.8rem;
+            }
+        </style>
+    <% } %> 
+</body>
+</html>

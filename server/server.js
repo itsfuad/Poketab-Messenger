@@ -5,6 +5,7 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const crypto = require('crypto');
+const cookieParser = require('cookie-parser');
 const userAgent = require('express-useragent');
 const socketIO = require('socket.io');
 
@@ -27,7 +28,10 @@ require('dotenv').config();
 const version = process.env.npm_package_version || 'Development';
 const developer = 'Fuad Hasan';
 //admin password to view running chat numbers and create new chat keys
-const ADMIN_PASS = process.env.ADMIN_PASSWORD;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+
+console.log(ADMIN_PASSWORD, ADMIN_USERNAME);
 
 const devMode = true; //dev mode
 
@@ -133,16 +137,79 @@ app.get('/', (_, res) => {
 app.use('/api/files', require('./routes/fileAPI')); //route for file uploads
 app.use('/api/download', require('./routes/fileAPI')); //route for file downloads
 
+
+app.get('/admin', cookieParser(), (req, res) => {
+	const cookieFromClient = req.cookies.auth;
+	//console.log('Got get request for admin page');
+	if (cookieFromClient){
+		//if the cookie is set, check if the cookie is valid
+		const salt = process.env.SALT;
+		const hash = crypto.createHash('sha256');
+		hash.update(ADMIN_USERNAME + salt + ADMIN_PASSWORD);
+		const cookie = hash.digest('hex');
+		if (cookieFromClient == cookie){
+			//if the cookie is valid, render the admin page
+			const styleNonce = crypto.randomBytes(16).toString('hex');
+			const scriptNonce = crypto.randomBytes(16).toString('hex');
+			res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${styleNonce}'; img-src 'self' data:; script-src 'nonce-${scriptNonce}';`);
+			res.setHeader('Developer', 'Fuad Hasan');
+			res.render('adminLogin', {title: 'Admin Dashboard', admin: ADMIN_USERNAME, stylehash: styleNonce, scripthash: scriptNonce, loginScript: false});
+		}else{
+			//if the cookie is invalid, redirect to the login page
+			//console.log('Invalid cookie found. Redirecting to login page');
+			const styleNonce = crypto.randomBytes(16).toString('hex');
+			const scriptNonce = crypto.randomBytes(16).toString('hex');
+			res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${styleNonce}'; img-src 'self' data:; script-src 'nonce-${scriptNonce}';`);
+			res.setHeader('Developer', 'Fuad Hasan');
+			res.render('adminLogin', {title: 'Please login', admin: 'Not logged in', stylehash: styleNonce, scripthash: scriptNonce, loginScript: true});
+		}
+	}else{
+		//console.log('No cookie found. Redirecting to login page');
+		const styleNonce = crypto.randomBytes(16).toString('hex');
+		const scriptNonce = crypto.randomBytes(16).toString('hex');
+		res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${styleNonce}'; img-src 'self' data:; script-src 'nonce-${scriptNonce}';`);
+		res.setHeader('Developer', 'Fuad Hasan');
+		res.render('adminLogin', {title: 'Please login', admin: 'Not logged in', stylehash: styleNonce, scripthash: scriptNonce, loginScript: true});
+	}
+});
+
+app.post('/admin', (req, res) => {
+	const username = req.body.username;
+	const password = req.body.password;
+	//console.log('Got post request for admin page');
+	if (username == ADMIN_USERNAME && password == ADMIN_PASSWORD){
+		//console.log('Admin login successful');
+		const salt = crypto.randomBytes(16).toString('hex');
+		const hash = crypto.createHash('sha256');
+		hash.update(ADMIN_USERNAME + salt + ADMIN_PASSWORD);
+		const cookie = hash.digest('hex');
+		process.env.SALT = salt;
+		res.cookie('auth', cookie, {maxAge: 900000, httpOnly: true});
+		res.status(200).send('Authorized');
+	}else{
+		//console.log('Admin login failed');
+		res.status(401).send('Unauthorized');
+	}
+});
+
 //route to send running chat numbers and create new chat keys to the admin
-app.get('/admin/:pass', (req, res) => {
-	if (req.params.pass === ADMIN_PASS) {
-		console.log('Admin access granted');
+app.post('/admindata', cookieParser(), (req, res) => {
+	const salt = process.env.SALT;
+	const hash = crypto.createHash('sha256');
+	hash.update(ADMIN_USERNAME + salt + ADMIN_PASSWORD);
+	const cookieHash = hash.digest('hex');
+	if (req.cookies.auth === cookieHash) {
+		console.log(Object.fromEntries(keys));
 		res.send(Object.fromEntries(keys));
 	} else {
-		res.setHeader('Developer', 'Fuad Hasan');
-		res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-		res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
+		//console.log('Admin access denied');
+		res.status(401).send('Unauthorized');
 	}
+});
+
+app.delete('/admin', (req, res) => {
+	res.clearCookie('auth');
+	res.status(200).send('Cookie cleared');
 });
 
 app.get('/join', (_, res) => {
