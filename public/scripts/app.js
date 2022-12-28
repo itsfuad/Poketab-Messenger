@@ -53,6 +53,7 @@ const locationsound = new Audio('/sounds/location.mp3');
 const reactsound = new Audio('/sounds/react.mp3');
 const clickSound = new Audio('/sounds/click.mp3');
 const stickerSound = new Audio('/sounds/sticker.mp3');
+const startrecordingSound = new Audio('/sounds/startrecording.mp3');
 
 //three main types of messages are sent in the app by these three buttons
 const sendButton = document.getElementById('send');
@@ -2898,6 +2899,7 @@ function startRecordingAudio(){
 			mediaRecorder.start();
 			startTimer();
 			popupMessage('Recording...');
+			startrecordingSound.play();
 
 			micIcon.classList.replace('fa-play', 'fa-stop');
 			micIcon.classList.replace('fa-microphone', 'fa-stop');
