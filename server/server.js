@@ -199,7 +199,6 @@ app.post('/admindata', cookieParser(), (req, res) => {
 	hash.update(ADMIN_USERNAME + salt + ADMIN_PASSWORD);
 	const cookieHash = hash.digest('hex');
 	if (req.cookies.auth === cookieHash) {
-		console.log(Object.fromEntries(keys));
 		res.send(Object.fromEntries(keys));
 	} else {
 		//console.log('Admin access denied');
