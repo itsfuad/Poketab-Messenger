@@ -1,7 +1,0 @@
-otpauth://totp/Google:fuad.cs22%40gmail.com?secret=OL32GXAJNZLKUJY32S4IXZSSU375ZGH3&issuer=Google
-otpauth://totp/Heroku:Fuad%20Hasan?secret=L6LUTU6UONNBUQS3DFMQCEWR5Y77JSQ2&issuer=Heroku
-otpauth://totp/id.cisco.com:fuad.cs22%40gmail.com?secret=34DJJE55APTX565Q&issuer=id.cisco.com
-otpauth://totp/name.com:itsfuad_Y5Prime?secret=ECFFQH3NW7UKSYEHP3H6LY6E73DVXFSE&issuer=name.com
-otpauth://totp/Facebook:therealfuad?secret=Z7UFM267FLEFCCY6T4KUM6D66JBCNDAF&issuer=Facebook
-otpauth://totp/Instagram:_therealfuad?secret=WQF2UCAIFUDVXBCGWV3UYUYLCAGEDQ5B&issuer=Instagram
-otpauth://totp/GitHub:itsfuad?secret=4EXUZ23CKSQIB5NO&issuer=GitHub
