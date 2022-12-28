@@ -1807,7 +1807,7 @@ document.getElementById('invite').addEventListener('click', async () =>{
 	}
 });
 
-document.querySelector('.theme_option').addEventListener('click', ()=>{
+document.getElementById('themeButton').addEventListener('click', ()=>{
 	hideOptions();
 	if(THEME){
 		if (themeArray.includes(THEME) == false){
@@ -1910,7 +1910,7 @@ document.querySelector('.newmessagepopup').addEventListener('click', function ()
 	removeNewMessagePopup();
 });
 
-document.getElementById('logout').addEventListener('click', () => {
+document.getElementById('logoutButton').addEventListener('click', () => {
 	document.getElementById('preload').querySelector('.text').textContent = 'Logging out';
 	document.getElementById('preload').style.display = 'flex';
 	window.location.href = '/';

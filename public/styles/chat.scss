@@ -297,37 +297,22 @@ img:is(.sticker){
         width: 100%;
         align-items: center;
         justify-content: space-between;
-    }
-    #logout{
-        border-radius: 24px;
-        font-weight: 900;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        font-size: .8rem;
-        &:hover{
-            filter: brightness(0.9);
+
+        .button{
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+            border-radius: 24px;
+            padding: 5px 10px;
+            align-items: center;
+            justify-content: center;
         }
-    }
-    #logout, #logout i{
-        color: white;
-        background: red;
-        padding: 4px 8px;
-    }
-    .theme_option{
-        font-weight: 800;
-        font-size: 0.8rem;
-        &:hover{
-            filter: brightness(0.9);
+        #themeButton{
+            background: var(--secondary-dark);
         }
-    }
-    .theme_option, .theme_option i{
-        display: flex;
-        color: #fff;
-        background: var(--secondary-dark);
-        padding: 4px 8px;
-        border-radius: 25px;
-        align-items: center;
+        #logoutButton{
+            background: red;
+        }
     }
 }
 
