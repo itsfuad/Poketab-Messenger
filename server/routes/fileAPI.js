@@ -2,8 +2,18 @@ const router = require('express').Router();
 const multer = require('multer');
 const { access } = require('fs/promises');
 const crypto = require('crypto');
-const { store, keys } = require('../keys/cred');
 
+const { Keys } = require('../credentialManager');
+
+const fileStore = new Map();
+
+function store(filename, data){
+	fileStore.set(filename, data);
+}
+
+function deleteFileStore(filename){
+	fileStore.delete(filename);
+}
 
 const storage = multer.diskStorage({
 	destination: (_, file, cb) => cb(null, 'uploads/'),
@@ -11,7 +21,7 @@ const storage = multer.diskStorage({
 		if (file.size >= 15 * 1024 * 1024){
 			cb(new Error('File size more than 15mb'));
 		}else{
-			if (keys.has(req.body.key)){
+			if (Keys.hasKey(req.body.key)){
 				const filename = `poketab-${crypto.randomBytes(16).toString('hex')}`;
 				store(filename, { filename: filename, key: req.body.key, ext: req.body.ext, uids: new Set([req.body.uid]) });
 				cb(null, filename);
@@ -27,7 +37,7 @@ const upload = multer({
 	limits: { fileSize: 15 * 1024 * 1024 },
 }); //name field name
 
-router.post('/', upload.single('file'), (req, res) => {
+router.post('/upload', upload.single('file'), (req, res) => {
 	if (req.file){
 		res.status(200).send({ success: true, downlink: req.file.filename });
 		console.log('Temporary file stored.');
@@ -36,8 +46,8 @@ router.post('/', upload.single('file'), (req, res) => {
 	}
 });
 
-router.get('/:id/:key', (req, res) => {
-	if (keys.has(req.params.key)){
+router.get('/download/:id/:key', (req, res) => {
+	if (Keys.hasKey(req.params.key)){
 		access(`uploads/${req.params.id}`)
 			.then(() => {
 				res.sendFile(`uploads/${req.params.id}`, { root: __dirname + '/../..' });
@@ -55,4 +65,4 @@ router.get('*', (req, res) => {
 	res.status(404).send({ error: 'Unknown route' });
 });
 
-module.exports = router;
+module.exports = { router, store, fileStore, deleteFileStore };

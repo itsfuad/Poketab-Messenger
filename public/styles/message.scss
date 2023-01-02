@@ -115,12 +115,11 @@ code{
                 color: #ffffff60;
                 font-size: 1rem !important;
             }
-            &.imageReply{
+
+            &:is(.imageReply){
                 padding: 0;
-            }
-            .imageReply{
                 filter: brightness(0.4) !important;
-                background: #ffffff17 !important;
+                background: rgba(255,255,255,.0901960784)!important;
                 position: relative;
                 max-height: 150px;
                 max-width: 150px;
@@ -131,6 +130,8 @@ code{
                 border-radius: 15px 15px 15px 8px !important;
             }
         }
+
+
         .reactsOfMessage{
             position: absolute;
             bottom: -12px;
@@ -181,10 +182,6 @@ code{
         flex-wrap: nowrap;
         max-width: unset;
     }
-}
-
-.messageReply:is(.imageReply){
-    background: transparent !important;
 }
 
 .message:is(.noreply){
@@ -397,8 +394,8 @@ pre{
             .image{
                 border-radius: 15px 15px 8px 15px;
             }
-            .imageReply{
-                border-radius: 15px 15px 15px 8px !important;
+            &:is(.imageReply){
+                border-radius: 15px 15px 8px 15px !important;
             }
         }
         .messageMain{

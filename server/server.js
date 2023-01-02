@@ -5,21 +5,15 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const crypto = require('crypto');
-const cookieParser = require('cookie-parser');
 const userAgent = require('express-useragent');
-const socketIO = require('socket.io');
-
-const { clean } = require('./cleaner');
 
 //utility functions for the server
-const { validateUserName, avList, isRealString, reactArray } = require('./utils/validation');
-const { keyformat, makeid } = require('./utils/functions');
-const { addKey, deleteKey, keys, uids, users } = require('./keys/cred');
-const { markForDelete } = require('./cleaner');
+const { validateUserName, validateAvatar, avList } = require('./utils/validation');
+const { makeid } = require('./utils/functions');
 
-//importing worker threads
-//The worker threads module provides a way to create multiple environments running on separate threads that can communicate with each other via inter-thread messaging or sharing memory.
-const { Worker } = require('worker_threads');
+const { Keys } = require('./credentialManager');
+
+const cookieParser = require('cookie-parser');
 
 //import .env variables
 require('dotenv').config();
@@ -27,13 +21,6 @@ require('dotenv').config();
 //versioning and developer name
 const version = process.env.npm_package_version || 'Development';
 const developer = 'Fuad Hasan';
-//admin password to view running chat numbers and create new chat keys
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
-
-console.log(ADMIN_PASSWORD, ADMIN_USERNAME);
-
-const devMode = true; //dev mode
 
 //this blocks the client if they request 1000 requests in 15 minutes
 const apiRequestLimiter = rateLimit({
@@ -51,17 +38,14 @@ const app = express();
 
 const port = process.env.PORT || 3000;
 
-clean();
+const HMAC_KEY = crypto.randomBytes(64).toString('hex');
 
 const server = http.createServer(app);
+//export the server to be used in the socket.js file
+module.exports = { server, HMAC_KEY };
 
-//socketio server which can handle multiple connections and reconnects from the client
-const io = socketIO(server);
-
-//file socket handler is used to handle file transfers metadata but not the actual file transfer
-const fileSocket = io.of('/file');
 //handle the key generation request and authentication
-const auth = io.of('/auth');
+
 
 //disable x-powered-by header showing express in the response
 app.disable('x-powered-by');
@@ -80,6 +64,8 @@ app.use(express.json()); //parse json data
 app.use(express.urlencoded({ 
 	extended: false
 }));
+
+app.use(cookieParser(HMAC_KEY));
 
 app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 
@@ -128,120 +114,54 @@ app.use(checkBrowser); //use the middleware to check if the user is using a supp
 
 // default route to serve the client
 app.get('/', (_, res) => {
-	const styleNonce = crypto.randomBytes(16).toString('hex');
-	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${styleNonce}'; img-src 'self' data:;`);
+	const nonce = crypto.randomBytes(16).toString('hex');
+	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}' ; img-src 'self' data:;`);
 	res.setHeader('Developer', 'Fuad Hasan');
-	res.render('home', {title: 'Get Started', hash: styleNonce});
+	res.render('home', {title: 'Get Started', hash: nonce});
 });
 
-app.use('/api/files', require('./routes/fileAPI')); //route for file uploads
-app.use('/api/download', require('./routes/fileAPI')); //route for file downloads
+app.use('/admin', require('./routes/admin')); //route for admin panel
 
+app.use('/api/files', require('./routes/fileAPI').router); //route for file uploads
 
-app.get('/admin', cookieParser(), (req, res) => {
-	const cookieFromClient = req.cookies.auth;
-	//console.log('Got get request for admin page');
-	if (cookieFromClient){
-		//if the cookie is set, check if the cookie is valid
-		const salt = process.env.SALT;
-		const hash = crypto.createHash('sha256');
-		hash.update(ADMIN_USERNAME + salt + ADMIN_PASSWORD);
-		const cookie = hash.digest('hex');
-		if (cookieFromClient == cookie){
-			//if the cookie is valid, render the admin page
-			const styleNonce = crypto.randomBytes(16).toString('hex');
-			const scriptNonce = crypto.randomBytes(16).toString('hex');
-			res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${styleNonce}'; img-src 'self' data:; script-src 'nonce-${scriptNonce}';`);
-			res.setHeader('Developer', 'Fuad Hasan');
-			res.render('adminLogin', {title: 'Admin Dashboard', admin: ADMIN_USERNAME, stylehash: styleNonce, scripthash: scriptNonce, loginScript: false});
-		}else{
-			//if the cookie is invalid, redirect to the login page
-			//console.log('Invalid cookie found. Redirecting to login page');
-			const styleNonce = crypto.randomBytes(16).toString('hex');
-			const scriptNonce = crypto.randomBytes(16).toString('hex');
-			res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${styleNonce}'; img-src 'self' data:; script-src 'nonce-${scriptNonce}';`);
-			res.setHeader('Developer', 'Fuad Hasan');
-			res.render('adminLogin', {title: 'Please login', admin: 'Not logged in', stylehash: styleNonce, scripthash: scriptNonce, loginScript: true});
-		}
-	}else{
-		//console.log('No cookie found. Redirecting to login page');
-		const styleNonce = crypto.randomBytes(16).toString('hex');
-		const scriptNonce = crypto.randomBytes(16).toString('hex');
-		res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'nonce-${styleNonce}'; img-src 'self' data:; script-src 'nonce-${scriptNonce}';`);
-		res.setHeader('Developer', 'Fuad Hasan');
-		res.render('adminLogin', {title: 'Please login', admin: 'Not logged in', stylehash: styleNonce, scripthash: scriptNonce, loginScript: true});
-	}
-});
+app.get('/create', (req, res) => {
+	const nonce = crypto.randomBytes(16).toString('hex');
+	res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);
+	res.setHeader('Developer', 'Fuad Hasan');
+	//create a key and send it to the client as cookie
+	const key = makeid();
+	const signature = crypto.createHmac('sha256', HMAC_KEY).update(key).digest('hex');
 
-app.post('/admin', (req, res) => {
-	const username = req.body.username;
-	const password = req.body.password;
-	//console.log('Got post request for admin page');
-	if (username == ADMIN_USERNAME && password == ADMIN_PASSWORD){
-		//console.log('Admin login successful');
-		const salt = crypto.randomBytes(16).toString('hex');
-		const hash = crypto.createHash('sha256');
-		hash.update(ADMIN_USERNAME + salt + ADMIN_PASSWORD);
-		const cookie = hash.digest('hex');
-		process.env.SALT = salt;
-		res.cookie('auth', cookie, {maxAge: 900000, httpOnly: true});
-		res.status(200).send('Authorized');
-	}else{
-		//console.log('Admin login failed');
-		res.status(401).send('Unauthorized');
-	}
-});
-
-//route to send running chat numbers and create new chat keys to the admin
-app.post('/admindata', cookieParser(), (req, res) => {
-	const salt = process.env.SALT;
-	const hash = crypto.createHash('sha256');
-	hash.update(ADMIN_USERNAME + salt + ADMIN_PASSWORD);
-	const cookieHash = hash.digest('hex');
-	if (req.cookies.auth === cookieHash) {
-		res.send(Object.fromEntries(keys));
-	} else {
-		//console.log('Admin access denied');
-		res.status(401).send('Unauthorized');
-	}
-});
-
-app.delete('/admin', (req, res) => {
-	res.clearCookie('auth');
-	res.status(200).send('Cookie cleared');
+	//st cookie for 2 minutes
+	res.cookie('key', key, {maxAge: 120000, httpOnly: true, signed: true, sameSite: 'strict', signature: signature});
+	res.render('newUser', {title: 'Create', avList: avList, key: null, version: `v.${version}`, hash: nonce});
 });
 
 app.get('/join', (_, res) => {
-	res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data:;');
+	const nonce = crypto.randomBytes(16).toString('hex');
+	res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);
 	res.setHeader('Developer', 'Fuad Hasan');
-	res.render('join', {title: 'Join', version: `v.${version}`, key: null, key_label: 'Enter key <i id=\'lb__icon\' class="fa-solid fa-key"></i>'});
+	res.clearCookie('key');
+	res.render('newUser', {title: 'Join', avList: avList, version: `v.${version}`, key: null, key_label: 'Enter key <i id=\'lb__icon\' class="fa-solid fa-key"></i>', hash: nonce});
 });
 
 app.get('/join/:key', (req, res)=>{
 	const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
 	if (key_format.test(req.params.key)){
-		const scriptNonce = crypto.randomBytes(16).toString('hex');
-		res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; script-src 'self' 'nonce-${scriptNonce}';`);
+		const nonce = crypto.randomBytes(16).toString('hex');
+		res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'unsafe-inline' 'self'; script-src 'self' 'nonce-${nonce}';`);
 		res.setHeader('Developer', 'Fuad Hasan');
-		res.render('join', {title: 'Join', key_label: 'Checking <i id=\'lb__icon\' class="fa-solid fa-circle-notch fa-spin"></i>' , version: `v.${version}`, key: req.params.key, hash: scriptNonce});
+		res.render('newUser', {title: 'Join', avList: avList, key_label: 'Checking <i id=\'lb__icon\' class="fa-solid fa-circle-notch fa-spin"></i>' , version: `v.${version}`, key: req.params.key, hash: nonce});
 	}
 	else{
 		res.redirect('/join');
 	}
 });
 
-app.get('/create', (req, res) => {
-	const key = makeid(12);
-	const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || null; //currently ip has nothing to do with our server. May be we can use it for user validation or attacts. 
-	keys.set(key, {using: false, created: Date.now(), ip: ip});
-	res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data:;');
-	res.setHeader('Developer', 'Fuad Hasan');
-	res.render('create', {title: 'Create', version: `v.${version}`, key: key});
-});
-
 app.get('/error', (_, res) => {
 	res.setHeader('Content-Security-Policy', 'default-src \'self\';');
 	res.setHeader('Developer', 'Fuad Hasan');
+	res.clearCookie('key');
 	res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized Access', buttonText: 'Suicide'});
 });
 
@@ -251,47 +171,109 @@ app.get('/chat', (_, res) => {
 
 app.post('/chat', (req, res) => {
 
+	//get the Username and avatar from the pre-request
 	const username = req.body.username;
-	const key = req.body.key;
 	const avatar = req.body.avatar;
-	const maxuser = req.body.maxuser;
+	//validate username and avatar
+	const isValidUsername = validateUserName(username);
+	//if username and avatars are not valid
+	if (!isValidUsername || !validateAvatar(avatar)) {
+		res.setHeader('Developer', 'Fuad Hasan');
+		res.setHeader('Content-Security-Policy', 'script-src \'none\'');
+		res.status(400).send({
+			error: 
+				!isValidUsername ? 
+					'Don\'t try to be oversmart. Use only alphanumeric characters' 
+					: 'Don\'t try to be oversmart. Choose avatar from the list'
+		});
+	}
 
-	if (!validateUserName(username)){
-		res.setHeader('Developer', 'Fuad Hasan');
-		res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-		res.status(400).send({
-			error: 'Don\'t try to be oversmart. Use only alphanumeric characters'
-		});
-	}
-	if (!avList.includes(avatar)){
-		res.setHeader('Developer', 'Fuad Hasan');
-		res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-		res.status(400).send({
-			error: 'Don\'t try to be oversmart. Choose avatar from the list'
-		});
-	}
-	//get current users list on key
-	if (keys.has(key) || devMode){
-		const user = users.getUserList(key);
-		const max_users = users.getMaxUser(key) ?? maxuser;
-		//console.log(max_users);
-		const uid = crypto.randomUUID();
-		if (user.length >= max_users || max_users > 10){
+	//If no problem so far,
+
+	//get the key from the request
+	let key = req.body.key;
+
+	//if key was not supplied that means the request was a create request.
+	if (!key){
+		//Create request
+		//get the key from the cookie which was delivered when the /create page was requested. 
+		// NOTE: The cookie will be there for 2 minutes
+		const cookie = req.signedCookies.key;
+		//onsole.log(req.signedCookies.key);
+		//if the cookie is present
+		if (cookie){
+			const regex = /[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}/;
+			const match = regex.exec(cookie);
+			key = match ? match[0] : undefined;
+			//if the key is not valid
+			if (!key){
+				//console.log('Invalid key found in cookie');
+				res.setHeader('Developer', 'Fuad Hasan');
+				res.setHeader('Content-Security-Policy', 'script-src \'none\'');
+				res.status(400).send({error: 'Invalid key'});
+			}else{
+				//valid key found. Now user can join the chat
+				//check if the key is not in use
+
+				if (!Keys.hasKey(key)){
+
+					//console.log(`Valid Key found: ${key}! Creating new chat`);
+					//get the max user from the request
+					const max_users = req.body.maxuser;
+					//generate random uid for the user
+					const uid = crypto.randomUUID();
+			
+					res.setHeader('Developer', 'Fuad Hasan');
+					res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
+					res.setHeader('Cluster', `ID: ${process.pid}`);
+					res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
+				}else{
+					//clash of keys
+					//console.log(`Key clash found: ${key}!`);
+					res.setHeader('Developer', 'Fuad Hasan');
+					res.setHeader('Content-Security-Policy', 'script-src \'none\'');
+					res.status(400).send({error: 'Key clased!'});
+				}
+			}
+		}else{
+			//console.log('No Key or Cookie found in cookie');
+			//console.log('No session found for this request.');
+			res.setHeader('Developer', 'Fuad Hasan');
+			res.setHeader('Content-Security-Policy', 'script-src \'none\'');
+			res.clearCookie('key');
+			res.render('errorRes', {title: 'You\'re Late!', errorCode: '440', errorMessage: 'Session Expired', buttonText: 'Renew'});
+		}
+	}else if(key && Keys.hasKey(key)) {
+		//Key exists, so the request is a join request
+		//console.log(`Existing Key found: ${key}!\nChecking permissions...`);
+		//Check if the key has reached the maximum user limit
+		if (Keys[key].userCount >= Keys[key].maxuser){
+			//console.log(`Maximum user reached. User is blocked from key: ${key}`);
 			res.setHeader('Developer', 'Fuad Hasan');
 			res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 			res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
 		}else{
+			//if user have room to enter the chat
+			//console.log('User have permission to join this chat');
+
+			const max_users = Keys[key]?.maxUser;
+			const uid = crypto.randomUUID();
+
+			//console.log(`Redirecting to old chat with key: ${key}`);
+			
 			res.setHeader('Developer', 'Fuad Hasan');
 			res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
 			res.setHeader('Cluster', `ID: ${process.pid}`);
 			res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
 		}
 	}else{
-		//send invalid key message
+		//console.log('No session found for this request.');
 		res.setHeader('Developer', 'Fuad Hasan');
 		res.setHeader('Content-Security-Policy', 'script-src \'none\'');
+		res.clearCookie('key');
 		res.render('errorRes', {title: 'Not found', errorCode: '404', errorMessage: 'Session Key not found', buttonText: 'Renew'});
 	}
+
 });
 
 app.get('/offline', (_, res) => {
@@ -306,222 +288,11 @@ app.get('*', (_, res) => {
 	res.render('errorRes', {title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home'});
 });
 
-
-
-
-
-//socket.io connection
-io.on('connection', (socket) => {
-	socket.on('join', (params, callback) => {
-		if (!isRealString(params.name) || !isRealString(params.key)) {
-			return callback('empty');
-		}
-		if (params.avatar === undefined) {
-			return callback('avatar');
-		}
-		const userList = users.getUserList(params.key);
-		const user = userList.includes(params.name);
-		if (user) {
-			return callback('exists');
-		}
-		callback();
-		keys.get(params.key) ? keys.get(params.key).using = true: addKey(params.key, {using: true, created: Date.now()});
-		socket.join(params.key);
-		users.removeUser(params.id);
-		uids.set(socket.id, params.id);
-		users.addUser(params.id, params.name, params.key, params.avatar, params.maxuser || users.getMaxUser(params.key));
-		io.to(params.key).emit('updateUserList', users.getAllUsersDetails(params.key));
-		const srvID = crypto.randomUUID();
-		socket.emit('server_message', {color: 'limegreen', text: 'You joined the chat.🔥', id: srvID}, 'join');
-		socket.broadcast.to(params.key).emit('server_message', {color: 'limegreen', text: `${params.name} joined the chat.🔥`, id: srvID}, 'join');
-	});
-
-
-	socket.on('message', (message, type, uId, reply, replyId, options, callback) => {
-		const user = users.getUser(uids.get(socket.id));
-		if (user && isRealString(message)) {
-      
-			const id = crypto.randomUUID();
-      
-			//!sanitize html
-      
-			if (type === 'text'){
-				//create new Worker
-				const worker = new Worker('./server/worker.js', {workerData: {message: message}});
-				worker.on('message', (data) => {
-					socket.broadcast.to(user.key).emit('newMessage', data, type, id, uId, reply, replyId, options);
-					callback(id);
-				});
-			}else{
-				socket.broadcast.to(user.key).emit('newMessage', message, type, id, uId, reply, replyId, options);
-				callback(id);
-			}
-		}
-	});
-  
-	/*
-  socket.on('askForLinkPreview', (url, callback) => {
-    console.log('URL requested: ', url);
-    const worker = new Worker('./server/linkPreviewWorker.js', {workerData: {url: url}});
-    worker.on('message', (data) => {
-      callback(data);
-    });
-  });
-  */
-
-	socket.on('seen', (meta) => {
-		const user = users.getUser(uids.get(socket.id));
-		if (user){
-			socket.broadcast.to(user.key).emit('seen', meta);
-		}
-	});
-
-
-	socket.on('react', (target, messageId, myId) => {
-		const user = users.getUser(uids.get(socket.id));
-		if (user && reactArray.primary.includes(target) || reactArray.expanded.includes(target)) {
-			io.to(user.key).emit('getReact', target, messageId, myId);
-		}
-	});
-
-
-	socket.on('deletemessage', (messageId, msgUid, userName, userId) => {
-		const user = users.getUser(uids.get(socket.id));
-		if (user) {
-			if (msgUid == userId){
-				io.to(user.key).emit('deleteMessage', messageId, userName);
-			}
-		}
-	});
-
-	socket.on('createLocationMessage', (coord) => {
-		const user = users.getUser(uids.get(socket.id));
-		if (user) {
-			const srvID = crypto.randomUUID();
-			io.to(user.key).emit('server_message', {color: 'var(--secondary-dark);', coordinate: {longitude: coord.longitude, latitude: coord.latitude}, user: user.name, id: srvID}, 'location');
-		}
-	});
-
-
-	socket.on('typing', () => {
-		const user = users.getUser(uids.get(socket.id));
-		if (user) {
-			socket.broadcast.to(user.key).emit('typing', user.name, user.uid);
-		}
-	});
-	socket.on('stoptyping', () => {
-		const user = users.getUser(uids.get(socket.id));
-		if (user) {
-			socket.broadcast.to(user.key).emit('stoptyping', user.uid);
-		}
-	});
-
-
-	socket.on('disconnect', () => {
-		const user = users.removeUser(uids.get(socket.id));
-		uids.delete(socket.id);
-		if (user) {
-			socket.broadcast.to(user.key).emit('updateUserList', users.getAllUsersDetails(user.key));
-			const srvID = crypto.randomUUID();
-			socket.broadcast.to(user.key).emit('server_message', {color: 'orangered', text: `${user.name} left the chat.🐸`, who: user.uid, id: srvID}, 'leave');
-			console.log(`User ${user.name} disconnected from key ${user.key}`);
-			const usercount = users.users.filter(datauser => datauser.key === user.key);
-			if (usercount.length === 0) {
-				users.removeMaxUser(user.key);
-				//delete key from keys
-				//keys.delete(user.key);
-				deleteKey(user.key);
-				console.log(`Session ended with key: ${user.key}`);
-			}
-			console.log(`${usercount.length == 0 ? 'No' : usercount.length} ${usercount.length > 1 ? 'users' : 'user'} left on ${user.key}`);
-		}
-	});
-});
-
-
-//file upload
-fileSocket.on('connection', (socket) => {
-	socket.on('join', (key) => {
-		socket.join(key);
-	});
-
-	socket.on('fileUploadStart', ( type, thumbnail, uId, reply, replyId, options, metadata, key, callback) => {
-		const id = crypto.randomUUID();
-		socket.broadcast.to(key).emit('fileDownloadStart', type, thumbnail, id, uId, reply, replyId, options, metadata);
-		callback(id);
-	});
-
-	socket.on('fileUploadEnd', (id, key, downlink) => {
-		socket.broadcast.to(key).emit('fileDownloadReady', id, downlink);
-		//socket.emit('fileSent', tempId, id, type, size);
-	});
-
-	socket.on('fileDownloaded', (userId, key, filename) => {
-		markForDelete(userId, key, filename);
-	});
-
-	socket.on('fileUploadError', (key, id, type) => {
-		socket.broadcast.to(key).emit('fileUploadError', id, type);
-	});
-
-});
-
-
-
-auth.on('connection', (socket) => {
-	socket.on('createRequest', (key, callback) => {
-		if (!keyformat.test(key)){
-			callback('Invalid key');
-			return;
-		}
-		const keyExists = users.getUserList(key).length > 0;
-		if (keyExists){
-			socket.emit('createResponse', {exists: keyExists});
-		}
-		else{
-			if (keys.has(key)) {
-				if (keys.get(key).using == false){
-					socket.emit('createResponse', {exists: keyExists});
-				}
-				else{
-					callback('Key is already in use');
-				}
-			}
-			else{
-				callback('Expired or invalid key');
-			}
-		}
-	});
-
-
-	socket.on('joinRequest', (key, callback) => {
-		if (!keyformat.test(key)){
-			return;
-		}
-		const keyExists = users.getUserList(key).length > 0;
-		if (keyExists){
-			//check if max user is reached
-			const user = users.getUserList(key);
-			const max_users = users.getMaxUser(key) ?? 2;
-			if (user.length >= max_users){
-				callback('Not Authorized');
-			}else{
-				socket.emit('joinResponse', {exists: keyExists, userlist: users.getUserList(key), avatarlist: users.getAvatarList(key)});
-			}
-		}
-		else{
-			socket.emit('joinResponse', {exists: keyExists});
-		}
-	});
-});
-
-
-
-
+require('./websockets');
+require('./fileSocket');
+require('./preAuthSocket');
 
 //fire up the server
 server.listen(port, () => {
-	console.log(`Server is up on port ${port} | ${devMode ? 'Development' : 'Production'} mode`);
+	console.log(`Server is up on port ${port} | Process ID: ${process.pid}`);
 });
-
-module.exports = { server };

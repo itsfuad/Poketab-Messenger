@@ -9,7 +9,7 @@ import {Stickers} from './../stickers/stickersConfig';
 import { PanZoom } from './panzoom';
 import Prism from './../libs/prism/prism';
 
-console.log('loaded');
+console.log('%cloaded app.js', 'color: deepskyblue;');
 
 //variables
 const socket = io(); //main socket to deliver messages
@@ -442,7 +442,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		else if (classList.includes('self') && classList.includes('noreply')){
 			classList += ' notitle';
 		}
-		let username = userInfoMap.get(uid)?.name;
+		let username = userInfoMap.get(uid)?.username;
 		const avatar = userInfoMap.get(uid)?.avatar;
 		if (username == myName){username = 'You';}
 	
@@ -451,7 +451,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		let repliedTo;
 		if (options.reply){
 			//check if the replyid is available in the message list
-			repliedTo = userInfoMap.get(document.getElementById(replyId || '')?.dataset?.uid)?.name;
+			repliedTo = userInfoMap.get(document.getElementById(replyId || '')?.dataset?.uid)?.username;
 			if (repliedTo == myName){repliedTo = 'You';}
 			if (repliedTo == username){repliedTo = 'self';}
 			if (!document.getElementById(replyId)){
@@ -1327,7 +1327,7 @@ function OptionEventHandler(evt, popup = true){
 	const sender = evt.target.closest('.message').classList.contains('self')? true : false;
 	if (type == 'text'){
 		//text
-		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
+		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
 		}
@@ -1346,7 +1346,7 @@ function OptionEventHandler(evt, popup = true){
 		img.alt = 'Image';
 		fragment.append(img);
 		document.querySelector('#lightbox__image').append(fragment);
-		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
+		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
 		}
@@ -1357,7 +1357,7 @@ function OptionEventHandler(evt, popup = true){
 		targetMessage.id = evt.target?.closest('.message')?.id;
 	}else if (type == 'audio'){
 		// audio
-		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
+		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
 		}
@@ -1368,7 +1368,7 @@ function OptionEventHandler(evt, popup = true){
 		targetMessage.id = evt.target?.closest('.message')?.id;
 	}else if (type == 'file'){
 		//file
-		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
+		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
 		}
@@ -1380,7 +1380,7 @@ function OptionEventHandler(evt, popup = true){
 		targetMessage.id = evt.target?.closest('.message')?.id;
 	}else if (type == 'sticker'){
 		//sticker
-		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).name;
+		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
 		}
@@ -2014,8 +2014,9 @@ messages.addEventListener('click', (evt) => {
 			}
 
 			const imageElement = document.createElement('img');
-			imageElement.src = evt.target?.src;
+			imageElement.src = evt.target?.closest('.messageMain')?.querySelector('.image')?.src;
 			imageElement.classList.add('lb');
+			imageElement.alt = 'Image';
 			document.getElementById('lightbox__image').appendChild(imageElement);
 
 			// eslint-disable-next-line no-undef
@@ -2071,7 +2072,7 @@ messages.addEventListener('click', (evt) => {
 			if (target.length > 0){
 				target.forEach(element => {
 					const avatar = userInfoMap.get(element.dataset.uid).avatar;
-					let name = userInfoMap.get(element.dataset.uid).name;
+					let name = userInfoMap.get(element.dataset.uid).username;
 					if (name == myName){name = 'You';}
 					const listItem = document.createElement('li');
 					const avatarImage = document.createElement('img');
@@ -2576,7 +2577,7 @@ async function sendImageStoreRequest(){
 		const progressText = elem.querySelector('.circleProgressLoader .progressPercent');
 
 		//send file via xhr post request
-		xhr.open('POST', `${location.origin}/api/files`, true);
+		xhr.open('POST', `${location.origin}/api/files/upload`, true);
 		xhr.upload.onprogress = function(e) {
 			if (e.lengthComputable) {
 				progress = (e.loaded / e.total) * 100;
@@ -2641,7 +2642,7 @@ function sendFileStoreRequest(type = null){
 	//upload image via xhr request
 	const xhr = new XMLHttpRequest();
 	//send file via xhr post request
-	xhr.open('POST', location.origin + '/api/files', true);
+	xhr.open('POST', location.origin + '/api/files/upload', true);
 	xhr.upload.onprogress = function(e) {
 		if (e.lengthComputable) {
 			progress = (e.loaded / e.total) * 100;
@@ -3123,7 +3124,8 @@ socket.on('connect', () => {
 	});
 });
 //updates current user list
-socket.on('updateUserList', users => {
+socket.on('updateUserList', (users) => {
+
 	users.forEach(user => {
 		userInfoMap.set(user.uid, user);
 	});
@@ -3149,7 +3151,7 @@ socket.on('updateUserList', users => {
 		avt.appendChild(img);
 		avt.appendChild(status);
 		const userSpan = document.createElement('span');
-		userSpan.textContent = user.uid == myId ? user.name + ' (You)' : user.name;
+		userSpan.textContent = user.uid == myId ? user.username + ' (You)' : user.username;
 		listItem.append(avt, userSpan);
 		if (user.uid == myId){
 			document.getElementById('userlist').prepend(listItem);
@@ -3181,12 +3183,13 @@ socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
 		stickerSound.play();
 	}
 	insertNewMessage(message, type, id, uid, reply, replyId, options, {});
-	notifyUser({data: type == 'text' ? message : '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uid)?.name, userInfoMap.get(uid)?.avatar);
+	notifyUser({data: type == 'text' ? message : '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uid)?.username, userInfoMap.get(uid)?.avatar);
 });
 
 socket.on('seen', meta => {
 	const message = document.getElementById(meta.messageId);
-	if (message && !message.dataset.seen?.includes(meta.userId)){
+	const isMessage = message?.classList?.contains('message');
+	if (message && isMessage && !message.dataset.seen?.includes(meta.userId)){
 		document.querySelectorAll(`.msg-item[data-seen*="${meta.userId}"]`)
 			.forEach(elem => {
 				elem.querySelector(`.seenBy img[data-user="${meta.userId}"]`)?.remove();
@@ -3248,7 +3251,7 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
 		const elem = document.getElementById(id).querySelector('.messageMain');
 		elem.querySelector('.progress').textContent = '↑ Uploading';
 	}
-	notifyUser({data: '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uId)?.name, userInfoMap.get(uId)?.avatar);
+	notifyUser({data: '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uId)?.username, userInfoMap.get(uId)?.avatar);
 });
 
 //if any error occurrs, the show the error
@@ -3285,7 +3288,7 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 
 	const xhr = new XMLHttpRequest();
 
-	xhr.open('GET', `${location.origin}/api/download/${downlink}/${myKey}`, true);
+	xhr.open('GET', `${location.origin}/api/files/download/${downlink}/${myKey}`, true);
 	xhr.responseType = 'blob';
 	xhr.onprogress = async function(e) {
 		if (e.lengthComputable && progressContainer) {

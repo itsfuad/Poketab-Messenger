@@ -178,16 +178,6 @@ fieldset a:hover {
   color: #3b88e7;
 }
 
-.remainingTime {
-  position: absolute;
-  right: 0;
-  color: #4598ff;
-}
-.remainingTime.shake {
-  -webkit-animation: shake 500ms infinite;
-          animation: shake 500ms infinite;
-}
-
 .subform {
   display: flex;
   flex-direction: column;
@@ -287,11 +277,6 @@ input[type=radio]:checked + label img {
 }
 .source-code a {
   color: white;
-}
-
-.copy {
-  cursor: pointer;
-  border: 2px dashed !important;
 }
 
 #form2 {

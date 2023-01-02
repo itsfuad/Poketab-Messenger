@@ -9,7 +9,7 @@ self.addEventListener('install', (event) => {
 				return Promise.all(
 					cacheNames.map(cache => {
 						if (cache !== CACHE_NAME+'-'+OFFLINE_VERSION) {
-							console.log('Service Worker: Clearing Old cache');
+							console.log('%cService Worker: Clearing Old cache', 'color: blue;');
 							return caches.delete(cache);
 						}
 					})
@@ -46,7 +46,7 @@ self.addEventListener('fetch', (event) => {
 					return networkResponse;
 				} catch (error) {
 
-					console.log('Fetch failed; returning offline page instead.', error);
+					console.log('%cFetch failed; returning offline page instead.', 'color: orangered;');
 
 					const cache = await caches.open(CACHE_NAME+'-'+OFFLINE_VERSION);
 					const cachedResponse = await cache.match(OFFLINE_URL);

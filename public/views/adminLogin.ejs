@@ -5,57 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, interactive-widget=resizes-content">
     <link rel="icon" href="/images/avatars/pikachu.png">
-    <title><%= title %> </title>
-</head>
-<body>
-    <div class="container">
-        <div class="logo">
-            <img src="images/pikachu-mini.png" alt="PokeTab Logo">
-            <div class="heading">Admin Dashbord</div>
-            <div id="admin"><%= admin %> </div>
-        </div>
-        <main>
-        <% if (loginScript) { %>
-            <!-- Admin dashboard to login -->
-            <div id="form">
-                <div class="title">Enter credentials</div>
-                <div class="input-field">
-                    <input type="text" id="username" name="username" required>
-                    <label for="username">Username</label>
-                </div>
-                <div class="input-field">
-                    <input type="password" id="password" name="password" required>
-                    <label for="password">Password</label>
-                </div>
-                <button id="submit" class="button">Login</button>
-            </div>
-            <div id="display"></div>
-        <% } %>
-        <% if (!loginScript) { %>
-            <div id="display"><p>You are logged in</p></div>
-            <div class="buttons">
-                <button class="button" id="fetchData">Fetch</button>
-                <button class="button logout">Logout</button>
-            </div>
-            <script nonce="<%=scripthash%>">
-                const logout = document.querySelector('.logout');
-                logout.addEventListener('click', () => {
-                    fetch('/admin', {
-                        method: 'DELETE'
-                    }).then(res => {
-                        if (res.status === 200){
-                            window.location.reload();
-                        }
-                    });
-                });
-                fetchData.addEventListener('click', () => {
-                    updateActiveUsers();
-                });
-            </script>
-        <% } %>
-        </main>
-    </div>
-    <style nonce="<%=stylehash%>">
+    <style nonce="<%=hash%>">
 
         @font-face {
             font-family: Comic;
@@ -68,6 +18,7 @@
             box-sizing: border-box;
             font-family: Comic;
             color: white;
+            user-select: none;
         }
 
         body{
@@ -121,6 +72,7 @@
             right: 0;
             padding: 10px;
             color: white;
+            cursor: pointer;
         }
         .logo{
             width: 100%;
@@ -213,7 +165,7 @@
             flex-direction: row;
             justify-content: center;
             align-items: flex-start;
-            height: 50vh;
+            max-height: 74vh;
             flex-wrap: wrap;
             align-content: flex-start;
             overflow: scroll;
@@ -243,54 +195,269 @@
             margin-top: 2rem;
         }
 
+        form{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        input{
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 2px solid rgb(255, 255, 255);
+            border-radius: 5px;
+            background: transparent;
+            outline: none;
+        }
+
+        .input-field{
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            width: 250px;
+            background: transparent;
+        }
+
+        label{
+            position: absolute;
+            top: 0.6rem;
+            left: 0.5rem;
+            color: rgb(255, 255, 255);
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            pointer-events: none;
+            background: transparent;
+            outline: none;
+        }
+        
+        input:focus + label{
+            top: -0.5rem;
+            left: 0;
+            padding: 0 5px 0 0;
+            color: rgb(255, 255, 255);
+            background: #111d2a;
+        }
+
+        input:valid:not(:focus) + label{
+            top: -1rem;
+            left: 0;
+            padding: 0 5px 0 0;
+            opacity: 0;
+            font-size: 0.8rem;
+            background: transparent;
+        }
+
+        #changePassword{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, 0%);
+            transition: 200ms ease-in-out;
+            opacity: 0;
+            background: #ffffff0d;
+            backdrop-filter: blur(1px);
+            padding: 20px;
+            border-radius: 10px;
+            gap: 10px;
+        }
+
+        #changePassword input:focus + label{
+            top: -0.5rem;
+            left: 0;
+            padding: 0 5px 0 0;
+            color: rgb(255, 255, 255);
+            background: #1b2531;
+        }
+
+        #changePassword.active{
+            transform: translate(-50%, -50%) !important;
+            opacity: 1 !important;
+        }
+
+        #cancelChangePassword{
+            background: red;
+        }
+
+        #cancelChangePassword:hover{
+            background: #ff1717;
+        }
+
+        #popuptext{
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            background: #000000a6;
+            backdrop-filter: blur(1px);
+            transition: 200ms ease-in-out;
+        }
+
+        #popuptext .textContent{
+            background: #ffffff40;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        #popuptext.active{
+            opacity: 1;
+            visibility: visible;
+        }
+
     </style>
-    <script nonce="<%=scripthash%>">
+    <title><%= title %> </title>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <a href="https://docs.poketab.live"><img src="images/pikachu-mini.png" alt="PokeTab Logo"></a>
+            <div class="heading">Admin Dashbord</div>
+            <div id="admin"><%= admin %> </div>
+        </div>
+
+        <main>
+        <% if (loginScript) { %>
+            <!-- Admin dashboard to login -->
+            <form id="form" method="POST">
+                <div class="title">Enter credentials</div>
+                <div class="input-field">
+                    <input type="text" id="username" name="username" required>
+                    <label for="username">Username</label>
+                </div>
+                <div class="input-field">
+                    <input type="password" id="password" name="password" required>
+                    <label for="password">Password</label>
+                </div>
+                <button id="submit" class="button">Login</button>
+            </form>
+            <div id="display"></div>
+        <% } %>
+        <% if (!loginScript) { %>
+            <div id="display"><p>You are logged in</p></div>
+            <div class="buttons">
+                <button class="button" id="fetchData">Fetch</button>
+                <button class="button logout">Logout</button>
+            </div>
+            <script type="module" nonce="<%=hash%>">
+                const logout = document.querySelector('.logout');
+                logout.addEventListener('click', () => {
+                    popuptextContent.textContent = 'Logging out...';
+                    popup.classList.add('active');
+                    fetch('/admin', {
+                        method: 'DELETE'
+                    }).then(res => {
+                        if (res.status === 200){
+                            window.location.reload();
+                        }
+                    });
+                });
+                fetchData.addEventListener('click', () => {
+                    updateActiveUsers();
+                });
+                //load script
+                
+                const script = document.createElement('script');
+                script.id = 'changeAdminPass';
+                script.src = '/scripts/changeAdminPass.min.js';
+                script.nonce = '<%=hash%>';
+                document.body.appendChild(script);
+
+                admin.addEventListener('click', () => {
+                    changePassword(); 
+                });
+                
+            </script>
+        <% } %>
+        </main>
+        <div id="popuptext">
+            <div class="textContent"></div>
+        </div>
+    </div>
+
+    <script nonce="<%=hash%>">
         const display = document.getElementById('display');
         const admin = document.getElementById('admin');
+        const popup = document.getElementById('popuptext');
+        const popuptextContent = document.querySelector('.textContent');
 
         function updateActiveUsers(){
-            fetch('/admindata', {
+
+            popuptextContent.textContent = 'Fetching data...';
+            popup.classList.add('active');
+
+            fetch('/admin/data', {
                 method: 'POST'
-            }).then(res => res.json()).then(data => {
-                const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-                const formatter = new Intl.DateTimeFormat('en-US', options);
-                if (Object.keys(data).length > 0){
-                    //parse the json data and display it as list
-                    const list = document.createElement('ul');
-                    list.classList.add('user-list');
-                    for (let key in data){
-                        const li = document.createElement('li');
-                        li.classList.add('list-item');
-                        const chatKey = document.createElement('div');
-                        chatKey.textContent = key;
-                        chatKey.classList.add('chat-key');
-                        chatKey.style.color = data[key].using ? '#0089ff' : 'red';
-                        const ip = document.createElement('div');
-                        ip.classList.add('ip');
-                        ip.textContent = `IP: ${data[key].ip}`;
-                        const created = document.createElement('div');
-                        created.classList.add('created');
-                        const formattedDate = formatter.format(new Date(data[key].created));
-                        created.textContent = `Created: ${formattedDate}`;
-                        li.appendChild(chatKey);
-                        li.appendChild(ip);
-                        li.appendChild(created);
-                        list.appendChild(li);
-                    }
-                    const totalUsers = document.createElement('p');
-                    const totalUsing = Object.keys(data).filter(key => data[key].using).length;
-                    totalUsers.textContent = `Active users: ${totalUsing}`;
-                    display.innerHTML = '';
-                    display.appendChild(totalUsers);
-                    display.appendChild(list);
-                } else {
-                    const p = document.createElement('p');
-                    p.textContent = 'No active users';
-                    display.innerHTML = '';
-                    display.appendChild(p);
+            }).then(res => {
+                popup.classList.remove('active');
+                if (res.status === 200){
+                    res.json().then(data => {
+                        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                        const formatter = new Intl.DateTimeFormat('en-US', options);
+                        if (Object.keys(data).length > 0){
+                            //parse the json data and display it as list
+                            const list = document.createElement('ul');
+                            list.classList.add('user-list');
+                            for (let key in data){
+                                const li = document.createElement('li');
+                                li.classList.add('list-item');
+                                const chatKey = document.createElement('div');
+                                chatKey.textContent = key;
+                                chatKey.classList.add('chat-key');
+                                chatKey.style.color = data[key].using ? '#0089ff' : 'red';
+                                const ip = document.createElement('div');
+                                ip.classList.add('ip');
+                                ip.textContent = `IP: ${data[key].ip}`;
+                                const created = document.createElement('div');
+                                created.classList.add('created');
+                                const formattedDate = formatter.format(new Date(data[key].created));
+                                created.textContent = `Created: ${formattedDate}`;
+                                li.appendChild(chatKey);
+                                li.appendChild(ip);
+                                li.appendChild(created);
+                                list.appendChild(li);
+                            }
+                            const totalUsers = document.createElement('p');
+                            const totalUsing = Object.keys(data).filter(key => data[key].using).length;
+                            totalUsers.textContent = `Active users: ${totalUsing}`;
+                            display.innerHTML = '';
+                            display.appendChild(totalUsers);
+                            display.appendChild(list);
+                        } else {
+                            const p = document.createElement('p');
+                            p.textContent = 'No active users';
+                            display.innerHTML = '';
+                            display.appendChild(p);
+                        }
+                    });
+                }else{
+                    res.text().then(text => {
+                        const p = document.createElement('p');
+                        p.textContent = text;
+                        p.classList.add('error');
+                        display.innerHTML = '';
+                        display.appendChild(p);
+                        location.reload();
+                    });
                 }
             }).catch(err => {
-                console.log(err);
                 const p = document.createElement('p');
                 p.textContent = 'Invalid credentials';
                 p.classList.add('error');
@@ -300,11 +467,14 @@
         }
     </script>
     <% if (loginScript) { %>
-        <script nonce="<%=scripthash%>">
+        <script nonce="<%=hash%>" id="loginScript">
             const username = document.getElementById('username');
             const password = document.getElementById('password');
             const form = document.getElementById('form');
             const submit = document.getElementById('submit');
+            form.addEventListener('submit', function(e){
+                e.preventDefault();
+            });
             submit.addEventListener('click', function(e){
                 //e.preventDefault();
                 if (username.value === ''){
@@ -325,6 +495,10 @@
                     password.focus();
                     return;
                 }
+
+                popuptextContent.textContent = 'Please wait...';
+                popup.classList.add('active');
+
                 fetch('/admin', {
                     method: 'POST',
                     headers: {
@@ -335,6 +509,9 @@
                         password: password.value
                     })
                 }).then((res) => {
+
+                    popup.classList.remove('active');
+
                     if (res.status === 200){
                         //do something
                         const p = document.createElement('p');
@@ -344,7 +521,6 @@
                         admin.textContent = username.value;
                         //change title
                         document.title = 'Admin Dashboard';
-                        form.remove();
                         const buttons = document.createElement('div');
                         buttons.classList.add('buttons');
                         const logout = document.createElement('button');
@@ -359,6 +535,8 @@
                         //add inside main tag of html
                         document.querySelector('main').appendChild(buttons);
                         logout.addEventListener('click', () => {
+                            popuptextContent.textContent = 'Logging out...';
+                            popup.classList.add('active');
                             fetch('/admin', {
                                 method: 'DELETE'
                             }).then(res => {
@@ -371,6 +549,19 @@
                         fetchData.addEventListener('click', () => {
                             updateActiveUsers();
                         });
+                        
+                        const script = document.createElement('script');
+                        script.id = 'changeAdminPass';
+                        script.src = '/scripts/changeAdminPass.min.js';
+                        script.nonce = '<%=hash%>';
+                        document.body.appendChild(script);
+                    
+                        admin.addEventListener('click', () => {
+                            changePassword();
+                        });
+
+                        form.remove();
+                        document.getElementById('loginScript').remove();
     
                     }else{
                         //do something
@@ -410,67 +601,6 @@
                 label.textContent = 'Password';
             });
         </script> 
-        <style nonce="<%=stylehash%>"> 
-            #form{
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-            }
-            
-            #form input{
-                width: 100%;
-                padding: 0.5rem;
-                margin-bottom: 1rem;
-                border: 2px solid rgb(255, 255, 255);
-                border-radius: 5px;
-                background: transparent;
-                outline: none;
-            }
-    
-            .input-field{
-                position: relative;
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                justify-content: center;
-                width: 250px;
-                background: transparent;
-            }
-    
-            label{
-                position: absolute;
-                top: 0.6rem;
-                left: 0.5rem;
-                color: rgb(255, 255, 255);
-                transition: all 0.3s ease;
-                font-size: 0.8rem;
-                pointer-events: none;
-                background: transparent;
-                outline: none;
-            }
-            
-            input:focus + label{
-                top: -0.5rem;
-                left: 0;
-                padding: 0 5px 0 0;
-                color: rgb(255, 255, 255);
-                background: #111d2a;
-            }
-    
-            input:valid:not(:focus) + label{
-                top: -1rem;
-                left: 0;
-                padding: 0 5px 0 0;
-                opacity: 0;
-                font-size: 0.8rem;
-                background: transparent;
-            }
-        </style>
     <% } %> 
 </body>
 </html>

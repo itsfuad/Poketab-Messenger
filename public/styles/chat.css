@@ -814,6 +814,9 @@ i[class^=fa-] {
   font-size: 1.2rem !important;
   padding: 5px;
 }
+.replyData .sticker {
+  background: transparent !important;
+}
 
 #more {
   padding: 0 10px;

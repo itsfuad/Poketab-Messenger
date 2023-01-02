@@ -115,10 +115,8 @@ code {
   color: rgba(255, 255, 255, 0.3764705882);
   font-size: 1rem !important;
 }
-.message .messageBody .messageReply.imageReply {
+.message .messageBody .messageReply:is(.imageReply) {
   padding: 0;
-}
-.message .messageBody .messageReply .imageReply {
   filter: brightness(0.4) !important;
   background: rgba(255, 255, 255, 0.0901960784) !important;
   position: relative;
@@ -178,10 +176,6 @@ code {
   right: 10px;
   flex-wrap: nowrap;
   max-width: unset;
-}
-
-.messageReply:is(.imageReply) {
-  background: transparent !important;
 }
 
 .message:is(.noreply) .messageReply {
@@ -388,8 +382,8 @@ pre code {
 .message:is(.self) .messageBody .messageReply .image {
   border-radius: 15px 15px 8px 15px;
 }
-.message:is(.self) .messageBody .messageReply .imageReply {
-  border-radius: 15px 15px 15px 8px !important;
+.message:is(.self) .messageBody .messageReply:is(.imageReply) {
+  border-radius: 15px 15px 8px 15px !important;
 }
 .message:is(.self) .messageBody .messageMain {
   flex-direction: row-reverse;

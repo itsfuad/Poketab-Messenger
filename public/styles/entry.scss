@@ -180,15 +180,6 @@ fieldset{
     }
 }
 
-.remainingTime{
-    position: absolute;
-    right: 0;
-    color: #4598ff;
-    &.shake{
-        animation: shake 500ms infinite;
-    }
-}
-
 .subform{
     display: flex;
     flex-direction: column;
@@ -277,6 +268,7 @@ input[type="radio"] {
     color: rgb(186, 186, 186);
     padding: 70px 0 10px 0;
 }
+
 .source-code {
     text-align: center;
     width: 100%;
@@ -285,11 +277,6 @@ input[type="radio"] {
     a{
         color: white;
     }
-}
-
-.copy{
-    cursor: pointer;
-    border: 2px dashed !important;
 }
 
 #form2{

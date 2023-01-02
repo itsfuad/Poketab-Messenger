@@ -1,89 +1,73 @@
 'use strict';
 
-// eslint-disable-next-line no-undef
-const socket = io('/auth');
-
-const nextbtn = document.getElementById('next');
 const clickSound = new Audio('/sounds/click.mp3');
 
-const form1 = document.getElementById('form1');
-const form2 = document.getElementById('form2');
-const howto = document.querySelector('.howtouse');
-const enter = document.getElementById('enter');
-
-
-//key format xxx-xxx-xxx-xxx
-const keyformat = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/;
 const usernameformat = /^[a-zA-Z0-9\u0980-\u09FF]{3,20}$/;
 
-let e_users = [];
+async function validateUser(hashes = null){
 
-function validateKey(){
-	const key = document.getElementById('key').value;
-	if(key.length == 0){
-		document.getElementById('key').focus();
-		errlog('keyErr', '*Key is required');
-		return false;
-	}
-	if(!keyformat.test(key)){
-		document.getElementById('key').focus();
-		errlog('keyErr', '*Key is not valid');
-		return false;
-	}
-	return true;
-}
-
-function validateUser(){
 	const username = document.getElementById('username').value;
-	const radios = document.getElementsByName('avatar');
+	const avatars = document.querySelectorAll('.avatar input[type="radio"]');
+
 	let checked = false;
-	for (var i = 0; i < radios.length; i++) {
-		if (radios[i].checked) {
+
+	for (let i = 0; i < avatars.length; i++){
+		if (avatars[i].checked){
 			checked = true;
 			break;
 		}
 	}
+
+	if (hashes){
+
+		const encodedText = new TextEncoder().encode(username);
+		const hashBuffer = await crypto.subtle.digest('SHA-256', encodedText);
+		const hashArray = Array.from(new Uint8Array(hashBuffer));
+		const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+		if (hashes.includes(hashHex)){
+			errlog('usernameErr', 'Username taken <i class="fa-solid fa-triangle-exclamation"></i>');
+			return false;
+		}
+	}
+
 	if (username.length == 0){
 		document.getElementById('username').focus();
-		errlog('usernameErr', '*Username is required');
+		errlog('usernameErr', 'Username is required <i class="fa-solid fa-triangle-exclamation"></i>');
 		return false;
 	}
 	if(username.length < 3 || username.length > 20){
 		document.getElementById('username').focus();
-		errlog('usernameErr', '*Name must be between 3 and 20 characters');
+		errlog('usernameErr', 'Name must be between 3 and 20 characters <i class="fa-solid fa-triangle-exclamation"></i>');
 		return false;
 	}
 	if(!usernameformat.test(username)){
 		document.getElementById('username').focus();
-		errlog('usernameErr', '*Cannot contain special charecters or space');
-		return false;
-	}
-	if (e_users.includes(username)){
-		document.getElementById('username').focus();
-		errlog('usernameErr', 'Username exists <i class="fa-solid fa-triangle-exclamation" style="color: orange;"></i>');
+		errlog('usernameErr', 'Cannot contain special charecters or space <i class="fa-solid fa-triangle-exclamation"></i>');
 		return false;
 	}
 	if (!checked){
-		errlog('avatarErr', '*Avatar is required');
+		errlog('avatarErr', 'Avatar is required <i class="fa-solid fa-triangle-exclamation"></i>');
 		return false;
 	}
 	return checked;
 }
 
-function check(){
+export async function check(hashes = null){
 	document.querySelectorAll('.errLog')
 		.forEach(elem => {
 			elem.textContent = '';
 		});
-	if (validateKey() && validateUser()){
+	const valid = await validateUser(hashes);
+	if (valid){
 		document.getElementById('enter').innerHTML = 'Please Wait <i class="fa-solid fa-circle-notch fa-spin"></i>';
 	}
-	return validateKey() && validateUser();
+	return valid;
 }
 
 let errTimeout = undefined;
 
-function errlog(id, msg){
+export function errlog(id, msg){
 	const err = document.getElementById(id);
 	err.innerHTML = msg;
 	err.classList.add('shake');
@@ -94,10 +78,6 @@ function errlog(id, msg){
 		}, 500);
 	}
 }
-
-document.getElementById('form').onsubmit = check;
-
-document.getElementById('redirect').onclick = wait;
 
 function wait(){
 	const wait = document.getElementById('wait');
@@ -132,12 +112,24 @@ if ('serviceWorker' in navigator){
 		navigator.serviceWorker
 			.register('./serviceWorkerPoketabS.min.js')
 			.then(() => {
-				console.log('Service Worker Registered');
+				console.log('%cService Worker Registered', 'color: orange;');
 			})
 			.catch(err => console.log(`Service Worker: Error ${err}`));
 	});
 }
 
+document.getElementById('redirect').onclick = wait;
+const help = document.getElementById('help');
+help.addEventListener('click', () => {
+	document.getElementById('helpExpanded').classList.toggle('active');
+	if (help.querySelector('i').classList.contains('fa-circle-question')){
+		help.querySelector('i').classList.replace('fa-circle-question', 'fa-circle-xmark');
+		help.querySelector('i').style.color = '#f33636';
+	}else{
+		help.querySelector('i').classList.replace('fa-circle-xmark', 'fa-circle-question');
+		help.querySelector('i').style.color = '#4598ff';
+	}
+});
 
 document.querySelectorAll('.clickable').forEach(elem => {
 	elem.addEventListener('click', () => {
@@ -145,3 +137,5 @@ document.querySelectorAll('.clickable').forEach(elem => {
 		clickSound.play();
 	});
 });
+
+console.log('%ccommon.js loaded', 'color: limegreen;');
