@@ -71,10 +71,8 @@ router.post('/data', cookieParser(), (req, res) => {
 
 	const signature = crypto.createHmac('sha256', HMAC_KEY).update(admin_username + salt + admin_password).digest('hex');
 
-	console.log(signature, req.signedCookies.auth);
-
 	if (req.signedCookies.auth == signature) {
-		res.status(200).send(Object.fromEntries(Keys));
+		res.status(200).send(Keys);
 	} else {
 		//console.log('Admin access denied');
 		res.status(403).send('Session expired');

@@ -138,58 +138,6 @@
             transform: translate(0, -2px);
         }
 
-        #display{
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        #display p{
-            margin: 0.5rem;
-            font-size: 0.8rem;
-        }
-        #display p.error{
-            color: red;
-        }
-        #display span{
-            font-size: 1.2rem;
-            font-weight: 400;
-            margin-bottom: 1rem;
-        }
-
-        .user-list{
-            width: 100%;
-            display: flex;
-            gap: 10px;
-            flex-direction: row;
-            justify-content: center;
-            align-items: flex-start;
-            max-height: 74vh;
-            flex-wrap: wrap;
-            align-content: flex-start;
-            overflow: scroll;
-        }
-
-        .list-item{
-            list-style: none;
-            background: #ffffff26;
-            padding: 10px;
-            border-radius: 10px;
-        }
-
-        .user-list > div{
-            padding: 5px;
-        }
-
-        .chat-key{
-            font-size: 1rem;
-        }
-
-        .ip, .created{
-            font-size: 0.8rem;
-        }
-
         footer{
             font-size: 0.8rem;
             margin-top: 2rem;
@@ -412,50 +360,16 @@
                         const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
                         const formatter = new Intl.DateTimeFormat('en-US', options);
                         if (Object.keys(data).length > 0){
-                            //parse the json data and display it as list
-                            const list = document.createElement('ul');
-                            list.classList.add('user-list');
-                            for (let key in data){
-                                const li = document.createElement('li');
-                                li.classList.add('list-item');
-                                const chatKey = document.createElement('div');
-                                chatKey.textContent = key;
-                                chatKey.classList.add('chat-key');
-                                chatKey.style.color = data[key].using ? '#0089ff' : 'red';
-                                const ip = document.createElement('div');
-                                ip.classList.add('ip');
-                                ip.textContent = `IP: ${data[key].ip}`;
-                                const created = document.createElement('div');
-                                created.classList.add('created');
-                                const formattedDate = formatter.format(new Date(data[key].created));
-                                created.textContent = `Created: ${formattedDate}`;
-                                li.appendChild(chatKey);
-                                li.appendChild(ip);
-                                li.appendChild(created);
-                                list.appendChild(li);
-                            }
-                            const totalUsers = document.createElement('p');
-                            const totalUsing = Object.keys(data).filter(key => data[key].using).length;
-                            totalUsers.textContent = `Active users: ${totalUsing}`;
-                            display.innerHTML = '';
-                            display.appendChild(totalUsers);
-                            display.appendChild(list);
+                            display.innerHTML = JSON.stringify(data, null, 2);
                         } else {
                             const p = document.createElement('p');
-                            p.textContent = 'No active users';
+                            p.textContent = 'No active Keys';
                             display.innerHTML = '';
                             display.appendChild(p);
                         }
                     });
                 }else{
-                    res.text().then(text => {
-                        const p = document.createElement('p');
-                        p.textContent = text;
-                        p.classList.add('error');
-                        display.innerHTML = '';
-                        display.appendChild(p);
-                        location.reload();
-                    });
+                    location.reload();
                 }
             }).catch(err => {
                 const p = document.createElement('p');

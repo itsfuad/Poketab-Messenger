@@ -1,11 +1,11 @@
 class Key{
-	constructor(key){
+	constructor(){
 		this.users = {};
 		this.userCount = 0;
-		this.key = key;
 		this.maxUser = 2;
 		this.admin = null;
-		//console.log(`New key constructed with key: ${key}`);
+		this.created = Date.now();
+		console.log('New key constructed');
 	}
 
 	addUser(user){

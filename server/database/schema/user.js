@@ -1,9 +1,9 @@
 class User {
-	constructor(username, uid, avatar, key){
+	constructor(username, uid, avatar){
 		this.username = username;
 		this.avatar = avatar;
 		this.uid = uid;
-		this.key = key;
+		this.joined = Date.now();
 	}
 }
 

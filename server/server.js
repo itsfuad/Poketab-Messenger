@@ -294,5 +294,6 @@ require('./preAuthSocket');
 
 //fire up the server
 server.listen(port, () => {
-	console.log(`Server is up on port ${port} | Process ID: ${process.pid}`);
+	console.log('%cBooting up the server...', 'color: yellow;');
+	console.log(`%cServer is up on port ${port} | Process ID: ${process.pid}`, 'color: green;');
 });

@@ -15,10 +15,10 @@ Keys.getUserList = (key) => {
 
 Keys.addUser = (key, user) => {
 	if (!Keys[key]) {
-		Keys[key] = new Key(key);
+		Keys[key] = new Key();
 	}
 	Keys[key].addUser(user);
-	//console.log(`added user: ${user.username} to key: ${key}`);
+	//console.log(`${user.username} joined key: ${key}`);
 };
   
 

@@ -37,8 +37,7 @@ io.on('connection', (socket) => {
 				//console.log(`Key ${params.key} max user set to ${params.maxuser}`);
 			}
 			
-			Keys.addUser(params.key, new User(params.name, params.id, params.avatar, params.key));
-			
+			Keys.addUser(params.key, new User(params.name, params.id, params.avatar));
 
 			//console.log(`User ${params.name} joined key ${params.key} | ${Keys.getUserList(params.key).length} user(s) out of ${Keys[params.key].maxUser}`);
 
@@ -144,6 +143,7 @@ io.on('connection', (socket) => {
 				const user = Keys[key].getUser(SocketIds[socket.id].uid);
 				//console.log(`User ${user.username} disconnected from key ${user.key} | ${key}`);
 				Keys[key].removeUser(SocketIds[socket.id].uid);
+				delete SocketIds[socket.id];
 		
 				const users = Keys[key].getUserList();
 		
@@ -155,12 +155,11 @@ io.on('connection', (socket) => {
 				const remainingUsers = Keys[key].userCount;
 		
 				if (remainingUsers == 0) {
-					Keys[key] = null;
-		
+					delete Keys[key];
 					cleanJunks();
-					//console.log(`Session ended with key: ${user.key}`);
+					console.log(`%cSession ended with key: ${user.key}`, 'color: orange');
 				}
-				//console.log(`${remainingUsers == 0 ? 'No' : remainingUsers} ${remainingUsers > 1 ? 'users' : 'user'} left on ${key}`);
+				console.log(`%c${remainingUsers == 0 ? 'No' : remainingUsers} ${remainingUsers > 1 ? 'users' : 'user'} left on ${key}`, 'color: orange');
 			}
 		});
 	}catch(err){
