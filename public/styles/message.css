@@ -129,6 +129,12 @@ code {
   vertical-align: bottom;
   border-radius: 15px 15px 15px 8px !important;
 }
+.message .messageBody .messageReply:is(.imageReply) img {
+  max-width: inherit;
+  max-height: inherit;
+  -o-object-fit: inherit;
+     object-fit: inherit;
+}
 .message .messageBody .reactsOfMessage {
   position: absolute;
   bottom: -12px;

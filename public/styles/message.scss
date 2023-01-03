@@ -128,6 +128,12 @@ code{
                 object-fit: cover;
                 vertical-align: bottom;
                 border-radius: 15px 15px 15px 8px !important;
+
+                img{
+                    max-width: inherit;
+                    max-height: inherit;
+                    object-fit: inherit;
+                }
             }
         }
 

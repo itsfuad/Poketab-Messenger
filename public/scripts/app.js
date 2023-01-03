@@ -63,6 +63,7 @@ const audioButton = document.getElementById('audioChooser');
 
 
 let isTyping = false, timeout = undefined;
+let messageTimeStampUpdater;
 
 //all the variables that are fetched from the server
 const myId = document.getElementById('myId').textContent;
@@ -491,6 +492,8 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 			'file': 'fa-paperclip',
 			'audio': 'fa-music',
 		};
+
+		const timeStamp = Date.now();
 	
 		if (type === 'file'){
 			popupmsg = 'File';
@@ -508,7 +511,8 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 				ext: metadata.ext,
 				replyMsg: replyIconMap[reply.type] ? `<i class="fa-solid ${replyIconMap[reply.type]}"></i> ${replyMsg}` : replyMsg,
 				replyFor: replyFor,
-				time: getCurrentTime()
+				time: getFormattedDate(timeStamp),
+				timeStamp: timeStamp,
 			});
 		}else if (type == 'audio'){
 			popupmsg = 'Audio';
@@ -525,7 +529,8 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 				ext: metadata.ext,
 				replyMsg: replyIconMap[reply.type] ? `<i class="fa-solid ${replyIconMap[reply.type]}"></i> ${replyMsg}` : replyMsg,
 				replyFor: replyFor,
-				time: getCurrentTime()
+				time: getFormattedDate(timeStamp),
+				timeStamp: timeStamp,
 			});
 		}else{
 			html = Mustache.render(messageTemplate, {
@@ -539,7 +544,8 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 				message: message,
 				replyMsg: replyIconMap[reply.type] ? `<i class="fa-solid ${replyIconMap[reply.type]}"></i> ${replyMsg}` : replyMsg,
 				replyFor: replyFor,
-				time: getCurrentTime()
+				time: getFormattedDate(timeStamp),
+				timeStamp: timeStamp,
 			});
 		}
 	
@@ -555,6 +561,20 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		if (reply.type == 'image' || reply.type == 'sticker'){
 			document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
 		}
+
+		if (messageTimeStampUpdater) {
+			clearInterval(messageTimeStampUpdater);
+		}
+
+		messageTimeStampUpdater = setInterval(() => {
+			//get the last message
+			const lastMsg = messages.querySelector('.msg-item:last-child');
+			if (lastMsg?.classList?.contains('message')){
+				const time = lastMsg.querySelector('.messageTime');
+				time.textContent = getFormattedDate(time.dataset.timestamp);
+			}
+		}, 60000);
+
 		lastPageLength = messages.scrollTop;
 		checkgaps(lastMsg?.id);
 		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
@@ -599,10 +619,28 @@ function sanitizeImagePath(path){
 	}
 }
 
-function getCurrentTime(){
-	//return time in hh:mm a format using Intl.DateTimeFormat
-	return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).format(new Date());
+
+function getFormattedDate(timestamp) {
+	timestamp = parseInt(timestamp);
+	const currentTime = Date.now();
+	const differenceInMinutes = Math.floor((currentTime - timestamp) / 1000 / 60);
+  
+	if (differenceInMinutes === 0) {
+		return 'Just now';
+	} else if (differenceInMinutes === 1) {
+		return '1 minute ago';
+	} else if (differenceInMinutes < 10) {
+		return `${differenceInMinutes} minutes ago`;
+	} else {
+		return new Intl.DateTimeFormat('default', {
+			month: 'short',
+			day: 'numeric',
+			hour: 'numeric',
+			minute: 'numeric'
+		}).format(timestamp);
+	}
 }
+  
 
 function sanitize(str){
 	if (str == undefined || str == '' || str == null){return '';}
@@ -1981,7 +2019,11 @@ messages.addEventListener('click', (evt) => {
 		let msgTimeTimeout = undefined;
 		//console.log(evt.target);
 		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')){
-			evt.target?.closest('.message')?.querySelector('.messageTime')?.classList?.add('active');
+			
+			const messageTime = evt.target.closest('.message').querySelector('.messageTime');
+			messageTime.textContent = getFormattedDate(messageTime.dataset.timestamp);
+			messageTime.classList?.add('active');
+			
 			//if target is a pre or code
 			if (evt.target?.tagName == 'PRE' || evt.target?.tagName == 'CODE'){
 				//copy textContent
@@ -1992,7 +2034,7 @@ messages.addEventListener('click', (evt) => {
 				clearTimeout(msgTimeTimeout);
 			}
 			msgTimeTimeout = setTimeout(()=>{
-				evt.target?.closest('.message')?.querySelector('.messageTime')?.classList?.remove('active');
+				messageTime.classList?.remove('active');
 				msgTimeTimeout = undefined;
 			}, 1500);
 		}
@@ -3107,7 +3149,7 @@ socket.on('connect', () => {
 		if (err) {
 			console.log(err);
 		} else {
-			console.log('no error');
+			console.log('%cno error', 'color: green;');
 			if (userTypingMap.size > 0){
 				setTypingUsers();
 			}
@@ -3227,12 +3269,12 @@ socket.on('stoptyping', (id) => {
 
 //on disconnect
 socket.on('disconnect', () => {
-	console.log('disconnected');
+	console.log('%cdisconnected', 'color: red;');
 	popupMessage('Disconnected from server');
 });
 //files metadata will be sent on different socket
 fileSocket.on('connect', () => {
-	console.log('fileSocket connected');
+	console.log('%cfileSocket connected', 'color: limegreen;');
 	fileSocket.emit('join', myKey);
 });
 
