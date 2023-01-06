@@ -2,13 +2,13 @@
 'use strict';
 
 //bundles
-
+/*
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
 import { PanZoom } from './panzoom';
 import Prism from './../libs/prism/prism';
-
+*/
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
 //variables
@@ -57,6 +57,8 @@ const startrecordingSound = new Audio('/sounds/startrecording.mp3');
 
 //three main types of messages are sent in the app by these three buttons
 const sendButton = document.getElementById('send');
+const imageSendButton = document.getElementById('imageSend');
+
 const photoButton = document.getElementById('photoChooser');
 const fileButton = document.getElementById('fileChooser');
 const audioButton = document.getElementById('audioChooser');
@@ -465,18 +467,6 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 				'image': 'image',
 				'sticker': 'image'
 			};
-			/*
-			if (reply.type === 'text' || reply.type === 'file'){
-				replyMsg = sanitize(reply.data);
-				replyFor = 'message';
-			}else if (reply.type === 'image'){
-				replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .image').outerHTML.replace('class="image"', 'class="image imageReply"');
-				replyFor = 'image';
-			}else if (reply.type === 'sticker'){
-				replyMsg = document.getElementById(replyId)?.querySelector('.messageMain .sticker').outerHTML.replace('class="sticker"', 'class="sticker imageReply"');
-				replyFor = 'image';
-			}
-			*/
 
 			replyFor = replyMap[reply.type] || 'message';
 
@@ -558,10 +548,11 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 		const fragment = document.createDocumentFragment();
 		fragment.append(document.createRange().createContextualFragment(html));
 		messages.append(fragment);
+		
 		if (reply.type == 'image' || reply.type == 'sticker'){
 			document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
 		}
-
+		
 		if (messageTimeStampUpdater) {
 			clearInterval(messageTimeStampUpdater);
 		}
@@ -795,20 +786,26 @@ function isEmoji(text) {
 	}   
 }
 
+//Reply, Copy, Download, remove, Reacts Optio handler.
 function showOptions(type, sender, target){
 	//removes all showing options first if any
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
+
 	document.querySelectorAll('#reactOptions div').forEach(
 		option => option.style.background = 'none'
 	);
+
 	document.querySelectorAll('.moreReacts div').forEach(
 		option => option.style.background = 'none'
 	);
+
 	document.getElementById('showMoreReactBtn').style.background = 'none';
+	
+	/*
 	if (target.classList.contains('imageReply')){
 		return;
 	}
-
+	*/
 	const downloadable = {
 		'image': true,
 		'file': true,
@@ -937,7 +934,8 @@ function deleteMessage(messageId, user){
 		const replyMsg = document.querySelectorAll(`[data-repid='${messageId}']`);
 		if (replyMsg != null) {
 			replyMsg.forEach(element => {
-				element.classList.remove('imageReply');
+				console.log('%cMessage reply removed', 'color: red;');
+				element.classList.remove('.messageReply');
 				element.style.background = '#000000c4';
 				element.style.color = '#7d858c';
 				element.textContent = 'Deleted message';
@@ -1429,8 +1427,6 @@ function OptionEventHandler(evt, popup = true){
 	}
 	if ((typeList[type]) && popup){
 		showOptions(type, sender, evt.target);
-	}else{
-		console.log('no type');
 	}
 	vibrate();
 }
@@ -2014,9 +2010,10 @@ document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) =
 
 let backToNormalTimeout = undefined;
 let scrollIntoViewTimeout = undefined;
+let msgTimeTimeout = undefined;
+
 messages.addEventListener('click', (evt) => {
 	try {
-		let msgTimeTimeout = undefined;
 		//console.log(evt.target);
 		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')){
 			
@@ -2062,46 +2059,43 @@ messages.addEventListener('click', (evt) => {
 			document.getElementById('lightbox__image').appendChild(imageElement);
 
 			// eslint-disable-next-line no-undef
-			PanZoom(document.getElementById('lightbox__image').querySelector('img'));
+			//PanZoom(document.getElementById('lightbox__image').querySelector('img'));
 
 			document.getElementById('lightbox').classList.add('active');
 		}else if (evt.target?.closest('.message')?.dataset?.type == 'audio' && evt.target.closest('.main-element')){
+			
 			evt.preventDefault();
+
 			const target = evt.target;
-			const audioMessage = target.closest('.audioMessage');
-			const audio = audioMessage.querySelector('audio');
+			const audioContainer = target.closest('.audioMessage');
+			const audio = audioContainer.querySelector('audio');
 		
-			if (audioMessage){
+			if (audioContainer){
 				//console.log(evt.target);
 				if (evt.target.classList.contains('main-element')){
-					//if target is current audio
+					//if target audio is not paused, then seek to where is was clicked
 					if (!audio.paused){
-						if (audioMessage.offsetWidth === 0 || isNaN(audio.duration)) {
+						//if audio seek was not within the seekable area or the duration is not loaded yet.
+						if (audioContainer.offsetWidth === 0 || isNaN(audio.duration)) {
 							// do not seek to a position
 							return;
 						}
-						const time = (evt.offsetX / audioMessage.offsetWidth) * audio.duration;
-						seekAudioMessage(audioMessage, time);
+						//else get the calculated time to seek
+						const time = (evt.offsetX / audioContainer.offsetWidth) * audio.duration;
+						seekAudioMessage(audio, time);
 					}
 				}
-		
-				if (target.classList?.contains('fa-play')){
-					if (audio.src !== lastAudioMessagePlay?.src){
-						if (lastAudioMessagePlay){
-							stopAudio(lastAudioMessagePlay.closest('.audioMessage'));
-						}
-						audio.src = audioMessage.dataset.src;
-						//console.log('%cStopping last audio', 'color: red');
-						lastAudioMessagePlay = audio;
-					}
+				
+				//if play button was clicked
+				if (target.classList?.contains('fa-play')){	
 					//console.log('%cPlaying audio', 'color: green');	
-					playAudio(audioMessage);
+					playAudio(audioContainer);
 				} else if (target.classList?.contains('fa-pause')){
 					//console.log('%cPausing audio', 'color: blue');
-					pauseAudio(audioMessage);
+					audio.pause();
 				} else if (target.classList?.contains('fa-stop')){
 					//console.log('%cStopped audio', 'color: red');
-					stopAudio(audioMessage);
+					stopAudio(audio);
 				}
 			}
 		}else if (evt.target?.classList?.contains('reactsOfMessage')){
@@ -2138,7 +2132,7 @@ messages.addEventListener('click', (evt) => {
 			hideOptions();
 			document.querySelector('.reactorContainerWrapper').classList.add('active');
 			addFocusGlass(false);
-		}else if (evt.target?.closest('.messageReply') || evt.target?.closest('.imageReply')){
+		}else if (evt.target?.closest('.messageReply')){
 			if (document.getElementById(evt.target.closest('.messageReply').dataset.repid).dataset.deleted != 'true'){
 				try{
 					const target = evt.target.closest('.messageReply')?.dataset.repid;
@@ -2180,61 +2174,71 @@ messages.addEventListener('click', (evt) => {
 
 let lastAudioMessagePlay = null;
 
-function playAudio(elem){
-	if (lastAudioMessagePlay?.paused) {
-		const audioMessage = elem.closest('.audioMessage');
-		const timeElement = audioMessage.querySelector('.time');
-		audioMessage.querySelector('.play-pause i').classList.replace('fa-play', 'fa-pause');
+function playAudio(audioContainer){
 
-		const audio = lastAudioMessagePlay = elem.querySelector('audio');
+	const audio = audioContainer.querySelector('audio');
 
-		audio.play();
-
-		audio.addEventListener('timeupdate', () => {
-			//updateAudioMessageTime(audioMessage);
-			//if audio.duration is number
-			if (isFinite(audio.duration)){
-				const percentage = updateAudioMessageTimer(audio, timeElement);
-				audioMessage.style.setProperty('--audioMessageProgress', `${percentage}%`);
-			}else{
-				//console.clear();
-				//console.log('Audio duration is not a number');
-				timeElement.textContent = 'Wait..!';
-			}
-		});
-
-		audio.addEventListener('ended', () => {
-			audioMessage.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
-			audio.currentTime = 0;
-			audioMessage.style.setProperty('--audioMessageProgress', '0%');
-		});
-
-	} else {
-		pauseAudio(elem);
+	if (!audio.src){
+		audio.src = audioContainer.dataset?.src;
 	}
+
+	const timeElement = audioContainer.querySelector('.time');
+
+	if (!!lastAudioMessagePlay && lastAudioMessagePlay.src != audio.src){
+		//console.log('Calling stop audio to stop last audio');
+		stopAudio(lastAudioMessagePlay);
+	}
+
+	lastAudioMessagePlay = audio;
+
+	lastAudioMessagePlay.ontimeupdate = () => {
+		//updateAudioMessageTime(audioMessage);
+		//if audio.duration is number
+		if (isFinite(audio.duration)){
+			const percentage = updateAudioMessageTimer(audio, timeElement);
+			audioContainer.style.setProperty('--audioMessageProgress', `${percentage}%`);
+		}else{
+			//console.clear();
+			//console.log('Audio duration is not a number');
+			timeElement.textContent = 'Wait..!';
+		}
+	};
+
+	lastAudioMessagePlay.onended = () => {
+		audioContainer.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
+		lastAudioMessagePlay.currentTime = 0;
+		audioContainer.style.setProperty('--audioMessageProgress', '0%');
+	};
+
+	//if audio is stopped for some reason like stopped from another tab or notifcation bar. then update the ui
+	lastAudioMessagePlay.onpause = () => {
+		audioContainer.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
+	};
+
+	//when stopped from another tab or notification bar
+	lastAudioMessagePlay.onstalled = () => {
+		audioContainer.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
+	};
+
+	//when playing from another tab or notification bar
+	lastAudioMessagePlay.onplaying = () => {
+		audioContainer.querySelector('.play-pause i').classList.replace('fa-play', 'fa-pause');
+	};
+
+	lastAudioMessagePlay.play();
 }
 
-function stopAudio(elem){
-	const message = elem.closest('.audioMessage');
-	message.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
+function stopAudio(audio){
 	//dataset.playing = 'false';
-	elem.querySelector('audio').currentTime = 0;
-	elem.querySelector('audio').pause();
-	lastAudioMessagePlay = elem.querySelector('audio');
-}
-
-function pauseAudio(elem){
-	const message = elem.closest('.audioMessage');
-	message.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
-	//dataset.playing = 'false';
-	elem.querySelector('audio').pause();
-	lastAudioMessagePlay = elem.querySelector('audio');
+	audio.currentTime = 0;
+	audio.pause();
+	audio = undefined;
 }
 
 
-function seekAudioMessage(audioMessage, time){
+function seekAudioMessage(audio, time){
 	try{
-		audioMessage.querySelector('audio').currentTime = isNaN(time) ? 0 : time;
+		audio.currentTime = isNaN(time) ? 0 : time;
 	}catch(e){
 		console.log(e);
 		console.log('seekAudioMessage error - Time: ', time);
@@ -2298,6 +2302,13 @@ audioButton.addEventListener('change', ()=>{
 });
 
 
+function clearFileFromInput(){
+	//clear all file inputs
+	photoButton.value = '';
+	fileButton.value = '';
+	audioButton.value = '';
+}
+
 
 function ImagePreview(fileFromClipboard = null){
 	const file = fileFromClipboard || photoButton.files[0];
@@ -2307,7 +2318,8 @@ function ImagePreview(fileFromClipboard = null){
 		return;
 	}
 
-	document.getElementById('previewImage').querySelector('#imageSend').style.display = 'none';
+	imageSendButton.style.display = 'none';
+
 	while (document.getElementById('selectedImage').firstChild) {
 		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
 	}
@@ -2332,7 +2344,7 @@ function ImagePreview(fileFromClipboard = null){
 	imageElement.onload = () => {
 		loadingElement.remove();
 		document.getElementById('selectedImage').append(imageElement);
-		document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
+		imageSendButton.style.display = 'flex';
 		selectedImage.data = fileURL;
 		selectedImage.name = file.name ?? 'Photo';
 		selectedImage.ext = file.type.split('/')[1];
@@ -2345,15 +2357,12 @@ function ImagePreview(fileFromClipboard = null){
 		loadingElement.remove();
 		popupMessage('Error reading file');
 	};
-	
-	//clear photoButton
-	photoButton.value = '';
-	fileButton.value = '';
-	audioButton.value = '';
 }
 
 function FilePreview(fileFromClipboard = null, audio = false){
-	document.getElementById('previewImage').querySelector('#imageSend').style.display = 'none';
+
+	imageSendButton.style.display = 'none';
+
 	while (document.getElementById('selectedImage').firstChild) {
 		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
 	}
@@ -2415,12 +2424,9 @@ function FilePreview(fileFromClipboard = null, audio = false){
 	fileSize.textContent = `Size: ${size}`;
 	fileElement.append(fileIcon, fileName, fileSize);
 	document.getElementById('selectedImage').appendChild(fileElement);
-	document.getElementById('previewImage').querySelector('#imageSend').style.display = 'flex';
+	imageSendButton.style.display = 'flex';
 
-	//clear photoButton 
-	photoButton.value = '';
-	fileButton.value = '';
-	audioButton.value = '';
+	clearFileFromInput();
 }
 
 
@@ -2528,10 +2534,9 @@ sendButton.addEventListener('click', () => {
 			}
 		});
 	}
-	finalTarget.message = '';
-	finalTarget.type = '';
-	finalTarget.sender = '';
-	finalTarget.id = '';
+
+	clearFinalTarget();
+
 	textbox.focus();
 	hideOptions();
 	hideReplyToast();
@@ -2548,18 +2553,19 @@ sendButton.addEventListener('click', () => {
 
 
 document.getElementById('previewImage').querySelector('.close')?.addEventListener('click', ()=>{
-	//remove file from input
-	photoButton.value = '';
-	fileButton.value = '';
-	document.getElementById('previewImage')?.classList?.remove('active');
+	
+	clearFileFromInput();
+
+	document.getElementById('previewImage').classList.remove('active');
 
 	while (document.getElementById('selectedImage').firstChild) {
 		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
 	}
 });
 
-document.getElementById('previewImage').querySelector('#imageSend')?.addEventListener('click', ()=>{
-	document.getElementById('previewImage')?.classList?.remove('active');
+imageSendButton.addEventListener('click', ()=>{
+	
+	document.getElementById('previewImage').classList.remove('active');
 	
 	//check if image or file is selected
 	if (selectedObject === 'image'){
@@ -2933,7 +2939,7 @@ function startRecordingAudio(){
 		.then(function(s) {
 			stream = s;
 			//process the audio stream
-			processAudioStream(stream);
+			//processAudioStream(stream);
 			//create a media recorder
 			//const mediaRecorder = new MediaRecorder(stream);
 			//use low quality audio and mono channel and 32kbps
@@ -3094,7 +3100,8 @@ function stopTimer(){
 		//console.log('%cstopped timer', 'color: red');
 	}
 }
-        
+
+/*
 //write relevant audioWorklet code here of the same function. register the worklet and use it in the processAudioStream function
 function processAudioStream(stream){
 	const audioContext = new AudioContext();
@@ -3131,10 +3138,7 @@ function processAudioStream(stream){
 			console.log('The following error occured: ' + err);
 		});
 }
-
-
-
-
+*/
 
 //sockets
 socket.on('connect', () => {
@@ -3149,12 +3153,12 @@ socket.on('connect', () => {
 		if (err) {
 			console.log(err);
 		} else {
-			console.log('%cno error', 'color: green;');
+			console.log('%cNo error!', 'color: green;');
 			if (userTypingMap.size > 0){
 				setTypingUsers();
 			}
 			document.getElementById('preload').style.display = 'none';
-			popupMessage('Connected to server');
+			popupMessage('Connected to message relay server');
 			loadStickerHeader();
 			loadStickers();
 			if ('Notification' in window){
@@ -3269,12 +3273,12 @@ socket.on('stoptyping', (id) => {
 
 //on disconnect
 socket.on('disconnect', () => {
-	console.log('%cdisconnected', 'color: red;');
-	popupMessage('Disconnected from server');
+	console.log('%cDisconnected from message relay server.', 'color: red;');
+	popupMessage('Disconnected from message relay server');
 });
 //files metadata will be sent on different socket
 fileSocket.on('connect', () => {
-	console.log('%cfileSocket connected', 'color: limegreen;');
+	console.log('%cConnected to file relay server', 'color: limegreen;');
 	fileSocket.emit('join', myKey);
 });
 
@@ -3412,7 +3416,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}, 8000);
 });
 
-
+/*
 //This code blocks the back button to go back on the login page.
 //This action is needed because if the user goes back, he/she has to login again. 
 document.addEventListener('click', ()=> {
@@ -3423,3 +3427,4 @@ document.addEventListener('click', ()=> {
 		history.forward();
 	};
 }, {once: true});
+*/

@@ -28,7 +28,7 @@ function cleanJunks(){
 	readdir('uploads').then(files => {
 		files.forEach(file => {
 			if (file !== 'dummy.txt'){
-				console.log(`${file} deleted as no longer in use | Process ID: ${process.pid}`);
+				console.log(`${file} deleted as Junk | Process ID: ${process.pid}`);
 				unlink(`uploads/${file}`);
 			}
 		});
