@@ -2,13 +2,13 @@
 'use strict';
 
 //bundles
-/*
+
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
 import {Stickers} from './../stickers/stickersConfig';
 import { PanZoom } from './panzoom';
 import Prism from './../libs/prism/prism';
-*/
+
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
 //variables
@@ -2059,7 +2059,7 @@ messages.addEventListener('click', (evt) => {
 			document.getElementById('lightbox__image').appendChild(imageElement);
 
 			// eslint-disable-next-line no-undef
-			//PanZoom(document.getElementById('lightbox__image').querySelector('img'));
+			PanZoom(document.getElementById('lightbox__image').querySelector('img'));
 
 			document.getElementById('lightbox').classList.add('active');
 		}else if (evt.target?.closest('.message')?.dataset?.type == 'audio' && evt.target.closest('.main-element')){
@@ -3416,7 +3416,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}, 8000);
 });
 
-/*
+
 //This code blocks the back button to go back on the login page.
 //This action is needed because if the user goes back, he/she has to login again. 
 document.addEventListener('click', ()=> {
@@ -3427,4 +3427,3 @@ document.addEventListener('click', ()=> {
 		history.forward();
 	};
 }, {once: true});
-*/

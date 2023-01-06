@@ -153,13 +153,14 @@ io.on('connection', (socket) => {
 				//console.log(`User ${user.username} disconnected from key ${user.key}`);
 		
 				const remainingUsers = Keys[key].userCount;
+				
+				console.log(`%c${remainingUsers == 0 ? 'No' : remainingUsers} ${remainingUsers > 1 ? 'users' : 'user'} left on ${key}`, 'color: orange');
 		
 				if (remainingUsers == 0) {
 					delete Keys[key];
 					cleanJunks();
-					console.log(`%cSession ended with key: ${user.key}`, 'color: orange');
+					console.log(`%cSession ended with key: ${key}`, 'color: orange');
 				}
-				console.log(`%c${remainingUsers == 0 ? 'No' : remainingUsers} ${remainingUsers > 1 ? 'users' : 'user'} left on ${key}`, 'color: orange');
 			}
 		});
 	}catch(err){

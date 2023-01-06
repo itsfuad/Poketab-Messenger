@@ -134,6 +134,7 @@ code {
   max-height: inherit;
   -o-object-fit: inherit;
      object-fit: inherit;
+  border-radius: inherit;
 }
 .message .messageBody .reactsOfMessage {
   position: absolute;
@@ -288,7 +289,7 @@ pre code {
 .messageTime {
   color: gray;
   font-size: 0.6rem;
-  padding: 0 15px;
+  padding: 0 0 0 5px;
   visibility: hidden;
   opacity: 0;
   transition: 200ms ease-in-out;
@@ -296,10 +297,17 @@ pre code {
   display: flex;
   flex-direction: row;
   align-items: flex-end;
+  justify-content: flex-start;
+  width: 100px;
 }
 .messageTime.active {
   visibility: visible;
   opacity: 1;
+}
+
+.self .messageTime {
+  justify-content: flex-end;
+  padding: 0 5px 0 0;
 }
 
 .message:last-child .messageTime {
@@ -487,7 +495,7 @@ pre code {
   align-items: center;
   background: var(--msg-get);
   justify-content: center;
-  min-width: 150px;
+  min-width: 185px;
   max-width: 55vw;
   min-height: 50px;
 }
@@ -525,7 +533,7 @@ pre code {
   text-decoration: underline;
   padding-left: 3px;
   min-width: 64px;
-  word-break: break-all;
+  word-break: break-word;
 }
 .fileInfo .filemeta {
   font-size: 0.5rem;
@@ -538,7 +546,8 @@ pre code {
 
 .audioMessage {
   height: 34px;
-  width: 250px;
+  min-width: 200px;
+  max-width: 230px;
   background-color: var(--msg-get);
   border-radius: 15px;
   display: flex;
