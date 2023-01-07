@@ -975,19 +975,6 @@ i[class^=fa-]{
     }
 }
 
-@keyframes bouncing {
-    0%{
-        transform: translateY(0);
-    }
-    50%{
-        transform: translateY(-5px);
-    }
-    100%{
-        transform: translateY(0);
-    }
-}
-
-
 .inputField{
     padding: 0;
     margin: 0;
@@ -1345,7 +1332,7 @@ i[class^=fa-]{
     }
     & > :hover{
         cursor: pointer;
-        background: var(--focus-dark);
+        //background: var(--focus-dark);
         border-radius: 10px;
     }
     &:is(#reactOptions){
@@ -1467,6 +1454,18 @@ i[class^=fa-]{
     padding: 0;
     position: absolute;
     width: 1px;
+}
+
+@keyframes bouncing {
+    0%{
+        transform: translateY(0);
+    }
+    50%{
+        transform: translateY(-5px);
+    }
+    100%{
+        transform: translateY(0);
+    }
 }
 
 //blink animation

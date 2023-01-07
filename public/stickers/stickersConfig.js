@@ -1,4 +1,4 @@
-const Stickers = [
+export const Stickers = [
 	{'name': 'catteftel', 'count': '24', 'icon': '14'},
 	{'name': 'bear', 'count': '25', 'icon': '5'},
 	{'name': 'amongus', 'count': '24', 'icon': '11'},
@@ -16,5 +16,3 @@ const Stickers = [
 	{'name': 'frog', 'count': '30', 'icon': '18'},
 	{'name': 'soul', 'count': '25', 'icon': '14'},
 ];
-
-module.exports = {Stickers};

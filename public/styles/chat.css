@@ -939,29 +939,6 @@ i[class^=fa-] {
   display: none;
 }
 
-@-webkit-keyframes bouncing {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
-@keyframes bouncing {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
 .inputField {
   padding: 0;
   margin: 0;
@@ -1324,7 +1301,6 @@ i[class^=fa-] {
 }
 .options > :hover {
   cursor: pointer;
-  background: var(--focus-dark);
   border-radius: 10px;
 }
 .options:is(#reactOptions) {
@@ -1444,6 +1420,29 @@ i[class^=fa-] {
   width: 1px;
 }
 
+@-webkit-keyframes bouncing {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes bouncing {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
 @-webkit-keyframes blink {
   0% {
     opacity: 0;
@@ -1452,7 +1451,6 @@ i[class^=fa-] {
     opacity: 1;
   }
 }
-
 @keyframes blink {
   0% {
     opacity: 0;

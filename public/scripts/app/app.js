@@ -3,11 +3,14 @@
 
 //bundles
 
-import {io} from 'socket.io-client';
-import Mustache from 'mustache';
-import {Stickers} from '../../stickers/stickersConfig';
-import { PanZoom } from '../../libs/panzoom';
-import Prism from '../../libs/prism/prism';
+/*
+*/
+
+import {io} from '../../libs/socket.io.js';
+import Mustache from '../../libs/mustache.js';
+import {Stickers} from '../../stickers/stickersConfig.js';
+import { Prism } from '../../libs/prism/prism.min.js';
+import { PanZoom } from '../../libs/panzoom.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
@@ -932,7 +935,7 @@ function deleteMessage(messageId, user){
 		const replyMsg = document.querySelectorAll(`[data-repid='${messageId}']`);
 		if (replyMsg != null) {
 			replyMsg.forEach(element => {
-				console.log('%cMessage reply removed', 'color: red;');
+				//console.log('%cMessage reply removed', 'color: red;');
 				element.classList.remove('.messageReply');
 				element.style.background = '#000000c4';
 				element.style.color = '#7d858c';
@@ -3154,7 +3157,7 @@ socket.on('connect', () => {
 		if (err) {
 			console.log(err);
 		} else {
-			console.log('%cNo error!', 'color: green;');
+			console.log('%cNo errors!', 'color: limegreen;');
 			if (userTypingMap.size > 0){
 				setTypingUsers();
 			}
@@ -3279,7 +3282,7 @@ socket.on('disconnect', () => {
 });
 //files metadata will be sent on different socket
 fileSocket.on('connect', () => {
-	console.log('%cConnected to file relay server', 'color: limegreen;');
+	console.log('%cConnection established to file relay server', 'color: deepskyblue;');
 	fileSocket.emit('join', myKey);
 });
 
