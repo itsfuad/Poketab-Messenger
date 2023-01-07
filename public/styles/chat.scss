@@ -543,6 +543,17 @@ img{
     }
 }
 
+.load{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    .fa-gear{
+        font-size: 2rem;
+    }
+}
+
 //remove all scrollbars
 ::-webkit-scrollbar {
     display: none;

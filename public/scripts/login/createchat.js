@@ -1,4 +1,4 @@
-import { check } from '/scripts/common.js';
+import { check } from './common.min.js';
 
 const form = document.getElementById('form');
 

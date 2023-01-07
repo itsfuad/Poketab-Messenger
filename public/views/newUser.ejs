@@ -548,7 +548,7 @@
       }
     }/*# sourceMappingURL=entry.css.map */
   </style>
-    <%- include('layout/entryheader.ejs') %> 
+    <%- include ('layout/entryheader.ejs') %> 
 </head>
 <body>
     <div class="title">
@@ -591,14 +591,14 @@
                 </div>
                 <div class="form-field avatar-field">
                     <div id="avatarErr" class="errLog"></div>
-                    <label for="avatar">Choose avatar <i class="fa-solid fa-user-astronaut"></i></label>
+                    <label for="avatar">Pick an avatar <i class="fa-solid fa-user-astronaut"></i></label>
                     <div class="avatar-container">
                         <%- include ('layout/avatars.ejs') %> 
                     </div>
                 </div>
                 <% if (title === 'Create') { %>
                 <div class="form-field range">
-                    <label for="max-user">Allowed users (<span id="rangeValue">2</span>)</label>
+                    <label for="max-user">Create for (<span id="rangeValue">2</span>) peoples</label>
                     <input type="range" id="maxuser" name="maxuser" max="10" min="2" value="2">
                 </div>
                 <% } %>
@@ -637,10 +637,10 @@
     <%- include ('layout/entryfooter.ejs') %>
 
     <% if (title === 'Create') { %>
-        <script type="module" defer src="/scripts/createchat.js"></script>
+        <script type="module" defer src="/scripts/login/createchat.min.js"></script>
     <% } else if (title === 'Join') { %>
         <script type="module" src="/socket.io/socket.io.js"></script>
-        <script type="module" defer src="/scripts/joinchat.min.js"></script>
+        <script type="module" defer src="/scripts/login/joinchat.min.js"></script>
     <% } %>
 
     <% if (key) { %>

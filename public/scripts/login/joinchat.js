@@ -1,4 +1,4 @@
-import { check, errlog } from '/scripts/common.min.js';
+import { check, errlog } from './common.min.js';
 
 // eslint-disable-next-line no-undef
 const socket = io('/auth');

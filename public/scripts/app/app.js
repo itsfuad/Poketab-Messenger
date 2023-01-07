@@ -5,9 +5,9 @@
 
 import {io} from 'socket.io-client';
 import Mustache from 'mustache';
-import {Stickers} from './../stickers/stickersConfig';
-import { PanZoom } from './panzoom';
-import Prism from './../libs/prism/prism';
+import {Stickers} from '../../stickers/stickersConfig';
+import { PanZoom } from '../../libs/panzoom';
+import Prism from '../../libs/prism/prism';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
@@ -624,8 +624,6 @@ function getFormattedDate(timestamp) {
 		return `${differenceInMinutes} minutes ago`;
 	} else {
 		return new Intl.DateTimeFormat('default', {
-			month: 'short',
-			day: 'numeric',
 			hour: 'numeric',
 			minute: 'numeric'
 		}).format(timestamp);
@@ -2010,7 +2008,6 @@ document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) =
 
 let backToNormalTimeout = undefined;
 let scrollIntoViewTimeout = undefined;
-let msgTimeTimeout = undefined;
 
 messages.addEventListener('click', (evt) => {
 	try {
@@ -2027,12 +2024,14 @@ messages.addEventListener('click', (evt) => {
 				navigator.clipboard.writeText(evt.target?.textContent);
 				popupMessage('Copied to clipboard');
 			}
-			if (msgTimeTimeout){
-				clearTimeout(msgTimeTimeout);
+
+			if (messageTime.timeOut){
+				clearTimeout(messageTime.timeOut);
 			}
-			msgTimeTimeout = setTimeout(()=>{
+
+			messageTime.timeOut = setTimeout(()=>{
 				messageTime.classList?.remove('active');
-				msgTimeTimeout = undefined;
+				messageTime.timeOut = undefined;
 			}, 1500);
 		}
 		if (evt.target?.classList?.contains('imageContainer')){
@@ -2135,24 +2134,26 @@ messages.addEventListener('click', (evt) => {
 		}else if (evt.target?.closest('.messageReply')){
 			if (document.getElementById(evt.target.closest('.messageReply').dataset.repid).dataset.deleted != 'true'){
 				try{
+
 					const target = evt.target.closest('.messageReply')?.dataset.repid;
-					document.querySelectorAll('.message').forEach(element => {
-						if (element.id != target){
-							element.style.filter = 'brightness(0.7)';
-						}
-					});
+
+					const targetElement = document.getElementById(target);
+
+					targetElement.classList.add('focused');
+
 					if (backToNormalTimeout){
 						clearTimeout(backToNormalTimeout);
 					}
+
 					backToNormalTimeout = setTimeout(() => {
-						document.querySelectorAll('.message').forEach(element => {
-							element.style.filter = '';
-						});
+						targetElement.classList.remove('focused');
 						backToNormalTimeout = undefined;
 					}, 1000);
+
 					if (scrollIntoViewTimeout){
 						clearTimeout(scrollIntoViewTimeout);
 					}
+
 					scrollIntoViewTimeout = setTimeout(() => {
 						document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'start'});
 						scrollIntoViewTimeout = undefined;

@@ -526,6 +526,17 @@ img {
   filter: brightness(0.9);
 }
 
+.load {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.load .fa-gear {
+  font-size: 2rem;
+}
+
 ::-webkit-scrollbar {
   display: none;
 }

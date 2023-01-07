@@ -104,7 +104,7 @@ function checkBrowser(req, res, next) {
 	if (browser in supportedBrowsers != true || compareVersions(supportedBrowsers[browser], version) == -1) {
 		res.setHeader('Content-Security-Policy', 'script-src \'none\';');
 		res.setHeader('Developer', 'Fuad Hasan');
-		res.render('errorRes', {title: 'Alien Detected!', errorCode: '403', errorMessage: 'Use recent Chrome for best performance :)', buttonText: 'Got it'});
+		res.render('errors/errorRes', {title: 'Alien Detected!', errorCode: '403', errorMessage: 'Use recent Chrome for best performance :)', buttonText: 'Got it'});
 		return;
 	}
 	next();
@@ -117,7 +117,7 @@ app.get('/', (_, res) => {
 	const nonce = crypto.randomBytes(16).toString('hex');
 	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}' ; img-src 'self' data:;`);
 	res.setHeader('Developer', 'Fuad Hasan');
-	res.render('home', {title: 'Get Started', hash: nonce});
+	res.render('home/home', {title: 'Get Started', hash: nonce});
 });
 
 app.use('/admin', require('./routes/admin')); //route for admin panel
@@ -162,7 +162,7 @@ app.get('/error', (_, res) => {
 	res.setHeader('Content-Security-Policy', 'default-src \'self\';');
 	res.setHeader('Developer', 'Fuad Hasan');
 	res.clearCookie('key');
-	res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized Access', buttonText: 'Suicide'});
+	res.render('errors/errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized Access', buttonText: 'Suicide'});
 });
 
 app.get('/chat', (_, res) => {
@@ -226,7 +226,7 @@ app.post('/chat', (req, res) => {
 					res.setHeader('Developer', 'Fuad Hasan');
 					res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
 					res.setHeader('Cluster', `ID: ${process.pid}`);
-					res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
+					res.render('chat/chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
 				}else{
 					//clash of keys
 					//console.log(`Key clash found: ${key}!`);
@@ -241,7 +241,7 @@ app.post('/chat', (req, res) => {
 			res.setHeader('Developer', 'Fuad Hasan');
 			res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 			res.clearCookie('key');
-			res.render('errorRes', {title: 'You\'re Late!', errorCode: '440', errorMessage: 'Session Expired', buttonText: 'Renew'});
+			res.render('errors/errorRes', {title: 'You\'re Late!', errorCode: '440', errorMessage: 'Session Expired', buttonText: 'Renew'});
 		}
 	}else if(key && Keys.hasKey(key)) {
 		//Key exists, so the request is a join request
@@ -251,7 +251,7 @@ app.post('/chat', (req, res) => {
 			//console.log(`Maximum user reached. User is blocked from key: ${key}`);
 			res.setHeader('Developer', 'Fuad Hasan');
 			res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-			res.render('errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
+			res.render('errors/errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
 		}else{
 			//if user have room to enter the chat
 			//console.log('User have permission to join this chat');
@@ -264,14 +264,14 @@ app.post('/chat', (req, res) => {
 			res.setHeader('Developer', 'Fuad Hasan');
 			res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
 			res.setHeader('Cluster', `ID: ${process.pid}`);
-			res.render('chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
+			res.render('chat/chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
 		}
 	}else{
 		//console.log('No session found for this request.');
 		res.setHeader('Developer', 'Fuad Hasan');
 		res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 		res.clearCookie('key');
-		res.render('errorRes', {title: 'Not found', errorCode: '404', errorMessage: 'Session Key not found', buttonText: 'Renew'});
+		res.render('errors/errorRes', {title: 'Not found', errorCode: '404', errorMessage: 'Session Key not found', buttonText: 'Renew'});
 	}
 
 });
@@ -279,13 +279,13 @@ app.post('/chat', (req, res) => {
 app.get('/offline', (_, res) => {
 	res.setHeader('Developer', 'Fuad Hasan');
 	res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-	res.render('errorRes', {title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline :(', buttonText: 'Refresh'});
+	res.render('errors/errorRes', {title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline :(', buttonText: 'Refresh'});
 });
 
 app.get('*', (_, res) => {
 	res.setHeader('Developer', 'Fuad Hasan');
 	res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-	res.render('errorRes', {title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home'});
+	res.render('errors/errorRes', {title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home'});
 });
 
 require('./websockets');

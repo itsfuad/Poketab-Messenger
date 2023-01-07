@@ -32,7 +32,19 @@
     scrollbar-width: none;
     list-style: none;
     z-index: 1;
+    
+    &:has(.focused){
+        .msg-item{
+            filter: brightness(0.5);
+            transition: 150ms ease-in-out;
+        }
+    }
+    
+    .msg-item.focused{
+        filter: brightness(1) !important;
+    }
 }
+
 
 a{
     color: inherit;
