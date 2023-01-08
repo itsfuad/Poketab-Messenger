@@ -98,6 +98,7 @@ function compareVersions(requiredVersion, currentVersion) {
 //check if the user is using a supported browser and version
 //make a middleware to check if the user is using a supported browser and version
 //if not, send a 400 error
+// eslint-disable-next-line no-unused-vars
 function checkBrowser(req, res, next) {
 	const useragent = userAgent.parse(req.headers['user-agent']);
 	const browser = useragent.browser;
@@ -111,8 +112,6 @@ function checkBrowser(req, res, next) {
 	}
 	next();
 }
-
-app.use(checkBrowser); //use the middleware to check if the user is using a supported browser and version
 
 // default route to serve the client
 app.get('/', (_, res) => {

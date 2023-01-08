@@ -26,12 +26,12 @@ function markForDelete(userId, key, filename){
 function cleanJunks(){
 	console.log(`Cleaning junk files | Process ID: ${process.pid}`);
 	readdir('uploads').then(files => {
-		files.forEach(file => {
-			if (file !== 'dummy.txt'){
-				console.log(`${file} deleted as Junk | Process ID: ${process.pid}`);
-				unlink(`uploads/${file}`);
+		const filesToDelete = files.map( file => {
+			if (file != 'dummy.txt'){
+				return unlink(`uploads/${file}`);
 			}
 		});
+		Promise.all(filesToDelete);
 	}).catch(err => {
 		console.log(err);
 	});

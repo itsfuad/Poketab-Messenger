@@ -919,14 +919,18 @@ function deleteMessage(messageId, user){
 			message.querySelector('.seenBy').style.marginTop = '0px';
 			checkgaps(messageId);
 		}
-		const replyMsg = document.querySelectorAll(`[data-repid='${messageId}']`);
-		if (replyMsg != null) {
-			replyMsg.forEach(element => {
+		const replyMessages = document.querySelectorAll(`[data-repid='${messageId}']`);
+		if (replyMessages != null) {
+			replyMessages.forEach(reply => {
 				//console.log('%cMessage reply removed', 'color: red;');
-				element.classList.remove('.messageReply');
-				element.style.background = '#000000c4';
-				element.style.color = '#7d858c';
-				element.textContent = 'Deleted message';
+				if (reply.dataset.replyfor === 'image'){
+					reply.classList.remove('imageReply');
+					reply.querySelector('img').remove();
+				}
+				reply.removeAttribute('data-replyfor');
+				reply.style.background = '#000000c4';
+				reply.style.color = '#7d858c';
+				reply.textContent = 'Deleted message';
 			});
 		}
 		lastPageLength = messages.scrollTop;

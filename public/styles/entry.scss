@@ -330,6 +330,7 @@ button{
     left: 0;
     background: #00000080;
     backdrop-filter: blur(5px);
+    z-index: 10000;
 }
 
 @keyframes shake {
