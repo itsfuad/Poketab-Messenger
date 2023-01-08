@@ -2,7 +2,7 @@
 'use strict';
 
 import { socket } from './messageSocket.js';
-import { fileSocket } from './filesocket.js';
+import { fileSocket } from './fileSocket.js';
 import Mustache from '../../libs/mustache.js';
 import {Stickers} from '../../stickers/stickersConfig.js';
 import { Prism } from '../../libs/prism/prism.min.js';
