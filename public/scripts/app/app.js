@@ -1,22 +1,16 @@
 //enable strict mode
 'use strict';
 
-//bundles
-
-/*
-*/
-
-import {io} from '../../libs/socket.io.js';
+import { socket } from './messageSocket.js';
+import { fileSocket } from './filesocket.js';
 import Mustache from '../../libs/mustache.js';
 import {Stickers} from '../../stickers/stickersConfig.js';
 import { Prism } from '../../libs/prism/prism.min.js';
 import { PanZoom } from '../../libs/panzoom.js';
+import { themeAccent, themeArray } from './themes.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
-//variables
-const socket = io(); //main socket to deliver messages
-const fileSocket = io('/file'); //file socket to deliver file metadata [This is not used for file transfer, only for metadata. Files will be transferred using xhr requests]
 //main message Element where all messages are inserted
 const messages = document.getElementById('messages');
 
@@ -47,35 +41,35 @@ let timerInterval, autoStopRecordtimeout;
 let recordCancel = false;
 
 //all the audio files used in the app
-const incommingmessage = new Audio('/sounds/incommingmessage.mp3');
+export const incommingmessage = new Audio('/sounds/incommingmessage.mp3');
 const outgoingmessage = new Audio('/sounds/outgoingmessage.mp3');
-const joinsound = new Audio('/sounds/join.mp3');
-const leavesound = new Audio('/sounds/leave.mp3');
-const typingsound = new Audio('/sounds/typing.mp3');
-const locationsound = new Audio('/sounds/location.mp3');
+export const joinsound = new Audio('/sounds/join.mp3');
+export const leavesound = new Audio('/sounds/leave.mp3');
+export const typingsound = new Audio('/sounds/typing.mp3');
+export const locationsound = new Audio('/sounds/location.mp3');
 const reactsound = new Audio('/sounds/react.mp3');
 const clickSound = new Audio('/sounds/click.mp3');
-const stickerSound = new Audio('/sounds/sticker.mp3');
+export const stickerSound = new Audio('/sounds/sticker.mp3');
 const startrecordingSound = new Audio('/sounds/startrecording.mp3');
 
 //three main types of messages are sent in the app by these three buttons
 const sendButton = document.getElementById('send');
-const imageSendButton = document.getElementById('imageSend');
+const fileSendButton = document.getElementById('fileSendButton');
 
-export const photoButton = document.getElementById('photoChooser');
-export const fileButton = document.getElementById('fileChooser');
-export const audioButton = document.getElementById('audioChooser');
+const photoButton = document.getElementById('photoChooser');
+const fileButton = document.getElementById('fileChooser');
+const audioButton = document.getElementById('audioChooser');
 
-
-let isTyping = false, timeout = undefined;
+export let isTyping = false;
+let timeout = undefined;
 let messageTimeStampUpdater;
 
 //all the variables that are fetched from the server
-const myId = document.getElementById('myId').textContent;
-const myName = document.getElementById('myName').textContent;
-const myAvatar = document.getElementById('myAvatar').textContent;
-const myKey = document.getElementById('myKey').textContent;
-const maxUser = document.getElementById('maxUser').textContent;
+export const myId = document.getElementById('myId').textContent;
+export const myName = document.getElementById('myName').textContent;
+export const myAvatar = document.getElementById('myAvatar').textContent;
+export const myKey = document.getElementById('myKey').textContent;
+export const maxUser = document.getElementById('maxUser').textContent;
 
 //template messages
 const messageTemplate = document.getElementById('messageTemplate').innerHTML;
@@ -91,45 +85,6 @@ document.getElementById('audioMessageTemplate').remove();
 //current theme
 let THEME = '';
 
-//theme colors and backgrounds
-const themeAccent = {
-	blue: {
-		secondary: 'hsl(213, 98%, 57%)',
-		foreground: '#e1eeff',
-		msg_get: 'hsl(213, 40%, 57%)',
-		msg_get_reply: 'hsl(213, 88%, 27%)',
-		msg_send: 'hsl(213, 98%, 57%)',
-		msg_send_reply: 'hsl(213, 35%, 27%)',
-	},
-	geometry: {
-		secondary: 'hsl(15, 98%, 57%)',
-		foreground: '#e1eeff',
-		msg_get: 'hsl(15, 40%, 57%)',
-		msg_get_reply: 'hsl(15, 88%, 27%)',
-		msg_send: 'hsl(15, 98%, 57%)',
-		msg_send_reply: 'hsl(15, 35%, 27%)',
-	},
-	dark_mood: {
-		secondary: 'hsl(216, 37%, 44%)',
-		foreground: '#e1eeff',
-		msg_get: 'hsl(216, 27%, 33%)',
-		msg_get_reply: 'hsl(216, 32%, 23%)',
-		msg_send: 'hsl(216, 37%, 44%)',
-		msg_send_reply: 'hsl(216, 20%, 21%)',
-	},
-	forest: {
-		secondary: 'hsl(162, 60%, 42%)',
-		foreground: '#e1eeff',
-		msg_get: 'hsl(162, 18%, 41%)',
-		msg_get_reply: 'hsl(162, 32%, 34%)',
-		msg_send: 'hsl(162, 60%, 42%)',
-		msg_send_reply: 'hsl(162, 14%, 27%)',
-	}
-};
-
-//this array contains all the themes, which helps to traverse through the themes easily
-const themeArray = ['blue', 'geometry', 'dark_mood', 'forest'];
-
 //this array contains all the emojis used in the app
 const reactArray = {
 	//the first 6 emojis are the default emojis
@@ -139,11 +94,11 @@ const reactArray = {
 };
 
 //here we add the usernames who are typing
-const userTypingMap = new Map();
+export const userTypingMap = new Map();
 //all the user and their info is stored in this map
-const userInfoMap = new Map();
+export const userInfoMap = new Map();
 //all file meta data is stored in this map which may arrive later
-const fileBuffer = new Map();
+export const fileBuffer = new Map();
 
 let softKeyIsUp = false; //to check if soft keyboard of phone is up or not
 let scrolling = false; //to check if user is scrolling or not
@@ -343,19 +298,8 @@ function appHeight () {
 	doc.style.setProperty('--app-height', `${window.innerHeight}px`);
 }
 
-//this function generates a random id
-function makeId(length = 10){
-	let result = '';
-	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-	const charactersLength = characters.length;
-	for (let i = 0; i < length; i++){
-		result += characters.charAt(Math.floor(Math.random() * charactersLength));
-	}
-	return result;
-}
-
 //this function inserts a message in the chat box
-function insertNewMessage(message, type, id, uid, reply, replyId, options, metadata){
+export function insertNewMessage(message, type, id, uid, reply, replyId, options, metadata){
 	//detect if the message has a reply or not
 	try{
 		if (!options){
@@ -873,7 +817,7 @@ function optionsMainEvent(e){
 	optionsReactEvent(e);
 }
 
-function deleteMessage(messageId, user){
+export function deleteMessage(messageId, user){
 	const message = document.getElementById(messageId);
 	if (message){ //if the message exists
 
@@ -1200,7 +1144,7 @@ function arrayToMap(array) {
 	return map;
 }
 
-function getReact(type, messageId, uid){
+export function getReact(type, messageId, uid){
 	try{
 		const target = document.getElementById(messageId).querySelector('.reactedUsers');
 		const exists = target?.querySelector('.list') ?? false;
@@ -1272,7 +1216,7 @@ function getReact(type, messageId, uid){
 }
 
 
-function checkgaps(targetId){
+export function checkgaps(targetId){
 	try{
 		if (targetId){
 			const target = document.getElementById(targetId);
@@ -1424,7 +1368,7 @@ function OptionEventHandler(evt, popup = true){
 }
 
 
-function updateScroll(avatar = null, text = ''){
+export function updateScroll(avatar = null, text = ''){
 	if (scrolling) {
 		if (text.length > 0 && avatar != null) {   
 			document.querySelector('.newmessagepopup img').style.display = 'block';
@@ -1580,7 +1524,7 @@ function copyText(text){
 
 let popupTimeout = undefined;
 
-function popupMessage(text){
+export function popupMessage(text){
 	document.querySelector('.popup-message').textContent = text;
 	document.querySelector('.popup-message').classList.add('active');
 	if (popupTimeout){
@@ -1592,7 +1536,7 @@ function popupMessage(text){
 	}, 1000);
 }
 
-function serverMessage(message, type) {
+export function serverMessage(message, type) {
 	const serverMessageElement = document.createElement('li');
 	serverMessageElement.classList.add('serverMessage', 'msg-item');
 	serverMessageElement.id = message.id;
@@ -1653,7 +1597,7 @@ const stickersGrp = document.getElementById('selectStickerGroup');
 
 const loadedStickerHeader = false;
 
-function loadStickerHeader(){
+export function loadStickerHeader(){
 	if (loadedStickerHeader){
 		return;
 	}
@@ -1679,7 +1623,7 @@ function retryImageLoad(img){
 }
 
 
-function loadStickers(){
+export function loadStickers(){
 	//if selectedStickerGroup is not contained in Stickers, then set it to the first sticker group
 	if (!Stickers.some(sticker => sticker.name == selectedStickerGroup)){
 		selectedStickerGroup = Stickers[0].name;
@@ -1772,7 +1716,7 @@ document.getElementById('selectStickerGroup').addEventListener('click', e => {
 
 document.getElementById('stickers').addEventListener('click', e => {
 	if (e.target.tagName === 'IMG') {
-		const tempId = makeId();
+		const tempId = crypto.randomUUID();
 		stickerSound.play();
 		scrolling = false;
 		updateScroll();
@@ -2377,7 +2321,7 @@ function ImagePreview(filesFromClipboard = null){
 		}
 	}
 
-	imageSendButton.style.display = 'none';
+	fileSendButton.style.display = 'none';
 
 	while (document.getElementById('selectedFiles').firstChild) {
 		document.getElementById('selectedFiles').removeChild(document.getElementById('selectedFiles').firstChild);
@@ -2411,39 +2355,33 @@ function ImagePreview(filesFromClipboard = null){
 
 			const imageElement = document.createElement('img');
 
-
 			imageElement.src = fileURL;
 			imageElement.alt = 'image';
 			imageElement.classList.add('image-message');
 			fileContainer.append(imageElement, close);
 
-			imageElement.onload = () => {
-				if (i == 0){
-					loadingElement.remove();
-				}
-				document.getElementById('selectedFiles').append(fileContainer);
-				
-				const data = fileURL;
-				const ext = files[i].type.split('/')[1];
-				const name = files[i].name;
-				const size = files[i].size;
+			if (i == 0){
+				loadingElement.remove();
+			}
 
+			document.getElementById('selectedFiles').append(fileContainer);
+			
+			const data = fileURL;
+			const ext = files[i].type.split('/')[1];
+			const name = files[i].name;
+			const size = files[i].size;
+			
+			selectedFileArray.push({data: data, name: name, size: size, ext: ext, id: fileID});
+			
+			if (i == files.length - 1){
+				fileSendButton.style.display = 'flex';
 				selectedObject = 'image';
-				
-				selectedFileArray.push({data: data, name: name, size: size, ext: ext, id: fileID});
-
-
-				if (i == files.length - 1){
-					imageSendButton.style.display = 'flex';
-					clearFileFromInput();
-				}
-			};
+				clearFileFromInput();
+			}
 
 			imageElement.onerror = () => {
 				URL.revokeObjectURL(fileURL);
-				if (i == 0){
-					loadingElement.remove();
-				}
+				selectedFileArray.length = 0;
 				popupMessage('Error reading file');
 				clearFileFromInput();
 				clearTargetMessage();
@@ -2476,9 +2414,8 @@ function FilePreview(filesFromClipboard = null, audio = false){
 		}
 	}
 
-	imageSendButton.style.display = 'none';
+	fileSendButton.style.display = 'none';
 
-	
 	while (document.getElementById('selectedFiles').firstChild) {
 		document.getElementById('selectedFiles').removeChild(document.getElementById('selectedFiles').firstChild);
 	}
@@ -2552,7 +2489,7 @@ function FilePreview(filesFromClipboard = null, audio = false){
 			selectedFileArray.push({data: data, name: name, size: size, ext: ext, id: fileID});
 	
 			if (i == files.length - 1){
-				imageSendButton.style.display = 'flex';
+				fileSendButton.style.display = 'flex';
 				clearFileFromInput();
 			}
 		}
@@ -2564,7 +2501,6 @@ function FilePreview(filesFromClipboard = null, audio = false){
 		clearFinalTarget();
 	}
 }
-
 
 let timeoutObj;
 
@@ -2625,7 +2561,7 @@ sendButton.addEventListener('click', () => {
     
 	resizeTextbox();
 	if (message.length) {
-		const tempId = makeId();
+		const tempId = crypto.randomUUID();
 		scrolling = false;
 		if (message.length > 10000) {
 			message = message.substring(0, 10000);
@@ -2670,9 +2606,6 @@ sendButton.addEventListener('click', () => {
 	socket.emit('stoptyping');
 });
 
-
-
-
 document.getElementById('previewFile').querySelector('.close')?.addEventListener('click', ()=>{
 	
 	clearFileFromInput();
@@ -2686,7 +2619,7 @@ document.getElementById('previewFile').querySelector('.close')?.addEventListener
 	}
 });
 
-imageSendButton.addEventListener('click', ()=>{
+fileSendButton.addEventListener('click', ()=>{
 	
 	document.getElementById('previewFile').classList.remove('active');
 	
@@ -2711,7 +2644,7 @@ async function sendImageStoreRequest(){
 		image.onload = async function() {
 	
 			const thumbnail = resizeImage(image, image.mimetype, 50);
-			let tempId = makeId();
+			let tempId = crypto.randomUUID();
 			scrolling = false;
 	
 			insertNewMessage(image.src, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: '', height: image.height, width: image.width, name: selectedFileArray[i].name});
@@ -2797,7 +2730,7 @@ function sendFileStoreRequest(type = null){
 
 	for (let i = 0; i < selectedFileArray.length; i++){
 
-		let tempId = makeId();
+		let tempId = crypto.randomUUID();
 		scrolling = false;
 
 		const fileUrl = URL.createObjectURL(selectedFileArray[i].data);
@@ -2864,7 +2797,7 @@ function sendFileStoreRequest(type = null){
 
 let newMsgTimeOut = undefined;
 
-function notifyUser(message, username, avatar){
+export function notifyUser(message, username, avatar){
 	if ( ('Notification' in window) && Notification.permission === 'granted') {
 		// Check whether notification permissions have already been granted;
 		// if so, create a notification
@@ -2988,7 +2921,7 @@ function shortFileName(filename){
 	return filename;
 }
 
-function setTypingUsers(){
+export function setTypingUsers(){
 	const typingString = getTypingString(userTypingMap);
 	if (typingString == ''){
 		document.getElementById('typingIndicator').classList.remove('active');
@@ -3263,287 +3196,8 @@ function stopTimer(){
 	}
 }
 
-/*
-//write relevant audioWorklet code here of the same function. register the worklet and use it in the processAudioStream function
-function processAudioStream(stream){
-	const audioContext = new AudioContext();
-	//register the audio worklet
-	audioContext.audioWorklet.addModule('audioWorklet.js')
-		.then(() => {
-			//console.log('Audio Worklet registering..');
-			//create an audio worklet node
-			const audioWorkletNode = new AudioWorkletNode(audioContext, 'audio-worklet-processor');
-			//create a media stream source
-			const mediaStreamSource = audioContext.createMediaStreamSource(stream);
-			//connect the media stream source to the audio worklet node
-			mediaStreamSource.connect(audioWorkletNode);
-			//connect the audio worklet node to the destination
-			audioWorkletNode.connect(audioContext.destination);
-
-			//if the audio worklet node gets a message
-			audioWorkletNode.port.onmessage = (e) => {
-				const amplitude = e.data;
-				document.documentElement.style.setProperty('--amplitude', amplitude + 'px');
-			};
-
-			//if the user stops the audio stream
-			stream.oninactive = function(){
-				if (audioContext){
-					audioContext.close();
-					audioWorkletNode.disconnect();
-					mediaStreamSource.disconnect();
-					document.documentElement.style.setProperty('--amplitude', '0px');
-				}
-			};
-		})
-		.catch((err) => {
-			console.log('The following error occured: ' + err);
-		});
-}
-*/
-
-//sockets
-socket.on('connect', () => {
-	const params = {
-		name: myName,
-		id: myId,
-		avatar: myAvatar,
-		key: myKey,
-		maxuser: maxUser,
-	};
-	socket.emit('join', params, function(err){
-		if (err) {
-			console.log(err);
-		} else {
-			console.log('%cNo errors!', 'color: limegreen;');
-			if (userTypingMap.size > 0){
-				setTypingUsers();
-			}
-			document.getElementById('preload').style.display = 'none';
-			popupMessage('Connected to message relay server');
-			loadStickerHeader();
-			loadStickers();
-			if ('Notification' in window){
-				Notification.requestPermission();
-			}else{
-				popupMessage('Notifications not supported by your browser');
-			}
-		}
-	});
-});
-//updates current user list
-socket.on('updateUserList', (users) => {
-
-	users.forEach(user => {
-		userInfoMap.set(user.uid, user);
-	});
-	if(isTyping){
-		socket.emit('typing');
-	}
-	document.getElementById('count').textContent = `${users.length}/${maxUser}`;
-	while (document.getElementById('userlist').firstChild) {
-		document.getElementById('userlist').removeChild(document.getElementById('userlist').firstChild);
-	}
-	users.forEach(user => {
-		const listItem = document.createElement('li');
-		listItem.classList.add('user');
-		listItem.setAttribute('data-uid', user.uid);
-		const avt = document.createElement('div');
-		avt.classList.add('avt');
-		const img = document.createElement('img');
-		img.src = `/images/avatars/${user.avatar}(custom).png`;
-		img.height = 30;
-		img.width = 30;
-		const status = document.createElement('i');
-		status.classList.add('fa-solid', 'fa-circle', 'activeStatus');
-		avt.appendChild(img);
-		avt.appendChild(status);
-		const userSpan = document.createElement('span');
-		userSpan.textContent = user.uid == myId ? user.username + ' (You)' : user.username;
-		listItem.append(avt, userSpan);
-		if (user.uid == myId){
-			document.getElementById('userlist').prepend(listItem);
-		}else{
-			document.getElementById('userlist').appendChild(listItem);
-		}
-	});
-});
-
-socket.on('server_message', (meta, type) => {
-	switch (type) {
-	case 'join':
-		joinsound.play();
-		break;
-	case 'leave':
-		leavesound.play();
-		break;
-	case 'location':
-		locationsound.play();
-		break;
-	}
-	serverMessage(meta, type);
-});
-
-socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
-	if (type == 'text'){
-		incommingmessage.play();
-	}else if(type == 'sticker'){
-		stickerSound.play();
-	}
-	insertNewMessage(message, type, id, uid, reply, replyId, options, {});
-	notifyUser({data: type == 'text' ? message : '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uid)?.username, userInfoMap.get(uid)?.avatar);
-});
-
-socket.on('seen', meta => {
-	const message = document.getElementById(meta.messageId);
-	const isMessage = message?.classList?.contains('message');
-	if (message && isMessage && !message.dataset.seen?.includes(meta.userId)){
-		document.querySelectorAll(`.msg-item[data-seen*="${meta.userId}"]`)
-			.forEach(elem => {
-				elem.querySelector(`.seenBy img[data-user="${meta.userId}"]`)?.remove();
-				checkgaps(elem?.id);
-			});
-
-		message.dataset.seen = message.dataset.seen ? message.dataset.seen + '|' + meta.userId : meta.userId;
-		const element = document.createElement('img');
-		element.src = `/images/avatars/${meta.avatar}(custom)-mini.png`;
-		element.dataset.user = meta.userId;
-		message.querySelector('.seenBy').appendChild(element);
-		checkgaps(message.id);
-		updateScroll();
-	}
-});
-
-socket.on('getReact', (target, messageId, myId) => {
-	getReact(target, messageId, myId);
-});
-
-socket.on('deleteMessage', (messageId, userName) => {
-	deleteMessage(messageId, userName);
-});
-
-socket.on('typing', (user, id) => {
-	typingsound.play();
-	userTypingMap.set(id, user);
-	setTypingUsers();
-});
-  
-socket.on('stoptyping', (id) => {
-	userTypingMap.delete(id);
-	setTypingUsers();
-});
-
-//on disconnect
-socket.on('disconnect', () => {
-	console.log('%cDisconnected from message relay server.', 'color: red;');
-	popupMessage('Disconnected from message relay server');
-});
-//files metadata will be sent on different socket
-fileSocket.on('connect', () => {
-	console.log('%cConnection established to file relay server', 'color: deepskyblue;');
-	fileSocket.emit('join', myKey);
-});
-
-//gets an intermediate thumbnail and file metadata
-fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, options, metadata) => {
-	incommingmessage.play();
-	fileBuffer.set(id, {type: type, data: '', uId: uId, reply: reply, replyId: replyId, options: options, metadata: metadata});
-	if (type === 'image'){
-		insertNewMessage(thumbnail, type, id, uId, reply, replyId, options, metadata);
-		const elem = document.getElementById(id).querySelector('.messageMain');
-		setTimeout(() => {
-			elem.querySelector('.image').style.filter = 'brightness(0.4) url(#sharpBlur)';
-		}, 50);
-	}else{
-		insertNewMessage('', type, id, uId, reply, replyId, options, metadata);
-		const elem = document.getElementById(id).querySelector('.messageMain');
-		elem.querySelector('.progress').textContent = '↑ Uploading';
-	}
-	notifyUser({data: '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uId)?.username, userInfoMap.get(uId)?.avatar);
-});
-
-//if any error occurrs, the show the error
-fileSocket.on('fileUploadError', (id, type) => {
-	const element = document.getElementById(id).querySelector('.messageMain');
-	let progressContainer;
-	if (type === 'image'){
-		progressContainer = element.querySelector('.circleProgressLoader .progressPercent');
-	}else{
-		progressContainer = element.querySelector('.progress');
-	}
-	progressContainer.textContent = 'Upload Error';
-});
-
-//if the file has been uploded to the server by other users, then start downloading
-fileSocket.on('fileDownloadReady', (id, downlink) => {
-	if (!fileBuffer.has(id)){
-		return;
-	}
-	const data = fileBuffer.get(id);
-	const type = data.type;
-	const element = document.getElementById(id).querySelector('.messageMain');
-	let progressContainer;
-	let progressText;
-	if (type === 'image'){
-		progressContainer = element.querySelector('.circleProgressLoader');
-		progressText = progressContainer.querySelector('.progressPercent');
-	}else{
-		progressContainer = element.querySelector('.progress');
-		progressText = progressContainer;
-	}
-	
-	fileBuffer.delete(id);
-
-	const xhr = new XMLHttpRequest();
-
-	xhr.open('GET', `${location.origin}/api/files/download/${downlink}/${myKey}`, true);
-	xhr.responseType = 'blob';
-	xhr.onprogress = async function(e) {
-		if (e.lengthComputable && progressContainer) {
-			const progress = Math.round((e.loaded / e.total) * 100);
-			if (type == 'image'){
-				progressContainer.querySelector('.animated')?.classList?.remove('inactive');
-				progressContainer.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
-			}
-			progressText.textContent = '↓ ' + Math.round(progress) + '%';
-			if (progress === 100){
-				type == 'image' ? progressContainer.querySelector('.animated').style.visibility = 'hidden' : null;
-				progressText.textContent = 'Decoding...';
-			}
-		}
-	};
-
-	xhr.onload = function() {
-		if (this.status == 200) {
-			
-			const file = this.response;
-			const url = URL.createObjectURL(file);
-
-			if (element){
-				
-				clearDownload(element, url, type);
-
-				fileSocket.emit('fileDownloaded', myId, myKey, downlink);
-				if (type === 'image'){
-					//update the reply thumbnails with the detailed image if exists
-					document.querySelectorAll(`.messageReply[data-repid="${id}"]`)
-						.forEach(elem => {
-							elem.querySelector('.image').src = url;
-							elem.querySelector('.image').style.filter = 'brightness(0.4) !important';
-						});
-				}
-			}
-		}else if (this.status == 404){
-			console.log('404');
-			progressContainer.textContent = 'File deleted';
-		}
-	};
-	xhr.send();
-	updateScroll();
-});
-
 //clear the previous thumbnail when user gets the file completely
-function clearDownload(element, fileURL, type){
+export function clearDownload(element, fileURL, type){
 	outgoingmessage.play();
 	if (type === 'image'){
 		setTimeout(() => {

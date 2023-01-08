@@ -28,7 +28,7 @@ io.on('connection', (socket) => {
 				return callback('avatar');
 			}
 			if (Keys[params.key]?.userCount >= Keys[params.key]?.maxUser){
-				return callback('full');
+				return callback('Key is full.');
 			}
 
 			if (!Keys[params.key]){

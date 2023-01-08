@@ -145,6 +145,8 @@ code{
                 img{
                     max-width: inherit;
                     max-height: inherit;
+                    min-height: inherit;
+                    min-width: inherit;
                     object-fit: inherit;
                     border-radius: inherit;
                 }

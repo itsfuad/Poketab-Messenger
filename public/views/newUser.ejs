@@ -563,7 +563,7 @@
             <% if (title === 'Join') { %>
             <div class="subform" id="subform1">
                 <div class="form-field">
-                    <label for="key" id="label"><%-key_label%></label>
+                    <label for="key" id="keyLabel"><%-key_label%></label>
                     <div id="keyErr" class="errLog"></div>
                     <% if (key) { %>
                         <input type="text" autocomplete="off" name="key" id="key" placeholder="xxx-xxx-xxx-xxx" value="<%=key_%>">
@@ -647,7 +647,7 @@
     <% } %>
 
     <% if (key) { %>
-        <script type="module">
+        <script type="module" nonce="<%=hash%>">
             document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('next').click();
             });

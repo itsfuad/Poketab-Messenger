@@ -21,11 +21,13 @@ function validateKey(){
 	if(key.length == 0){
 		document.getElementById('key').focus();
 		errlog('keyErr', 'Key is required <i class="fa-solid fa-triangle-exclamation"></i>');
+		document.getElementById('keyLabel').innerHTML = 'Enter key <i id=\'lb__icon\' class="fa-solid fa-key"></i>';
 		return false;
 	}
 	if(!keyformat.test(key)){
 		document.getElementById('key').focus();
 		errlog('keyErr', 'Key is not valid <i class="fa-solid fa-triangle-exclamation"></i>');
+		document.getElementById('keyLabel').innerHTML = 'Enter key <i id=\'lb__icon\' class="fa-solid fa-key"></i>';
 		return false;
 	}
 	return true;
@@ -58,9 +60,11 @@ const keyElem = document.getElementById('key');
 
 next.addEventListener('click', (e) => {
 	e.preventDefault();
+	document.getElementById('keyLabel').innerHTML = 'Checking <i id=\'lb__icon\' class="fa-solid fa-circle-notch fa-spin"></i>';
 	if (validateKey()){
 		const key = document.getElementById('key').value;
 		socket.emit('joinRequest', key, (response) => {
+			document.getElementById('keyLabel').innerHTML = 'Enter key <i id=\'lb__icon\' class="fa-solid fa-key"></i>';
 			if (response.success){
 				const usersData = response.message;
 				//remove existing avatars

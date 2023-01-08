@@ -139,6 +139,8 @@ code {
 .message .messageBody .messageReply:is(.imageReply) img {
   max-width: inherit;
   max-height: inherit;
+  min-height: inherit;
+  min-width: inherit;
   -o-object-fit: inherit;
      object-fit: inherit;
   border-radius: inherit;

@@ -6,6 +6,8 @@ const { HMAC_KEY } = require('./../server.js');
 
 const { Keys } = require('./../credentialManager.js');
 
+const AdminSessionSecret = new Map();
+
 router.get('/', cookieParser(HMAC_KEY), (req, res) => {
 	const cookieFromClient = req.signedCookies.auth;
 	//console.log('Got get request for admin page');
@@ -17,9 +19,11 @@ router.get('/', cookieParser(HMAC_KEY), (req, res) => {
 			//if the cookie is valid, render the admin page
 			console.log('Valid cookie found. Rendering admin page');
 			const nonce = crypto.randomBytes(16).toString('hex');
+			const adminSessionID = crypto.randomUUID();
+			AdminSessionSecret.set('Admin', adminSessionID);
 			res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}'; img-src 'self' data:; script-src 'nonce-${nonce}';`);
 			res.setHeader('Developer', 'Fuad Hasan');
-			res.render('admin/adminLogin', {title: 'Admin Dashboard', admin: process.env.ADMIN_USERNAME, hash: nonce, loginScript: false});
+			res.render('admin/adminLogin', {title: 'Admin Dashboard', admin: process.env.ADMIN_USERNAME, hash: nonce, loginScript: false, session: adminSessionID});
 		}else{
 			//if the cookie is invalid, redirect to the login page
 			console.log('Invalid cookie found. Redirecting to login page');
@@ -27,7 +31,7 @@ router.get('/', cookieParser(HMAC_KEY), (req, res) => {
 			res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}'; img-src 'self' data:; script-src 'nonce-${nonce}';`);
 			res.setHeader('Developer', 'Fuad Hasan');
 			res.clearCookie('auth');
-			res.render('admin/adminLogin', {title: 'Please login', admin: 'Not logged in', hash: nonce, loginScript: true});
+			res.render('admin/adminLogin', {title: 'Please login', admin: 'Not logged in', hash: nonce, loginScript: true, session: null});
 		}
 	}else{
 		console.log('No cookie found. Redirecting to login page');
@@ -35,7 +39,7 @@ router.get('/', cookieParser(HMAC_KEY), (req, res) => {
 		res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}'; img-src 'self' data:; script-src 'nonce-${nonce}';`);
 		res.setHeader('Developer', 'Fuad Hasan');
 		res.clearCookie('auth');
-		res.render('admin/adminLogin', {title: 'Please login', admin: 'Not logged in', hash: nonce, loginScript: true});
+		res.render('admin/adminLogin', {title: 'Please login', admin: 'Not logged in', hash: nonce, loginScript: true, session: null});
 	}
 });
 
@@ -69,10 +73,18 @@ router.post('/data', cookieParser(), (req, res) => {
 	const admin_username = process.env.ADMIN_USERNAME;
 	const admin_password = process.env.ADMIN_PASSWORD;
 
+	const sessionId = req.body.sessionID;
+
+	console.log(sessionId, AdminSessionSecret.get('Admin'));
+
 	const signature = crypto.createHmac('sha256', HMAC_KEY).update(admin_username + salt + admin_password).digest('hex');
 
 	if (req.signedCookies.auth == signature) {
-		res.status(200).send(Keys);
+		if (sessionId == AdminSessionSecret.get('Admin')){
+			res.status(200).send(Keys);
+		}else{
+			res.status(403).send('Unauthorized');
+		}
 	} else {
 		//console.log('Admin access denied');
 		res.status(403).send('Session expired');

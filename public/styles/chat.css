@@ -793,6 +793,7 @@ input[type=file] {
   align-items: center;
   gap: 5px;
   z-index: 20;
+  isolation: isolate;
   visibility: hidden;
   opacity: 0;
   transition: 100ms ease-in-out;
@@ -803,30 +804,35 @@ input[type=file] {
 }
 #previewFile #selectedFiles {
   position: relative;
-  height: 80%;
+  max-height: 80%;
   width: 100%;
   display: flex;
   gap: 10px;
   padding: 10px;
   align-items: center;
   justify-content: center;
+  align-content: flex-start;
   flex-wrap: wrap;
   overflow: scroll;
-}
-#previewFile #selectedFiles .container {
-  max-width: 75vw;
-  height: auto;
-  max-height: 80vh;
-  border-radius: 10px;
-}
-#previewFile #selectedFiles .container img {
-  max-width: inherit;
-  max-height: inherit;
-  border-radius: inherit;
-  height: inherit;
+  z-index: 2;
 }
 #previewFile #selectedFiles .file-item {
   position: relative;
+  min-width: 170px;
+  min-height: 170px;
+  max-width: 75vw;
+  max-height: 80vh;
+  height: auto;
+  border-radius: 10px;
+}
+#previewFile #selectedFiles .file-item img {
+  max-width: inherit;
+  max-height: inherit;
+  min-height: inherit;
+  max-width: inherit;
+  border-radius: inherit;
+  height: inherit;
+  background: var(--glass);
 }
 #previewFile #selectedFiles .file-item .close {
   position: absolute;
@@ -853,6 +859,7 @@ input[type=file] {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
+  z-index: 1;
 }
 .option .close:hover {
   background: rgba(255, 255, 255, 0.0784313725);
@@ -868,7 +875,7 @@ input[type=file] {
 .option > div:hover {
   cursor: pointer;
 }
-.option #imageSend {
+.option #fileSendButton {
   height: 60px;
 }
 
