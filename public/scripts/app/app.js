@@ -3,7 +3,7 @@
 
 import { socket } from './messageSocket.js';
 import { fileSocket } from './fileSocket.js';
-import Mustache from '../../libs/mustache.js';
+import Mustache from '../../libs/mustache.min.js';
 import {Stickers} from '../../stickers/stickersConfig.js';
 import { Prism } from '../../libs/prism/prism.min.js';
 import { PanZoom } from '../../libs/panzoom.min.js';
