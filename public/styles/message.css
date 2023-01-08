@@ -452,6 +452,9 @@ pre code {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
 }
 .messageMain .imageContainer .image {
   -o-object-fit: contain;
@@ -540,7 +543,7 @@ pre code {
   text-decoration: underline;
   padding-left: 3px;
   min-width: 64px;
-  word-break: break-word;
+  word-break: break-all;
 }
 .fileInfo .filemeta {
   font-size: 0.5rem;

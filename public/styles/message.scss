@@ -484,7 +484,8 @@ pre{
         display: flex;
         align-items: center;
         justify-content: center;
-
+        width: fit-content;
+        
         .image{
             object-fit: contain;
             border-radius: inherit;
@@ -573,7 +574,7 @@ pre{
         text-decoration: underline;
         padding-left: 3px;
         min-width: 64px;
-        word-break: break-word;
+        word-break: break-all;
     }
     .filemeta{
         font-size: .5rem;

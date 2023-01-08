@@ -57,6 +57,8 @@
 
   <link rel="icon" href="/images/avatars/pikachu.png">
 
-  <!--script defer type="module" src="/scripts/app/app.js"></!--script-->
-
-  <script defer src="/scripts/app/bundle/bundle.js?v=26" type="module"></script>
+  <% if (ENV === 'PRODUCTION') { %>
+    <script type="module" defer src="/scripts/app/bundle/bundle.js?v=26"></script>
+  <% } else { %>
+    <script defer type="module" src="/scripts/app/app.js"></script>
+  <% } %>

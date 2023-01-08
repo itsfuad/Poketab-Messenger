@@ -35,7 +35,7 @@ function changeAdminPass() {
 			//alert('Passwords do not match');
 			const passwordLabel = document.querySelector('#confirmPassword + label');
 			passwordLabel.style.color = '#ff2121';
-			passwordLabel.textContent = 'Passwords do not match';
+			passwordLabel.textContent = 'Passwords did not match';
 			document.getElementById('confirmPassword').focus();
 		} else {
 			fetch('/admin/changePassword', {
@@ -93,7 +93,7 @@ function changeAdminPass() {
 function changePassword() {
 	//create from the string
 	if (document.getElementById('changePassword')) return;
-	document.body.insertAdjacentHTML('beforeend', changePasswordForm);
+	document.body.insertAdjacentHTML('afterbegin', changePasswordForm);
 	setTimeout(() => {
 		document.getElementById('changePassword').classList.add('active');
 		changeAdminPass();

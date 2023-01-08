@@ -40,6 +40,8 @@ const port = process.env.PORT || 3000;
 
 const HMAC_KEY = crypto.randomBytes(64).toString('hex');
 
+const ENVIRONMENT = process.env.BUILD_MODE == 'DEVELOPMENT' ? 'DEVELOPMENT' : 'PRODUCTION';
+
 const server = http.createServer(app);
 //export the server to be used in the socket.js file
 module.exports = { server, HMAC_KEY };
@@ -226,7 +228,7 @@ app.post('/chat', (req, res) => {
 					res.setHeader('Developer', 'Fuad Hasan');
 					res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
 					res.setHeader('Cluster', `ID: ${process.pid}`);
-					res.render('chat/chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
+					res.render('chat/chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer, ENV: ENVIRONMENT});
 				}else{
 					//clash of keys
 					//console.log(`Key clash found: ${key}!`);
@@ -264,7 +266,7 @@ app.post('/chat', (req, res) => {
 			res.setHeader('Developer', 'Fuad Hasan');
 			res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
 			res.setHeader('Cluster', `ID: ${process.pid}`);
-			res.render('chat/chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer});
+			res.render('chat/chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer, ENV: ENVIRONMENT});
 		}
 	}else{
 		//console.log('No session found for this request.');
@@ -295,5 +297,5 @@ require('./preAuthSocket');
 //fire up the server
 server.listen(port, () => {
 	console.log('%cBooting up the server...', 'color: yellow;');
-	console.log(`%cServer is up on port ${port} | Process ID: ${process.pid}`, 'color: green;');
+	console.log(`Server is up on port ${port} | Process ID: ${process.pid} in ${ENVIRONMENT} mode`);
 });

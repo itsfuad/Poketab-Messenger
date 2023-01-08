@@ -19,7 +19,7 @@ router.get('/', cookieParser(HMAC_KEY), (req, res) => {
 			const nonce = crypto.randomBytes(16).toString('hex');
 			res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}'; img-src 'self' data:; script-src 'nonce-${nonce}';`);
 			res.setHeader('Developer', 'Fuad Hasan');
-			res.render('adminLogin', {title: 'Admin Dashboard', admin: process.env.ADMIN_USERNAME, hash: nonce, loginScript: false});
+			res.render('admin/adminLogin', {title: 'Admin Dashboard', admin: process.env.ADMIN_USERNAME, hash: nonce, loginScript: false});
 		}else{
 			//if the cookie is invalid, redirect to the login page
 			console.log('Invalid cookie found. Redirecting to login page');
@@ -27,7 +27,7 @@ router.get('/', cookieParser(HMAC_KEY), (req, res) => {
 			res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}'; img-src 'self' data:; script-src 'nonce-${nonce}';`);
 			res.setHeader('Developer', 'Fuad Hasan');
 			res.clearCookie('auth');
-			res.render('adminLogin', {title: 'Please login', admin: 'Not logged in', hash: nonce, loginScript: true});
+			res.render('admin/adminLogin', {title: 'Please login', admin: 'Not logged in', hash: nonce, loginScript: true});
 		}
 	}else{
 		console.log('No cookie found. Redirecting to login page');
@@ -35,7 +35,7 @@ router.get('/', cookieParser(HMAC_KEY), (req, res) => {
 		res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}'; img-src 'self' data:; script-src 'nonce-${nonce}';`);
 		res.setHeader('Developer', 'Fuad Hasan');
 		res.clearCookie('auth');
-		res.render('adminLogin', {title: 'Please login', admin: 'Not logged in', hash: nonce, loginScript: true});
+		res.render('admin/adminLogin', {title: 'Please login', admin: 'Not logged in', hash: nonce, loginScript: true});
 	}
 });
 

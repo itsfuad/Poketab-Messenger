@@ -62,9 +62,9 @@ const startrecordingSound = new Audio('/sounds/startrecording.mp3');
 const sendButton = document.getElementById('send');
 const imageSendButton = document.getElementById('imageSend');
 
-const photoButton = document.getElementById('photoChooser');
-const fileButton = document.getElementById('fileChooser');
-const audioButton = document.getElementById('audioChooser');
+export const photoButton = document.getElementById('photoChooser');
+export const fileButton = document.getElementById('fileChooser');
+export const audioButton = document.getElementById('audioChooser');
 
 
 let isTyping = false, timeout = undefined;
@@ -147,23 +147,10 @@ const fileBuffer = new Map();
 
 let softKeyIsUp = false; //to check if soft keyboard of phone is up or not
 let scrolling = false; //to check if user is scrolling or not
-let lastPageLength = messages.scrollTop; // after adding a new message the page size gets updated
+let lastPageLength = messages.scrollTop; // after adding a ^(?!\s*//).*console\.lognew message the page size gets updated
 let scroll = 0; //total scrolled up or down by pixel
 
-//selected image to send
-const selectedImage = {
-	data: '',
-	name: '',
-	size: '',
-	ext: ''
-};
-//selected file to send
-const selectedFile = {
-	data: '',
-	name: '',
-	size: '',
-	ext: ''
-};
+const selectedFileArray = [];
 
 //selected message info | file or image
 let selectedObject = '';
@@ -575,7 +562,7 @@ function insertNewMessage(message, type, id, uid, reply, replyId, options, metad
 
 		//highlight code
 		const codes = document.getElementById(id).querySelector('.messageMain')?.querySelectorAll('pre');
-		//console.log(codes);
+
 		if (type == 'text' && codes){
 			//Prism.highlightAll();
 			codes.forEach(code => {
@@ -2171,7 +2158,43 @@ messages.addEventListener('click', (evt) => {
 			hideOptions();
 		}
 	}catch(e){
-		console.log('Message does not exist', e);
+		console.log('Error: ', e);
+	}
+});
+
+document.getElementById('selectedFiles').addEventListener('click', (evt) => {
+	try{
+		const target = evt.target.closest('.file-item');
+		if (target){
+			if (evt.target.classList.contains('close')){
+				const type = target.dataset.type;
+				//get the image element id
+				const id = target.dataset?.id;
+				if (id){
+
+					if (type === 'image'){
+						const imageToRemove = target.querySelector('img');
+						URL.revokeObjectURL(imageToRemove?.src);
+						//console.log(`Image src: ${imageToRemove.src} removed`);
+					}
+					
+					selectedFileArray.splice(selectedFileArray.findIndex(item => item.id === id), 1);
+
+					//console.log('File removed from Array');
+
+					target.remove();
+
+					//if there are no images left, hide the preview
+					if (selectedFileArray.length == 0){
+						//close the preview
+						//console.log('Closing preview');
+						document.getElementById('previewFile').querySelector('.close').click();
+					}
+				}
+			}
+		}
+	}catch(e){
+		console.log(e);
 	}
 });
 
@@ -2313,62 +2336,47 @@ function clearFileFromInput(){
 	audioButton.value = '';
 }
 
-
-function ImagePreview(fileFromClipboard = null){
-	const file = fileFromClipboard || photoButton.files[0];
-
+function fileIsAcceptable(file, type){
 	if (file.size > 15 * 1024 * 1024){
-		popupMessage('File size too large');
-		return;
+		popupMessage('File size must be less than 15 mb');
+		return false;
 	}
 
-	imageSendButton.style.display = 'none';
-
-	while (document.getElementById('selectedImage').firstChild) {
-		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+	if (type == 'audio'){
+		if (file.type != 'audio/mp3' && file.type != 'audio/mpeg' && file.type != 'audio/ogg' && file.type != 'audio/wav'){
+			popupMessage('Audio format not supported');
+			return false;
+		}
+	}else if(type == 'image'){
+		if (file.type != 'image/jpeg' && file.type != 'image/png' && file.type != 'image/gif' && file.type != 'image/webp'){
+			popupMessage('Image format not supported');
+			return false;
+		}
 	}
-
-	const loadingElement = document.createElement('span');
-	loadingElement.classList.add('load');
-	loadingElement.style.color = themeAccent[THEME].secondary;
-    
-	const loadingIcon = document.createElement('i');
-	loadingIcon.classList.add('fa-solid', 'fa-gear', 'fa-spin');
-
-	loadingElement.textContent = 'Reading binary data';
-	loadingElement.append(loadingIcon);
-	document.getElementById('selectedImage').append(loadingElement);
-	document.getElementById('previewImage')?.classList?.add('active');
-
-	const fileURL = URL.createObjectURL(file);
-	const imageElement = document.createElement('img');
-	imageElement.src = fileURL;
-	imageElement.alt = 'image';
-	imageElement.classList.add('image-message');
-	imageElement.onload = () => {
-		loadingElement.remove();
-		document.getElementById('selectedImage').append(imageElement);
-		imageSendButton.style.display = 'flex';
-		selectedImage.data = fileURL;
-		selectedImage.name = file.name ?? 'Photo';
-		selectedImage.ext = file.type.split('/')[1];
-
-		selectedImage.size = file.size;
-		selectedObject = 'image';
-	};
-	imageElement.onerror = () => {
-		URL.revokeObjectURL(fileURL);
-		loadingElement.remove();
-		popupMessage('Error reading file');
-	};
+	return true;
 }
 
-function FilePreview(fileFromClipboard = null, audio = false){
+function ImagePreview(filesFromClipboard = null){
+
+	const files = filesFromClipboard || photoButton.files;
+
+	//user can select multiple images upto 3
+	if (files.length > 10){
+		popupMessage('Maximum 10 images can be sent at a time');
+		return;
+	}
+
+	//check if all files are acceptable
+	for (let i = 0; i < files.length; i++){
+		if (!fileIsAcceptable(files[i], 'image')){
+			return;
+		}
+	}
 
 	imageSendButton.style.display = 'none';
 
-	while (document.getElementById('selectedImage').firstChild) {
-		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+	while (document.getElementById('selectedFiles').firstChild) {
+		document.getElementById('selectedFiles').removeChild(document.getElementById('selectedFiles').firstChild);
 	}
 
 	const loadingElement = document.createElement('span');
@@ -2380,57 +2388,177 @@ function FilePreview(fileFromClipboard = null, audio = false){
 
 	loadingElement.textContent = 'Reading binary data';
 	loadingElement.append(loadingIcon);
-	document.getElementById('selectedImage').append(loadingElement);
+	document.getElementById('selectedFiles').append(loadingElement);
+	document.getElementById('previewFile')?.classList?.add('active');
 
-	document.getElementById('previewImage')?.classList?.add('active');
-	const file = fileFromClipboard || (audio ? audioButton.files[0] : fileButton.files[0]);
-	let filename = file.name;
-	let size = file.size;
-	const ext = file.type.split('/')[1];
+	try{
+		for (let i = 0; i < files.length; i++){
 
-	//convert to B, KB, MB
-	if (size < 1024){
-		size = size + 'b';
-	}else if (size < 1048576){
-		size = (size/1024).toFixed(1) + 'kb';
-	}else{
-		size = (size/1048576).toFixed(1) + 'mb';
-	}
-	//if file more than 15 mb
-	if (file.size > 15000000){
-		popupMessage('File size must be less than 15 mb');
-		document.getElementById('previewImage')?.classList.remove('active');
-		while (document.getElementById('selectedImage').firstChild) {
-			document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+			const fileURL = URL.createObjectURL(files[i]);
+
+			const fileContainer = document.createElement('div');
+			fileContainer.classList.add('container', 'file-item');
+			fileContainer.dataset.type = 'image';
+			const fileID = crypto.randomUUID();
+			fileContainer.dataset.id = fileID;
+
+			const close = document.createElement('i');
+			close.classList.add('close', 'fa-solid', 'fa-xmark');
+
+			const imageElement = document.createElement('img');
+
+
+			imageElement.src = fileURL;
+			imageElement.alt = 'image';
+			imageElement.classList.add('image-message');
+			fileContainer.append(imageElement, close);
+
+			imageElement.onload = () => {
+				if (i == 0){
+					loadingElement.remove();
+				}
+				document.getElementById('selectedFiles').append(fileContainer);
+				
+				const data = fileURL;
+				const ext = files[i].type.split('/')[1];
+				const name = files[i].name;
+				const size = files[i].size;
+
+				selectedObject = 'image';
+				
+				selectedFileArray.push({data: data, name: name, size: size, ext: ext, id: fileID});
+
+
+				if (i == files.length - 1){
+					imageSendButton.style.display = 'flex';
+					clearFileFromInput();
+				}
+			};
+
+			imageElement.onerror = () => {
+				URL.revokeObjectURL(fileURL);
+				if (i == 0){
+					loadingElement.remove();
+				}
+				popupMessage('Error reading file');
+				clearFileFromInput();
+				clearTargetMessage();
+				clearFinalTarget();
+			};
 		}
+	}catch(e){
+		console.log(e);
+		popupMessage('Error reading Image');
+		clearFileFromInput();
+		clearTargetMessage();
+		clearFinalTarget();
+	}
+}
+
+function FilePreview(filesFromClipboard = null, audio = false){
+
+	const files = filesFromClipboard || (audio ? audioButton.files : fileButton.files);
+
+	//user can select multiple images upto 3
+	if (files.length > 5){
+		popupMessage('Select upto 5 files');
 		return;
 	}
 
-	selectedFile.data = file;
-	selectedFile.name = sanitize(shortFileName(filename));
-	selectedFile.size = size;
-	selectedFile.ext = ext;
-	selectedObject = audio ? 'audio' : 'file';
-	
-	while (document.getElementById('selectedImage').firstChild) {
-		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+	//check if all files are acceptable
+	for (let i = 0; i < files.length; i++){
+		if (!fileIsAcceptable(files[i], audio ? 'audio' : 'file')){
+			return;
+		}
 	}
-	
-	filename = selectedFile.name;
-	filename = filename.length >= 25 ? filename.substring(0, 10) + '...' + filename.substring(filename.length - 10, filename.length) : filename;
-	const fileElement = document.createElement('div');
-	fileElement.classList.add('file_preview');
-	const fileIcon = document.createElement('i');
-	fileIcon.classList.add('fa-regular', audio ? 'fa-file-audio' : 'fa-file-lines');
-	const fileName = document.createElement('div');
-	fileName.textContent = `File: ${filename}`;
-	const fileSize = document.createElement('div');
-	fileSize.textContent = `Size: ${size}`;
-	fileElement.append(fileIcon, fileName, fileSize);
-	document.getElementById('selectedImage').appendChild(fileElement);
-	imageSendButton.style.display = 'flex';
 
-	clearFileFromInput();
+	imageSendButton.style.display = 'none';
+
+	
+	while (document.getElementById('selectedFiles').firstChild) {
+		document.getElementById('selectedFiles').removeChild(document.getElementById('selectedFiles').firstChild);
+	}
+
+	const loadingElement = document.createElement('span');
+	loadingElement.classList.add('load');
+	loadingElement.style.color = themeAccent[THEME].secondary;
+    
+	const loadingIcon = document.createElement('i');
+	loadingIcon.classList.add('fa-solid', 'fa-gear', 'fa-spin');
+
+	loadingElement.textContent = 'Reading binary data';
+	loadingElement.append(loadingIcon);
+	document.getElementById('selectedFiles').append(loadingElement);
+
+	document.getElementById('previewFile')?.classList?.add('active');
+
+	try{
+		for (let i = 0; i < files.length; i++){
+
+			if (i == 0){
+				loadingElement.remove();
+			}
+	
+			let name = files[i].name;
+			let size = files[i].size;
+			const ext = files[i].type.split('/')[1];
+		
+			//convert to B, KB, MB
+			if (size < 1024){
+				size = size + 'b';
+			}else if (size < 1048576){
+				size = (size/1024).toFixed(1) + 'kb';
+			}else{
+				size = (size/1048576).toFixed(1) + 'mb';
+			}
+		
+			const data = files[i];
+			name = sanitize(shortFileName(name));
+			selectedObject = audio ? 'audio' : 'file';
+
+			const fileID = crypto.randomUUID();
+
+			const fileElement = document.createElement('div');
+			fileElement.classList.add('file_preview', 'file-item');
+			fileElement.dataset.type = 'file';
+			fileElement.dataset.id = fileID;
+
+			const close = document.createElement('i');
+			close.classList.add('close', 'fa-solid', 'fa-xmark');
+
+			const fileIcon = document.createElement('i');
+			fileIcon.classList.add('fa-regular', 'icon', audio ? 'fa-file-audio' : 'fa-file-lines');
+
+			const meta = document.createElement('div');
+			meta.classList.add('meta');
+
+			const fileName = document.createElement('div');
+			fileName.classList.add('name');
+			fileName.textContent = `File: ${name}`;
+
+			const fileSize = document.createElement('div');
+			fileSize.classList.add('size');
+			fileSize.textContent = `Size: ${size}`;
+
+			meta.append(fileName, fileSize);
+			fileElement.append(fileIcon, meta, close);
+
+			document.getElementById('selectedFiles').appendChild(fileElement);
+
+			selectedFileArray.push({data: data, name: name, size: size, ext: ext, id: fileID});
+	
+			if (i == files.length - 1){
+				imageSendButton.style.display = 'flex';
+				clearFileFromInput();
+			}
+		}
+	}catch(e){
+		console.log(e);
+		popupMessage('Error reading File');
+		clearFileFromInput();
+		clearTargetMessage();
+		clearFinalTarget();
+	}
 }
 
 
@@ -2455,21 +2583,6 @@ window.addEventListener('dragover', (evt) => {
 		fileDropZone.classList.remove('active');
 		timeoutObj = undefined;
 	}, 200);
-});
-
-
-window.addEventListener('drop', (evt) => {
-	evt.preventDefault();
-	fileDropZone.classList.remove('active');
-	if (evt.target.classList.contains('fileDropZoneContent')){
-		if (evt.dataTransfer.files.length > 0){
-			if (evt.dataTransfer.files[0].type.includes('image')){
-				ImagePreview(evt.dataTransfer.files[0]);
-			}else{
-				FilePreview(evt.dataTransfer.files[0], false);
-			}
-		}
-	}
 });
 
 window.addEventListener('offline', function() { 
@@ -2556,20 +2669,22 @@ sendButton.addEventListener('click', () => {
 
 
 
-document.getElementById('previewImage').querySelector('.close')?.addEventListener('click', ()=>{
+document.getElementById('previewFile').querySelector('.close')?.addEventListener('click', ()=>{
 	
 	clearFileFromInput();
 
-	document.getElementById('previewImage').classList.remove('active');
+	selectedFileArray.length = 0;
 
-	while (document.getElementById('selectedImage').firstChild) {
-		document.getElementById('selectedImage').removeChild(document.getElementById('selectedImage').firstChild);
+	document.getElementById('previewFile').classList.remove('active');
+
+	while (document.getElementById('selectedFiles').firstChild) {
+		document.getElementById('selectedFiles').removeChild(document.getElementById('selectedFiles').firstChild);
 	}
 });
 
 imageSendButton.addEventListener('click', ()=>{
 	
-	document.getElementById('previewImage').classList.remove('active');
+	document.getElementById('previewFile').classList.remove('active');
 	
 	//check if image or file is selected
 	if (selectedObject === 'image'){
@@ -2584,22 +2699,111 @@ imageSendButton.addEventListener('click', ()=>{
 });
 
 async function sendImageStoreRequest(){
-	const image = new Image();
-	image.src = selectedImage.data;
-	image.mimetype = selectedImage.ext;
-	image.onload = async function() {
 
-		const thumbnail = resizeImage(image, image.mimetype, 50);
+	for (let i = 0; i < selectedFileArray.length; i++){
+		const image = new Image();
+		image.src = selectedFileArray[i].data;
+		image.mimetype = selectedFileArray[i].ext;
+		image.onload = async function() {
+	
+			const thumbnail = resizeImage(image, image.mimetype, 50);
+			let tempId = makeId();
+			scrolling = false;
+	
+			insertNewMessage(image.src, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: '', height: image.height, width: image.width, name: selectedFileArray[i].name});
+	
+			const elem = document.getElementById(tempId)?.querySelector('.messageMain');
+			elem.querySelector('.image').style.filter = 'brightness(0.4)';
+	
+			let progress = 0;
+			fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: selectedFileArray[i].name}, myKey, (id) => {
+				outgoingmessage.play();
+				document.getElementById(tempId).classList.add('delevered');
+				document.getElementById(tempId).id = id;
+				tempId = id;
+				lastSeenMessage = id;
+				if (document.hasFocus()){
+					socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+				}
+			});
+			
+			//make xhr request
+	
+			//image to file
+			const file = await fetch(image.src).then(r => r.blob()).then(blobFile => new File([blobFile], 'image', {type: image.mimetype}));
+	
+			const formData = new FormData();
+			formData.append('key', myKey);
+			formData.append('ext', image.mimetype);
+			formData.append('file', file);
+	
+			//upload image via xhr request
+			const xhr = new XMLHttpRequest();
+	
+			const progresCircle = elem.querySelector('.circleProgressLoader');
+			progresCircle.querySelector('.animated').classList.remove('inactive');
+			const progressText = elem.querySelector('.circleProgressLoader .progressPercent');
+	
+			//send file via xhr post request
+			xhr.open('POST', `${location.origin}/api/files/upload`, true);
+			xhr.upload.onprogress = function(e) {
+				if (e.lengthComputable) {
+					progress = (e.loaded / e.total) * 100;
+					progresCircle.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
+					progressText.textContent = '↑ ' + Math.round(progress) + '%';
+					if (progress === 100){
+						progresCircle.querySelector('.animated').style.visibility = 'hidden';
+						progressText.textContent = 'Encoding...';
+					}
+				}
+			};
+	
+			xhr.onload = function(e) {
+				if (this.status == 200) {                
+					if (elem){
+						elem.querySelector('.circleProgressLoader').remove();
+						elem.querySelector('.image').style.filter = 'none';
+					}
+					document.getElementById(tempId).dataset.downloaded = 'true';
+					fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
+				}
+				else{
+					console.log('error uploading image');
+					popupMessage('Error uploading image');
+					elem.querySelector('.circleProgressLoader .animated').style.visibility = 'hidden';
+					elem.querySelector('.circleProgressLoader .progressPercent').textContent = 'Upload failed';
+					fileSocket.emit('fileUploadError', myKey, tempId, 'image');
+				}
+					
+				if (i == selectedFileArray.length - 1){
+					selectedFileArray.length = 0;
+				}
+			};
+
+			xhr.send(formData);
+
+			if (i == 0){
+				clearFinalTarget();
+			}
+		};
+	}
+}
+
+function sendFileStoreRequest(type = null){
+
+	for (let i = 0; i < selectedFileArray.length; i++){
+
 		let tempId = makeId();
 		scrolling = false;
 
-		insertNewMessage(image.src, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: '', height: image.height, width: image.width, name: selectedFile.name});
-
-		const elem = document.getElementById(tempId)?.querySelector('.messageMain');
-		elem.querySelector('.image').style.filter = 'brightness(0.4)';
-
+		const fileUrl = URL.createObjectURL(selectedFileArray[i].data);
+		
+		insertNewMessage(fileUrl, type ? type : 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name});
+		
 		let progress = 0;
-		fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: selectedFile.name}, myKey, (id) => {
+		const elem = document.getElementById(tempId)?.querySelector('.messageMain');
+
+		fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name}, myKey, (id) => {
 			outgoingmessage.play();
 			document.getElementById(tempId).classList.add('delevered');
 			document.getElementById(tempId).id = id;
@@ -2609,117 +2813,49 @@ async function sendImageStoreRequest(){
 				socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
 			}
 		});
-        
-		//make xhr request
-
-		//image to file
-		const file = await fetch(image.src).then(r => r.blob()).then(blobFile => new File([blobFile], 'image', {type: image.mimetype}));
 
 		const formData = new FormData();
 		formData.append('key', myKey);
-		formData.append('ext', image.mimetype);
-		formData.append('file', file);
+		formData.append('file', selectedFileArray[i].data);
 
-		clearFinalTarget();
 		//upload image via xhr request
 		const xhr = new XMLHttpRequest();
-
-		const progresCircle = elem.querySelector('.circleProgressLoader');
-		progresCircle.querySelector('.animated').classList.remove('inactive');
-		const progressText = elem.querySelector('.circleProgressLoader .progressPercent');
-
 		//send file via xhr post request
-		xhr.open('POST', `${location.origin}/api/files/upload`, true);
+		xhr.open('POST', location.origin + '/api/files/upload', true);
 		xhr.upload.onprogress = function(e) {
 			if (e.lengthComputable) {
 				progress = (e.loaded / e.total) * 100;
-				progresCircle.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
-				progressText.textContent = '↑ ' + Math.round(progress) + '%';
+				elem.querySelector('.progress').textContent = '↑ ' + Math.round(progress) + '%';
 				if (progress === 100){
-					progresCircle.querySelector('.animated').style.visibility = 'hidden';
-					progressText.textContent = 'Encoding...';
+					elem.querySelector('.progress').textContent = 'Encoding...';
 				}
 			}
 		};
 
 		xhr.onload = function(e) {
-			if (this.status == 200) {                
-				if (elem){
-					elem.querySelector('.circleProgressLoader').remove();
-					elem.querySelector('.image').style.filter = 'none';
-				}
+
+			if (this.status == 200) {
 				document.getElementById(tempId).dataset.downloaded = 'true';
+				elem.querySelector('.progress').style.visibility = 'hidden';
 				fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
 			}
 			else{
-				console.log('error uploading image');
-				popupMessage('Error uploading image');
-				elem.querySelector('.circleProgressLoader .animated').style.visibility = 'hidden';
-				elem.querySelector('.circleProgressLoader .progressPercent').textContent = 'Upload failed';
+				console.log('error uploading file');
+				popupMessage('Error uploading file');
+				elem.querySelector('.progress').textContent = 'Upload failed';
 				fileSocket.emit('fileUploadError', myKey, tempId, 'image');
 			}
-		};
-		xhr.send(formData);
-	};
-}
-
-function sendFileStoreRequest(type = null){
-	let tempId = makeId();
-	scrolling = false;
-
-	//const fileObject = new File([selectedFile.data], selectedFile.name, {type: selectedFile.ext});
-	const fileUrl = URL.createObjectURL(selectedFile.data);
-	
-	insertNewMessage(fileUrl, type ? type : 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name});
-	
-	let progress = 0;
-	const elem = document.getElementById(tempId)?.querySelector('.messageMain');
-
-	fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFile.ext, size: selectedFile.size, name: selectedFile.name}, myKey, (id) => {
-		outgoingmessage.play();
-		document.getElementById(tempId).classList.add('delevered');
-		document.getElementById(tempId).id = id;
-		tempId = id;
-		lastSeenMessage = id;
-		if (document.hasFocus()){
-			socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
-		}
-	});
-
-	const formData = new FormData();
-	formData.append('key', myKey);
-	formData.append('file', selectedFile.data);
-
-	clearFinalTarget();
-	//upload image via xhr request
-	const xhr = new XMLHttpRequest();
-	//send file via xhr post request
-	xhr.open('POST', location.origin + '/api/files/upload', true);
-	xhr.upload.onprogress = function(e) {
-		if (e.lengthComputable) {
-			progress = (e.loaded / e.total) * 100;
-			elem.querySelector('.progress').textContent = '↑ ' + Math.round(progress) + '%';
-			if (progress === 100){
-				elem.querySelector('.progress').textContent = 'Encoding...';
+			if (i == selectedFileArray.length - 1){
+				selectedFileArray.length = 0;
 			}
-		}
-	};
+		};
 
-	xhr.onload = function(e) {
+		xhr.send(formData);
 
-		if (this.status == 200) {
-			document.getElementById(tempId).dataset.downloaded = 'true';
-			elem.querySelector('.progress').style.visibility = 'hidden';
-			fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
+		if (i == 0){
+			clearFinalTarget();
 		}
-		else{
-			console.log('error uploading file');
-			popupMessage('Error uploading file');
-			elem.querySelector('.progress').textContent = 'Upload failed';
-			fileSocket.emit('fileUploadError', myKey, tempId, 'image');
-		}
-	};
-	xhr.send(formData);
+	}
 }
 
 let newMsgTimeOut = undefined;
@@ -2806,26 +2942,39 @@ document.querySelectorAll('.clickable').forEach(elem => {
 
 //listen for file paste
 window.addEventListener('paste', (e) => {
-	if (e.clipboardData) {
-		const items = e.clipboardData.items;
-		if (items) {
-			for (let i = 0; i < items.length; i++) {
-				if (items[i].kind === 'file') {
-					const file = items[i].getAsFile();
-					if (file.type.match('image.*')) {
-						selectedImage.data = file;
-						selectedImage.ext = file.type.split('/')[1];
-						selectedFile.name = shortFileName(file.name);
-						selectedFile.size = file.size;
-						selectedObject = 'image';
-						ImagePreview(file);
-					}
-				}
+	if (e.clipboardData.files?.length > 0) {
+		//if all files are images
+		if (Array.from(e.clipboardData.files).every(file => file.type.startsWith('image/'))){
+			//set it to photobutton
+			photoButton.files = e.clipboardData.files;
+			photoButton.dispatchEvent(new Event('change'));
+		}else{
+			//set it to filebutton
+			fileButton.files = e.clipboardData.files;
+			fileButton.dispatchEvent(new Event('change'));
+		}
+	}
+});
+
+
+window.addEventListener('drop', (evt) => {
+	evt.preventDefault();
+	fileDropZone.classList.remove('active');
+	if (evt.target.classList.contains('fileDropZoneContent')) {
+		if (evt.dataTransfer.files.length > 0) {
+			if (Array.from(evt.dataTransfer.files).every(file => file.type.startsWith('image/'))) {
+				//set it to photobutton
+				photoButton.files = evt.dataTransfer.files;
+				photoButton.dispatchEvent(new Event('change'));
+			} else {
+				//set it to filebutton
+				fileButton.files = evt.dataTransfer.files;
+				fileButton.dispatchEvent(new Event('change'));
 			}
 		}
 	}
-}
-);
+});
+  
 
 function shortFileName(filename){
 	if (filename.length > 30){
@@ -3062,10 +3211,15 @@ function sendAudioRecord(){
 			const file = new File([audioBlob], `Poketab-recording-${Date.now()}.mp3`, { type: 'audio/mpeg' });
 
 			// You can now use the audioFile object as a File object
-			selectedFile.data = file;
-			selectedFile.name = file.name;
-			selectedFile.size = file.size;
-			selectedFile.ext = 'mp3';
+			const data = file;
+			const name = file.name;
+			const size = file.size;
+			const ext = 'mp3';
+
+			const fileID = crypto.randomUUID();
+
+			selectedFileArray.length = 0;
+			selectedFileArray.push({data, name, size, ext, id: fileID});
 		
 			selectedObject = 'audio';
 		

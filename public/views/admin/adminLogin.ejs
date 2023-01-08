@@ -61,12 +61,24 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
+            opacity: 1;
+            transition: 100ms ease-in-out;
         }
         .title{
             margin-bottom: 1rem;
             font-size: 1.2rem;
             font-weight: 600;
         }
+
+        main{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+        }
+
         #admin{
             position: absolute;
             right: 0;
@@ -83,6 +95,8 @@
             background: #ffffff26;
             color: wheat;
             font-size: 0.8rem;
+            position: absolute;
+            z-index: 1;
         }
         img{
             width: 50px;
@@ -215,6 +229,7 @@
             padding: 20px;
             border-radius: 10px;
             gap: 10px;
+            z-index: 10;
         }
 
         #changePassword input:focus + label{
@@ -228,6 +243,10 @@
         #changePassword.active{
             transform: translate(-50%, -50%) !important;
             opacity: 1 !important;
+        }
+
+        #changePassword.active ~ .container{
+            opacity: 0;
         }
 
         #cancelChangePassword{
@@ -268,6 +287,25 @@
         #popuptext.active{
             opacity: 1;
             visibility: visible;
+        }
+
+        #display{
+            white-space: break-spaces;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 80vh;
+            background: #ffffff0d;
+            backdrop-filter: blur(1px);
+            margin: 5px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            color: #ffd400;
+            overflow: scroll;
+            visibility: visible;
+        }
+
+        #display:empty{
+            visibility: hidden;
         }
 
     </style>
