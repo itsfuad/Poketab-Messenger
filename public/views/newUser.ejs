@@ -555,15 +555,19 @@
 </head>
 <body>
     <div class="title">
-        <a href="https://docs.poketab.live" target="_blank"><img src="/images/pikachu-mini.png" height="50px" width="50px" alt="Pikachu"></a>
+        <a href="https://docs.poketab.live" target="_blank"><img src="/images/pikachu-mini.png" height="40px" width="40px" alt="Pikachu"></a>
         <div class="titletext">Poketab Messanger</div>
     </div>
     <div class="container">
         <form class="form" id="form" method="post" action="/chat">
             <% if (title === 'Join') { %>
-            <div class="subform" id="subform1">
+            <% if (key) { %>
+              <div class="subform done" id="subform1">
+            <% } else { %>
+              <div class="subform" id="subform1">
+            <% } %>
                 <div class="form-field">
-                    <label for="key" id="keyLabel"><%-key_label%></label>
+                    <label for="key" id="keyLabel">Enter key <i id='lb__icon' class="fa-solid fa-key"></i></label>
                     <div id="keyErr" class="errLog"></div>
                     <% if (key) { %>
                         <input type="text" autocomplete="off" name="key" id="key" placeholder="xxx-xxx-xxx-xxx" value="<%=key_%>">
@@ -584,9 +588,13 @@
             <% } %>
             <% if (title === 'Create') { %>
             <div class="subform active" id="subform2">
-              <% } else { %>
-            <div class="subform" hidden id="subform2">
-              <% } %>
+            <% } else { %>
+            <% if (key) { %>
+              <div class="subform active" id="subform2">
+            <% } else { %>
+                <div class="subform" hidden id="subform2">
+            <% } %>
+            <% } %>
                 <div class="form-field">
                     <label for="username" class="label-name">Choose Username <i class="fa-solid fa-signature"></i></label>
                     <div id="usernameErr" class="errLog"></div>
@@ -638,20 +646,16 @@
     </div>
 
     <%- include ('layout/entryfooter.ejs') %>
-
+    <% if (key) { %>
+      <script defer nonce="<%=hash%>">
+          window.autoFetch = true;
+      </script>
+    <% } %>
     <% if (title === 'Create') { %>
         <script type="module" defer src="/scripts/login/createchat.min.js"></script>
     <% } else if (title === 'Join') { %>
         <script type="module" src="/socket.io/socket.io.js"></script>
         <script type="module" defer src="/scripts/login/joinchat.min.js"></script>
-    <% } %>
-
-    <% if (key) { %>
-        <script type="module" nonce="<%=hash%>">
-            document.addEventListener('DOMContentLoaded', () => {
-                document.getElementById('next').click();
-            });
-        </script>
     <% } %>
 </body>
 </html>

@@ -356,7 +356,7 @@
                 <button class="button" id="fetchData">Fetch</button>
                 <button class="button logout">Logout</button>
             </div>
-            <script type="module" nonce="<%=hash%>">
+            <script nonce="<%=hash%>">
                 const logout = document.querySelector('.logout');
                 logout.addEventListener('click', () => {
                     popuptextContent.textContent = 'Logging out...';
@@ -369,6 +369,7 @@
                         }
                     });
                 });
+
                 fetchData.addEventListener('click', () => {
                     updateActiveUsers();
                 });
@@ -398,7 +399,7 @@
         const popup = document.getElementById('popuptext');
         const popuptextContent = document.querySelector('.textContent');
 
-        const sessionId = document.getElementById('session').textContent.trim();
+        let sessionId = document.getElementById('session').textContent.trim();
         document.getElementById('session').remove();
 
         function updateActiveUsers(){
@@ -490,7 +491,11 @@
 
                     if (res.status === 200){
                         //do something
+                        res.json().then(data => {
+                            sessionId = data.sessionID;
+                        });
                         const p = document.createElement('p');
+                        p.classList.add('in');
                         p.textContent = 'You are logged in';
                         display.innerHTML = '';
                         display.appendChild(p);

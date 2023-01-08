@@ -143,16 +143,23 @@ app.get('/join', (_, res) => {
 	res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);
 	res.setHeader('Developer', 'Fuad Hasan');
 	res.clearCookie('key');
-	res.render('newUser', {title: 'Join', avList: avList, version: `v.${version}`, key: null, key_label: 'Enter key <i id=\'lb__icon\' class="fa-solid fa-key"></i>', hash: nonce});
+	res.render('newUser', {title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce});
 });
 
 app.get('/join/:key', (req, res)=>{
 	const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
 	if (key_format.test(req.params.key)){
-		const nonce = crypto.randomBytes(16).toString('hex');
-		res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'unsafe-inline' 'self'; script-src 'self' 'nonce-${nonce}';`);
-		res.setHeader('Developer', 'Fuad Hasan');
-		res.render('newUser', {title: 'Join', avList: avList, key_label: 'Checking <i id=\'lb__icon\' class="fa-solid fa-circle-notch fa-spin"></i>' , version: `v.${version}`, key: req.params.key, hash: nonce});
+		if (Keys.hasKey(req.params.key)){
+			const nonce = crypto.randomBytes(16).toString('hex');
+			res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'unsafe-inline' 'self'; script-src 'self' 'nonce-${nonce}';`);
+			res.setHeader('Developer', 'Fuad Hasan');
+			res.render('newUser', {title: 'Join', avList: avList, version: `v.${version}`, key: req.params.key, hash: nonce});
+		}else{
+			res.setHeader('Content-Security-Policy', 'script-src \'none\'');
+			res.setHeader('Developer', 'Fuad Hasan');
+			res.clearCookie('key');
+			res.render('errors/errorRes', {title: 'Ghost key', errorCode: '404', errorMessage: 'Key does not exist', buttonText: 'Die'});
+		}
 	}
 	else{
 		res.redirect('/join');
@@ -160,7 +167,7 @@ app.get('/join/:key', (req, res)=>{
 });
 
 app.get('/error', (_, res) => {
-	res.setHeader('Content-Security-Policy', 'default-src \'self\';');
+	res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 	res.setHeader('Developer', 'Fuad Hasan');
 	res.clearCookie('key');
 	res.render('errors/errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized Access', buttonText: 'Suicide'});
@@ -242,7 +249,7 @@ app.post('/chat', (req, res) => {
 			res.setHeader('Developer', 'Fuad Hasan');
 			res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 			res.clearCookie('key');
-			res.render('errors/errorRes', {title: 'You\'re Late!', errorCode: '440', errorMessage: 'Session Expired', buttonText: 'Renew'});
+			res.render('errors/errorRes', {title: 'No session!', errorCode: '440', errorMessage: 'Session Expired', buttonText: 'Renew'});
 		}
 	}else if(key && Keys.hasKey(key)) {
 		//Key exists, so the request is a join request

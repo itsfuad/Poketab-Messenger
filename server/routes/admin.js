@@ -50,6 +50,10 @@ router.post('/', (req, res) => {
 	const admin_username = process.env.ADMIN_USERNAME;
 	const admin_password = process.env.ADMIN_PASSWORD;
 
+	const sessionID = crypto.randomUUID();
+
+	AdminSessionSecret.set('Admin', sessionID);
+
 	//console.log('Got post request for admin page');
 	
 	if (username == admin_username && password == admin_password){
@@ -58,11 +62,11 @@ router.post('/', (req, res) => {
 		const signature = crypto.createHmac('sha256', HMAC_KEY).update(admin_username + salt + admin_password).digest('hex');
 		process.env.SALT = salt;
 		res.cookie('auth', signature, {maxAge: 900000, httpOnly: true, sameSite: 'strict', signed: true});
-		res.status(200).send('Authorized');
+		res.status(200).send({message: 'Authorized', sessionID: sessionID});
 	}else{
 		console.log('Admin login failed');
 		res.clearCookie('auth');
-		res.status(403).send('Unauthorized');
+		res.status(403).send({message: 'Unauthorized'});
 	}
 });
 
@@ -74,8 +78,6 @@ router.post('/data', cookieParser(), (req, res) => {
 	const admin_password = process.env.ADMIN_PASSWORD;
 
 	const sessionId = req.body.sessionID;
-
-	console.log(sessionId, AdminSessionSecret.get('Admin'));
 
 	const signature = crypto.createHmac('sha256', HMAC_KEY).update(admin_username + salt + admin_password).digest('hex');
 

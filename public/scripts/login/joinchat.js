@@ -58,30 +58,38 @@ const keyElem = document.getElementById('key');
 	});
 });
 
+function emitSignal(){
+	const key = document.getElementById('key').value;
+	socket.emit('joinRequest', key, (response) => {
+		document.getElementById('keyLabel').innerHTML = 'Enter key <i id=\'lb__icon\' class="fa-solid fa-key"></i>';
+		if (response.success){
+			const usersData = response.message;
+			//remove existing avatars
+			usersData.forEach(userData => {
+				const avatar = document.getElementById(userData.avatar);
+				avatar.closest('.avatar').querySelector('img').classList.add('taken');
+				avatar.remove();
+				hashes.push(userData.hash);
+			});
+
+			form1.classList.add('done');
+			form2.classList.add('active');
+		}else{
+			errlog('keyErr', `${response.message} <i class="fa-solid fa-ghost"></i>`);
+		}
+	});
+}
+
 next.addEventListener('click', (e) => {
 	e.preventDefault();
 	document.getElementById('keyLabel').innerHTML = 'Checking <i id=\'lb__icon\' class="fa-solid fa-circle-notch fa-spin"></i>';
 	if (validateKey()){
-		const key = document.getElementById('key').value;
-		socket.emit('joinRequest', key, (response) => {
-			document.getElementById('keyLabel').innerHTML = 'Enter key <i id=\'lb__icon\' class="fa-solid fa-key"></i>';
-			if (response.success){
-				const usersData = response.message;
-				//remove existing avatars
-				usersData.forEach(userData => {
-					const avatar = document.getElementById(userData.avatar);
-					avatar.closest('.avatar').querySelector('img').classList.add('taken');
-					avatar.remove();
-					hashes.push(userData.hash);
-				});
-
-				form1.classList.add('done');
-				form2.classList.add('active');
-			}else{
-				errlog('keyErr', `${response.message} <i class="fa-solid fa-ghost"></i>`);
-			}
-		});
+		emitSignal();
 	}
 });
+
+if (window.autoFetch){
+	emitSignal();
+}
 
 console.log('%cjoinchat.js loaded', 'color: limegreen;');
