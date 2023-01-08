@@ -6,7 +6,7 @@ import { fileSocket } from './fileSocket.js';
 import Mustache from '../../libs/mustache.js';
 import {Stickers} from '../../stickers/stickersConfig.js';
 import { Prism } from '../../libs/prism/prism.min.js';
-import { PanZoom } from '../../libs/panzoom.js';
+import { PanZoom } from '../../libs/panzoom.min.js';
 import { themeAccent, themeArray } from './themes.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
