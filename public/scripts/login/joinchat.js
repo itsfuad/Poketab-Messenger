@@ -90,6 +90,7 @@ next.addEventListener('click', (e) => {
 
 if (window.autoFetch){
 	emitSignal();
+	window.autoFetch = undefined;
 }
 
 console.log('%cjoinchat.js loaded', 'color: limegreen;');

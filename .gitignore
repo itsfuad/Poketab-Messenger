@@ -5,10 +5,6 @@ entry.css
 entry.css.map
 message.css
 message.css.map
-mustache.js
-panzoom.js
-demo.js
 bundle.js.LICENSE.txt
 .env
-*.qml
 *.html
