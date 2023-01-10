@@ -1,7 +1,7 @@
 {
     "name": "PokeTab Messenger",
     "short_name": "PokeTab",
-    "start_url": "/join",
+    "start_url": "/create",
     "display": "standalone",
     "background_color": "#111d2a",
     "theme_color": "#111d2a",

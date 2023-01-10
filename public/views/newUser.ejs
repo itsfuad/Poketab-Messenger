@@ -642,7 +642,7 @@
 
     <%- include ('layout/entryfooter.ejs') %>
     <% if (key) { %>
-      <script defer nonce="<%=hash%>">
+      <script id="autoFetch" defer nonce="<%=hash%>">
           window.autoFetch = true;
       </script>
     <% } %>

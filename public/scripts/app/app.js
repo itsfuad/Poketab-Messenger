@@ -10,9 +10,11 @@ import { PanZoom } from '../../libs/panzoom.min.js';
 import { themeAccent, themeArray } from './themes.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
-console.log(document.currentScript);
 
-//main message Element where all messages are inserted
+
+
+
+//main message Element where all messages araree inserted
 const messages = document.getElementById('messages');
 
 const maxWindowHeight = window.innerHeight; //max height of the window
