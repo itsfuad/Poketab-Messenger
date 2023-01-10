@@ -10,6 +10,7 @@ import { PanZoom } from '../../libs/panzoom.min.js';
 import { themeAccent, themeArray } from './themes.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
+console.log(document.currentScript);
 
 //main message Element where all messages are inserted
 const messages = document.getElementById('messages');
@@ -332,7 +333,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 								a 40 40 0 0 1 0 -80">
 						</path>
 					</svg>
-					<div class="progressPercent">Uploading...</div>
+					<div class="progressPercent">Not uploaded yet</div>
 				</div>
 			</div>
 			`; //insert the image
@@ -2687,10 +2688,10 @@ async function sendImageStoreRequest(){
 				if (e.lengthComputable) {
 					progress = (e.loaded / e.total) * 100;
 					progresCircle.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
-					progressText.textContent = '↑ ' + Math.round(progress) + '%';
+					progressText.textContent = `${Math.round(progress)}%`;
 					if (progress === 100){
 						progresCircle.querySelector('.animated').style.visibility = 'hidden';
-						progressText.textContent = 'Encoding...';
+						progressText.textContent = 'Finishing...';
 					}
 				}
 			};
@@ -2762,9 +2763,9 @@ function sendFileStoreRequest(type = null){
 		xhr.upload.onprogress = function(e) {
 			if (e.lengthComputable) {
 				progress = (e.loaded / e.total) * 100;
-				elem.querySelector('.progress').textContent = '↑ ' + Math.round(progress) + '%';
+				elem.querySelector('.progress').textContent = `${Math.round(progress)}%`;
 				if (progress === 100){
-					elem.querySelector('.progress').textContent = 'Encoding...';
+					elem.querySelector('.progress').textContent = 'Finishing...';
 				}
 			}
 		};

@@ -34,7 +34,7 @@ if ('serviceWorker' in navigator){
 		navigator.serviceWorker
 			.register('./serviceWorkerPoketabS.min.js')
 			.then(() => {
-				console.log('Service Worker Registered');
+				console.log('%cService Worker Registered', 'color: limegreen');
 			})
 			.catch(err => console.log(`Service Worker: Error ${err}`));
 	});

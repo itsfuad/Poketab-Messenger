@@ -6,7 +6,7 @@
 <body>
     <!--Preload screen [Logging in..]-->
     <div id="preload">
-        <div class="text">Connecting to server</div><i class="fa-solid fa-circle-notch fa-spin"></i>
+        <div class="text">Connecting</div><i class="fa-solid fa-circle-notch fa-spin"></i>
     </div>
     <!--Offline Indicator-->
     <div class="offline">
@@ -59,12 +59,8 @@
                         <span><%=myKey%></span>
                         <i class="fa-regular fa-clone"></i>
                     </div>
-                    <% if (maxUser > 2) { %>
-                        <span>Send join link to your friends</span>
-                    <% } else { %>
-                        <span>Send join link to your friend</span>
-                    <% } %>
-                    <span id="invite" class="clickable" title="Click to invite">Invite</span>
+                    <span>Share this chat link</span>
+                    <span id="invite" class="clickable" title="Click to share">Share</span>
                 </li>
             </div>
             <!-- All messages will be added here -->
