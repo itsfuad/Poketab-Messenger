@@ -230,11 +230,12 @@ app.post('/chat', (req, res) => {
 					const max_users = req.body.maxuser;
 					//generate random uid for the user
 					const uid = crypto.randomUUID();
-			
+					const nonce = crypto.randomBytes(16).toString('hex');
+
 					res.setHeader('Developer', 'Fuad Hasan');
 					res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
 					res.setHeader('Cluster', `ID: ${process.pid}`);
-					res.render('chat/chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer, ENV: ENVIRONMENT});
+					res.render('chat/chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer, ENV: ENVIRONMENT, hash: nonce});
 				}else{
 					//clash of keys
 					//console.log(`Key clash found: ${key}!`);
@@ -266,13 +267,14 @@ app.post('/chat', (req, res) => {
 
 			const max_users = Keys[key]?.maxUser;
 			const uid = crypto.randomUUID();
+			const nonce = crypto.randomBytes(16).toString('hex');
 
 			//console.log(`Redirecting to old chat with key: ${key}`);
 			
 			res.setHeader('Developer', 'Fuad Hasan');
 			res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
 			res.setHeader('Cluster', `ID: ${process.pid}`);
-			res.render('chat/chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer, ENV: ENVIRONMENT});
+			res.render('chat/chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer, ENV: ENVIRONMENT, hash: nonce});
 		}
 	}else{
 		//console.log('No session found for this request.');

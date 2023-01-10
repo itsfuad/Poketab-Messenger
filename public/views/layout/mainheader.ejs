@@ -1,4 +1,4 @@
-
+ 
   <meta name="theme-color" content="#111d2a" />
   <!--social media preview tag-->
   <meta name="title" content="Poketab Messanger"/>
@@ -41,11 +41,8 @@
   <link rel="preload" as="image" type="image/webp" href="/images/backgrounds/dark_mood_w.webp">
   <link rel="preload" as="image" type="image/webp" href="/images/backgrounds/forest_w.webp">
   <link rel="preload" as="image" type="image/webp" href="/images/backgrounds/geometry_w.webp">
-  <link rel="preload" as="style" href="/libs/fontawesome/css/all.min.css">
-  <link rel="preload" as="style" href="/styles/chat.min.css?v=24">
-  <link rel="preload" as="style" href="/styles/message.min.css?v=24">
-  <link rel="preload" as="font" type="font/woff2" href="/fonts/comic-webfont.woff2">
-  <link rel="preload" as="script" type="text/javascript" href="/scripts/bundle/bundle.js?v=25">
+  <link rel="preload" as="style" href="/libs/fontawesome/css/all.min.css" crossorigin="anonymous">
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/comic-webfont.woff2" crossorigin="anonymous">
   <meta charset="utf-8">
   <title>Inbox</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, interactive-widget=resizes-content">
@@ -58,7 +55,41 @@
   <link rel="icon" href="/images/avatars/pikachu.png">
 
   <% if (ENV === 'PRODUCTION') { %>
-    <script type="module" defer src="/scripts/app/bundle/bundle.js?v=26"></script>
+    <script type="module" defer src="/scripts/app/bundle/bundle.js"></script>
   <% } else { %>
     <script defer type="module" src="/scripts/app/app.js"></script>
   <% } %>
+
+  <style nonce="<%=hash%>">
+    @font-face {
+        font-family: Comic;
+        src: url('/fonts/comic-webfont.woff2') format('woff2'),
+            url('/fonts/comic-webfont.woff') format('woff');
+    }
+    *{
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        font-family: Comic;
+    }
+    #preload{
+        z-index: 100; 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        bottom: 0; 
+        right: 0; 
+        display:flex; 
+        flex-direction:row; 
+        gap: 5px; 
+        align-items:center; 
+        justify-content:center; 
+        background: var(--primary-dark, #111d2a); 
+    }
+    .text{
+        color: var(--secondary-dark, hsl(213, 98%, 57%));
+    }
+    .text i{
+        color: var(--secondary-dark, hsl(213, 98%, 57%));
+    }
+  </style>

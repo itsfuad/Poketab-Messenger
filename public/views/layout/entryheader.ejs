@@ -40,9 +40,23 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<link rel="preload" as="font" type="font/woff2" href="/fonts/comic-webfont.woff2">
+<link rel="preload" as="font" type="font/woff2" href="/fonts/comic-webfont.woff2" crossorigin="anonymous">
 <link rel="stylesheet" href="/libs/fontawesome/css/all.min.css">
 
 <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
 <link rel="icon" href="/images/avatars/pikachu.png">
 <title><%= title %></title>
+
+<style nonce="<%=hash%>">
+    @font-face {
+        font-family: Comic;
+        src: url('/fonts/comic-webfont.woff2') format('woff2'),
+            url('/fonts/comic-webfont.woff') format('woff');
+    }
+    *{
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        font-family: Comic;
+    }
+</style>
