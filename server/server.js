@@ -135,7 +135,7 @@ app.get('/create', (req, res) => {
 
 	//st cookie for 2 minutes
 	res.cookie('key', key, {maxAge: 120000, httpOnly: true, signed: true, sameSite: 'strict', signature: signature});
-	res.render('newUser', {title: 'Create', avList: avList, key: null, version: `v.${version}`, hash: nonce});
+	res.render('login/newUser', {title: 'Create', avList: avList, key: null, version: `v.${version}`, hash: nonce, takenAvlists: null});
 });
 
 app.get('/join', (_, res) => {
@@ -143,17 +143,18 @@ app.get('/join', (_, res) => {
 	res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);
 	res.setHeader('Developer', 'Fuad Hasan');
 	res.clearCookie('key');
-	res.render('newUser', {title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce});
+	res.render('login/newUser', {title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce, takenAvlists: null});
 });
 
 app.get('/join/:key', (req, res)=>{
 	const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
 	if (key_format.test(req.params.key)){
 		if (Keys.hasKey(req.params.key)){
+			const takenAvlists = Keys.getUserList(req.params.key).map((user) => user.avatar);
 			const nonce = crypto.randomBytes(16).toString('hex');
 			res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'unsafe-inline' 'self'; script-src 'self' 'nonce-${nonce}';`);
 			res.setHeader('Developer', 'Fuad Hasan');
-			res.render('newUser', {title: 'Join', avList: avList, version: `v.${version}`, key: req.params.key, hash: nonce});
+			res.render('login/newUser', {title: 'Join', avList: avList, version: `v.${version}`, key: req.params.key, hash: nonce, takenAvlists: takenAvlists});
 		}else{
 			res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 			res.setHeader('Developer', 'Fuad Hasan');
@@ -222,20 +223,9 @@ app.post('/chat', (req, res) => {
 			}else{
 				//valid key found. Now user can join the chat
 				//check if the key is not in use
-
 				if (!Keys.hasKey(key)){
-
 					//console.log(`Valid Key found: ${key}! Creating new chat`);
-					//get the max user from the request
-					const max_users = req.body.maxuser;
-					//generate random uid for the user
-					const uid = crypto.randomUUID();
-					const nonce = crypto.randomBytes(16).toString('hex');
-
-					res.setHeader('Developer', 'Fuad Hasan');
-					res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
-					res.setHeader('Cluster', `ID: ${process.pid}`);
-					res.render('chat/chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer, ENV: ENVIRONMENT, hash: nonce});
+					approveNewChatRequest(res, {username: username, key: key, avatar: avatar, max_users: req.body.maxuser});
 				}else{
 					//clash of keys
 					//console.log(`Key clash found: ${key}!`);
@@ -247,10 +237,7 @@ app.post('/chat', (req, res) => {
 		}else{
 			//console.log('No Key or Cookie found in cookie');
 			//console.log('No session found for this request.');
-			res.setHeader('Developer', 'Fuad Hasan');
-			res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-			res.clearCookie('key');
-			res.render('errors/errorRes', {title: 'No session!', errorCode: '440', errorMessage: 'Session Expired', buttonText: 'Renew'});
+			blockNewChatRequest(res, {title: 'No session!', errorCode: '440', errorMessage: 'Session Expired', buttonText: 'Renew'});
 		}
 	}else if(key && Keys.hasKey(key)) {
 		//Key exists, so the request is a join request
@@ -258,33 +245,36 @@ app.post('/chat', (req, res) => {
 		//Check if the key has reached the maximum user limit
 		if (Keys[key].userCount >= Keys[key].maxuser){
 			//console.log(`Maximum user reached. User is blocked from key: ${key}`);
-			res.setHeader('Developer', 'Fuad Hasan');
-			res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-			res.render('errors/errorRes', {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
+			blockNewChatRequest(res, {title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide'});
 		}else{
 			//if user have room to enter the chat
 			//console.log('User have permission to join this chat');
-
-			const max_users = Keys[key]?.maxUser;
-			const uid = crypto.randomUUID();
-			const nonce = crypto.randomBytes(16).toString('hex');
-
 			//console.log(`Redirecting to old chat with key: ${key}`);
-			
-			res.setHeader('Developer', 'Fuad Hasan');
-			res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
-			res.setHeader('Cluster', `ID: ${process.pid}`);
-			res.render('chat/chat', {myName: username, myKey: key, myId: uid, myAvatar: avatar, maxUser: max_users, version: `${version}`, developer: developer, ENV: ENVIRONMENT, hash: nonce});
+			approveNewChatRequest(res, {username: username, key: key, avatar: avatar, max_users: Keys[key]?.maxUser});
 		}
 	}else{
 		//console.log('No session found for this request.');
-		res.setHeader('Developer', 'Fuad Hasan');
-		res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-		res.clearCookie('key');
-		res.render('errors/errorRes', {title: 'Not found', errorCode: '404', errorMessage: 'Session Key not found', buttonText: 'Renew'});
+		blockNewChatRequest(res, {title: 'Not found', errorCode: '404', errorMessage: 'Session Key not found', buttonText: 'Renew'});
 	}
-
 });
+
+function blockNewChatRequest(res, message){
+	res.setHeader('Developer', 'Fuad Hasan');
+	res.setHeader('Content-Security-Policy', 'script-src \'none\'');
+	res.clearCookie('key');
+	res.render('errors/errorRes', {title: message.title, errorCode: message.errorCode, errorMessage: message.errorMessage, buttonText: message.buttonText});
+}
+
+function approveNewChatRequest(res, data){
+
+	const uid = crypto.randomUUID();
+	const nonce = crypto.randomBytes(16).toString('hex');
+
+	res.setHeader('Developer', 'Fuad Hasan');
+	res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
+	res.setHeader('Cluster', `ID: ${process.pid}`);
+	res.render('chat/chat', {myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, version: `${version}`, developer: developer, ENV: ENVIRONMENT, hash: nonce});
+}
 
 app.get('/offline', (_, res) => {
 	res.setHeader('Developer', 'Fuad Hasan');

@@ -548,7 +548,7 @@
       }
     }/*# sourceMappingURL=entry.css.map */
   </style>
-    <%- include ('layout/entryheader.ejs') %> 
+    <%- include ('./../layout/entryheader.ejs') %> 
 </head>
 <body>
     <div class="title">
@@ -601,7 +601,7 @@
                     <div id="avatarErr" class="errLog"></div>
                     <label for="avatar">Pick an avatar <i class="fa-solid fa-user-astronaut"></i></label>
                     <div class="avatar-container">
-                        <%- include ('layout/avatars.ejs') %> 
+                        <%- include ('./../layout/avatars.ejs') %> 
                     </div>
                 </div>
                 <% if (title === 'Create') { %>
@@ -640,7 +640,7 @@
         </ul>
     </div>
 
-    <%- include ('layout/entryfooter.ejs') %>
+    <%- include ('./../layout/entryfooter.ejs') %>
     <% if (key) { %>
       <script id="autoFetch" defer nonce="<%=hash%>">
           window.autoFetch = true;

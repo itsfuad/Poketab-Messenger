@@ -67,8 +67,10 @@ function emitSignal(){
 			//remove existing avatars
 			usersData.forEach(userData => {
 				const avatar = document.getElementById(userData.avatar);
-				avatar.closest('.avatar').querySelector('img').classList.add('taken');
-				avatar.remove();
+				if (avatar){
+					avatar.closest('.avatar').querySelector('img').classList.add('taken');
+					avatar.remove();
+				}
 				hashes.push(userData.hash);
 			});
 
@@ -90,6 +92,7 @@ next.addEventListener('click', (e) => {
 
 if (window.autoFetch){
 	emitSignal();
+	console.log('%cAuto-fetching key', 'color: limegreen;');
 	window.autoFetch = undefined;
 	document.getElementById('autoFetch').remove();
 }
