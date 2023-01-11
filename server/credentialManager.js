@@ -17,9 +17,8 @@ Keys.addUser = (key, user) => {
 	if (!Keys[key]) {
 		Keys[key] = new Key();
 	}
-	Keys[key].addUser(user);
-	//console.log(`${user.username} joined key: ${key}`);
+	Keys[key].__addUser(user);
+	console.log(`${user.username} joined key: ${key}`);
 };
-  
 
 module.exports = { Keys, SocketIds };

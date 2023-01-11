@@ -7,7 +7,7 @@ const { isRealString, reactArray } = require('./utils/validation');
 const { Keys, SocketIds } = require('./credentialManager');
 const { Key } = require('./database/schema/Key');
 
-const { User } = require('./database/schema/user');
+const { User } = require('./database/schema/User');
 
 const crypto = require('crypto');
 
@@ -22,29 +22,29 @@ io.on('connection', (socket) => {
 	try{
 		socket.on('join', (params, callback) => {
 			if (!isRealString(params.name) || !isRealString(params.key)) {
-				return callback('empty');
+				return callback('Empty informations');
 			}
 			if (params.avatar === undefined) {
-				return callback('avatar');
+				return callback('Invalid Avatar');
 			}
 			if (Keys[params.key]?.userCount >= Keys[params.key]?.maxUser){
 				return callback('Key is full.');
 			}
-
+			
 			if (!Keys[params.key]){
 				Keys[params.key] = new Key(params.key);
 				Keys[params.key].maxUser = params.maxuser;
-				//console.log(`Key ${params.key} max user set to ${params.maxuser}`);
+				console.log(`Key ${params.key} max user set to ${params.maxuser}`);
 			}
 			
 			Keys.addUser(params.key, new User(params.name, params.id, params.avatar));
 
-			//console.log(`User ${params.name} joined key ${params.key} | ${Keys.getUserList(params.key).length} user(s) out of ${Keys[params.key].maxUser}`);
+			console.log(`User ${params.name} joined key ${params.key} | ${Keys.getUserList(params.key).length} user(s) out of ${Keys[params.key].maxUser}`);
 
 			const userList = Keys.getUserList(params.key);
 
 			callback();
-	
+			
 			socket.join(params.key);
 	
 			SocketIds[socket.id] = {uid: params.id, key: params.key};
@@ -54,7 +54,6 @@ io.on('connection', (socket) => {
 			socket.emit('server_message', {color: 'limegreen', text: 'You joined the chat.🔥', id: srvID}, 'join');
 			socket.broadcast.to(params.key).emit('server_message', {color: 'limegreen', text: `${params.name} joined the chat.🔥`, id: srvID}, 'join');
 		});
-	
 	
 		socket.on('message', (message, type, uId, reply, replyId, options, callback) => {
 			//const user = users.getUser(uids.get(socket.id));
@@ -93,7 +92,6 @@ io.on('connection', (socket) => {
 			}
 		});
 	
-	
 		socket.on('react', (target, messageId, myId) => {
 			if (SocketIds[socket.id]){
 				if (reactArray.primary.includes(target) || reactArray.expanded.includes(target)) {
@@ -101,7 +99,6 @@ io.on('connection', (socket) => {
 				}
 			}
 		});
-	
 	
 		socket.on('deletemessage', (messageId, msgUid, userName, userId) => {
 			if (SocketIds[socket.id]){
@@ -118,7 +115,6 @@ io.on('connection', (socket) => {
 			}
 		});
 	
-	
 		socket.on('typing', () => {
 			if (SocketIds[socket.id]){
 				const key = SocketIds[socket.id].key;
@@ -126,6 +122,7 @@ io.on('connection', (socket) => {
 				socket.broadcast.to(key).emit('typing', username, uid);
 			}
 		});
+
 		socket.on('stoptyping', () => {
 			if (SocketIds[socket.id]){
 				const key = SocketIds[socket.id].key;
@@ -133,18 +130,18 @@ io.on('connection', (socket) => {
 				socket.broadcast.to(key).emit('stoptyping', uid);
 			}
 		});
-	
-	
+		
 		socket.on('disconnect', () => {
 			//console.log('User disconnected');
 			if (SocketIds[socket.id]){
 				const key = SocketIds[socket.id].key;
 		
 				const user = Keys[key].getUser(SocketIds[socket.id].uid);
-				//console.log(`User ${user.username} disconnected from key ${user.key} | ${key}`);
+				console.log(`User ${user.username} disconnected from key ${user.key} | ${key}`);
+				
 				Keys[key].removeUser(SocketIds[socket.id].uid);
 				delete SocketIds[socket.id];
-		
+
 				const users = Keys[key].getUserList();
 		
 				socket.broadcast.to(key).emit('updateUserList', users);

@@ -105,10 +105,7 @@ function checkBrowser(req, res, next) {
 	const version = useragent.version;
 
 	if (browser in supportedBrowsers != true || compareVersions(supportedBrowsers[browser], version) == -1) {
-		res.setHeader('Content-Security-Policy', 'script-src \'none\';');
-		res.setHeader('Developer', 'Fuad Hasan');
-		res.render('errors/errorRes', {title: 'Alien Detected!', errorCode: '403', errorMessage: 'Use recent Chrome for best performance :)', buttonText: 'Got it'});
-		return;
+		blockNewChatRequest(res, {title: 'Alien Detected!', errorCode: '403', errorMessage: 'Use recent Chrome for best performance :)', buttonText: 'Got it'});
 	}
 	next();
 }

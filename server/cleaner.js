@@ -11,7 +11,7 @@ function markForDelete(userId, key, filename){
 		file.uids = file.uids != null ? file.uids.add(userId) : new Set();
 		//console.log(file);
 		if (Keys[key].maxUser == file.uids.size) {
-			console.log(`${filename} deleted as all users downloaded | Process ID: ${process.pid}`);
+			console.log(`${filename} deleted as trunk | Process ID: ${process.pid}`);
 			//rm(`uploads/${filename}`);
 			unlink(`uploads/${filename}`);
 			deleteFileStore(filename);
@@ -24,7 +24,6 @@ function markForDelete(userId, key, filename){
 }
 
 function cleanJunks(){
-	console.log(`Cleaning junk files | Process ID: ${process.pid}`);
 	readdir('uploads').then(files => {
 		const filesToDelete = files.map( file => {
 			if (file != 'dummy.txt'){
@@ -32,6 +31,7 @@ function cleanJunks(){
 			}
 		});
 		Promise.all(filesToDelete);
+		console.log(`Cleaning junk files | Process ID: ${process.pid}`);
 	}).catch(err => {
 		console.log(err);
 	});
