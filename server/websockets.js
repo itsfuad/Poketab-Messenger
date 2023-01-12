@@ -141,6 +141,7 @@ io.on('connection', (socket) => {
 				
 				Keys[key].removeUser(SocketIds[socket.id].uid);
 				delete SocketIds[socket.id];
+				socket.leave(key);
 
 				const users = Keys[key].getUserList();
 		
