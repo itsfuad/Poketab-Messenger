@@ -1,12 +1,26 @@
-# Poketab-Messanger
-Temporary Realtime chatting application for 2-15 peoples. 
+# Poketab Messenger
 
-Features -
-* No database / stored message.
-* Dynamic chat join link which expires after no user left on that chat. 
-* Image & file sharing.
-* Reply to messages.
-* Share your current location.
+Poketab Messenger is a temporary chat application that allows users to create and join group chats with up to 10 people. The app utilizes a unique key system to ensure privacy and security, as users can only join a chat by using a key generated and sent by the server.
+
+## Key Features
+- Create and join group chats with up to 10 people
+- Share images, files, audio, and stickers with others in the chat
+- Built-in audio player and recorder to play and record audio within the app
+- React to messages and reply to specific messages
+- Share your location with others in the chat
+- All data is stored only on the device, ensuring maximum privacy and security
+
+## Getting Started
+1. Open the browser of your choice on any device and navigate to https://poketab.live
+2. Once the site is loaded, create a new chat or join an existing one by using the provided key.
+3. Start chatting and sharing files, images, audio, and stickers with others in the chat.
+4. Use the built-in audio player and recorder to play and record audio within the app.
+5. React to messages and reply to specific messages.
+
+**Note:** Poketab Messenger is a Progressive Web App (PWA) and does not require any heavy installation. It can be accessed on any device and browser that supports web standards.
+
+Poketab Messenger is perfect for anyone looking for a secure and temporary chat option. Give it a try today!
+
 
 
 ## Looking for sticker artist
