@@ -256,6 +256,11 @@ fieldset{
     }
 }
 
+.avatar{
+    background: #ffffff0d;
+    border-radius: 50%;
+}
+
 input[type="radio"] {
     display: none;
     &:checked + label img{

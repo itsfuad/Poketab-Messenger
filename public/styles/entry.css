@@ -256,6 +256,11 @@ fieldset a:hover {
   filter: saturate(100%);
 }
 
+.avatar {
+  background: rgba(255, 255, 255, 0.0509803922);
+  border-radius: 50%;
+}
+
 input[type=radio] {
   display: none;
 }
