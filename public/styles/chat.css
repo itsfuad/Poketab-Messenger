@@ -1,7 +1,3 @@
-@font-face {
-  font-family: Comic;
-  src: url("/fonts/comic-webfont.woff2");
-}
 * {
   padding: 0;
   margin: 0;
@@ -227,6 +223,16 @@ img:is(.sticker) {
   z-index: 20;
 }
 
+.button {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  border-radius: 24px;
+  padding: 5px 10px;
+  align-items: center;
+  justify-content: center;
+}
+
 #sidebar {
   padding: 10px 10px 0 10px;
   border-radius: 0 5px 5px 0;
@@ -296,15 +302,6 @@ img:is(.sticker) {
   width: 100%;
   align-items: center;
   justify-content: space-between;
-}
-#sidebar .footer_options .button {
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-  border-radius: 24px;
-  padding: 5px 10px;
-  align-items: center;
-  justify-content: center;
 }
 #sidebar .footer_options #themeButton {
   background: var(--secondary-dark);
@@ -523,8 +520,6 @@ img {
 .chatBox .welcomeText #invite {
   background: var(--secondary-dark);
   color: var(--foreground-light);
-  padding: 5px 24px;
-  border-radius: 24px;
 }
 .chatBox .welcomeText #invite:hover {
   filter: brightness(0.9);
