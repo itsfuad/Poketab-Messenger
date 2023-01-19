@@ -37,6 +37,9 @@ const micIcon = document.getElementById('micIcon');
 const recorderTimer = document.getElementById('recordingTime');
 
 //use a global variable to store the recorded audio
+/**
+ * @type {HTMLAudioElement} recordedAudio
+ */
 let recordedAudio;
 const audioChunks = [];
 let stream;
@@ -232,7 +235,9 @@ if(!isMobile){
 
 
 //! functions
-//loads react emojis
+/**
+ * @description Loads the reacts from the Defined array of reacts and inserts on the DOM
+ */
 function loadReacts(){
 	//load all the reacts from the react object
 	const reacts = document.getElementById('reactOptions');
@@ -278,6 +283,9 @@ function loadReacts(){
 
 loadReacts();
 
+/**
+ * @description Loads theme
+ */
 function loadTheme(){
 	THEME = localStorage.getItem('theme');
 	if(THEME == null || themeArray.includes(THEME) == false){
@@ -302,6 +310,26 @@ function appHeight () {
 }
 
 //this function inserts a message in the chat box
+/**
+ * @param {string} message The message to insert on DOM
+ * @param {string} type Message type
+ * @param {string} id Message id
+ * @param {string} uid Senders id
+ * @param {Object} reply Reply type and data object
+ * @param {string} reply.type 
+ * @param {string} reply.data 
+ * @param {string} replyId 
+ * @param {Object} options Options for message
+ * @param {boolean} options.reply If the message contains a reply
+ * @param {boolean} options.title If the message contains a title to show 
+ * @param {Object} metadata File metadata
+ * @param {string} metadata.height Image Height 
+ * @param {string} metadata.width Image width 
+ * @param {string} metadata.name FIle name 
+ * @param {string} metadata.size File size 
+ * @param {string} metadata.ext File extension
+ * 
+ */
 export function insertNewMessage(message, type, id, uid, reply, replyId, options, metadata){
 	//detect if the message has a reply or not
 	try{
@@ -567,13 +595,22 @@ function getFormattedDate(timestamp) {
 	}
 }
   
-
+/**
+ * 
+ * @param {string} str The string to sanitize
+ * @returns {string} Removed all charecter [<, >, ', "] from string
+ */
 function sanitize(str){
 	if (str == undefined || str == '' || str == null){return '';}
 	str = str.replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll('\'', '&#39;').replaceAll('/', '&#x2F;');
 	return str;
 }
 
+/**
+ * 
+ * @param {string} message
+ * @returns {string} Filtered message
+ */
 function messageFilter(message){
 	message = censorBadWords(message); //check if the message contains bad words
 	//secure XSS attacks with html entity number
@@ -588,6 +625,11 @@ function messageFilter(message){
 }
 
 //this is the code to parse the message
+/**
+ * 
+ * @param {string} message 
+ * @returns {string}
+ */
 function parseCode(message) {
 
 	const supportedLanguages = {
@@ -713,15 +755,27 @@ function emojiParser(text){
 }
 
 //returns true if the message contains only emoji
+/**
+ * 
+ * @param {string} text 
+ * @returns {boolean}
+ */
 function isEmoji(text) {
 	//replace white space with empty string
 	if(/^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/.test(text)){
 		text = text.replace(/\s/g, '');
 		return true;
-	}   
+	}
+	return false;
 }
 
 //Reply, Copy, Download, remove, Reacts Optio handler.
+/**
+ * 
+ * @param {string} type Any of the [image, audio, file, text]
+ * @param {boolean} sender True if Sender is me, else false 
+ * @param {HTMLElement} target The message that fired the event 
+ */
 function showOptions(type, sender, target){
 	//removes all showing options first if any
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
@@ -756,7 +810,7 @@ function showOptions(type, sender, target){
 		}
 	}
 	if (sender === true){ //if the message is sent by me
-		deleteOption.style.display = 'flex'; //then shgell the delete option
+		deleteOption.style.display = 'flex'; //then show the delete option
 	}else{ //else dont show the delete option
 		deleteOption.style.display = 'none';
 	}
@@ -820,6 +874,11 @@ function optionsMainEvent(e){
 	optionsReactEvent(e);
 }
 
+/**
+ * 
+ * @param {string} messageId 
+ * @param {string} user 
+ */
 export function deleteMessage(messageId, user){
 	const message = document.getElementById(messageId);
 	if (message){ //if the message exists
@@ -877,6 +936,7 @@ export function deleteMessage(messageId, user){
 				reply.removeAttribute('data-replyfor');
 				reply.style.background = '#000000c4';
 				reply.style.color = '#7d858c';
+				reply.style.fontStyle = 'italic';
 				reply.textContent = 'Deleted message';
 			});
 		}
