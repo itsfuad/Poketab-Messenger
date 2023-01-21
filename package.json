@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack",
     "start": "node server/server.js",
-    "dev": "nodemon --config src/config/nodemon.json server.server.js",
+    "dev": "nodemon --config src/config/nodemon.json server/server.js",
     "test": "jest public/**/*.test.js",
     "test-watch": "nodemon --exec 'npm test'"
   },

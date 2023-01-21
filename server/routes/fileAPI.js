@@ -19,14 +19,18 @@ const storage = multer.diskStorage({
 	destination: (_, file, cb) => cb(null, 'uploads/'),
 	filename: (req, file, cb) => {
 		if (file.size >= 15 * 1024 * 1024){
-			cb(new Error('File size more than 15mb'));
+			cb('File size more than 15mb');
 		}else{
 			if (Keys.hasKey(req.body.key)){
-				const filename = `poketab-${crypto.randomBytes(16).toString('hex')}`;
-				store(filename, { filename: filename, key: req.body.key, ext: req.body.ext, uids: new Set([req.body.uid]) });
-				cb(null, filename);
+				if (Keys[req.body.key].userCount > 1){
+					const filename = `poketab-${crypto.randomBytes(16).toString('hex')}`;
+					store(filename, { filename: filename, key: req.body.key, ext: req.body.ext, uids: new Set([req.body.uid]) });
+					cb(null, filename);
+				}else{
+					cb('File upload blocked for single user');
+				}
 			}else{
-				cb(new Error('Unauthorized'));
+				cb('Unauthorized');
 			}
 		}
 	},

@@ -12,8 +12,6 @@ import { themeAccent, themeArray } from './themes.js';
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
 
-
-
 //main message Element where all messages araree inserted
 const messages = document.getElementById('messages');
 
@@ -236,7 +234,7 @@ if(!isMobile){
 
 //! functions
 /**
- * @description Loads the reacts from the Defined array of reacts and inserts on the DOM
+ * Loads the reacts from the Defined array of reacts and inserts on the DOM
  */
 function loadReacts(){
 	//load all the reacts from the react object
@@ -284,7 +282,7 @@ function loadReacts(){
 loadReacts();
 
 /**
- * @description Loads theme
+ * Loads theme
  */
 function loadTheme(){
 	THEME = localStorage.getItem('theme');
@@ -353,7 +351,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 			message = sanitizeImagePath(message); //sanitize the image path
 			message = `
 			<div class='imageContainer msg'>
-				<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' />
+				<img class='image' src='${message}' alt='image' data-name='${metadata.name}' height='${metadata.height}' width='${metadata.width}' />
 				<div class="circleProgressLoader" style="stroke-dasharray: 0, 251.2;">
 					<svg class="animated inactive" viewbox="0 0 100 100">
 						<circle cx="50" cy="50" r="45" fill="transparent"/>
@@ -1609,6 +1607,7 @@ export function serverMessage(message, type) {
 	messageContainer.classList.add('messageContainer');
 	messageContainer.style.color = message.color;
 	if (type == 'location'){
+		locationTimeout ? clearTimeout(locationTimeout) : null;
 		const locationLink = document.createElement('a');
 		locationLink.href = `https://www.google.com/maps?q=${message.coordinate.latitude},${message.coordinate.longitude}`;
 		locationLink.target = '_blank';
@@ -1784,15 +1783,24 @@ document.getElementById('stickers').addEventListener('click', e => {
 		scrolling = false;
 		updateScroll();
 		insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
-		socket.emit('message', e.target.dataset.name, 'sticker', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function(id){
+		
+		if (Array.from(userInfoMap.keys()).length < 2){
+			console.log('Server replay skipped');
+			const msg = document.getElementById(tempId);
+			msg?.classList.add('delevered');
 			outgoingmessage.play();
-			document.getElementById(tempId).classList.add('delevered');
-			document.getElementById(tempId).id = id;
-			lastSeenMessage = id;
-			if (document.hasFocus()){
-				socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
-			}
-		});
+		}else{
+			socket.emit('message', e.target.dataset.name, 'sticker', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function(id){
+				outgoingmessage.play();
+				document.getElementById(tempId).classList.add('delevered');
+				document.getElementById(tempId).id = id;
+				lastSeenMessage = id;
+				if (document.hasFocus()){
+					socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+				}
+			});
+		}
+
 		clearTargetMessage();
 		clearFinalTarget();
 		hideReplyToast();
@@ -2644,19 +2652,26 @@ sendButton.addEventListener('click', () => {
 		const replyData = finalTarget?.type === 'text' ? finalTarget?.message.substring(0, 100) : finalTarget?.message;
 
 		insertNewMessage(message, 'text', tempId, myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
-		socket.emit('message', message, 'text', myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function (id) {
+		
+		if (Array.from(userInfoMap.keys()).length < 2){
+			console.log('Server replay skipped');
+			const msg = document.getElementById(tempId);
+			msg?.classList.add('delevered');
 			outgoingmessage.play();
-			document.getElementById(tempId).classList.add('delevered');
-			document.getElementById(tempId).id = id;
-			lastSeenMessage = id;
-			if (document.hasFocus()){
-				socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
-			}
-		});
+		}else{
+			socket.emit('message', message, 'text', myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function (id) {
+				outgoingmessage.play();
+				document.getElementById(tempId).classList.add('delevered');
+				document.getElementById(tempId).id = id;
+				lastSeenMessage = id;
+				if (document.hasFocus()){
+					socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+				}
+			});
+		}
 	}
 
 	clearFinalTarget();
-
 	textbox.focus();
 	hideOptions();
 	hideReplyToast();
@@ -2703,90 +2718,100 @@ async function sendImageStoreRequest(){
 	for (let i = 0; i < selectedFileArray.length; i++){
 		const image = new Image();
 		image.src = selectedFileArray[i].data;
+		image.dataset.name = selectedFileArray[i].name;
 		image.mimetype = selectedFileArray[i].ext;
 		image.onload = async function() {
-	
+			console.log('Inside onload');
 			const thumbnail = resizeImage(image, image.mimetype, 50);
 			let tempId = crypto.randomUUID();
 			scrolling = false;
-	
-			insertNewMessage(image.src, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: '', height: image.height, width: image.width, name: selectedFileArray[i].name});
-	
-			const elem = document.getElementById(tempId)?.querySelector('.messageMain');
-			elem.querySelector('.image').style.filter = 'brightness(0.4)';
-	
-			let progress = 0;
-			fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: selectedFileArray[i].name}, myKey, (id) => {
-				outgoingmessage.play();
-				document.getElementById(tempId).classList.add('delevered');
-				document.getElementById(tempId).id = id;
-				tempId = id;
-				lastSeenMessage = id;
-				if (document.hasFocus()){
-					socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
-				}
-			});
+
+			insertNewMessage(image.src, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: '', height: image.height, width: image.width, name: image.dataset.name});
 			
-			//make xhr request
-	
-			//image to file
-			const file = await fetch(image.src).then(r => r.blob()).then(blobFile => new File([blobFile], 'image', {type: image.mimetype}));
-	
-			const formData = new FormData();
-			formData.append('key', myKey);
-			formData.append('ext', image.mimetype);
-			formData.append('file', file);
-	
-			//upload image via xhr request
-			const xhr = new XMLHttpRequest();
-	
-			const progresCircle = elem.querySelector('.circleProgressLoader');
-			progresCircle.querySelector('.animated').classList.remove('inactive');
-			const progressText = elem.querySelector('.circleProgressLoader .progressPercent');
-	
-			//send file via xhr post request
-			xhr.open('POST', `${location.origin}/api/files/upload`, true);
-			xhr.upload.onprogress = function(e) {
-				if (e.lengthComputable) {
-					progress = (e.loaded / e.total) * 100;
-					progresCircle.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
-					progressText.textContent = `${Math.round(progress)}%`;
-					if (progress === 100){
-						progresCircle.querySelector('.animated').style.visibility = 'hidden';
-						progressText.textContent = 'Finishing...';
+			if (Array.from(userInfoMap.keys()).length < 2){
+				console.log('Server upload skipped');
+		
+				const msg = document.getElementById(tempId);
+				msg?.classList.add('delevered');
+				msg.dataset.downloaded = 'true';
+				msg.querySelector('.circleProgressLoader').remove();
+				outgoingmessage.play();
+			}else{
+				const elem = document.getElementById(tempId)?.querySelector('.messageMain');
+				elem.querySelector('.image').style.filter = 'brightness(0.4)';
+		
+		
+				let progress = 0;
+				fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: image.dataset.name}, myKey, (id) => {
+					outgoingmessage.play();
+					document.getElementById(tempId).classList.add('delevered');
+					document.getElementById(tempId).id = id;
+					tempId = id;
+					lastSeenMessage = id;
+					if (document.hasFocus()){
+						socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
 					}
-				}
-			};
-	
-			xhr.onload = function(e) {
-				if (this.status == 200) {                
-					if (elem){
-						elem.querySelector('.circleProgressLoader').remove();
-						elem.querySelector('.image').style.filter = 'none';
+				});
+				
+				//make xhr request
+		
+				//image to file
+				const file = await fetch(image.src).then(r => r.blob()).then(blobFile => new File([blobFile], 'image', {type: image.mimetype}));
+		
+				const formData = new FormData();
+				formData.append('key', myKey);
+				formData.append('ext', image.mimetype);
+				formData.append('file', file);
+		
+				//upload image via xhr request
+				const xhr = new XMLHttpRequest();
+		
+				const progresCircle = elem.querySelector('.circleProgressLoader');
+				progresCircle.querySelector('.animated').classList.remove('inactive');
+				const progressText = elem.querySelector('.circleProgressLoader .progressPercent');
+		
+				//send file via xhr post request
+				xhr.open('POST', `${location.origin}/api/files/upload`, true);
+				xhr.upload.onprogress = function(e) {
+					if (e.lengthComputable) {
+						progress = (e.loaded / e.total) * 100;
+						progresCircle.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
+						progressText.textContent = `${Math.round(progress)}%`;
+						if (progress === 100){
+							progresCircle.querySelector('.animated').style.visibility = 'hidden';
+							progressText.textContent = 'Finishing...';
+						}
 					}
-					document.getElementById(tempId).dataset.downloaded = 'true';
-					fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
+				};
+		
+				xhr.onload = function(e) {
+					if (this.status == 200) {                
+						if (elem){
+							elem.querySelector('.circleProgressLoader').remove();
+							elem.querySelector('.image').style.filter = 'none';
+						}
+						document.getElementById(tempId).dataset.downloaded = 'true';
+						fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
+					}
+					else{
+						console.log('error uploading image');
+						popupMessage('Error uploading image');
+						elem.querySelector('.circleProgressLoader .animated').style.visibility = 'hidden';
+						elem.querySelector('.circleProgressLoader .progressPercent').textContent = 'Upload failed';
+						fileSocket.emit('fileUploadError', myKey, tempId, 'image');
+					}
+				};
+				
+				xhr.send(formData);
+				
+				if (i == 0){
+					clearFinalTarget();
 				}
-				else{
-					console.log('error uploading image');
-					popupMessage('Error uploading image');
-					elem.querySelector('.circleProgressLoader .animated').style.visibility = 'hidden';
-					elem.querySelector('.circleProgressLoader .progressPercent').textContent = 'Upload failed';
-					fileSocket.emit('fileUploadError', myKey, tempId, 'image');
-				}
-					
-				if (i == selectedFileArray.length - 1){
-					selectedFileArray.length = 0;
-				}
-			};
-
-			xhr.send(formData);
-
-			if (i == 0){
-				clearFinalTarget();
 			}
+			
 		};
 	}
+	selectedFileArray.length = 0;
 }
 
 function sendFileStoreRequest(type = null){
@@ -2800,62 +2825,70 @@ function sendFileStoreRequest(type = null){
 		
 		insertNewMessage(fileUrl, type ? type : 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name});
 		
-		let progress = 0;
-		const elem = document.getElementById(tempId)?.querySelector('.messageMain');
-
-		fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name}, myKey, (id) => {
+		if (Array.from(userInfoMap.keys()).length < 2){
+	
+			const msg = document.getElementById(tempId);
+			msg?.classList.add('delevered');
+			msg.dataset.downloaded = 'true';
+			msg.querySelector('.progress').style.visibility = 'hidden';
 			outgoingmessage.play();
-			document.getElementById(tempId).classList.add('delevered');
-			document.getElementById(tempId).id = id;
-			tempId = id;
-			lastSeenMessage = id;
-			if (document.hasFocus()){
-				socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
-			}
-		});
-
-		const formData = new FormData();
-		formData.append('key', myKey);
-		formData.append('file', selectedFileArray[i].data);
-
-		//upload image via xhr request
-		const xhr = new XMLHttpRequest();
-		//send file via xhr post request
-		xhr.open('POST', location.origin + '/api/files/upload', true);
-		xhr.upload.onprogress = function(e) {
-			if (e.lengthComputable) {
-				progress = (e.loaded / e.total) * 100;
-				elem.querySelector('.progress').textContent = `${Math.round(progress)}%`;
-				if (progress === 100){
-					elem.querySelector('.progress').textContent = 'Finishing...';
+		}else{
+			let progress = 0;
+			const elem = document.getElementById(tempId)?.querySelector('.messageMain');
+	
+			fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name}, myKey, (id) => {
+				outgoingmessage.play();
+				document.getElementById(tempId).classList.add('delevered');
+				document.getElementById(tempId).id = id;
+				tempId = id;
+				lastSeenMessage = id;
+				if (document.hasFocus()){
+					socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
 				}
-			}
-		};
+			});
+	
+			const formData = new FormData();
+			formData.append('key', myKey);
+			formData.append('file', selectedFileArray[i].data);
+	
+			//upload image via xhr request
+			const xhr = new XMLHttpRequest();
+			//send file via xhr post request
+			xhr.open('POST', location.origin + '/api/files/upload', true);
+			xhr.upload.onprogress = function(e) {
+				if (e.lengthComputable) {
+					progress = (e.loaded / e.total) * 100;
+					elem.querySelector('.progress').textContent = `${Math.round(progress)}%`;
+					if (progress === 100){
+						elem.querySelector('.progress').textContent = 'Finishing...';
+					}
+				}
+			};
+	
+			xhr.onload = function(e) {
+	
+				if (this.status == 200) {
+					document.getElementById(tempId).dataset.downloaded = 'true';
+					elem.querySelector('.progress').style.visibility = 'hidden';
+					fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
+				}
+				else{
+					console.log('error uploading file');
+					popupMessage('Error uploading file');
+					elem.querySelector('.progress').textContent = 'Upload failed';
+					fileSocket.emit('fileUploadError', myKey, tempId, 'image');
+				}
+			};
 
-		xhr.onload = function(e) {
+			xhr.send(formData);
 
-			if (this.status == 200) {
-				document.getElementById(tempId).dataset.downloaded = 'true';
-				elem.querySelector('.progress').style.visibility = 'hidden';
-				fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
+			if (i == 0){
+				clearFinalTarget();
 			}
-			else{
-				console.log('error uploading file');
-				popupMessage('Error uploading file');
-				elem.querySelector('.progress').textContent = 'Upload failed';
-				fileSocket.emit('fileUploadError', myKey, tempId, 'image');
-			}
-			if (i == selectedFileArray.length - 1){
-				selectedFileArray.length = 0;
-			}
-		};
-
-		xhr.send(formData);
-
-		if (i == 0){
-			clearFinalTarget();
 		}
+
 	}
+	selectedFileArray.length = 0;
 }
 
 let newMsgTimeOut = undefined;
@@ -2915,6 +2948,8 @@ textbox.addEventListener('keydown', (evt) => {
 	}
 });
 
+let locationTimeout = undefined;
+
 document.getElementById('send-location').addEventListener('click', () => {
 	if (!navigator.geolocation) {
 		popupMessage('Geolocation not supported by your browser.');
@@ -2929,6 +2964,9 @@ document.getElementById('send-location').addEventListener('click', () => {
 	}, (error) => {
 		popupMessage(error.message);
 	});
+	locationTimeout = setTimeout(() => {
+		popupMessage('Could not connect to the internet');
+	}, 5000);
 });
 
 

@@ -62,6 +62,8 @@ io.on('connection', (socket) => {
 			
 				const id = crypto.randomUUID();
 			
+				console.log(`Message: ${message}`);
+
 				if (type === 'text'){
 					//create new Worker
 					//TODO: use postMessage instead of workerData
