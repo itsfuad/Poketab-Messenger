@@ -1785,7 +1785,7 @@ document.getElementById('stickers').addEventListener('click', e => {
 		insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
 		
 		if (Array.from(userInfoMap.keys()).length < 2){
-			console.log('Server replay skipped');
+			//console.log('Server replay skipped');
 			const msg = document.getElementById(tempId);
 			msg?.classList.add('delevered');
 			outgoingmessage.play();
@@ -2654,7 +2654,7 @@ sendButton.addEventListener('click', () => {
 		insertNewMessage(message, 'text', tempId, myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
 		
 		if (Array.from(userInfoMap.keys()).length < 2){
-			console.log('Server replay skipped');
+			//console.log('Server replay skipped');
 			const msg = document.getElementById(tempId);
 			msg?.classList.add('delevered');
 			outgoingmessage.play();
@@ -2721,7 +2721,7 @@ async function sendImageStoreRequest(){
 		image.dataset.name = selectedFileArray[i].name;
 		image.mimetype = selectedFileArray[i].ext;
 		image.onload = async function() {
-			console.log('Inside onload');
+			//console.log('Inside onload');
 			const thumbnail = resizeImage(image, image.mimetype, 50);
 			let tempId = crypto.randomUUID();
 			scrolling = false;
@@ -2729,7 +2729,7 @@ async function sendImageStoreRequest(){
 			insertNewMessage(image.src, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: '', height: image.height, width: image.width, name: image.dataset.name});
 			
 			if (Array.from(userInfoMap.keys()).length < 2){
-				console.log('Server upload skipped');
+				//console.log('Server upload skipped');
 		
 				const msg = document.getElementById(tempId);
 				msg?.classList.add('delevered');
