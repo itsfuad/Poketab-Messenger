@@ -139,7 +139,7 @@ io.on('connection', (socket) => {
 				const key = SocketIds[socket.id].key;
 		
 				const user = Keys[key].getUser(SocketIds[socket.id].uid);
-				console.log(`User ${user.username} disconnected from key ${user.key} | ${key}`);
+				console.log(`User ${user.username} disconnected from key ${key}`);
 				
 				Keys[key].removeUser(SocketIds[socket.id].uid);
 				delete SocketIds[socket.id];

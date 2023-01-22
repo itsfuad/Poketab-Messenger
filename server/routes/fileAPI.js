@@ -22,6 +22,7 @@ const storage = multer.diskStorage({
 			cb('File size more than 15mb');
 		}else{
 			if (Keys.hasKey(req.body.key)){
+				//console.log(Keys[req.body.key].userCount);
 				if (Keys[req.body.key].userCount > 1){
 					const filename = `poketab-${crypto.randomBytes(16).toString('hex')}`;
 					store(filename, { filename: filename, key: req.body.key, ext: req.body.ext, uids: new Set([req.body.uid]) });
