@@ -57,4 +57,4 @@ self.addEventListener('fetch', (event) => {
 	}
 });
 
-console.log('%cService Worker: Poketab Messanger is running', 'color: limegreen;');
+console.log('%cService Worker: Poketab Messenger is running', 'color: limegreen;');

@@ -1,5 +1,5 @@
 {
-  "name": "poketab_messanger",
+  "name": "poketab_messenger",
   "version": "1.2.9",
   "description": "Realtime messaging application",
   "main": "server/server.js",
@@ -11,7 +11,7 @@
     "test-watch": "nodemon --exec 'npm test'"
   },
   "engines": {
-    "node": "17.x"
+    "node": "18.x"
   },
   "author": "Fuad Hasan",
   "license": "ISC",

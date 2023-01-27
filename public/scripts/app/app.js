@@ -1839,7 +1839,7 @@ document.getElementById('invite').addEventListener('click', async () =>{
 			return;
 		}
 		await navigator.share({
-			title: 'Poketab Messanger',
+			title: 'Poketab Messenger',
 			text: 'Join chat!',
 			url: `${location.origin}/join/${myKey}`,
 		});
