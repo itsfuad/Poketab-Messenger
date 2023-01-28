@@ -205,7 +205,7 @@ app.post('/chat', (req, res) => {
 		//get the key from the cookie which was delivered when the /create page was requested. 
 		// NOTE: The cookie will be there for 2 minutes
 		const cookie = req.signedCookies.key;
-		//onsole.log(req.signedCookies.key);
+		//console.log(req.signedCookies.key);
 		//if the cookie is present
 		if (cookie){
 			const regex = /[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}/;
@@ -234,7 +234,7 @@ app.post('/chat', (req, res) => {
 		}else{
 			//console.log('No Key or Cookie found in cookie');
 			//console.log('No session found for this request.');
-			blockNewChatRequest(res, {title: 'No session!', errorCode: '440', errorMessage: 'Session Expired', buttonText: 'Renew'});
+			blockNewChatRequest(res, {title: 'Not found', errorCode: '404', errorMessage: 'Session Key not found', buttonText: 'Home'});
 		}
 	}else if(key && Keys.hasKey(key)) {
 		//Key exists, so the request is a join request

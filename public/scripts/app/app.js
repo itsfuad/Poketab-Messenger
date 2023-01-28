@@ -3336,11 +3336,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 //This code blocks the back button to go back on the login page.
 //This action is needed because if the user goes back, he/she has to login again. 
-document.addEventListener('click', ()=> {
-	history.pushState({}, '', '#init');
-	history.pushState({}, '', '#initiated');
-	history.pushState({}, '', '#inbox');
+(()=>{
+	history.pushState({}, '', '');
+	history.pushState({}, '', '');
+	history.pushState({}, '', '');
+	history.pushState({}, '', '');
+	history.pushState({}, '', '');
+	history.pushState({}, '', '');
+	//console.log('Pushed state');
 	window.onpopstate = ()=>{
+		console.log('Skipped!');
 		history.forward();
 	};
-}, {once: true});
+})();
