@@ -1,17 +1,19 @@
-const router = require('express').Router();
-const multer = require('multer');
-const { access } = require('fs/promises');
-const crypto = require('crypto');
+console.log('Running file API');
 
-const { Keys } = require('../credentialManager');
+import { Router } from 'express';
+import multer from 'multer';
+import { access } from 'fs/promises';
+import crypto from 'crypto';
 
-const fileStore = new Map();
+import { Keys } from '../database/db.js';
 
-function store(filename, data){
+export const fileStore = new Map();
+
+export function store(filename, data){
 	fileStore.set(filename, data);
 }
 
-function deleteFileStore(filename){
+export function deleteFileStore(filename){
 	fileStore.delete(filename);
 }
 
@@ -42,6 +44,9 @@ const upload = multer({
 	limits: { fileSize: 15 * 1024 * 1024 },
 }); //name field name
 
+const router = Router();
+export default router;
+
 router.post('/upload', upload.single('file'), (req, res) => {
 	if (req.file){
 		res.status(200).send({ success: true, downlink: req.file.filename });
@@ -70,4 +75,4 @@ router.get('*', (req, res) => {
 	res.status(404).send({ error: 'Unknown route' });
 });
 
-module.exports = { router, store, fileStore, deleteFileStore };
+//module.exports = { router, store, fileStore, deleteFileStore };

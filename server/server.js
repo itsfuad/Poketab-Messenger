@@ -1,22 +1,32 @@
-const path = require('path');
-const http = require('http');
-const compression = require('compression');
-const express = require('express');
-const rateLimit = require('express-rate-limit');
-const cors = require('cors');
-const crypto = require('crypto');
-const userAgent = require('express-useragent');
+console.log('Initializing Server');
+
+import path from 'path';
+
+import compression from 'compression';
+
+import rateLimit from 'express-rate-limit';
+import cors from 'cors';
+import crypto from 'crypto';
+import userAgent from 'express-useragent';
 
 //utility functions for the server
-const { validateUserName, validateAvatar, avList } = require('./utils/validation');
-const { makeid } = require('./utils/functions');
+import { validateUserName, validateAvatar, avList } from './utils/validation.js';
+import { makeid } from './utils/functions.js';
 
-const { Keys } = require('./credentialManager');
+import { Keys } from './database/db.js';
 
-const cookieParser = require('cookie-parser');
+import cookieParser from 'cookie-parser';
 
 //import .env variables
-require('dotenv').config();
+import { config } from 'dotenv';
+
+import express, { app, HMAC_KEY, server } from './main.js';
+
+import './websockets.js';
+import './fileSocket.js';
+import './preAuthSocket.js';
+
+config();
 
 //versioning and developer name
 const version = process.env.npm_package_version || 'Development';
@@ -31,20 +41,19 @@ const apiRequestLimiter = rateLimit({
 	legacyHeaders: false // Disable the `X-RateLimit-*` headers
 });
 
+const __dirname = process.cwd();
+console.log(__dirname);
+
 //public path to serve static files
-const publicPath = path.join(__dirname, '../public');
-//create the express app
-const app = express();
+const publicPath = path.join(__dirname, '/public');
+console.log(publicPath);
 
 const port = process.env.PORT || 3000;
 
-const HMAC_KEY = crypto.randomBytes(64).toString('hex');
-
 const ENVIRONMENT = process.env.BUILD_MODE == 'DEVELOPMENT' ? 'DEVELOPMENT' : 'PRODUCTION';
 
-const server = http.createServer(app);
 //export the server to be used in the socket.js file
-module.exports = { server, HMAC_KEY };
+//module.exports = { server, HMAC_KEY };
 
 //handle the key generation request and authentication
 
@@ -53,7 +62,7 @@ module.exports = { server, HMAC_KEY };
 app.disable('x-powered-by');
 
 //view engine setup
-app.set('views', path.join(__dirname, '../public/views'));
+app.set('views', path.join(publicPath, '/views'));
 app.set('view engine', 'ejs'); //set the view engine to ejs [embedded javascript] to allow for dynamic html
 app.set('trust proxy', 1);
 
@@ -118,9 +127,13 @@ app.get('/', (_, res) => {
 	res.render('home/home', {title: 'Get Started', hash: nonce});
 });
 
-app.use('/admin', require('./routes/admin')); //route for admin panel
 
-app.use('/api/files', require('./routes/fileAPI').router); //route for file uploads
+import adminRouter from './routes/admin.js';
+import fileRouter from './routes/fileAPI.js';
+
+app.use('/admin', adminRouter); //route for admin panel
+
+app.use('/api/files', fileRouter); //route for file uploads
 
 app.get('/create', (req, res) => {
 	const nonce = crypto.randomBytes(16).toString('hex');
@@ -284,10 +297,6 @@ app.get('*', (_, res) => {
 	res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 	res.render('errors/errorRes', {title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home'});
 });
-
-require('./websockets');
-require('./fileSocket');
-require('./preAuthSocket');
 
 //fire up the server
 server.listen(port, () => {

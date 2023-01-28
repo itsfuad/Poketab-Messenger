@@ -1,21 +1,21 @@
 //socketio server which can handle multiple connections and reconnects from the client
-const { server } = require('./server');
-const socketIO = require('socket.io');
+import { server } from './main.js';
+import { Server } from 'socket.io';
 //utility functions for the server
-const { isRealString, reactArray } = require('./utils/validation');
+import { isRealString, reactArray } from './utils/validation.js';
 
-const { Keys, SocketIds } = require('./credentialManager');
-const { Key } = require('./database/schema/Key');
+import { Keys, SocketIds } from './database/db.js';
+import { Key } from './database/schema/Key.js';
 
-const { User } = require('./database/schema/User');
+import { User } from './database/schema/User.js';
 
-const crypto = require('crypto');
+import crypto from 'crypto';
 
-const { cleanJunks } = require('./cleaner');
+import { cleanJunks } from './cleaner.js';
 
-const { Worker } = require('worker_threads');
+import { Worker } from 'worker_threads';
 
-const io = socketIO(server);
+export const io = new Server(server);
 
 //socket.io connection
 io.on('connection', (socket) => {
@@ -169,4 +169,4 @@ io.on('connection', (socket) => {
 });
 
 // Path: server/websockets.js
-module.exports = { io };
+//module.exports = { io };

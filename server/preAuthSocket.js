@@ -1,13 +1,13 @@
 //buit in modules
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 //utility functions for the server
-const { keyformat } = require('./utils/functions');
-const { io } = require('./websockets');
-const { Keys } = require('./credentialManager');
+import { keyformat } from './utils/functions.js';
+import { io } from './websockets.js';
+import { Keys } from './database/db.js';
 //importing worker threads
 //The worker threads module provides a way to create multiple environments running on separate threads that can communicate with each other via inter-thread messaging or sharing memory.
-const auth = io.of('/auth');
+export const auth = io.of('/auth');
 
 function keyCheck(key){
 	try{
@@ -50,4 +50,4 @@ auth.on('connection', (socket) => {
 });
 
 // Path: server\authSocket.js
-module.exports = { auth };
+//module.exports = { auth };

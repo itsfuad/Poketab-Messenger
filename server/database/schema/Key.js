@@ -1,4 +1,4 @@
-class Key{
+export class Key{
 	constructor(){
 		this.users = {};
 		this.userCount = 0;
@@ -59,4 +59,4 @@ class Key{
 	}
 }
 
-module.exports = { Key };
+//module.exports = { Key };

@@ -1,8 +1,10 @@
-const { Key } = require('./database/schema/Key');
+console.log('Database ready');
 
-const Keys = {};
+import { Key } from './schema/Key.js';
 
-const SocketIds = {};
+export const Keys = {};
+
+export const SocketIds = {};
 
 //returns true if key is in the Keys object
 Keys.hasKey = (key) => {
@@ -21,4 +23,4 @@ Keys.addUser = (key, user) => {
 	console.log(`${user.username} joined key: ${key}`);
 };
 
-module.exports = { Keys, SocketIds };
+//module.exports = { Keys, SocketIds };

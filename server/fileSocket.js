@@ -1,8 +1,8 @@
-const { io } = require('./websockets');
+import { io } from './websockets.js';
 //file socket handler is used to handle file transfers metadata but not the actual file transfer
-const fileSocket = io.of('/file');
-const crypto = require('crypto');
-const { markForDelete } = require('./cleaner');
+export const fileSocket = io.of('/file');
+import crypto from 'crypto';
+import { markForDelete } from './cleaner.js';
 
 //file upload
 fileSocket.on('connection', (socket) => {
@@ -35,4 +35,4 @@ fileSocket.on('connection', (socket) => {
 });
 
 // Path: server\fileSocket.js
-module.exports = { fileSocket };
+//module.exports = { fileSocket };

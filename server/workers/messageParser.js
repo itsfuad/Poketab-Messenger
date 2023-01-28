@@ -1,5 +1,5 @@
 //parent port
-const { parentPort, workerData } = require('worker_threads');
+import { parentPort, workerData } from 'worker_threads';
 
 function censorBadWords(text) {
 	text = text.replace(/fuck/g, 'f**k');

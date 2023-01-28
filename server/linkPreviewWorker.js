@@ -1,5 +1,5 @@
-const getMetaData = require('metadata-scraper');
-const { parentPort, workerData } = require('worker_threads');
+import getMetaData from 'metadata-scraper';
+import { parentPort, workerData } from 'worker_threads';
 
 async function run(url) {
 	const data = await getMetaData(url);

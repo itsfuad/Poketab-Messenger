@@ -1,10 +1,10 @@
-const { unlink, readdir } = require('fs/promises');
-const { existsSync } = require('fs');
+import { unlink, readdir } from 'fs/promises';
+import { existsSync } from 'fs';
 
-const { fileStore, deleteFileStore } = require('./routes/fileAPI');
-const { Keys } = require('./credentialManager');
+import { fileStore, deleteFileStore } from './routes/fileAPI.js';
+import { Keys } from './database/db.js';
 
-function markForDelete(userId, key, filename){
+export function markForDelete(userId, key, filename){
 	//{filename: req.file.filename, downloaded: 0, keys: [], uids: []}
 	const file = fileStore.get(filename);
 	if (file){
@@ -23,7 +23,7 @@ function markForDelete(userId, key, filename){
 	}
 }
 
-function cleanJunks(){
+export function cleanJunks(){
 	readdir('uploads').then(files => {
 		const filesToDelete = files.map( file => {
 			if (file != 'dummy.txt'){
@@ -39,4 +39,4 @@ function cleanJunks(){
 
 cleanJunks();
 
-module.exports = { markForDelete, cleanJunks };
+//module.exports = { markForDelete, cleanJunks };

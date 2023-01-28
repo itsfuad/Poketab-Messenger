@@ -1,4 +1,4 @@
-function makeid() {
+export function makeid() {
 	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 	let id = '';
 	for (let i = 0; i < 12; i++) {
@@ -11,6 +11,6 @@ function makeid() {
 	return id;
 }
 
-const keyformat = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/;
+export const keyformat = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/;
 
-module.exports = {makeid, keyformat};
+//module.exports = {makeid, keyformat};

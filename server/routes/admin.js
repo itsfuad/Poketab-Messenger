@@ -1,12 +1,17 @@
-const router = require('express').Router();
-const cookieParser = require('cookie-parser');
-const crypto = require('crypto');
+console.log('Running admin');
 
-const { HMAC_KEY } = require('./../server.js');
+import { Router } from 'express';
+import cookieParser from 'cookie-parser';
+import crypto from 'crypto';
 
-const { Keys } = require('./../credentialManager.js');
+import { HMAC_KEY } from '../main.js';
+
+import { Keys } from '../database/db.js';
 
 const AdminSessionSecret = new Map();
+
+const router = Router();
+export default router;
 
 router.get('/', cookieParser(HMAC_KEY), (req, res) => {
 	const cookieFromClient = req.signedCookies.auth;
@@ -137,4 +142,4 @@ router.get('*', (req, res) => {
 	res.status(404).send({ error: 'Unknown route' });
 });
 
-module.exports = router;
+//module.exports = router;
