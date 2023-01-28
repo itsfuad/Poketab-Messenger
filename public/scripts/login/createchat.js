@@ -31,7 +31,7 @@ function remainingTime(totalTime, elapsedTime) {
 const timerElem = document.querySelector('.remainingTime');
 let elapsedTime = 1;
 let addedShake = false;
-const timeCount = 20;
+const timeCount = 120;
 let timer = setInterval(() => {
 	if ((elapsedTime >= timeCount - 10) && !addedShake){
 		timerElem.classList.add('shake');
