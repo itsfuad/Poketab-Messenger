@@ -1,42 +1,39 @@
-const { unlink, readdir } = require('fs/promises');
-const { existsSync } = require('fs');
-
-const { fileStore, deleteFileStore } = require('./routes/fileAPI');
-const { Keys } = require('./credentialManager');
-
-function markForDelete(userId, key, filename){
-	//{filename: req.file.filename, downloaded: 0, keys: [], uids: []}
-	const file = fileStore.get(filename);
-	if (file){
-		file.uids = file.uids != null ? file.uids.add(userId) : new Set();
-		//console.log(file);
-		if (Keys[key].maxUser == file.uids.size) {
-			console.log(`${filename} deleted as trunk | Process ID: ${process.pid}`);
-			//rm(`uploads/${filename}`);
-			unlink(`uploads/${filename}`);
-			deleteFileStore(filename);
-		}
-	}else if (existsSync(`uploads/${filename}`)){
-		console.log(`${filename} deleted as Key expired | Process ID: ${process.pid}`);
-		//rm(`uploads/${filename}`);
-		unlink(`uploads/${filename}`);
-	}
+import { unlink, readdir } from 'fs/promises';
+import { existsSync } from 'fs';
+import { fileStore, deleteFileStore } from './routes/fileAPI.js';
+import { keyStore } from './database/db.js';
+export function markForDelete(userId, key, filename) {
+    //{filename: req.file.filename, downloaded: 0, keys: [], uids: []}
+    const file = fileStore.get(filename);
+    if (file) {
+        file.uids = file.uids != null ? file.uids.add(userId) : new Set();
+        //console.log(file);
+        if (keyStore.getKey(key).maxUser == file.uids.size) {
+            console.log(`${filename} deleted as trunk | Process ID: ${process.pid}`);
+            //rm(`uploads/${filename}`);
+            unlink(`uploads/${filename}`);
+            deleteFileStore(filename);
+        }
+    }
+    else if (existsSync(`uploads/${filename}`)) {
+        console.log(`${filename} deleted as Key expired | Process ID: ${process.pid}`);
+        //rm(`uploads/${filename}`);
+        unlink(`uploads/${filename}`);
+    }
 }
-
-function cleanJunks(){
-	readdir('uploads').then(files => {
-		const filesToDelete = files.map( file => {
-			if (file != 'dummy.txt'){
-				return unlink(`uploads/${file}`);
-			}
-		});
-		Promise.all(filesToDelete);
-		console.log(`Cleaning junk files | Process ID: ${process.pid}`);
-	}).catch(err => {
-		console.log(err);
-	});
+export function cleanJunks() {
+    readdir('uploads').then(files => {
+        const filesToDelete = files.map(file => {
+            if (file != 'dummy.txt') {
+                return unlink(`uploads/${file}`);
+            }
+        });
+        Promise.all(filesToDelete);
+        console.log(`Cleaning junk files | Process ID: ${process.pid}`);
+    }).catch(err => {
+        console.log(err);
+    });
 }
-
 cleanJunks();
-
-module.exports = { markForDelete, cleanJunks };
+//module.exports = { markForDelete, cleanJunks };
+//# sourceMappingURL=cleaner.js.map

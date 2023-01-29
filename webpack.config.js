@@ -1,9 +1,9 @@
-module.exports = {
+export default {
 	entry: './public/scripts/app/app.js',
 	mode: 'production',
 	output: {
 		publicPath: '/',
-		path: __dirname + '/public/scripts/app/bundle',
+		path: process.cwd() + '/public/scripts/app/bundle',
 		filename: 'bundle.js'
 	},
 };

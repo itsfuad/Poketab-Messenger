@@ -1,8 +1,9 @@
 {
   "name": "poketab_messenger",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "description": "Realtime messaging application",
   "main": "server/server.js",
+  "type": "module",
   "scripts": {
     "build": "webpack",
     "start": "node server/server.js",
@@ -29,6 +30,10 @@
     "socket.io": "^4.5.4"
   },
   "devDependencies": {
+    "@types/compression": "^1.7.2",
+    "@types/cookie-parser": "^1.4.3",
+    "@types/express-useragent": "^1.0.2",
+    "@types/multer": "^1.4.7",
     "eslint": "^8.28.0",
     "jest": "^28.1.0",
     "nodemon": "^2.0.15",
