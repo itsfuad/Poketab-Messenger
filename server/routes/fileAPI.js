@@ -60,7 +60,7 @@ router.get('/download/:id/:key', (req, res) => {
 	if (Keys.hasKey(req.params.key)){
 		access(`uploads/${req.params.id}`)
 			.then(() => {
-				res.sendFile(`uploads/${req.params.id}`, { root: __dirname + '/../..' });
+				res.sendFile(`uploads/${req.params.id}`, { root: process.cwd() });
 			}).catch(err => {
 				console.log(`${err}`);
 				res.status(404).send({ error: 'File not found' });
