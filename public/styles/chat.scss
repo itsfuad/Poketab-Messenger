@@ -55,7 +55,7 @@ html{
 }
 
 .noSelect:focus {
-    outline: none !important;
+    outline-color: transparent !important;
 }
 
 body{
@@ -1070,7 +1070,7 @@ i[class^=fa-]{
     max-height: 100px;
     //remove sidebars
     border: none;
-    outline: none;
+    outline-color: transparent;
     border-radius: inherit;
     background: var(--glass);
     scrollbar-width: none;

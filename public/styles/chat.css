@@ -52,7 +52,7 @@ html {
 }
 
 .noSelect:focus {
-  outline: none !important;
+  outline-color: transparent !important;
 }
 
 body {
@@ -1029,7 +1029,7 @@ i[class^=fa-] {
   width: 100%;
   max-height: 100px;
   border: none;
-  outline: none;
+  outline-color: transparent;
   border-radius: inherit;
   background: var(--glass);
   scrollbar-width: none;
