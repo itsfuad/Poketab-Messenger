@@ -2222,56 +2222,65 @@ let lastAudioMessagePlay = null;
 
 function playAudio(audioContainer){
 
-	const audio = audioContainer.querySelector('audio');
-
-	if (!audio.src){
-		audio.src = audioContainer.dataset?.src;
-	}
-
-	const timeElement = audioContainer.querySelector('.time');
-
-	if (!!lastAudioMessagePlay && lastAudioMessagePlay.src != audio.src){
-		//console.log('Calling stop audio to stop last audio');
-		stopAudio(lastAudioMessagePlay);
-	}
-
-	lastAudioMessagePlay = audio;
-
-	lastAudioMessagePlay.ontimeupdate = () => {
-		//updateAudioMessageTime(audioMessage);
-		//if audio.duration is number
-		if (isFinite(audio.duration)){
-			const percentage = updateAudioMessageTimer(audio, timeElement);
-			audioContainer.style.setProperty('--audioMessageProgress', `${percentage}%`);
-		}else{
-			//console.clear();
-			//console.log('Audio duration is not a number');
-			timeElement.textContent = 'Wait..!';
+	try{
+		const audio = audioContainer.querySelector('audio');
+	
+		if (!audioContainer.dataset.src){
+			popupMessage('Audio is not ready to play');
+			return;
 		}
-	};
-
-	lastAudioMessagePlay.onended = () => {
-		audioContainer.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
-		lastAudioMessagePlay.currentTime = 0;
-		audioContainer.style.setProperty('--audioMessageProgress', '0%');
-	};
-
-	//if audio is stopped for some reason like stopped from another tab or notifcation bar. then update the ui
-	lastAudioMessagePlay.onpause = () => {
-		audioContainer.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
-	};
-
-	//when stopped from another tab or notification bar
-	lastAudioMessagePlay.onstalled = () => {
-		audioContainer.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
-	};
-
-	//when playing from another tab or notification bar
-	lastAudioMessagePlay.onplaying = () => {
-		audioContainer.querySelector('.play-pause i').classList.replace('fa-play', 'fa-pause');
-	};
-
-	lastAudioMessagePlay.play();
+	
+		if (!audio.src){
+			audio.src = audioContainer.dataset?.src;
+		}
+	
+		const timeElement = audioContainer.querySelector('.time');
+	
+		if (!!lastAudioMessagePlay && lastAudioMessagePlay.src != audio.src){
+			//console.log('Calling stop audio to stop last audio');
+			stopAudio(lastAudioMessagePlay);
+		}
+	
+		lastAudioMessagePlay = audio;
+	
+		lastAudioMessagePlay.ontimeupdate = () => {
+			//updateAudioMessageTime(audioMessage);
+			//if audio.duration is number
+			if (isFinite(audio.duration)){
+				const percentage = updateAudioMessageTimer(audio, timeElement);
+				audioContainer.style.setProperty('--audioMessageProgress', `${percentage}%`);
+			}else{
+				//console.clear();
+				//console.log('Audio duration is not a number');
+				timeElement.textContent = 'Wait..!';
+			}
+		};
+	
+		lastAudioMessagePlay.onended = () => {
+			audioContainer.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
+			lastAudioMessagePlay.currentTime = 0;
+			audioContainer.style.setProperty('--audioMessageProgress', '0%');
+		};
+	
+		//if audio is stopped for some reason like stopped from another tab or notifcation bar. then update the ui
+		lastAudioMessagePlay.onpause = () => {
+			audioContainer.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
+		};
+	
+		//when stopped from another tab or notification bar
+		lastAudioMessagePlay.onstalled = () => {
+			audioContainer.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
+		};
+	
+		//when playing from another tab or notification bar
+		lastAudioMessagePlay.onplaying = () => {
+			audioContainer.querySelector('.play-pause i').classList.replace('fa-play', 'fa-pause');
+		};
+	
+		lastAudioMessagePlay.play();
+	}catch(err){
+		console.log(err);
+	}
 }
 
 function stopAudio(audio){
