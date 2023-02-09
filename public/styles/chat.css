@@ -29,7 +29,6 @@ html {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -38,7 +37,6 @@ html {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -47,7 +45,6 @@ html {
   -webkit-touch-callout: initial;
   -webkit-user-select: initial;
   -moz-user-select: initial;
-  -ms-user-select: initial;
   user-select: initial;
 }
 
@@ -499,7 +496,6 @@ img {
   justify-content: center;
   align-items: center;
   text-align: center;
-  width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
   padding: 20px;
@@ -579,7 +575,6 @@ img {
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
-  width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
   visibility: visible;
@@ -602,23 +597,19 @@ img {
 }
 .chatInput .close_area .attachmentButton:nth-child(1) {
   transition-delay: 50ms;
-  -webkit-animation-delay: 50ms;
-          animation-delay: 50ms;
+  animation-delay: 50ms;
 }
 .chatInput .close_area .attachmentButton:nth-child(2) {
   transition-delay: 80ms;
-  -webkit-animation-delay: 80ms;
-          animation-delay: 80ms;
+  animation-delay: 80ms;
 }
 .chatInput .close_area .attachmentButton:nth-child(3) {
   transition-delay: 110ms;
-  -webkit-animation-delay: 110ms;
-          animation-delay: 110ms;
+  animation-delay: 110ms;
 }
 .chatInput .close_area .attachmentButton:nth-child(4) {
   transition-delay: 140ms;
-  -webkit-animation-delay: 140ms;
-          animation-delay: 140ms;
+  animation-delay: 140ms;
 }
 .chatInput .close_area.active {
   bottom: 0;
@@ -722,12 +713,10 @@ input[type=file] {
 .voiceRecorder .recordIcon {
   font-size: 0.6rem !important;
   color: indianred;
-  -webkit-animation: blink 0.5s infinite alternate;
-          animation: blink 0.5s infinite alternate;
+  animation: blink 0.5s infinite alternate;
 }
 .voiceRecorder[data-recordingstate=false] .recordIcon {
-  -webkit-animation: none;
-          animation: none;
+  animation: none;
 }
 .voiceRecorder[data-recordingstate=false] #audiovisualizer {
   height: 0;
@@ -992,20 +981,16 @@ i[class^=fa-] {
   background: rgba(255, 255, 255, 0.5);
 }
 #typingIndicator .bubble .bouncing {
-  -webkit-animation: bouncing 1s infinite;
-          animation: bouncing 1s infinite;
+  animation: bouncing 1s infinite;
 }
 #typingIndicator .bubble .bouncing:nth-child(1) {
-  -webkit-animation-delay: 0s;
-          animation-delay: 0s;
+  animation-delay: 0s;
 }
 #typingIndicator .bubble .bouncing:nth-child(2) {
-  -webkit-animation-delay: 0.2s;
-          animation-delay: 0.2s;
+  animation-delay: 0.2s;
 }
 #typingIndicator .bubble .bouncing:nth-child(3) {
-  -webkit-animation-delay: 0.4s;
-          animation-delay: 0.4s;
+  animation-delay: 0.4s;
 }
 #typingIndicator .text:empty + .bubble {
   display: none;
@@ -1035,9 +1020,6 @@ i[class^=fa-] {
   scrollbar-width: none;
 }
 #textbox::-moz-placeholder {
-  color: rgba(255, 255, 255, 0.5411764706);
-}
-#textbox:-ms-input-placeholder {
   color: rgba(255, 255, 255, 0.5411764706);
 }
 #textbox::placeholder {
@@ -1136,7 +1118,6 @@ i[class^=fa-] {
   transform: translateX(-50%);
   z-index: 10;
   gap: 5px;
-  width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
   display: flex;
@@ -1276,14 +1257,12 @@ i[class^=fa-] {
 .reactOptionsWrapper {
   position: relative;
   transform: scale(1);
-  width: -webkit-min-content;
   width: -moz-min-content;
   width: min-content;
   max-height: 35px;
   place-content: center;
   display: grid;
   transition: 100ms ease-in-out;
-  background: var(--option-color);
   border-radius: 10px;
 }
 .reactOptionsWrapper.more {
@@ -1361,7 +1340,6 @@ i[class^=fa-] {
   flex-direction: row;
   justify-content: space-between;
   gap: 5px;
-  width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
   align-items: center;
@@ -1377,9 +1355,10 @@ i[class^=fa-] {
 }
 .options:is(#reactOptions) {
   gap: 5px;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   padding: 3px 10px;
   background: var(--primary-dark);
+  border-radius: 25px;
   filter: drop-shadow(0 4px 5px black);
 }
 .options:is(#reactOptions) > div {
@@ -1492,18 +1471,6 @@ i[class^=fa-] {
   width: 1px;
 }
 
-@-webkit-keyframes bouncing {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
 @keyframes bouncing {
   0% {
     transform: translateY(0);
@@ -1513,14 +1480,6 @@ i[class^=fa-] {
   }
   100% {
     transform: translateY(0);
-  }
-}
-@-webkit-keyframes blink {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
   }
 }
 @keyframes blink {

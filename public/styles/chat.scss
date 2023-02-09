@@ -1294,6 +1294,7 @@ i[class^=fa-]{
     gap: 50px;
 }
 
+
 .normalOptionWrapper{
     position: relative;
     top: 0px;
@@ -1315,7 +1316,6 @@ i[class^=fa-]{
     place-content: center;
     display: grid;
     transition: 100ms ease-in-out;
-    background: var(--option-color);
     border-radius: 10px;
     &.more{
         max-height: 200px;
@@ -1412,9 +1412,10 @@ i[class^=fa-]{
     }
     &:is(#reactOptions){
         gap: 5px;
-        font-size: 1.3rem;
+        font-size: 1.5rem;
         padding: 3px 10px;
         background: var(--primary-dark);
+        border-radius: 25px;
         filter: drop-shadow(0 4px 5px black);
         & > div{
             border-radius: 10px;

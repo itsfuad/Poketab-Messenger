@@ -101,7 +101,6 @@ code {
   flex-direction: row;
   align-items: center;
   border-radius: 15px 15px 15px 8px;
-  width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
   max-width: 100%;
@@ -152,7 +151,6 @@ code {
   padding: 0 5px;
   z-index: 15;
   display: none;
-  width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
 }
@@ -256,10 +254,8 @@ pre::after {
   content: attr(data-clip);
   top: 0;
   right: 0;
-  width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
-  height: -webkit-max-content;
   height: -moz-max-content;
   height: max-content;
   padding: 3px 4px;
@@ -274,10 +270,8 @@ pre::before {
   content: attr(data-lang);
   top: 0;
   left: 0;
-  width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
-  height: -webkit-max-content;
   height: -moz-max-content;
   height: max-content;
   padding: 3px 4px;
@@ -450,7 +444,6 @@ pre code {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: -webkit-fit-content;
   width: -moz-fit-content;
   width: fit-content;
 }
@@ -467,7 +460,6 @@ pre code {
   width: 100%;
   height: 100%;
   transform: translate(-50%, -50%);
-  width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
   color: white;
@@ -621,7 +613,6 @@ pre code {
   font-size: 0.7rem;
   pointer-events: none;
   min-width: 45px;
-  width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
   display: flex;
