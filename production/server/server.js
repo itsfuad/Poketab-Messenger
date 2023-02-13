@@ -11,7 +11,7 @@ import { keyStore } from './database/db.js';
 import cookieParser from 'cookie-parser';
 //import .env variables
 import { config } from 'dotenv';
-import express, { app, HMAC_KEY, server } from './main.js';
+import express, { app, HMAC_KEY, server } from './expressApp.js';
 import './websockets.js';
 import './fileSocket.js';
 import './preAuthSocket.js';
@@ -28,10 +28,10 @@ const apiRequestLimiter = rateLimit({
     legacyHeaders: false // Disable the `X-RateLimit-*` headers
 });
 const __dirname = process.cwd();
-console.log(__dirname);
+//console.log(__dirname);
 //public path to serve static files
 const publicPath = path.join(__dirname, '/public');
-console.log(publicPath);
+//console.log(publicPath);
 const port = process.env.PORT || 3000;
 const ENVIRONMENT = process.env.BUILD_MODE == 'DEVELOPMENT' ? 'DEVELOPMENT' : 'PRODUCTION';
 //export the server to be used in the socket.js file

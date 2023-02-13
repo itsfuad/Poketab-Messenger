@@ -6,7 +6,6 @@ export class Key {
         this.keyName = key;
         this.users = {};
         this.admin = null;
-        console.log('New key constructed');
     }
     __addUser(user) {
         if (!this.users[user.uid]) {

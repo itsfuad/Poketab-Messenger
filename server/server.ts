@@ -20,7 +20,7 @@ import cookieParser from 'cookie-parser';
 //import .env variables
 import { config } from 'dotenv';
 
-import express, { app, HMAC_KEY, server } from './main.js';
+import express, { app, HMAC_KEY, server } from './expressApp.js';
 
 import './websockets.js';
 import './fileSocket.js';
@@ -42,11 +42,11 @@ const apiRequestLimiter = rateLimit({
 });
 
 const __dirname = process.cwd();
-console.log(__dirname);
+//console.log(__dirname);
 
 //public path to serve static files
 const publicPath = path.join(__dirname, '/public');
-console.log(publicPath);
+//console.log(publicPath);
 
 const port = process.env.PORT || 3000;
 

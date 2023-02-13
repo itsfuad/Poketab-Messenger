@@ -2,7 +2,7 @@ console.log('Running admin');
 import { Router } from 'express';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
-import { HMAC_KEY } from '../main.js';
+import { HMAC_KEY } from '../expressApp.js';
 import { keyStore } from '../database/db.js';
 const AdminSessionSecret = new Map();
 const router = Router();

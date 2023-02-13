@@ -1,5 +1,5 @@
 //socketio server which can handle multiple connections and reconnects from the client
-import { server } from './main.js';
+import { server } from './expressApp.js';
 import { Server } from 'socket.io';
 //utility functions for the server
 import { isRealString, reactArray } from './utils/validation.js';

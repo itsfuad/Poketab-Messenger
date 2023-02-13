@@ -6,4 +6,4 @@ export const HMAC_KEY = randomBytes(64).toString('hex');
 export const app = express();
 export default express;
 export const server = http.createServer(app);
-//# sourceMappingURL=main.js.map
+//# sourceMappingURL=expressApp.js.map
