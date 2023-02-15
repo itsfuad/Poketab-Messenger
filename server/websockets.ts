@@ -61,7 +61,7 @@ io.on('connection', (socket) => {
 				if (type === 'text'){
 					//create new Worker
 					//TODO: use postMessage instead of workerData
-					const worker = new Worker('./server/workers/messageParser.js', {workerData: { message: message }});
+					const worker = new Worker('./production/server/workers/messageParser.js', {workerData: { message: message }});
 					worker.on('message', (data) => {
 						socket.broadcast.to(SocketIds[socket.id].key).emit('newMessage', data, type, id, uId, reply, replyId, options);
 						callback(id);
