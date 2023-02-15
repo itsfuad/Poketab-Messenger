@@ -664,7 +664,7 @@ img{
     padding: 10px;
     border-radius: 15px;
     width: 260px;
-    background: var(--glass);
+    background: var(--msg-send);
     backdrop-filter: blur(1px);
     align-items: center;
     position: relative;
@@ -673,7 +673,7 @@ img{
     .icon{
         font-size: 4rem;
         padding: 15px;
-        color: #ffffff50;
+        color: #ffffff9c;
         background: var(--glass);
         width: 100px;
         height: 100px;
@@ -1234,7 +1234,7 @@ i[class^=fa-]{
         top: 0;
         width: 100%;
         z-index: 10000;
-        & > div{
+        .btn{
             padding: 10px;
             border-radius: 25px;
             width: 40px;
@@ -1260,6 +1260,12 @@ i[class^=fa-]{
             cursor: move;
         }
     }
+}
+
+.btn{
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .fa-xmark{

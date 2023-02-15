@@ -637,7 +637,7 @@ img {
   padding: 10px;
   border-radius: 15px;
   width: 260px;
-  background: var(--glass);
+  background: var(--msg-send);
   -webkit-backdrop-filter: blur(1px);
           backdrop-filter: blur(1px);
   align-items: center;
@@ -648,7 +648,7 @@ img {
 .file_preview .icon {
   font-size: 4rem;
   padding: 15px;
-  color: rgba(255, 255, 255, 0.3137254902);
+  color: rgba(255, 255, 255, 0.6117647059);
   background: var(--glass);
   width: 100px;
   height: 100px;
@@ -1183,7 +1183,7 @@ i[class^=fa-] {
   width: 100%;
   z-index: 10000;
 }
-#lightbox .tool > div {
+#lightbox .tool .btn {
   padding: 10px;
   border-radius: 25px;
   width: 40px;
@@ -1191,7 +1191,7 @@ i[class^=fa-] {
   text-align: center;
   background: var(--focus-dark);
 }
-#lightbox .tool > div:hover {
+#lightbox .tool .btn:hover {
   cursor: pointer;
   background: rgba(43, 61, 80, 0.7411764706);
 }
@@ -1206,6 +1206,12 @@ i[class^=fa-] {
   width: 100%;
   height: 100%;
   cursor: move;
+}
+
+.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .fa-xmark {
