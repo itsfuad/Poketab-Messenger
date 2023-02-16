@@ -75,9 +75,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
             height: 100%;
             width: 100%;
             position: absolute;
+        }
+
+        .count{
+            background: hsl(0deg 0% 100% / 7%);
+            width: 100%;
+            text-align: center;
+            padding: 5px;
+            border-radius: 5px;
         }
 
         #admin{
@@ -291,6 +300,11 @@
         }
 
         #display{
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
             white-space: break-spaces;
             padding: 10px;
             border-radius: 5px;
@@ -425,7 +439,11 @@
                         const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
                         const formatter = new Intl.DateTimeFormat('en-US', options);
                         if (Object.keys(data).length > 0){
+                            const count = document.createElement('p');
+                            count.classList.add('count');
+                            count.textContent = `Active Keys: ${Object.keys(data).length}`;
                             display.innerHTML = JSON.stringify(data, null, 2);
+                            display.prepend(count);
                         } else {
                             const p = document.createElement('p');
                             p.classList.add('log');

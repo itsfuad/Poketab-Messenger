@@ -1,6 +1,6 @@
 console.log('Database ready');
 import { Key } from './schema/Key.js';
-const Keys = {};
+export const Keys = {};
 class KeyStore {
     //returns true if key is in the Keys object
     hasKey(key) {

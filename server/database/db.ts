@@ -3,7 +3,7 @@ console.log('Database ready');
 import { Key } from './schema/Key.js';
 import { User } from './schema/User.js';
 
-const Keys: {[key: string]: Key} = {};
+export const Keys: {[key: string]: Key} = {};
 
 class KeyStore {
 //returns true if key is in the Keys object

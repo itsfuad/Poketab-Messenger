@@ -3,7 +3,7 @@ import { Router } from 'express';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
 import { HMAC_KEY } from '../expressApp.js';
-import { keyStore } from '../database/db.js';
+import { Keys } from '../database/db.js';
 const AdminSessionSecret = new Map();
 const router = Router();
 export default router;
@@ -76,7 +76,8 @@ router.post('/data', cookieParser(), (req, res) => {
     const signature = crypto.createHmac('sha256', HMAC_KEY).update(admin_username + salt + admin_password).digest('hex');
     if (req.signedCookies.auth == signature) {
         if (sessionId == AdminSessionSecret.get('Admin')) {
-            res.status(200).send(keyStore);
+            console.log('Admin access granted');
+            res.status(200).send(Keys);
         }
         else {
             res.status(403).send('Unauthorized');
