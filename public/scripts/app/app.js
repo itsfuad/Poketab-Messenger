@@ -585,9 +585,9 @@ function getFormattedDate(timestamp) {
 	if (differenceInMinutes === 0) {
 		return 'Just now';
 	} else if (differenceInMinutes === 1) {
-		return '1 minute ago';
+		return '1 min ago';
 	} else if (differenceInMinutes < 10) {
-		return `${differenceInMinutes} minutes ago`;
+		return `${differenceInMinutes} mins ago`;
 	} else {
 		return new Intl.DateTimeFormat('default', {
 			hour: 'numeric',
