@@ -1,6 +1,6 @@
 //theme colors and backgrounds
 export const themeAccent = {
-	blue: {
+	"blue": {
 		secondary: 'hsl(213, 98%, 57%)',
 		foreground: '#e1eeff',
 		msg_get: 'hsl(213, 40%, 57%)',
@@ -8,7 +8,23 @@ export const themeAccent = {
 		msg_send: 'hsl(213, 98%, 57%)',
 		msg_send_reply: 'hsl(213, 35%, 27%)',
 	},
-	geometry: {
+	"ocean": {
+		secondary: 'hsl(187, 100%, 37%)',
+		foreground: '#e1eeff',
+		msg_get: 'hsl(187, 40%, 57%)',
+		msg_get_reply: 'hsl(187, 85%, 20%)',
+		msg_send: 'hsl(187, 100%, 37%',
+		msg_send_reply: 'hsl(187, 40%, 32%)',
+	},
+	"cyberpunk": {
+		secondary: 'hsl(233, 100%, 71%)',
+		foreground: '#e1eeff',
+		msg_get: 'hsl(233, 40%, 57%)',
+		msg_get_reply: 'hsl(233, 64%, 30%)',
+		msg_send: 'hsl(233, 100%, 71%)',
+		msg_send_reply: 'hsl(233, 24%, 32%)',
+	},
+	"geometry": {
 		secondary: 'hsl(15, 98%, 57%)',
 		foreground: '#e1eeff',
 		msg_get: 'hsl(15, 40%, 57%)',
@@ -16,7 +32,7 @@ export const themeAccent = {
 		msg_send: 'hsl(15, 98%, 57%)',
 		msg_send_reply: 'hsl(15, 35%, 27%)',
 	},
-	dark_mood: {
+	"blackboard": {
 		secondary: 'hsl(216, 37%, 44%)',
 		foreground: '#e1eeff',
 		msg_get: 'hsl(216, 27%, 33%)',
@@ -24,7 +40,7 @@ export const themeAccent = {
 		msg_send: 'hsl(216, 37%, 44%)',
 		msg_send_reply: 'hsl(216, 20%, 21%)',
 	},
-	forest: {
+	"forest": {
 		secondary: 'hsl(162, 60%, 42%)',
 		foreground: '#e1eeff',
 		msg_get: 'hsl(162, 18%, 41%)',
@@ -34,5 +50,33 @@ export const themeAccent = {
 	}
 };
 
-//this array contains all the themes, which helps to traverse through the themes easily
-export const themeArray = ['blue', 'geometry', 'dark_mood', 'forest'];
+export const themeArray = Object.keys(themeAccent);
+
+const _themePickerElement = document.createElement('div');
+_themePickerElement.className = 'themeChooser';
+
+const themeList = document.createElement('ul');
+themeList.className = 'themeList';
+
+themeArray.forEach((theme) => {
+	const themeElement = document.createElement('li');
+	themeElement.className = 'theme clickable';
+	themeElement.id = theme;
+
+	const themeIcon = document.createElement('img');
+	themeIcon.className = 'themeIcon';
+	themeIcon.src = `/images/backgrounds/${theme}_icon.webp`;
+	themeIcon.alt = 'Theme Thumbnail';
+
+	const themeName = document.createElement('span');
+	//uppercase the theme
+	themeName.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+
+	themeElement.appendChild(themeIcon);
+	themeElement.appendChild(themeName);
+	themeList.appendChild(themeElement);
+});
+
+_themePickerElement.appendChild(themeList);
+
+export const themePicker = _themePickerElement;

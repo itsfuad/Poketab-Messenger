@@ -7,7 +7,7 @@ import Mustache from '../../libs/mustache.min.js';
 import {Stickers} from '../../stickers/stickersConfig.js';
 import { Prism } from '../../libs/prism/prism.min.js';
 import { PanZoom } from '../../libs/panzoom.min.js';
-import { themeAccent, themeArray } from './themes.js';
+import { themeAccent, themeArray, themePicker } from './themes.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
@@ -285,9 +285,12 @@ loadReacts();
  * Loads theme
  */
 function loadTheme(){
+	//append the theme to the DOM
+	document.body.appendChild(themePicker);
+
 	THEME = localStorage.getItem('theme');
 	if(THEME == null || themeArray.includes(THEME) == false){
-		THEME = 'blue';
+		THEME = 'ocean';
 		localStorage.setItem('theme', THEME);
 	}
 	document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${THEME}_w.webp')`);
@@ -1853,7 +1856,7 @@ document.getElementById('themeButton').addEventListener('click', ()=>{
 	hideOptions();
 	if(THEME){
 		if (themeArray.includes(THEME) == false){
-			THEME = 'blue';
+			THEME = 'ocean';
 			localStorage.setItem('theme', THEME);
 		}
 		document.querySelector('.themeChooser').querySelectorAll('.theme').forEach(theme => {

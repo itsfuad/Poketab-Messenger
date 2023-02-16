@@ -637,9 +637,10 @@ img {
   padding: 10px;
   border-radius: 15px;
   width: 260px;
-  background: var(--msg-send);
-  -webkit-backdrop-filter: blur(1px);
-          backdrop-filter: blur(1px);
+  background: rgba(255, 255, 255, 0.1294117647);
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
+  border: 3px solid var(--glass);
   align-items: center;
   position: relative;
   justify-content: center;

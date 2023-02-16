@@ -664,8 +664,9 @@ img{
     padding: 10px;
     border-radius: 15px;
     width: 260px;
-    background: var(--msg-send);
-    backdrop-filter: blur(1px);
+    background: #ffffff21;
+    backdrop-filter: blur(3px);
+    border: 3px solid var(--glass);
     align-items: center;
     position: relative;
     justify-content: center;
