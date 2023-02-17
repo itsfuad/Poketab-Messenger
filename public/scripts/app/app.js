@@ -1010,7 +1010,11 @@ function sendReact(react){
 	if (reactArray.primary.includes(react) || reactArray.expanded.includes(react)){
 		const messageId = targetMessage.id;
 		localStorage.setItem('lastReact', react);
-		socket.emit('react', react, messageId, myId);
+		if (Array.from(userInfoMap.keys()).length < 2){
+			getReact(react, messageId, myId);
+		}else{
+			socket.emit('react', react, messageId, myId);
+		}
 		hideOptions();
 	}
 }
@@ -1208,17 +1212,17 @@ function arrayToMap(array) {
 	return map;
 }
 
-export function getReact(type, messageId, uid){
+export function getReact(reactEmoji, messageId, uid){
 	try{
 		const target = document.getElementById(messageId).querySelector('.reactedUsers');
 		const exists = target?.querySelector('.list') ?? false;
 		if (exists){
 			const list = target.querySelector('.list[data-uid="'+uid+'"]');
 			if (list){
-				if (list.textContent == type){
+				if (list.textContent == reactEmoji){
 					list.remove();
 				}else{
-					list.textContent = type;
+					list.textContent = reactEmoji;
 				}
 			}else{
 				reactsound.play();
@@ -1226,7 +1230,7 @@ export function getReact(type, messageId, uid){
 				const div = document.createElement('div');
 				div.classList.add('list');
 				div.dataset.uid = uid;
-				div.textContent = type;
+				div.textContent = reactEmoji;
 				fragment.append(div);
 				target.append(fragment);
 			}
@@ -1237,7 +1241,7 @@ export function getReact(type, messageId, uid){
 			const div = document.createElement('div');
 			div.classList.add('list');
 			div.dataset.uid = uid;
-			div.textContent = type;
+			div.textContent = reactEmoji;
 			fragment.append(div);
 			target.append(fragment);
 			reactsound.play();
