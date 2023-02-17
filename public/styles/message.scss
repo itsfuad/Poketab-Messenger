@@ -482,6 +482,15 @@ pre{
         align-items: center;
         justify-content: center;
         width: fit-content;
+
+        &.msg:hover::before {
+            content: '';
+            width: 100%;
+            height: 100%;
+            background: #7c7c7c1f;
+            position: absolute;
+            border-radius: inherit;
+        }
         
         .image{
             object-fit: contain;
