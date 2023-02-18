@@ -71,10 +71,9 @@ app.get('/create', (req, res) => {
     res.setHeader('Developer', 'Fuad Hasan');
     //create a key and send it to the client as cookie
     const key = makeid();
-    const signature = crypto.createHmac('sha256', HMAC_KEY).update(key).digest('hex');
     //st cookie for 2 minutes
     res.cookie('key', key, { maxAge: 120000, httpOnly: true, signed: true, sameSite: 'strict' });
-    res.render('login/newUser', { title: 'Create', avList: avList, key: null, version: `v.${version}`, hash: nonce, takenAvlists: null });
+    res.render('login/newUser', { title: 'Create', avList: avList, key: null, version: `v.${version}`, hash: nonce, takenAvlists: null, cookieCreated: Date.now() });
 });
 app.get('/join', (_, res) => {
     const nonce = crypto.randomBytes(16).toString('hex');

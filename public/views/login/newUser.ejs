@@ -650,6 +650,52 @@
     <% } %>
     <% if (title === 'Create') { %>
         <script type="module" defer src="/scripts/login/createchat.min.js"></script>
+        <script defer nonce="<%=hash%>">
+
+        
+        function remainingTime(totalTime, elapsedTime) {
+          // Calculate the remaining time
+          const remaining = Math.floor(totalTime) - Math.floor(elapsedTime);
+          // Calculate the minutes and seconds
+          const minutes = Math.floor(remaining / 60);
+          const seconds = Math.floor(remaining % 60);	
+          // Return the remaining time in the format "00:00"
+          return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        }
+
+          const timerElem = document.querySelector('.remainingTime');
+          let elapsedTime = 1;
+          let addedShake = false;
+
+          const cookieCreated = "<%=cookieCreated%>";
+
+          const timeCount = Math.floor(120 - (Date.now() - parseInt(cookieCreated)) / 1000);
+
+          //console.log(cookieCreated, timeCount);
+
+          let timer = setInterval(() => {
+            if ((elapsedTime >= timeCount - 10) && !addedShake){
+              timerElem.classList.add('shake');
+              timerElem.style.color = '#ff2a20';
+              addedShake = true;
+            }
+            if (elapsedTime >= timeCount){
+              errorSound.play();
+              timerElem.classList.remove('shake');
+              const btn = document.getElementById('enter');
+              btn.innerHTML = 'Renew session <i class="fa-solid fa-rotate-right"></i>';
+              btn.style.background = '#ff2a20';
+              clearInterval(timer);
+              timer = undefined;
+              errlog('usernameErr', 'Session expired <i class="fa-solid fa-triangle-exclamation"></i>');
+              btn.onclick = () => {
+                btn.innerHTML = 'Please wait <i class="fa-solid fa-rotate-right fa-spin"></i>';
+                location.reload();
+              };
+            }
+            timerElem.textContent = remainingTime(timeCount, elapsedTime++);
+          }, 1000);
+        </script>
     <% } else if (title === 'Join') { %>
         <script type="module" src="/socket.io/socket.io.js"></script>
         <script type="module" defer src="/scripts/login/joinchat.min.js"></script>
