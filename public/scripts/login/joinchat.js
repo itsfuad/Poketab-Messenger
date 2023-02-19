@@ -1,4 +1,4 @@
-import { check, errlog } from './common.min.js';
+import { errlog, usernameformat, clickSound } from './common.min.js';
 
 // eslint-disable-next-line no-undef
 const socket = io('/auth');
@@ -11,8 +11,6 @@ const form = document.getElementById('form');
 const next = document.getElementById('next');
 const form1 = document.getElementById('subform1');
 const form2 = document.getElementById('subform2');
-
-export const hashes = [];
 
 const keyformat = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/;
 
@@ -33,10 +31,99 @@ function validateKey(){
 	return true;
 }
 
+let usersData = {};
+
+async function validateUser(){
+
+	const username = document.getElementById('username').value;
+	const avatarsChecked = document.querySelector('.avatar input[type="radio"]:checked');
+
+	if (username.length == 0){
+		document.getElementById('username').focus();
+		errlog('usernameErr', 'Username is required <i class="fa-solid fa-triangle-exclamation"></i>');
+		return false;
+	}
+	if(username.length < 3 || username.length > 20){
+		document.getElementById('username').focus();
+		errlog('usernameErr', 'Name must be between 3 and 20 characters <i class="fa-solid fa-triangle-exclamation"></i>');
+		return false;
+	}
+	if(!usernameformat.test(username)){
+		document.getElementById('username').focus();
+		errlog('usernameErr', 'Cannot contain special charecters or space <i class="fa-solid fa-triangle-exclamation"></i>');
+		return false;
+	}
+	if (!avatarsChecked){
+		errlog('avatarErr', 'Avatar is required <i class="fa-solid fa-triangle-exclamation"></i>');
+		return false;
+	}
+
+	const hashes = usersData.map(userData => userData.hash);
+	const avatarsTaken = usersData.map(userData => userData.avatar);
+
+	if (hashes){
+
+		const encodedText = new TextEncoder().encode(username);
+		const hashBuffer = await crypto.subtle.digest('SHA-256', encodedText);
+		const hashArray = Array.from(new Uint8Array(hashBuffer));
+		const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+		if (hashes.includes(hashHex)){
+			errlog('usernameErr', 'Username taken <i class="fa-solid fa-triangle-exclamation"></i>');
+			return false;
+		}
+	}else{
+		return false;
+	}
+
+	if (avatarsTaken){
+		const selectedAvatar = document.querySelector('.avatar input[type=radio]:checked');
+		if (!selectedAvatar){
+			errlog('avatarErr', 'Avatar is taken by someone else <i class="fa-solid fa-triangle-exclamation"></i>');
+			return false;
+		}
+		if (avatarsTaken.includes(selectedAvatar.value)){
+			errlog('avatarErr', 'Avatar is taken by someone else <i class="fa-solid fa-triangle-exclamation"></i>');
+			return false;
+		}
+	}else{
+		return false;
+	}
+
+	return true;
+}
+
+async function check(){
+
+	document.querySelectorAll('.errLog')
+		.forEach(elem => {
+			elem.textContent = '';
+		});
+	
+
+	const valid = await validateUser();
+	
+	if (valid){
+		document.getElementById('enter').innerHTML = 'Please Wait <i class="fa-solid fa-circle-notch fa-spin"></i>';
+	}
+
+	return valid;
+}
+
 form.addEventListener('submit', async (e) => {
 	e.preventDefault();
-	if ( validateKey() && await check(hashes)){
-		form.submit();
+
+	emitSignal(true);
+
+	if ( validateKey() && await check(usersData)){
+
+		usersData.forEach(userData => {
+			const selectedAvatar = document.querySelector('.avatar input[type=radio]:checked');
+			if (selectedAvatar && selectedAvatar.value != userData.avatar){
+				form.submit();
+			}
+		});
+
 	}
 });
 
@@ -58,12 +145,15 @@ const keyElem = document.getElementById('key');
 	});
 });
 
-function emitSignal(){
+
+function emitSignal(onlySignal = false){
 	const key = document.getElementById('key').value;
 	socket.emit('joinRequest', key, (response) => {
 		document.getElementById('keyLabel').innerHTML = 'Enter key <i id=\'lb__icon\' class="fa-solid fa-key"></i>';
 		if (response.success){
-			const usersData = response.message;
+			usersData = response.message;
+			console.log('Users data: ');
+			console.log(usersData);
 			//remove existing avatars
 			usersData.forEach(userData => {
 				const avatar = document.getElementById(userData.avatar);
@@ -71,24 +161,35 @@ function emitSignal(){
 					avatar.closest('.avatar').querySelector('img').classList.add('taken');
 					avatar.remove();
 				}
-				hashes.push(userData.hash);
 			});
 
-			form1.classList.add('done');
-			form2.classList.add('active');
+			if (!onlySignal){
+				form1.classList.add('done');
+				form2.classList.add('active');
+			}
 		}else{
 			errlog('keyErr', `${response.message} <i class="fa-solid fa-ghost"></i>`);
+			
+			next.classList.remove('clickable');
+			next.innerHTML = 'Reload <i class="fa-solid fa-rotate-right"></i>';
+			next.style.background = '#ff2a20';
+			next.onclick = () => {
+				clickSound.currentTime = 0;
+				clickSound.play();
+				next.innerHTML = 'Please wait <i class="fa-solid fa-rotate-right fa-spin"></i>';
+				location.reload();
+			};
 		}
 	});
 }
 
-next.addEventListener('click', (e) => {
+next.onclick = (e) => {
 	e.preventDefault();
 	document.getElementById('keyLabel').innerHTML = 'Checking <i id=\'lb__icon\' class="fa-solid fa-circle-notch fa-spin"></i>';
 	if (validateKey()){
 		emitSignal();
 	}
-});
+};
 
 if (window.autoFetch){
 	emitSignal();

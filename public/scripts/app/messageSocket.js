@@ -37,7 +37,7 @@ socket.on('connect', () => {
 		id: myId,
 		avatar: myAvatar,
 		key: myKey,
-		maxuser: maxUser,
+		maxUser: maxUser,
 	};
 	socket.emit('join', params, function(err){
 		if (err) {

@@ -86,6 +86,11 @@ app.get('/join/:key', (req, res) => {
     const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
     if (key_format.test(req.params.key)) {
         if (keyStore.hasKey(req.params.key)) {
+            //if key is full, redirect to join page
+            if (keyStore.isFull(req.params.key)) {
+                res.redirect('/join');
+                return;
+            }
             const takenAvlists = keyStore.getUserList(req.params.key).map((user) => user.avatar);
             const nonce = crypto.randomBytes(16).toString('hex');
             res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'unsafe-inline' 'self'; script-src 'self' 'nonce-${nonce}';`);

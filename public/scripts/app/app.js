@@ -1257,19 +1257,35 @@ export function getReact(reactEmoji, messageId, uid){
 			while (reactsOfMessage.firstChild) {
 				reactsOfMessage.removeChild(reactsOfMessage.firstChild);
 			}
+
+
 			let count = 0;
+			let totalReacts = 0;
+
+			const reactItems = document.createElement('span');
+			reactItems.classList.add('react-item');
+
 			map.forEach((value, key) => {
-				if (count >= 2){
-					reactsOfMessage.querySelector('.react-item').remove();
+				if (count >= 3){
+					reactItems.querySelector('.react').remove();
 				}
-				const fragment = document.createDocumentFragment();
-				const span = document.createElement('span');
-				span.classList.add('react-item');
-				span.textContent = `${key}${value}`;
-				fragment.append(span);
-				reactsOfMessage.append(fragment);
+
+				const react = document.createElement('span');
+				react.classList.add('react');
+				react.textContent = key;
+
+				reactItems.append(react);
+
 				count++;
+				totalReacts += value;
 			});
+			
+			const reactsCount = document.createElement('span');
+			reactsCount.classList.add('react-count');
+			reactsCount.textContent = totalReacts;
+
+			reactsOfMessage.append(reactItems, reactsCount);
+
 			document.getElementById(messageId).classList.add('react');
 			checkgaps(messageId);
 		}else{

@@ -652,6 +652,7 @@
         <script type="module" defer src="/scripts/login/createchat.min.js"></script>
         <script defer nonce="<%=hash%>">
 
+        const errorSound = new Audio('/sounds/error.mp3');
         
         function remainingTime(totalTime, elapsedTime) {
           // Calculate the remaining time
@@ -674,7 +675,7 @@
           //console.log(cookieCreated, timeCount);
 
           let timer = setInterval(() => {
-            if ((elapsedTime >= timeCount - 10) && !addedShake){
+            if ((timeCount - elapsedTime <= 10) && !addedShake){
               timerElem.classList.add('shake');
               timerElem.style.color = '#ff2a20';
               addedShake = true;

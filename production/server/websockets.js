@@ -2,7 +2,7 @@
 import { server } from './expressApp.js';
 import { Server } from 'socket.io';
 //utility functions for the server
-import { isRealString, reactArray } from './utils/validation.js';
+import { avList, isRealString, reactArray } from './utils/validation.js';
 import { keyStore, SocketIds } from './database/db.js';
 import { User } from './database/schema/User.js';
 import crypto from 'crypto';
@@ -16,13 +16,33 @@ io.on('connection', (socket) => {
             if (!isRealString(params.name) || !isRealString(params.key)) {
                 return callback('Empty informations');
             }
-            if (params.avatar === undefined) {
+            if (params.avatar === undefined || !avList.includes(params.avatar)) {
                 return callback('Invalid Avatar');
             }
-            if (keyStore.getKey(params.key)?.userCount >= keyStore.getKey(params.key)?.maxUser) {
+            else {
+                //if the key is not new
+                if (keyStore.getKey(params.key)) {
+                    //get all taken avatars
+                    const takenAvatars = keyStore.getUserList(params.key).map((user) => user.avatar);
+                    //check if the avatar is taken
+                    if (takenAvatars.includes(params.avatar)) {
+                        return callback('Avatar is taken');
+                    }
+                }
+            }
+            if (params.maxUser === undefined) {
+                return callback('Invalid Max User');
+            }
+            if (params.maxUser < 2 || params.maxUser > 10) {
+                return callback('Invalid Max User Range');
+            }
+            if (params.key == null || params.key == undefined) {
+                return callback('Invalid Key');
+            }
+            if (keyStore.isFull(params.key)) {
                 return callback('Key is full.');
             }
-            keyStore.addUser(params.key, new User(params.name, params.id, params.avatar));
+            keyStore.addUser(params.key, new User(params.name, params.id, params.avatar), params.maxUser);
             console.log(`User ${params.name} joined key ${params.key} | ${keyStore.getUserList(params.key).length} user(s) out of ${keyStore.getKey(params.key).maxUser}`);
             const userList = keyStore.getUserList(params.key);
             callback();

@@ -18,11 +18,14 @@ class KeyStore {
     clearKey(key) {
         delete Keys[key];
     }
-    addUser(key, user) {
+    isFull(key) {
+        return Keys[key]?.userCount >= Keys[key]?.maxUser;
+    }
+    addUser(key, user, maxUser) {
         if (!Keys[key]) {
             console.log("Created new key");
             Keys[key] = new Key(key);
-            Keys[key].maxUser = 2;
+            Keys[key].maxUser = maxUser;
         }
         Keys[key].__addUser(user);
         console.log(`${user.username} joined key: ${key}`);

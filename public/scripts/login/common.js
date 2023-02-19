@@ -1,69 +1,8 @@
 'use strict';
 
-const clickSound = new Audio('/sounds/click.mp3');
+export const clickSound = new Audio('/sounds/click.mp3');
 
-const usernameformat = /^[a-zA-Z0-9\u0980-\u09FF]{3,20}$/;
-
-async function validateUser(hashes = null){
-
-	const username = document.getElementById('username').value;
-	const avatars = document.querySelectorAll('.avatar input[type="radio"]');
-
-	let checked = false;
-
-	for (let i = 0; i < avatars.length; i++){
-		if (avatars[i].checked){
-			checked = true;
-			break;
-		}
-	}
-
-	if (hashes){
-
-		const encodedText = new TextEncoder().encode(username);
-		const hashBuffer = await crypto.subtle.digest('SHA-256', encodedText);
-		const hashArray = Array.from(new Uint8Array(hashBuffer));
-		const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-		if (hashes.includes(hashHex)){
-			errlog('usernameErr', 'Username taken <i class="fa-solid fa-triangle-exclamation"></i>');
-			return false;
-		}
-	}
-
-	if (username.length == 0){
-		document.getElementById('username').focus();
-		errlog('usernameErr', 'Username is required <i class="fa-solid fa-triangle-exclamation"></i>');
-		return false;
-	}
-	if(username.length < 3 || username.length > 20){
-		document.getElementById('username').focus();
-		errlog('usernameErr', 'Name must be between 3 and 20 characters <i class="fa-solid fa-triangle-exclamation"></i>');
-		return false;
-	}
-	if(!usernameformat.test(username)){
-		document.getElementById('username').focus();
-		errlog('usernameErr', 'Cannot contain special charecters or space <i class="fa-solid fa-triangle-exclamation"></i>');
-		return false;
-	}
-	if (!checked){
-		errlog('avatarErr', 'Avatar is required <i class="fa-solid fa-triangle-exclamation"></i>');
-		return false;
-	}
-	return checked;
-}
-
-export async function check(hashes = null){
-	document.querySelectorAll('.errLog')
-		.forEach(elem => {
-			elem.textContent = '';
-		});
-	const valid = await validateUser(hashes);
-	if (valid){
-		document.getElementById('enter').innerHTML = 'Please Wait <i class="fa-solid fa-circle-notch fa-spin"></i>';
-	}
-	return valid;
-}
+export const usernameformat = /^[a-zA-Z0-9\u0980-\u09FF]{3,20}$/;
 
 let errTimeout = undefined;
 
