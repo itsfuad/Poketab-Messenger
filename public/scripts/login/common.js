@@ -77,4 +77,8 @@ document.querySelectorAll('.clickable').forEach(elem => {
 	});
 });
 
+const enter = document.getElementById('enter');
+enter.removeAttribute('disabled');
+enter.style.cursor = 'pointer';
+
 console.log('%ccommon.js loaded', 'color: limegreen;');

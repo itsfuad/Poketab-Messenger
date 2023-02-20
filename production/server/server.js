@@ -129,8 +129,8 @@ app.post('/chat', (req, res) => {
         res.setHeader('Content-Security-Policy', 'script-src \'none\'');
         res.status(400).send({
             error: !isValidUsername ?
-                'Don\'t try to be oversmart. Use only alphanumeric characters'
-                : 'Don\'t try to be oversmart. Choose avatar from the list'
+                'Invalid username'
+                : 'Invalid avatar'
         });
     }
     //If no problem so far,
