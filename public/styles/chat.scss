@@ -689,11 +689,12 @@ img{
         align-items: flex-start;
         justify-content: center;
         gap: 5px;
-        width: 90%;
+        width: 100%;
         background: var(--glass);
         padding: 10px;
         border-radius: 10px;
         font-size: 0.8rem;
+        white-space: nowrap;
         .name, .size{
             overflow: hidden;
             width: 100%;

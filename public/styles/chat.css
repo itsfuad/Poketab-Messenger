@@ -664,11 +664,12 @@ img {
   align-items: flex-start;
   justify-content: center;
   gap: 5px;
-  width: 90%;
+  width: 100%;
   background: var(--glass);
   padding: 10px;
   border-radius: 10px;
   font-size: 0.8rem;
+  white-space: nowrap;
 }
 .file_preview .meta .name, .file_preview .meta .size {
   overflow: hidden;
