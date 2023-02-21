@@ -448,6 +448,11 @@
       align-items: center;
       justify-content: center;
     }
+
+    button[disabled]{
+      filter: brightness(0.7) !important;
+      cursor: not-allowed !important;
+    }
     
     #wait {
       display: none;
@@ -471,42 +476,6 @@
 
     .fa-triangle-exclamation, .fa-circle-exclamation{
       color: orange !important;
-    }
-    
-    @-webkit-keyframes shake {
-      0% {
-        transform: translateX(1px);
-      }
-      10% {
-        transform: translateX(-1px);
-      }
-      20% {
-        transform: translateX(-3px);
-      }
-      30% {
-        transform: translateX(3px);
-      }
-      40% {
-        transform: translateX(1px);
-      }
-      50% {
-        transform: translateX(-1px);
-      }
-      60% {
-        transform: translateX(-3px);
-      }
-      70% {
-        transform: translateX(3px);
-      }
-      80% {
-        transform: translateX(-1px);
-      }
-      90% {
-        transform: translateX(1px);
-      }
-      100% {
-        transform: translateX(1px);
-      }
     }
     
     @keyframes shake {

@@ -120,6 +120,7 @@ form.addEventListener('submit', async (e) => {
 		usersData.forEach(userData => {
 			const selectedAvatar = document.querySelector('.avatar input[type=radio]:checked');
 			if (selectedAvatar && selectedAvatar.value != userData.avatar){
+				document.getElementById('enter').setAttribute('disabled', 'disabled');
 				form.submit();
 			}
 		});

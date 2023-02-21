@@ -56,6 +56,7 @@ function check(){
 form.addEventListener('submit', async (e) => {
 	e.preventDefault();
 	if (check()){
+		document.getElementById('enter').setAttribute('disabled', 'disabled');
 		form.submit();
 	}
 });
