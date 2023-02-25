@@ -1,4 +1,5 @@
-# Poketab Messenger
+# Poketab Messenger 
+[![DeepScan grade](https://deepscan.io/api/teams/20528/projects/23967/branches/733333/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=20528&pid=23967&bid=733333)
 
 Poketab Messenger is a temporary chat application that allows users to create and join group chats with up to 10 people. The app utilizes a unique key system to ensure privacy and security, as users can only join a chat by using a key generated and sent by the server.
 
@@ -20,7 +21,6 @@ Poketab Messenger is a temporary chat application that allows users to create an
 **Note:** Poketab Messenger is a Progressive Web App (PWA) and does not require any heavy installation. It can be accessed on any device and browser that supports web standards.
 
 Poketab Messenger is perfect for anyone looking for a secure and temporary chat option. Give it a try today!
-
 
 
 ## Looking for sticker artist
