@@ -1,3 +1,5 @@
+
+![Poketab Logo](https://raw.githubusercontent.com/itsfuad/Poketab-Messenger/main/public/images/avatars/pikachu(custom).png) 
 # Poketab Messenger 
 [![DeepScan grade](https://deepscan.io/api/teams/20528/projects/23967/branches/733333/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=20528&pid=23967&bid=733333)
 
@@ -23,8 +25,29 @@ Poketab Messenger is a temporary chat application that allows users to create an
 Poketab Messenger is perfect for anyone looking for a secure and temporary chat option. Give it a try today!
 
 
-## Looking for sticker artist
-+ Make some sticker art based on *Pokemon* theme and charecters. 
+
+## To Contribute
+
+### Clone to your PC
+
+To develop Filesharing PWA locally, follow these steps:
+
+1. Clone the repository
+2. Install dependencies using `npm install`
+3. Start the development server using `npm start`
+4. Open the app in your browser at `http://localhost:3000`
+
+### Pull Request
+
+To contribute to this project, follow these steps:
+
+1. Fork the repository
+2. Create a new branch using `git checkout -b my-feature-branch`
+3. Make changes and commit them using `git commit -m "Add some feature"`
+4. Push changes to your fork using `git push origin my-feature-branch`
+5. Create a pull request
+
+## Adding more stickers
 + Pull request uploading images into /public/stickers/YOUR_STICKER_NAME/ folder
 + Create two subfolders named 'animated' and 'static' and put your sticker in the directories. Name your image in count from 1. 
 ```
@@ -46,3 +69,10 @@ const Stickers = [
     {"name": "frog", "count": "30", "icon": "18"},
 ]
 ```
+
+## License
+
+Filesharing PWA is licensed under the MIT License. See the `LICENSE` file for more information.
+
+# Credits
+Lead Developer [Fuad Hasan](https://github.com/itsfuad).
