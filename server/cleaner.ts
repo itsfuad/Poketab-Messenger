@@ -30,7 +30,11 @@ export function cleanJunks(){
 				return unlink(`uploads/${file}`);
 			}
 		});
-		Promise.all(filesToDelete);
+		Promise.all(filesToDelete).then(() => {
+			console.log('Cleaned all junk files');
+		}).catch(() => {
+			console.log('Error while cleaning junk files');
+		});
 		console.log(`Cleaning junk files | Process ID: ${process.pid}`);
 	}).catch(err => {
 		console.log(err);

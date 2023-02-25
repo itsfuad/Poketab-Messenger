@@ -21,12 +21,10 @@ export function processAudioStream(stream){
 
 			//if the user stops the audio stream
 			stream.oninactive = function(){
-				if (audioContext){
-					audioContext.close();
-					audioWorkletNode.disconnect();
-					mediaStreamSource.disconnect();
-					document.documentElement.style.setProperty('--amplitude', '0px');
-				}
+				audioContext.close();
+				audioWorkletNode.disconnect();
+				mediaStreamSource.disconnect();
+				document.documentElement.style.setProperty('--amplitude', '0px');
 			};
 		})
 		.catch((err) => {

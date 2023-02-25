@@ -7,7 +7,6 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import cors from 'cors';
 import crypto from 'crypto';
-import userAgent from 'express-useragent';
 
 //utility functions for the server
 import { validateUserName, validateAvatar, avList } from './utils/validation.js';

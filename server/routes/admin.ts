@@ -6,7 +6,7 @@ import crypto from 'crypto';
 
 import { HMAC_KEY } from '../expressApp.js';
 
-import { keyStore, Keys } from '../database/db.js';
+import { Keys } from '../database/db.js';
 
 const AdminSessionSecret = new Map();
 

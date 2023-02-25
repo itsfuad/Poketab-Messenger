@@ -115,7 +115,7 @@ form.addEventListener('submit', async (e) => {
 
 	emitSignal(true);
 
-	if ( validateKey() && await check(usersData)){
+	if ( validateKey() && await check()){
 
 		usersData.forEach(userData => {
 			const selectedAvatar = document.querySelector('.avatar input[type=radio]:checked');

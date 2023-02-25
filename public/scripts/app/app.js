@@ -252,11 +252,9 @@ function loadReacts(){
 
 	let lastReact = localStorage.getItem('lastReact') || reactArray.last;
 
-	if (!reactArray.expanded.includes(lastReact)){
+	if (!reactArray.expanded.includes(lastReact) || reactArray.primary.includes(lastReact)){
 		lastReact = '🌻';
 	}
-
-	reactArray.primary.includes(lastReact) ? lastReact = '🌻' : lastReact;
 
 	const last = document.createElement('div');
 
@@ -602,7 +600,9 @@ function getFormattedDate(timestamp) {
  * @returns {string} Removed all charecter [<, >, ', "] from string
  */
 function sanitize(str){
-	if (str == undefined || str == '' || str == null){return '';}
+	if (str == null || str == ''){
+		return '';
+	}
 	str = str.replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll('\'', '&#39;').replaceAll('/', '&#x2F;');
 	return str;
 }
@@ -764,7 +764,6 @@ function emojiParser(text){
 function isEmoji(text) {
 	//replace white space with empty string
 	if(/^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/.test(text)){
-		text = text.replace(/\s/g, '');
 		return true;
 	}
 	return false;
@@ -778,6 +777,11 @@ function isEmoji(text) {
  * @param {HTMLElement} target The message that fired the event 
  */
 function showOptions(type, sender, target){
+
+	if (target == null){
+		return;
+	}
+
 	//removes all showing options first if any
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
 
@@ -791,11 +795,6 @@ function showOptions(type, sender, target){
 
 	document.getElementById('showMoreReactBtn').style.background = 'none';
 	
-	/*
-	if (target.classList.contains('imageReply')){
-		return;
-	}
-	*/
 	const downloadable = {
 		'image': true,
 		'file': true,
@@ -816,12 +815,12 @@ function showOptions(type, sender, target){
 		deleteOption.style.display = 'none';
 	}
 	//get if the message has my reaction or not
-	const clicked = Array.from(target?.closest('.message')?.querySelectorAll('.reactedUsers .list')).reduce((acc, curr) => {
+	const clicked = Array.from(target.closest('.message').querySelectorAll('.reactedUsers .list')).reduce((acc, curr) => {
 		return acc || curr.dataset.uid == myId;
 	}, false);
 	if (clicked){ //if the message has my reaction
 		//get how many reactions the message has
-		const clickedElement = target?.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
+		const clickedElement = target.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
 		//console.log(clickedElement);
 		if (reactArray.primary.includes(clickedElement)){ //if the message has my primary reaction
 			//selected react color
@@ -1215,7 +1214,7 @@ function arrayToMap(array) {
 export function getReact(reactEmoji, messageId, uid){
 	try{
 		const target = document.getElementById(messageId).querySelector('.reactedUsers');
-		const exists = target?.querySelector('.list') ?? false;
+		const exists = target.querySelector('.list') ? true : false;
 		if (exists){
 			const list = target.querySelector('.list[data-uid="'+uid+'"]');
 			if (list){
@@ -1247,9 +1246,9 @@ export function getReact(reactEmoji, messageId, uid){
 			reactsound.play();
 		}
     
-		let map = new Map();
 		const list = Array.from(target.querySelectorAll('.list'));
-		map = arrayToMap(list);
+		
+		const map = arrayToMap(list);
     
 		const reactsOfMessage = document.getElementById(messageId).querySelector('.reactsOfMessage');
 		if (reactsOfMessage && map.size > 0){
@@ -1303,8 +1302,18 @@ export function getReact(reactEmoji, messageId, uid){
 export function checkgaps(targetId){
 	try{
 		if (targetId){
+
 			const target = document.getElementById(targetId);
-			const after = target?.nextElementSibling;
+
+			if (target == null){
+				return;
+			}
+
+			const after = target.nextElementSibling;
+
+			if (after == null){
+				return;
+			}
     
 			if (target.classList.contains('react')){
 				if (target.querySelector('.seenBy').hasChildNodes()){
@@ -1318,7 +1327,7 @@ export function checkgaps(targetId){
 				target.querySelector('.seenBy').hasChildNodes() ? target.querySelectorAll('.seenBy img').forEach(elem => elem.style.marginTop = '0px') : null;
 			}
     
-			if (target != null && after != null && target?.dataset.uid === after?.dataset.uid){
+			if (target.dataset.uid === after.dataset.uid){
 				if (target.dataset.uid == myId){
 					if ((Math.abs(target.querySelector('.messageContainer').getBoundingClientRect().bottom - after.querySelector('.messageContainer').getBoundingClientRect().top) > 2)){
 						target.querySelector('.messageMain > *').style.borderBottomRightRadius = '15px';
@@ -1374,7 +1383,12 @@ function OptionEventHandler(evt, popup = true){
 
 	//console.log(evt.target);
 
-	const type = evt.target.closest('.message')?.dataset?.type;
+	const message = evt.target.closest('.message');
+	if (message == null){
+		return;
+	}
+
+	const type = message.dataset.type;
 
 	if (!typeList[type] || !evt.target.closest('.msg')){
 		return;
@@ -1389,7 +1403,7 @@ function OptionEventHandler(evt, popup = true){
 		}
 		targetMessage.message = evt.target.closest('.messageMain').querySelector('.text').textContent;
 		targetMessage.type = type;
-		targetMessage.id = evt.target?.closest('.message')?.id;
+		targetMessage.id = evt.target.closest('.message').id;
 	}
 	else if (type == 'image'){
 		//image
@@ -1410,7 +1424,7 @@ function OptionEventHandler(evt, popup = true){
 		const targetNode = evt.target.closest('.messageMain').querySelector('.image').cloneNode(true);
 		targetMessage.message = targetNode;
 		targetMessage.type = type;
-		targetMessage.id = evt.target?.closest('.message')?.id;
+		targetMessage.id = evt.target.closest('.message').id;
 	}else if (type == 'audio'){
 		// audio
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
@@ -1421,7 +1435,7 @@ function OptionEventHandler(evt, popup = true){
 		targetFile.fileData = evt.target.closest('.messageMain').querySelector('.msg').dataset.src;
 		targetFile.ext = evt.target.closest('.messageMain').querySelector('.msg').dataset.ext;
 		targetMessage.type = type;
-		targetMessage.id = evt.target?.closest('.message')?.id;
+		targetMessage.id = evt.target.closest('.message').id;
 	}else if (type == 'file'){
 		//file
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
@@ -1433,7 +1447,7 @@ function OptionEventHandler(evt, popup = true){
 		targetFile.ext = evt.target.closest('.messageMain').querySelector('.msg').dataset.ext;
 		targetMessage.message = targetFile.fileName;
 		targetMessage.type = type;
-		targetMessage.id = evt.target?.closest('.message')?.id;
+		targetMessage.id = evt.target.closest('.message').id;
 	}else if (type == 'sticker'){
 		//sticker
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
@@ -1443,7 +1457,7 @@ function OptionEventHandler(evt, popup = true){
 		const targetNode = evt.target.closest('.messageMain').querySelector('.sticker').cloneNode(true);
 		targetMessage.message = targetNode;
 		targetMessage.type = type;
-		targetMessage.id = evt.target?.closest('.message')?.id;
+		targetMessage.id = evt.target.closest('.message').id;
 	}
 	if ((typeList[type]) && popup){
 		showOptions(type, sender, evt.target);
@@ -1800,12 +1814,13 @@ document.getElementById('selectStickerGroup').addEventListener('click', e => {
 });
 
 document.getElementById('stickers').addEventListener('click', e => {
+
 	if (e.target.tagName === 'IMG') {
 		const tempId = crypto.randomUUID();
 		stickerSound.play();
 		scrolling = false;
 		updateScroll();
-		insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
+		insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {});
 		
 		if (Array.from(userInfoMap.keys()).length < 2){
 			//console.log('Server replay skipped');
@@ -1813,7 +1828,7 @@ document.getElementById('stickers').addEventListener('click', e => {
 			msg?.classList.add('delevered');
 			outgoingmessage.play();
 		}else{
-			socket.emit('message', e.target.dataset.name, 'sticker', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function(id){
+			socket.emit('message', e.target.dataset.name, 'sticker', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, function(id){
 				outgoingmessage.play();
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
@@ -2051,9 +2066,9 @@ messages.addEventListener('click', (evt) => {
 			messageTime.classList?.add('active');
 			
 			//if target is a pre or code
-			if (evt.target?.tagName == 'PRE' || evt.target?.tagName == 'CODE'){
+			if (evt.target.tagName == 'PRE' || evt.target.tagName == 'CODE'){
 				//copy textContent
-				navigator.clipboard.writeText(evt.target?.textContent);
+				navigator.clipboard.writeText(evt.target.textContent);
 				popupMessage('Copied to clipboard');
 			}
 
@@ -2084,7 +2099,7 @@ messages.addEventListener('click', (evt) => {
 			}
 
 			const imageElement = document.createElement('img');
-			imageElement.src = evt.target?.closest('.messageMain')?.querySelector('.image')?.src;
+			imageElement.src = evt.target.closest('.messageMain')?.querySelector('.image')?.src;
 			imageElement.classList.add('lb');
 			imageElement.alt = 'Image';
 			document.getElementById('lightbox__image').appendChild(imageElement);
@@ -2099,35 +2114,36 @@ messages.addEventListener('click', (evt) => {
 
 			const target = evt.target;
 			const audioContainer = target.closest('.audioMessage');
+			if (audioContainer == null){
+				return;
+			}
+
 			const audio = audioContainer.querySelector('audio');
-		
-			if (audioContainer){
-				//console.log(evt.target);
-				if (evt.target.classList.contains('main-element')){
-					//if target audio is not paused, then seek to where is was clicked
-					if (!audio.paused){
-						//if audio seek was not within the seekable area or the duration is not loaded yet.
-						if (audioContainer.offsetWidth === 0 || isNaN(audio.duration)) {
-							// do not seek to a position
-							return;
-						}
-						//else get the calculated time to seek
-						const time = (evt.offsetX / audioContainer.offsetWidth) * audio.duration;
-						seekAudioMessage(audio, time);
+			//console.log(evt.target);
+			if (evt.target.classList.contains('main-element')){
+				//if target audio is not paused, then seek to where is was clicked
+				if (!audio.paused){
+					//if audio seek was not within the seekable area or the duration is not loaded yet.
+					if (audioContainer.offsetWidth === 0 || isNaN(audio.duration)) {
+						// do not seek to a position
+						return;
 					}
+					//else get the calculated time to seek
+					const time = (evt.offsetX / audioContainer.offsetWidth) * audio.duration;
+					seekAudioMessage(audio, time);
 				}
-				
-				//if play button was clicked
-				if (target.classList?.contains('fa-play')){	
-					//console.log('%cPlaying audio', 'color: green');	
-					playAudio(audioContainer);
-				} else if (target.classList?.contains('fa-pause')){
-					//console.log('%cPausing audio', 'color: blue');
-					audio.pause();
-				} else if (target.classList?.contains('fa-stop')){
-					//console.log('%cStopped audio', 'color: red');
-					stopAudio(audio);
-				}
+			}
+			
+			//if play button was clicked
+			if (target.classList.contains('fa-play')){	
+				//console.log('%cPlaying audio', 'color: green');	
+				playAudio(audioContainer);
+			} else if (target.classList.contains('fa-pause')){
+				//console.log('%cPausing audio', 'color: blue');
+				audio.pause();
+			} else if (target.classList.contains('fa-stop')){
+				//console.log('%cStopped audio', 'color: red');
+				stopAudio(audio);
 			}
 		}else if (evt.target?.classList?.contains('reactsOfMessage')){
 			const target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
@@ -2209,7 +2225,7 @@ document.getElementById('selectedFiles').addEventListener('click', (evt) => {
 		const target = evt.target.closest('.file-item');
 		if (target){
 			if (evt.target.classList.contains('close')){
-				const type = target.dataset.type;
+				const type = target.dataset?.type;
 				//get the image element id
 				const id = target.dataset?.id;
 				if (id){
@@ -2248,7 +2264,7 @@ function playAudio(audioContainer){
 	try{
 		const audio = audioContainer.querySelector('audio');
 	
-		if (!audioContainer.dataset.src){
+		if (!audioContainer.dataset?.src){
 			popupMessage('Audio is not ready to play');
 			return;
 		}
@@ -2663,7 +2679,7 @@ sendButton.addEventListener('click', () => {
 	textbox.value = '';
     
 	resizeTextbox();
-	if (message.length) {
+	if (message != null && message.length) {
 		const tempId = crypto.randomUUID();
 		scrolling = false;
 		if (message.length > 10000) {
@@ -2683,7 +2699,7 @@ sendButton.addEventListener('click', () => {
 
 		const replyData = finalTarget?.type === 'text' ? finalTarget?.message.substring(0, 100) : finalTarget?.message;
 
-		insertNewMessage(message, 'text', tempId, myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {});
+		insertNewMessage(message, 'text', tempId, myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {});
 		
 		if (Array.from(userInfoMap.keys()).length < 2){
 			//console.log('Server replay skipped');
@@ -2691,7 +2707,7 @@ sendButton.addEventListener('click', () => {
 			msg?.classList.add('delevered');
 			outgoingmessage.play();
 		}else{
-			socket.emit('message', message, 'text', myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, function (id) {
+			socket.emit('message', message, 'text', myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, function (id) {
 				outgoingmessage.play();
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
@@ -2758,23 +2774,29 @@ async function sendImageStoreRequest(){
 			let tempId = crypto.randomUUID();
 			scrolling = false;
 
-			insertNewMessage(image.src, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: '', height: image.height, width: image.width, name: image.dataset.name});
+			insertNewMessage(image.src, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: '', height: image.height, width: image.width, name: image.dataset.name});
 			
 			if (Array.from(userInfoMap.keys()).length < 2){
 				//console.log('Server upload skipped');
 		
 				const msg = document.getElementById(tempId);
-				msg?.classList.add('delevered');
+				if (msg == null){
+					return;
+				}
+				msg.classList.add('delevered');
 				msg.dataset.downloaded = 'true';
 				msg.querySelector('.circleProgressLoader').remove();
 				outgoingmessage.play();
 			}else{
 				const elem = document.getElementById(tempId)?.querySelector('.messageMain');
+				if (elem == null){
+					return;
+				}
+
 				elem.querySelector('.image').style.filter = 'brightness(0.4)';
 		
-		
 				let progress = 0;
-				fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: image.dataset.name}, myKey, (id) => {
+				fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: image.dataset.name}, myKey, (id) => {
 					outgoingmessage.play();
 					document.getElementById(tempId).classList.add('delevered');
 					document.getElementById(tempId).id = id;
@@ -2855,12 +2877,15 @@ function sendFileStoreRequest(type = null){
 
 		const fileUrl = URL.createObjectURL(selectedFileArray[i].data);
 		
-		insertNewMessage(fileUrl, type ? type : 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name});
+		insertNewMessage(fileUrl, type ? type : 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name});
 		
 		if (Array.from(userInfoMap.keys()).length < 2){
 	
 			const msg = document.getElementById(tempId);
-			msg?.classList.add('delevered');
+			if (msg == null){
+				return;
+			}
+			msg.classList.add('delevered');
 			msg.dataset.downloaded = 'true';
 			msg.querySelector('.progress').style.visibility = 'hidden';
 			outgoingmessage.play();
@@ -2868,7 +2893,7 @@ function sendFileStoreRequest(type = null){
 			let progress = 0;
 			const elem = document.getElementById(tempId)?.querySelector('.messageMain');
 	
-			fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget.message ? true : false), title: (finalTarget.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name}, myKey, (id) => {
+			fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name}, myKey, (id) => {
 				outgoingmessage.play();
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;

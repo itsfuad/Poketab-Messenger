@@ -134,8 +134,10 @@ socket.on('seen', meta => {
 	if (message && isMessage && !message.dataset.seen?.includes(meta.userId)){
 		document.querySelectorAll(`.msg-item[data-seen*="${meta.userId}"]`)
 			.forEach(elem => {
-				elem.querySelector(`.seenBy img[data-user="${meta.userId}"]`)?.remove();
-				checkgaps(elem?.id);
+				if (elem != null){
+					elem.querySelector(`.seenBy img[data-user="${meta.userId}"]`)?.remove();
+					checkgaps(elem.id);
+				}
 			});
 
 		message.dataset.seen = message.dataset.seen ? message.dataset.seen + '|' + meta.userId : meta.userId;

@@ -28,7 +28,7 @@ function runner(message) {
     return message;
 }
 function sanitize(str) {
-    if (str == undefined || str == '' || str == null) {
+    if (str == null || str == '') {
         return '';
     }
     str = str.replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll('\'', '&apos;').replaceAll('/', '&#x2F;');
@@ -81,7 +81,7 @@ function parseCode(message) {
         return message;
     }
     //replace the code blocks with pre tags
-    for (let i = 0; i < codeBlocks?.length; i++) {
+    for (let i = 0; i < codeBlocks.length; i++) {
         const codeBlock = codeBlocks[i];
         const language = codeBlock.split('\n')[0].replace('```', '');
         const codeBlockWithoutBackticks = codeBlock.replace(/```(.*)/g, '');

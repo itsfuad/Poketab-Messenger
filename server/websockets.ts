@@ -5,7 +5,6 @@ import { Server } from 'socket.io';
 import { avList, isRealString, reactArray } from './utils/validation.js';
 
 import { keyStore, SocketIds } from './database/db.js';
-import { Key } from './database/schema/Key.js';
 
 import { User } from './database/schema/User.js';
 
@@ -43,7 +42,7 @@ io.on('connection', (socket) => {
 			if (params.maxUser < 2 || params.maxUser > 10) {
 				return callback('Invalid Max User Range');
 			}
-			if (params.key == null || params.key == undefined) {
+			if (params.key == null) {
 				return callback('Invalid Key');
 			}
 			if (keyStore.isFull(params.key)){
