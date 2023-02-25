@@ -1,5 +1,3 @@
-
-![Poketab Logo](https://raw.githubusercontent.com/itsfuad/Poketab-Messenger/main/public/images/avatars/pikachu(custom).png) 
 # Poketab Messenger 
 [![DeepScan grade](https://deepscan.io/api/teams/20528/projects/23967/branches/733333/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=20528&pid=23967&bid=733333)
 
@@ -26,18 +24,18 @@ Poketab Messenger is perfect for anyone looking for a secure and temporary chat 
 
 
 
-## To Contribute
+## Run on your own local machine
 
-### Clone to your PC
-
-To develop Filesharing PWA locally, follow these steps:
+To run locally, follow these steps:
 
 1. Clone the repository
 2. Install dependencies using `npm install`
 3. Start the development server using `npm start`
 4. Open the app in your browser at `http://localhost:3000`
 
-### Pull Request
+Use cannot use the link outside your local network. To access from outside your local network you may use `ssl tunneling` or `port forwarding`. But that is very complex to setup. You can use `ngrok` instead or other similar solutions. 
+
+## Contribute
 
 To contribute to this project, follow these steps:
 
@@ -47,9 +45,9 @@ To contribute to this project, follow these steps:
 4. Push changes to your fork using `git push origin my-feature-branch`
 5. Create a pull request
 
-## Adding more stickers
-+ Pull request uploading images into /public/stickers/YOUR_STICKER_NAME/ folder
-+ Create two subfolders named 'animated' and 'static' and put your sticker in the directories. Name your image in count from 1. 
+### Add more stickers
++ Copy images into `/public/stickers/YOUR_STICKER_NAME/` folder
++ Create two subfolders named `animated` and `static` and put your sticker in the directories. Name your image in count from 1. 
 ```
     1.webp
     2.webp
@@ -59,8 +57,10 @@ To contribute to this project, follow these steps:
     19.webp
     20.webp
 ```
-> It's very important to have two folders. If your sticker is not animated then put the files both of the directories.
-+ In the public/stickers/stickersConfig.js file, add your sticker name and count. Note: The list order will be followed in the sticker menu. 
+It's very important to have two folders. If your sticker is not animated then put the files both of the directories.
+In the `./public/stickers/stickersConfig.js` file, add your sticker name and count. 
+
+**Note: The list order will be followed in the sticker menu.**
 ```js
 const Stickers = [
     {"name": "cat", "count": "29", "icon": "15"}, //sticker on the cat folder which contains 29 webp files and 15th image is the icon.
