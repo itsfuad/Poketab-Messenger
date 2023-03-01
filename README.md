@@ -30,8 +30,15 @@ To run locally, follow these steps:
 
 1. Clone the repository
 2. Install dependencies using `npm install`
-3. Start the development server using `npm start`
+3. Start the development server using `npm run dev`
 4. Open the app in your browser at `http://localhost:3000`
+
+To build the production version:
+
+1. Type `npm run build` to compile all frontend `javascript` code to a single js bundle.
+2. Type `tsc` to compile all `typescript` code into `javascript`
+3. Commit
+4. Deploy
 
 Use cannot use the link outside your local network. To access from outside your local network you may use `ssl tunneling` or `port forwarding`. But that is very complex to setup. You can use `ngrok` instead or other similar solutions. 
 
@@ -72,7 +79,7 @@ const Stickers = [
 
 ## License
 
-Filesharing PWA is licensed under the MIT License. See the `LICENSE` file for more information.
+This PWA is licensed under the GNU General Public License v3.0. See the `LICENSE` file for more information.
 
-# Credits
+## Credits
 Lead Developer [Fuad Hasan](https://github.com/itsfuad).
