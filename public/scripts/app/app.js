@@ -1759,24 +1759,46 @@ function showStickersPanel(){
 	}, 100);
 }
 
+
+function themeClickHandler(){
+	hideOptions();
+	if(THEME){
+		if (themeArray.includes(THEME) == false){
+			THEME = 'ocean';
+			localStorage.setItem('theme', THEME);
+		}
+		document.querySelector('.themeChooser').querySelectorAll('.theme').forEach(theme => {
+			theme.querySelector('img').style.border = '';
+		});
+		document.querySelector(`.themeChooser #${THEME}`).querySelector('img').style.border = '2px solid var(--secondary-dark)';
+	}
+	addFocusGlass();
+	document.querySelector('.themeChooser').classList.add('active');
+}
+
+function showSidePanel(){
+	document.getElementById('sidebar_wrapper').classList.add('active');
+	addFocusGlass();
+}
+
+
 document.getElementById('focus_glass').addEventListener('click', () => {
-	removeFocusGlass();
 	closeStickersPanel();
 });
 
-document.querySelector('.fa-angle-left').addEventListener('click', () => {
+function stickerMoveLeft(){
 	stickersGrp.scrollTo({
 		left: stickersGrp.scrollLeft - 60,
 		behavior: 'smooth'
 	});
-});
+}
 
-document.querySelector('.fa-angle-right').addEventListener('click', () => {
+function stickerMoveRight(){
 	stickersGrp.scrollTo({
 		left: stickersGrp.scrollLeft + 60,
 		behavior: 'smooth'
 	});
-});
+}
 
 function closeStickersPanel(){
 	removeFocusGlass();
@@ -1786,10 +1808,32 @@ function closeStickersPanel(){
 	}, 100);
 }
 
+function addAttachment(){
+	document.getElementById('attmain').style.display = 'flex';
+	setTimeout(()=>{
+		document.getElementById('attmain').classList.add('active');
+	}, 50);
+}
+
+function removeAttachment(){
+	document.getElementById('attmain').classList.remove('active');
+	setTimeout(()=>{
+		document.getElementById('attmain').style.display = 'none';
+	}, 100);
+}
+
 
 //Event listeners
 document.querySelector('.stickerBtn').addEventListener('click', () => {
 	showStickersPanel();
+});
+
+document.getElementById('stickerMoveLeft').addEventListener('click', () => {
+	stickerMoveLeft();
+});
+
+document.getElementById('stickerMoveRight').addEventListener('click', () => {
+	stickerMoveRight();
 });
 
 document.getElementById('selectStickerGroup').addEventListener('click', e => {
@@ -1847,8 +1891,7 @@ document.getElementById('stickers').addEventListener('click', e => {
 });
 
 document.getElementById('more').addEventListener('click', ()=>{
-	document.getElementById('sidebar_wrapper').classList.add('active');
-	addFocusGlass();
+	showSidePanel();
 });
 
 let timeoutClone;
@@ -1888,21 +1931,10 @@ document.getElementById('invite').addEventListener('click', async () =>{
 });
 
 document.getElementById('themeButton').addEventListener('click', ()=>{
-	hideOptions();
-	if(THEME){
-		if (themeArray.includes(THEME) == false){
-			THEME = 'ocean';
-			localStorage.setItem('theme', THEME);
-		}
-		document.querySelector('.themeChooser').querySelectorAll('.theme').forEach(theme => {
-			theme.querySelector('img').style.border = '';
-		});
-		document.querySelector(`.themeChooser #${THEME}`).querySelector('img').style.border = '2px solid var(--secondary-dark)';
-	}
-	addFocusGlass();
-	document.querySelector('.themeChooser').classList.add('active');
+	themeClickHandler();
 });
 
+//remove the theme optons from the screen when clicked outside
 document.querySelector('.themeChooser').addEventListener('click', ()=>{
 	document.querySelector('.themeChooser').classList.remove('active');
 	hideOptions();
@@ -2027,23 +2059,21 @@ function focusInput(){
 	}
 }
 
-document.querySelector('.close_area').addEventListener('click', () => {
+function closeSidePanel(){
 	document.getElementById('sidebar_wrapper').classList.remove('active');
 	hideOptions();
+}
+
+document.querySelector('.close_area').addEventListener('click', () => {
+	closeSidePanel();
 });
 
 document.getElementById('attmain').addEventListener('click', () => {
-	document.getElementById('attmain').classList.remove('active');
-	setTimeout(()=>{
-		document.getElementById('attmain').style.display = 'none';
-	}, 100);
+	removeAttachment();
 });
 
 document.getElementById('attachment').addEventListener('click', ()=>{
-	document.getElementById('attmain').style.display = 'flex';
-	setTimeout(()=>{
-		document.getElementById('attmain').classList.add('active');
-	}, 50);
+	addAttachment();
 });
 
 document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) => {
