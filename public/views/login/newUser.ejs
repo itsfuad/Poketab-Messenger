@@ -477,6 +477,14 @@
     .fa-triangle-exclamation, .fa-circle-exclamation{
       color: orange !important;
     }
+
+    .formtitle{
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
     
     @keyframes shake {
       0% {
@@ -529,6 +537,10 @@
             <% } else { %>
               <div class="subform" id="subform1">
             <% } %>
+                <div class="formtitle">
+                  <div class="text">Join chat</div>
+                  <img src="/images/pokeball.png" alt="">
+                </div>
                 <div class="form-field">
                     <label for="key" id="keyLabel">Enter key <i id='lb__icon' class="fa-solid fa-key"></i></label>
                     <div id="keyErr" class="errLog"></div>
@@ -623,6 +635,20 @@
 
         const errorSound = new Audio('/sounds/error.mp3');
         
+        let errTimeout = undefined;
+
+        function errlog(id, msg){
+          const err = document.getElementById(id);
+          err.innerHTML = msg;
+          err.classList.add('shake');
+          if (errTimeout == undefined){
+            errTimeout = setTimeout(()=>{
+              err.classList.remove('shake');
+              errTimeout = undefined;
+            }, 500);
+          }
+        }
+        
         function remainingTime(totalTime, elapsedTime) {
           // Calculate the remaining time
           const remaining = Math.floor(totalTime) - Math.floor(elapsedTime);
@@ -644,16 +670,18 @@
           //console.log(cookieCreated, timeCount);
 
           let timer = setInterval(() => {
-            if ((timeCount - elapsedTime <= 10) && !addedShake){
+            timerElem.textContent = remainingTime(timeCount, elapsedTime++);
+            if ((timeCount - elapsedTime < 10) && !addedShake){
               timerElem.classList.add('shake');
               timerElem.style.color = '#ff2a20';
               addedShake = true;
             }
-            if (elapsedTime >= timeCount){
+            if (elapsedTime > timeCount){
               errorSound.play();
               timerElem.classList.remove('shake');
               const btn = document.getElementById('enter');
               btn.innerHTML = 'Renew session <i class="fa-solid fa-rotate-right"></i>';
+              btn.type = 'button';
               btn.style.background = '#ff2a20';
               clearInterval(timer);
               timer = undefined;
@@ -663,7 +691,6 @@
                 location.reload();
               };
             }
-            timerElem.textContent = remainingTime(timeCount, elapsedTime++);
           }, 1000);
         </script>
     <% } else if (title === 'Join') { %>
