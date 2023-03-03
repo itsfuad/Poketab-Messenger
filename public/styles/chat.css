@@ -7,7 +7,7 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 :root {
@@ -737,7 +737,7 @@ input[type=file] {
   pointer-events: none;
 }
 .voiceRecorder .recordBtn .fa-microphone {
-  color: hsl(206deg, 14%, 65%) !important;
+  color: hsl(206, 14%, 65%) !important;
 }
 .voiceRecorder .btn {
   padding: 10px 15px;

@@ -96,7 +96,7 @@ code {
 }
 .message .messageBody .messageReply {
   background: var(--msg-get-reply);
-  color: hsla(0deg, 0%, 100%, 0.5);
+  color: hsla(0, 0%, 100%, 0.5);
   display: flex;
   flex-direction: row;
   align-items: center;
