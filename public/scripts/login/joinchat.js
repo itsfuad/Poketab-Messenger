@@ -153,8 +153,6 @@ function emitSignal(onlySignal = false){
 		document.getElementById('keyLabel').innerHTML = 'Enter key <i id=\'lb__icon\' class="fa-solid fa-key"></i>';
 		if (response.success){
 			usersData = response.message;
-			console.log('Users data: ');
-			console.log(usersData);
 			//remove existing avatars
 			usersData.forEach(userData => {
 				const avatar = document.getElementById(userData.avatar);
@@ -169,17 +167,20 @@ function emitSignal(onlySignal = false){
 				form2.classList.add('active');
 			}
 		}else{
-			errlog('keyErr', `${response.message} <i class="fa-solid fa-ghost"></i>`);
+
+			errlog('keyErr', `${response.message} ${response.icon}`);
 			
-			next.classList.remove('clickable');
-			next.innerHTML = 'Reload <i class="fa-solid fa-rotate-right"></i>';
-			next.style.background = '#ff2a20';
-			next.onclick = () => {
-				clickSound.currentTime = 0;
-				clickSound.play();
-				next.innerHTML = 'Please wait <i class="fa-solid fa-rotate-right fa-spin"></i>';
-				location.reload();
-			};
+			if (response.blocked == true){
+				next.classList.remove('clickable');
+				next.innerHTML = 'Reload <i class="fa-solid fa-rotate-right"></i>';
+				next.style.background = '#ff2a20';
+				next.onclick = () => {
+					clickSound.currentTime = 0;
+					clickSound.play();
+					next.innerHTML = 'Please wait <i class="fa-solid fa-rotate-right fa-spin"></i>';
+					location.reload();
+				};
+			}
 		}
 	});
 }

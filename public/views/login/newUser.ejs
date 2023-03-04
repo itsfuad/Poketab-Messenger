@@ -213,7 +213,7 @@
     
     .form {
       width: 100vw;
-      height: 100vh;
+      height: 100%;
       display: flex;
       flex-direction: column;
       place-items: center;
@@ -222,6 +222,7 @@
       filter: drop-shadow(2px 2px 2px rgb(0, 0, 0));
       position: relative;
       justify-content: center;
+      min-height: 100vh;
     }
     
     .redirect {
@@ -404,7 +405,7 @@
       font-size: 0.6em;
       color: rgb(186, 186, 186);
       padding: 10px 0 10px 0;
-      position: absolute;
+      position: relative;
       bottom: 0;
     }
     
