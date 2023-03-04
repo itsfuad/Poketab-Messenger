@@ -52,7 +52,7 @@ code{
 
 .message{
     display: flex;
-    flex-direction: row;
+    flex-direction: row-reverse;
     align-items: flex-end;
     position: relative;
 
@@ -123,7 +123,7 @@ code{
                 font-size: 1rem !important;
             }
 
-            &:is(.imageReply){
+            &.imageReply{
                 padding: 0;
                 filter: brightness(0.4) !important;
                 background: rgba(255,255,255,.0901960784)!important;
@@ -192,7 +192,7 @@ code{
 
 }
 
-.msg-item:is(.serverMessage){
+.msg-item.serverMessage{
     .seenBy{
         right: 10px;
         flex-wrap: nowrap;
@@ -200,7 +200,7 @@ code{
     }
 }
 
-.message:is(.noreply){
+.message.noreply{
     .messageReply{
         display: none !important;
     }
@@ -327,17 +327,16 @@ pre{
     opacity: 1;
 }
 
-.message:is(.react){
-    &{
-        margin-bottom: 12px;
-    }
-    .reactsOfMessage{
-        display: flex;
-    }
+.message.react .messageContainer {
+    margin-bottom: 12px;
+}
+
+.message.react .reactsOfMessage{
+    display: flex;
 }
 
 
-.message:is(.start){
+.message.start{
     padding-top: 25px;
     .messageMain{
         & > *{
@@ -349,7 +348,7 @@ pre{
         display: flex;
     }
 }
-.message:is(.end){
+.message.end{
     .messageMain{
         & > *{
             border-bottom-left-radius: 15px;
@@ -360,24 +359,23 @@ pre{
     }
 }
 
-.message:is(.notitle){
+.message.notitle{
     padding-top: 0;
     .messageTitle{
         display: none!important;
     }
 }
 
-.messageMain img:is(.sticker){
+.messageMain img.sticker{
     background: #ffffff17 !important;
 }
 
-.message:is(.sticker) {
+.message.sticker {
     padding-top: 5px;
 }
 
-.message:is(.self){
-    flex-direction: column;
-    margin-right: 5px;
+.message.self{
+    flex-direction: column-reverse;
     .seenBy{
         position: unset;
         right: unset;
@@ -391,7 +389,7 @@ pre{
     .sent{
         display: block;
     }
-    &:is(.delevered){
+    &.delevered{
         .sent{
             display: none;
         }
@@ -404,7 +402,7 @@ pre{
         left: unset;
         transform: translateX(45px);
     }
-    &:is(.noreply){
+    &.noreply{
         .messageTitle{
             display: none;
         }
@@ -417,7 +415,7 @@ pre{
             .image{
                 border-radius: 15px 15px 8px 15px;
             }
-            &:is(.imageReply){
+            &.imageReply{
                 border-radius: 15px 15px 8px 15px !important;
             }
         }
@@ -442,7 +440,7 @@ pre{
             }
         }
     }
-    &:is(.start){
+    &.start{
         .messageMain{
             & > *{
                 border-bottom-right-radius: 3px;
@@ -453,7 +451,7 @@ pre{
             display: flex;
         }
     }
-    &:is(.end){
+    &.end{
         .messageMain{
             & > *{
                 border-bottom-right-radius: 15px;

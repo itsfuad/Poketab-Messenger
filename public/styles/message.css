@@ -45,7 +45,7 @@ code {
 
 .message {
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
   align-items: flex-end;
   position: relative;
 }
@@ -117,7 +117,7 @@ code {
   color: rgba(255, 255, 255, 0.3764705882);
   font-size: 1rem !important;
 }
-.message .messageBody .messageReply:is(.imageReply) {
+.message .messageBody .messageReply.imageReply {
   padding: 0;
   filter: brightness(0.4) !important;
   background: rgba(255, 255, 255, 0.0901960784) !important;
@@ -131,7 +131,7 @@ code {
   vertical-align: bottom;
   border-radius: 15px 15px 15px 8px !important;
 }
-.message .messageBody .messageReply:is(.imageReply) img {
+.message .messageBody .messageReply.imageReply img {
   max-width: inherit;
   max-height: inherit;
   min-height: inherit;
@@ -181,16 +181,16 @@ code {
   width: 10px;
 }
 
-.msg-item:is(.serverMessage) .seenBy {
+.msg-item.serverMessage .seenBy {
   right: 10px;
   flex-wrap: nowrap;
   max-width: unset;
 }
 
-.message:is(.noreply) .messageReply {
+.message.noreply .messageReply {
   display: none !important;
 }
-.message:is(.noreply) .messageTitle {
+.message.noreply .messageTitle {
   transform: none !important;
 }
 
@@ -313,120 +313,120 @@ pre code {
   opacity: 1;
 }
 
-.message:is(.react) {
+.message.react .messageContainer {
   margin-bottom: 12px;
 }
-.message:is(.react) .reactsOfMessage {
+
+.message.react .reactsOfMessage {
   display: flex;
 }
 
-.message:is(.start) {
+.message.start {
   padding-top: 25px;
 }
-.message:is(.start) .messageMain > * {
+.message.start .messageMain > * {
   border-bottom-left-radius: 3px;
   border-top-left-radius: 15px;
 }
-.message:is(.start) .messageTitle {
+.message.start .messageTitle {
   display: flex;
 }
 
-.message:is(.end) .messageMain > * {
+.message.end .messageMain > * {
   border-bottom-left-radius: 15px;
 }
-.message:is(.end) .avatar {
+.message.end .avatar {
   visibility: visible;
 }
 
-.message:is(.notitle) {
+.message.notitle {
   padding-top: 0;
 }
-.message:is(.notitle) .messageTitle {
+.message.notitle .messageTitle {
   display: none !important;
 }
 
-.messageMain img:is(.sticker) {
+.messageMain img.sticker {
   background: rgba(255, 255, 255, 0.0901960784) !important;
 }
 
-.message:is(.sticker) {
+.message.sticker {
   padding-top: 5px;
 }
 
-.message:is(.self) {
-  flex-direction: column;
-  margin-right: 5px;
+.message.self {
+  flex-direction: column-reverse;
 }
-.message:is(.self) .seenBy {
+.message.self .seenBy {
   position: unset;
   right: unset;
   right: 10px;
   flex-wrap: nowrap;
   max-width: unset;
 }
-.message:is(.self) .messageContainer {
+.message.self .messageContainer {
   flex-direction: row-reverse;
 }
-.message:is(.self) .sent {
+.message.self .sent {
   display: block;
 }
-.message:is(.self):is(.delevered) .sent {
+.message.self.delevered .sent {
   display: none;
 }
-.message:is(.self) .avatar {
+.message.self .avatar {
   display: none;
 }
-.message:is(.self) .replyIcon {
+.message.self .replyIcon {
   right: 0;
   left: unset;
   transform: translateX(45px);
 }
-.message:is(.self):is(.noreply) .messageTitle {
+.message.self.noreply .messageTitle {
   display: none;
 }
-.message:is(.self) .messageBody {
+.message.self .messageBody {
   align-items: flex-end;
 }
-.message:is(.self) .messageBody .messageReply {
+.message.self .messageBody .messageReply {
   background: var(--msg-send-reply);
   border-radius: 15px 15px 8px 15px;
 }
-.message:is(.self) .messageBody .messageReply .image {
+.message.self .messageBody .messageReply .image {
   border-radius: 15px 15px 8px 15px;
 }
-.message:is(.self) .messageBody .messageReply:is(.imageReply) {
+.message.self .messageBody .messageReply.imageReply {
   border-radius: 15px 15px 8px 15px !important;
 }
-.message:is(.self) .messageBody .messageMain {
+.message.self .messageBody .messageMain {
   flex-direction: row-reverse;
 }
-.message:is(.self) .messageBody .messageMain .text {
+.message.self .messageBody .messageMain .text {
   padding: 8px;
   background: var(--msg-send);
 }
-.message:is(.self) .messageBody .messageMain .audioMessage {
+.message.self .messageBody .messageMain .audioMessage {
   background: var(--msg-send);
 }
-.message:is(.self) .messageBody .messageMain .audioMessage .time {
+.message.self .messageBody .messageMain .audioMessage .time {
   color: var(--msg-send);
 }
-.message:is(.self) .messageBody .messageMain .file {
+.message.self .messageBody .messageMain .file {
   background: var(--msg-send);
 }
-.message:is(.self) .messageBody .messageMain > * {
+.message.self .messageBody .messageMain > * {
   border-radius: 15px 3px 3px 15px;
 }
-.message:is(.self):is(.start) .messageMain > * {
+.message.self.start .messageMain > * {
   border-bottom-right-radius: 3px;
   border-top-right-radius: 15px;
 }
-.message:is(.self):is(.start) .messageTitle {
+.message.self.start .messageTitle {
   display: flex;
 }
-.message:is(.self):is(.end) .messageMain > * {
+.message.self.end .messageMain > * {
   border-bottom-right-radius: 15px;
 }
-.message:is(.self):is(.end) .avatar {
+.message.self.end .avatar {
   visibility: visible;
 }
 

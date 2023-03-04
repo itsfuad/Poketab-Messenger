@@ -1251,9 +1251,13 @@ export function getReact(reactEmoji, messageId, uid){
 		const map = arrayToMap(list);
     
 		const reactsOfMessage = document.getElementById(messageId).querySelector('.reactsOfMessage');
+
 		if (reactsOfMessage && map.size > 0){
+			console.log(reactsOfMessage, map.size);
 			//delete reactsOfMessage all child nodes
 			while (reactsOfMessage.firstChild) {
+				console.log("deleting: ");
+				console.log(reactsOfMessage.firstChild);
 				reactsOfMessage.removeChild(reactsOfMessage.firstChild);
 			}
 
@@ -1266,11 +1270,11 @@ export function getReact(reactEmoji, messageId, uid){
 
 			map.forEach((value, key) => {
 				if (count >= 3){
-					reactItems.querySelector('.react').remove();
+					reactItems.querySelector('.react-emoji').remove();
 				}
 
 				const react = document.createElement('span');
-				react.classList.add('react');
+				react.classList.add('react-emoji');
 				react.textContent = key;
 
 				reactItems.append(react);
@@ -1286,10 +1290,11 @@ export function getReact(reactEmoji, messageId, uid){
 			reactsOfMessage.append(reactItems, reactsCount);
 
 			document.getElementById(messageId).classList.add('react');
+			//document.getElementById(messageId).querySelector('.messageContainer').style.paddingBottom = '12px';
+
 			checkgaps(messageId);
 		}else{
 			document.getElementById(messageId).classList.remove('react');
-			document.getElementById(messageId).querySelector('.seenBy').style.marginTop = '0px';
 			checkgaps(messageId);
 		}
 		updateScroll();
@@ -1313,18 +1318,6 @@ export function checkgaps(targetId){
 
 			if (after == null){
 				return;
-			}
-    
-			if (target.classList.contains('react')){
-				if (target.querySelector('.seenBy').hasChildNodes()){
-					target.style.marginBottom = '0px';
-					target.querySelectorAll('.seenBy img').forEach(elem => elem.style.marginTop = '12px');
-				}else{
-					target.style.marginBottom = '12px';
-				}
-			}else{
-				target.style.marginBottom = '0px';
-				target.querySelector('.seenBy').hasChildNodes() ? target.querySelectorAll('.seenBy img').forEach(elem => elem.style.marginTop = '0px') : null;
 			}
     
 			if (target.dataset.uid === after.dataset.uid){

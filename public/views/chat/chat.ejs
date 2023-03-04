@@ -230,6 +230,7 @@
     <!-- Message template -->
     <template id="messageTemplate">
         <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}"> <!-- noreply notitle delevered start end self react -->
+            <div class="seenBy"></div>
             <div class="messageContainer">
                 <div class="replyIcon">
                     <i class="fa-solid fa-reply"></i>
@@ -247,12 +248,12 @@
                 </div>
                 <div class="reactedUsers" style="display: none;"></div>
             </div>
-            <div class="seenBy"></div>
         </li>
     </template>
-
+    
     <template id="fileTemplate">
         <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}">
+            <div class="seenBy"></div>
             <div class="messageContainer">
                 <div class="replyIcon">
                     <i class="fa-solid fa-reply"></i>
@@ -281,13 +282,13 @@
                 </div>
                 <div class="reactedUsers" style="display: none;"></div>
             </div>
-            <div class="seenBy"></div>
         </li>
     </template>
 
 
     <template id="audioMessageTemplate">
         <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}"> <!-- noreply notitle delevered start end self react -->
+            <div class="seenBy"></div>
             <div class="messageContainer">
                 <div class="replyIcon">
                     <i class="fa-solid fa-reply"></i>
@@ -315,7 +316,6 @@
                 </div>
                 <div class="reactedUsers" style="display: none;"></div>
             </div>
-            <div class="seenBy"></div>
         </li>
     </template>
 
