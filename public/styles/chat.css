@@ -1060,7 +1060,7 @@ i[class^=fa-] {
   align-items: center;
   justify-content: space-between;
   padding: 10px;
-  margin: 0 10px;
+  margin: 10px 10px 0 10px;
   background: var(--primary-dark);
   border-radius: 10px;
   position: relative;

@@ -136,6 +136,10 @@ socket.on('seen', meta => {
 			.forEach(elem => {
 				if (elem != null){
 					elem.querySelector(`.seenBy img[data-user="${meta.userId}"]`)?.remove();
+					if (elem.querySelector('.seenBy').childElementCount < 2){
+						//console.log('Resetting gap');
+						elem.closest('.message').classList.remove('seenByMultiple');
+					}
 					checkgaps(elem.id);
 				}
 			});
@@ -145,6 +149,9 @@ socket.on('seen', meta => {
 		element.src = `/images/avatars/${meta.avatar}(custom)-mini.png`;
 		element.dataset.user = meta.userId;
 		message.querySelector('.seenBy').appendChild(element);
+		if (message.querySelector('.seenBy').childElementCount > 1){
+			message.classList.add('seenByMultiple');
+		}
 		checkgaps(message.id);
 		updateScroll();
 	}

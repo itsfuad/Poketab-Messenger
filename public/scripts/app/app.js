@@ -380,10 +380,8 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 		}
 	
 		if (lastMsg?.dataset?.uid != uid || messageIsEmoji || type === 'sticker'){ // if the last message is not from the same user
-			//set the message as it is the first and last message of the user
-			//first message has the top corner rounded
-			//last message has the bottom corner rounded
-			classList += ' start end'; 
+			classList += ' newGroup'; //then add the new group class
+			classList += ' start end';
 		}else  if (lastMsg?.dataset?.uid == uid){ //if the last message is from the same user
 			if (!options.reply && !lastMsg?.classList.contains('emoji') && !lastMsg?.classList.contains('sticker')){ //and the message is not a reply
 				lastMsg?.classList.remove('end'); //then remove the bottom corner rounded from the last message
@@ -532,8 +530,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 
 		lastPageLength = messages.scrollTop;
 		checkgaps(lastMsg?.id);
-		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
-
+		
 		//highlight code
 		const codes = document.getElementById(id).querySelector('.messageMain')?.querySelectorAll('pre');
 
@@ -545,6 +542,8 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 				});
 			});
 		}
+
+		updateScroll(userInfoMap.get(uid)?.avatar, codes ? 'Code' : popupMessage);
 	}catch(err){
 		console.error(err);
 		popupMessage(err);
@@ -1127,9 +1126,9 @@ messages.addEventListener('touchend', (evt) => {
 				const elem = msg.querySelector('.messageContainer');
 				const replyIcon = msg.querySelector('.replyIcon');
 				if (elem.closest('.message').classList.contains('self')){
-					replyIcon.style.transform = 'translateX(40px)';
+					replyIcon.style.transform = 'translateX(45px)';
 				}else{
-					replyIcon.style.transform = 'translateX(-40px)';
+					replyIcon.style.transform = 'translateX(-45px)';
 				}
 				elem.style.transform = 'translateX(0px)';
 				if (elem.dataset.replyTrigger === 'true') {
@@ -1253,11 +1252,8 @@ export function getReact(reactEmoji, messageId, uid){
 		const reactsOfMessage = document.getElementById(messageId).querySelector('.reactsOfMessage');
 
 		if (reactsOfMessage && map.size > 0){
-			console.log(reactsOfMessage, map.size);
 			//delete reactsOfMessage all child nodes
 			while (reactsOfMessage.firstChild) {
-				console.log("deleting: ");
-				console.log(reactsOfMessage.firstChild);
 				reactsOfMessage.removeChild(reactsOfMessage.firstChild);
 			}
 
@@ -1288,6 +1284,12 @@ export function getReact(reactEmoji, messageId, uid){
 			reactsCount.textContent = totalReacts;
 
 			reactsOfMessage.append(reactItems, reactsCount);
+
+			if (parseInt(reactsCount.textContent) > 1){
+				reactsOfMessage.classList.add('pad');
+			}else{
+				reactsOfMessage.classList.remove('pad');
+			}
 
 			document.getElementById(messageId).classList.add('react');
 			//document.getElementById(messageId).querySelector('.messageContainer').style.paddingBottom = '12px';

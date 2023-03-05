@@ -374,7 +374,7 @@
     .avatars img {
       width: 40px;
       height: 40px;
-      filter: saturate(0.2);
+      filter: saturate(0.1);
     }
 
     .avatars img:hover {
@@ -392,15 +392,19 @@
       cursor: not-allowed;
     }
     
-    input[type=radio] {
+    input[type=radio]{
       display: none;
+    }
+
+    input[type=radio] + label img{
+      transition: 300ms;
     }
 
     input[type=radio]:checked + label img {
       filter: saturate(100%);
-      transform: scale(0.85);
+      animation: bubble 300ms forwards;
     }
-    
+
     .footer {
       font-size: 0.6em;
       color: rgb(186, 186, 186);
@@ -522,6 +526,20 @@
         transform: translateX(1px);
       }
     }/*# sourceMappingURL=entry.css.map */
+
+
+    @keyframes bubble {
+      0%{
+        transform: scale(0.5);
+      }
+      50%{
+        transform: scale(1);
+      }
+      100%{
+        transform: scale(0.9);
+      }
+    }
+
   </style>
 
 </head>
