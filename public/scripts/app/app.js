@@ -302,10 +302,10 @@ function loadTheme(){
 
 function loadSendShortcut(){
 	sendBy = localStorage.getItem('sendBy');
-	if (sendBy == 'Enter'){
+	if (sendBy === 'Enter'){
 		sendBy = 'Enter';
 		document.getElementById('sendingMethod').removeAttribute('checked');
-	}else if(sendBy == 'Ctrl+Enter'){
+	}else if(sendBy === 'Ctrl+Enter'){
 		document.getElementById('sendingMethod').setAttribute('checked', 'checked');
 		sendBy = 'Ctrl+Enter';
 	}else{
@@ -317,12 +317,12 @@ function loadSendShortcut(){
 
 function loadButtonSoundPreference(){
 	const sound = localStorage.getItem('buttonSoundEnabled');
-	if (sound == 'true'){
-		document.getElementById('buttonSounds').setAttribute('checked', 'checked');
+	if (sound === 'true'){
+		document.getElementById('buttonSound').setAttribute('checked', 'checked');
 		buttonSoundEnabled = true;
-	}else if(sound == 'false'){
+	}else if(sound === 'false'){
 		buttonSoundEnabled = false;
-		document.getElementById('buttonSounds').removeAttribute('checked');
+		document.getElementById('buttonSound').removeAttribute('checked');
 	}else{
 		buttonSoundEnabled = true;
 		localStorage.setItem('buttonSoundEnabled', true);
@@ -331,12 +331,12 @@ function loadButtonSoundPreference(){
 
 function loadMessageSoundPreference(){
 	const sound = localStorage.getItem('messageSoundEnabled');
-	if (sound == 'true'){
-		document.getElementById('messageSounds').setAttribute('checked', 'checked');
+	if (sound === 'true'){
+		document.getElementById('messageSound').setAttribute('checked', 'checked');
 		messageSoundEnabled = true;
-	}else if(sound == 'false'){
+	}else if(sound === 'false'){
 		messageSoundEnabled = false;
-		document.getElementById('messageSounds').removeAttribute('checked');
+		document.getElementById('messageSound').removeAttribute('checked');
 	}else{
 		messageSoundEnabled = true;
 		localStorage.setItem('messageSoundEnabled', true);
@@ -2029,24 +2029,24 @@ document.getElementById('sendingMethod').addEventListener('click', () => {
 	popupMessage('Sending method changed to ' + sendBy);
 });
 
-document.getElementById('messageSounds').addEventListener('click', () => {
-	if (document.getElementById('messageSounds').checked){
+document.getElementById('messageSound').addEventListener('click', () => {
+	if (document.getElementById('messageSound').checked){
 		messageSoundEnabled = true;
 	}else{
 		messageSoundEnabled = false;
-		document.getElementById('messageSounds').removeAttribute('checked');
+		document.getElementById('messageSound').removeAttribute('checked');
 	}
 	//hideQuickSettings();
 	localStorage.setItem('messageSoundEnabled', messageSoundEnabled);
 	popupMessage('Message sounds ' + (messageSoundEnabled ? 'enabled' : 'disabled'));
 });
 
-document.getElementById('buttonSounds').addEventListener('click', () => {
-	if (document.getElementById('buttonSounds').checked){
+document.getElementById('buttonSound').addEventListener('click', () => {
+	if (document.getElementById('buttonSound').checked){
 		buttonSoundEnabled = true;
 	}else{
 		buttonSoundEnabled = false;
-		document.getElementById('buttonSounds').removeAttribute('checked');
+		document.getElementById('buttonSound').removeAttribute('checked');
 	}
 	//hideQuickSettings();
 	localStorage.setItem('buttonSoundEnabled', buttonSoundEnabled);
