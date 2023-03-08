@@ -2739,13 +2739,16 @@ function fileIsAcceptable(file, type){
 	}
 
 	if (type == 'audio'){
-		if (file.type != 'audio/mp3' && file.type != 'audio/mpeg' && file.type != 'audio/ogg' && file.type != 'audio/wav'){
-			popupMessage('Audio format not supported');
+		const supportedAudioFormats = ['audio/mp3', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/x-m4a'];
+		if (!supportedAudioFormats.includes(file.type)){
+			popupMessage('Audio format not supported. Try as file.');
+			console.log(file.type);
 			return false;
 		}
 	}else if(type == 'image'){
-		if (file.type != 'image/jpeg' && file.type != 'image/png' && file.type != 'image/gif' && file.type != 'image/webp'){
-			popupMessage('Image format not supported');
+		const supportedImageFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+		if (!supportedImageFormats.includes(file.type)){
+			popupMessage('Image format not supported. Try as file.');
 			return false;
 		}
 	}
@@ -2870,6 +2873,7 @@ function FilePreview(filesFromClipboard = null, audio = false){
 	//check if all files are acceptable
 	for (let i = 0; i < files.length; i++){
 		if (!fileIsAcceptable(files[i], audio ? 'audio' : 'file')){
+			clearFileFromInput();
 			return;
 		}
 	}
