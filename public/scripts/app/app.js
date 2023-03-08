@@ -305,10 +305,8 @@ function loadSendShortcut(){
 	if (sendBy === 'Enter'){
 		sendBy = 'Enter';
 		document.getElementById('sendingMethod').removeAttribute('checked');
-	}else if(sendBy === 'Ctrl+Enter'){
-		document.getElementById('sendingMethod').setAttribute('checked', 'checked');
-		sendBy = 'Ctrl+Enter';
 	}else{
+		document.getElementById('sendingMethod').setAttribute('checked', 'checked');
 		sendBy = 'Ctrl+Enter';
 		localStorage.setItem('sendBy', sendBy);
 	}
@@ -317,29 +315,25 @@ function loadSendShortcut(){
 
 function loadButtonSoundPreference(){
 	const sound = localStorage.getItem('buttonSoundEnabled');
-	if (sound === 'true'){
-		document.getElementById('buttonSound').setAttribute('checked', 'checked');
-		buttonSoundEnabled = true;
-	}else if(sound === 'false'){
+	if (sound === 'false'){
 		buttonSoundEnabled = false;
 		document.getElementById('buttonSound').removeAttribute('checked');
 	}else{
 		buttonSoundEnabled = true;
 		localStorage.setItem('buttonSoundEnabled', true);
+		document.getElementById('buttonSound').setAttribute('checked', 'checked');
 	}
 }
 
 function loadMessageSoundPreference(){
 	const sound = localStorage.getItem('messageSoundEnabled');
-	if (sound === 'true'){
-		document.getElementById('messageSound').setAttribute('checked', 'checked');
-		messageSoundEnabled = true;
-	}else if(sound === 'false'){
+	if(sound === 'false'){
 		messageSoundEnabled = false;
 		document.getElementById('messageSound').removeAttribute('checked');
 	}else{
 		messageSoundEnabled = true;
 		localStorage.setItem('messageSoundEnabled', true);
+		document.getElementById('messageSound').setAttribute('checked', 'checked');
 	}
 }
 
