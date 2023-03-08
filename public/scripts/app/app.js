@@ -88,6 +88,8 @@ document.getElementById('audioMessageTemplate').remove();
 //current theme
 let THEME = '';
 let sendBy = 'Ctrl+Enter'; //send message by default by pressing ctrl+enter
+export let messageSoundEnabled = true; //message sound is enabled by default
+let buttonSoundEnabled = true; //button sound is enabled by default
 
 //this array contains all the emojis used in the app
 const reactArray = {
@@ -298,17 +300,59 @@ function loadTheme(){
 	document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
 }
 
+function loadSendShortcut(){
+	sendBy = localStorage.getItem('sendBy');
+	if (sendBy == 'Enter'){
+		sendBy = 'Enter';
+		document.getElementById('sendingMethod').removeAttribute('checked');
+	}else if(sendBy == 'Ctrl+Enter'){
+		document.getElementById('sendingMethod').setAttribute('checked', 'checked');
+		sendBy = 'Ctrl+Enter';
+	}else{
+		sendBy = 'Ctrl+Enter';
+		localStorage.setItem('sendBy', sendBy);
+	}
+	document.getElementById('send').title = sendBy;
+}
+
+function loadButtonSoundPreference(){
+	const sound = localStorage.getItem('buttonSoundEnabled');
+	if (sound == 'true'){
+		document.getElementById('buttonSounds').setAttribute('checked', 'checked');
+		buttonSoundEnabled = true;
+	}else if(sound == 'false'){
+		buttonSoundEnabled = false;
+		document.getElementById('buttonSounds').removeAttribute('checked');
+	}else{
+		buttonSoundEnabled = true;
+		localStorage.setItem('buttonSoundEnabled', true);
+	}
+}
+
+function loadMessageSoundPreference(){
+	const sound = localStorage.getItem('messageSoundEnabled');
+	if (sound == 'true'){
+		document.getElementById('messageSounds').setAttribute('checked', 'checked');
+		messageSoundEnabled = true;
+	}else if(sound == 'false'){
+		messageSoundEnabled = false;
+		document.getElementById('messageSounds').removeAttribute('checked');
+	}else{
+		messageSoundEnabled = true;
+		localStorage.setItem('messageSoundEnabled', true);
+	}
+}
+
 function bootLoad(){
 	loadReacts();
 	loadTheme();
 	appHeight();
 	updateScroll();
-	sendBy = localStorage.getItem('sendBy') == 'Enter' ? 'Enter' : 'Ctrl+Enter';
-	document.getElementById('send').title = sendBy;
-	if (sendBy == 'Enter'){
-		document.getElementById('sendingMethod').setAttribute('checked', 'checked');
-	}
+	loadSendShortcut();
+	loadButtonSoundPreference();
+	loadMessageSoundPreference();
 }
+
 
 bootLoad();
 
@@ -322,85 +366,87 @@ function appHeight () {
 function escapeXSS(text) {
 	// Define the characters that need to be escaped
 	const escapeChars = {
-	"'": "&apos;",
-	"<": "&lt;",
-	">": "&gt;",
-	"&": "&amp;",
-	'"': "&quot;"
+		'\'': '&apos;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'&': '&amp;',
+		'"': '&quot;'
 	};
 	return text.replace(/[<>'"&]/g, match => escapeChars[match]);
 }
 
 
-
+/**
+ * Class to parse text and return HTML
+ */
 class TextParser {
 	constructor() {
-	  // Define regular expressions for parsing different markdown codes
-	  this.boldRegex = /\*\*([^*]+)\*\*/g;
-	  this.italicRegex = /_([^_]+)_/g;
-	  this.strikeRegex = /~~([^~]+)~~/g;
-	  this.headingRegex = /^#+\s+(.+)$/gm;
-	  this.codeRegex = /```([^`]+)```/g;
-	  this.monoRegex = /`([^`]+)`/g;
-	  this.linkRegex = /(https?:\/\/[^\s]+)/g;
-	  this.emojiRegex = /^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/;
+		// Define regular expressions for parsing different markdown codes
+		this.boldRegex = /\*\*([^*]+)\*\*/g;
+		this.italicRegex = /_([^_]+)_/g;
+		this.strikeRegex = /~~([^~]+)~~/g;
+		this.headingRegex = /^#+\s+(.+)$/gm;
+		this.codeRegex = /```([^`]+)```/g;
+		this.monoRegex = /`([^`]+)`/g;
+		this.linkRegex = /(https?:\/\/[^\s]+)/g;
+		this.emojiRegex = /^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/;
 	}
   
 	// Function to parse text and return HTML
 	parse(text) {
-	  // Escape special characters
-	  text = escapeXSS(text);
-  
-	  // Parse markdown codes
-	  text = this.parseBold(text);
-	  text = this.parseItalic(text);
-	  text = this.parseStrike(text);
-	  text = this.parseHeading(text);
-	  text = this.parseCode(text);
-	  text = this.parseMono(text);
-	  text = this.parseLink(text);
-	  text = this.parseEmoji(text);
-  
-	  return text;
+		// Escape special characters
+		text = escapeXSS(text);
+	
+		// Parse markdown codes
+		text = this.parseBold(text);
+		text = this.parseItalic(text);
+		text = this.parseStrike(text);
+		text = this.parseHeading(text);
+		text = this.parseCode(text);
+		text = this.parseMono(text);
+		text = this.parseLink(text);
+		text = this.parseEmoji(text);
+	
+		return text;
 	}
   
 	// Function to parse bold text
 	parseBold(text) {
-	  return text.replace(this.boldRegex, "<strong>$1</strong>");
+		return text.replace(this.boldRegex, '<strong>$1</strong>');
 	}
   
 	// Function to parse italic text
 	parseItalic(text) {
-	  return text.replace(this.italicRegex, "<em>$1</em>");
+		return text.replace(this.italicRegex, '<em>$1</em>');
 	}
   
 	// Function to parse strike-through text
 	parseStrike(text) {
-	  return text.replace(this.strikeRegex, "<s>$1</s>");
+		return text.replace(this.strikeRegex, '<s>$1</s>');
 	}
   
 	// Function to parse headings
 	parseHeading(text) {
 		text = text.replace(/^(#{1,6})\s(.*)$/gm, function(match, p1, p2) {
-			let level = p1.length;
+			const level = p1.length;
 			return `<h${level}>${p2}</h${level}>`;
-		  });
-	  	return text;
+		});
+		return text;
 	}
   
 	// Function to parse code blocks
 	parseCode(text) {
 		const regex = /```(\w*)([^`]+?)```/gs;
 		return text.replace(regex, (match, lang, code) => {
-		  if (lang && !this.isSupportedLanguage(lang)) {
-			console.warn(`Unsupported language: ${lang}`);
-			lang = '';
-		  }
-		  lang = lang ? ` class="language-${lang}" data-lang="${lang}"` : ' class="language-txt"';
-		  return `<pre${lang}><code>${code.trim()}</code></pre>`;
+			if (lang && !this.isSupportedLanguage(lang)) {
+				console.warn(`Unsupported language: ${lang}`);
+				lang = '';
+			}
+			lang = lang ? ` class="language-${lang}" data-lang="${lang}"` : ' class="language-txt"';
+			return `<pre${lang}><code>${code.trim()}</code></pre>`;
 		});
-	  }
-	  
+	}
+		
 	isSupportedLanguage(lang) {
 		const supportedLangs = ['js', 'py', 'java', 'html', 'css', 'cpp', 'c', 'php', 'sh', 'sql', 'json', 'txt', 'xml', 'cs', 'go', 'rb', 'bat'];
 		return supportedLangs.includes(lang);
@@ -408,19 +454,19 @@ class TextParser {
 
 	// Function to parse mono text
 	parseMono(text) {
-	  return text.replace(this.monoRegex, "<code>$1</code>");
+		return text.replace(this.monoRegex, '<code>$1</code>');
 	}
   
 	// Function to parse links
 	parseLink(text) {
-	  return text.replace(this.linkRegex, "<a href='$&' rel='noopener noreferrer' target='_blank'>$&</a>");
+		return text.replace(this.linkRegex, '<a href=\'$&\' rel=\'noopener noreferrer\' target=\'_blank\'>$&</a>');
 	}
 
 	parseEmoji(text) {
 		//replace white space with empty string
 		return text.replace(this.emojiRegex, '<span class="emoticon">$&</span>');
 	}
-  }
+}
 /**
  * 
  * @param {string} template Template to parse 
@@ -430,17 +476,19 @@ class TextParser {
 
 function parseTemplate(template, data) {
 	// regex to match mustache-like tags for HTML
+	// eslint-disable-next-line no-useless-escape
 	const htmlRegex = /\{\{\{([\w\s\.\[\]]*)\}\}\}/g;
 	
 	// regex to match mustache-like tags for text
+	// eslint-disable-next-line no-useless-escape
 	const textRegex = /\{\{([\w\s\.\[\]]*)\}\}/g;
 	
 	// replace all instances of mustache-like tags with the corresponding data value
 	const htmlResult = template.replace(htmlRegex, (match, tag) => {
-	  // use eval() to evaluate the tag expression and retrieve the data value
-	  if (data[tag]){
-		return data[tag];
-	  }
+		// use eval() to evaluate the tag expression and retrieve the data value
+		if (data[tag]){
+			return data[tag];
+		}
 	});
   
 	const textResult = htmlResult.replace(textRegex, (match, tag) => {
@@ -454,7 +502,7 @@ function parseTemplate(template, data) {
 	});
   
 	return textResult;
-  }
+}
 
 /**
  * 
@@ -500,7 +548,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 		let classList = ''; //the class list for the message. Initially empty. 
 		const lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
 		let popupmsg = ''; //the message to be displayed in the popup if user scrolled up
-		let messageIsEmoji = isEmoji(message); //if the message is an emoji
+		const messageIsEmoji = isEmoji(message); //if the message is an emoji
 		if (type === 'text'){ //if the message is a text message
 			message = `<div class="msg text">${new TextParser().parse(message)}</div>`;
 			const virtualElement = document.createElement('div');
@@ -818,12 +866,12 @@ function emojiParser(text){
 		':yolo:': '🤪',
 		':yikes:': '😱',
 		':sweat:': '😅'
-	}
+	};
 
 	//make it iterable
 	emojiMaps[Symbol.iterator] = function* () {
 		yield* Object.entries(this);
-	}
+	};
 
 	//find if the message contains the emoji
 	for (const [key, value] of emojiMaps){
@@ -1309,6 +1357,55 @@ function arrayToMap(array) {
 	return map;
 }
 
+function playStartRecordSound(){
+	if (!buttonSoundEnabled){
+		return;
+	}
+	startrecordingSound.play();
+}
+
+function playClickSound(){
+	if (!buttonSoundEnabled){
+		return;
+	}
+	clickSound.play();
+}
+
+function playOutgoingSound(){
+	if (!messageSoundEnabled){
+		return;
+	}
+	outgoingmessage.play();
+}
+
+export function playIncomingSound(){
+	if (!messageSoundEnabled){
+		return;
+	}
+	incommingmessage.play();
+}
+
+export function playTypingSound(){
+	if (!messageSoundEnabled){
+		return;
+	}
+	typingsound.play();
+}
+
+export function playStickerSound(){
+	if (!messageSoundEnabled){
+		return;
+	}
+	stickerSound.play();
+}
+
+function playReactSound(){
+	if (!messageSoundEnabled){
+		return;
+	}
+	reactsound.play();
+}
+
 /**
  * 
 * @param {string} reactEmoji Emoji to react with
@@ -1328,7 +1425,7 @@ export function getReact(reactEmoji, messageId, uid){
 					list.textContent = reactEmoji;
 				}
 			}else{
-				reactsound.play();
+				playReactSound();
 				const fragment = document.createDocumentFragment();
 				const div = document.createElement('div');
 				div.classList.add('list');
@@ -1347,7 +1444,7 @@ export function getReact(reactEmoji, messageId, uid){
 			div.textContent = reactEmoji;
 			fragment.append(div);
 			target.append(fragment);
-			reactsound.play();
+			playReactSound();
 		}
     
 		const list = Array.from(target.querySelectorAll('.list'));
@@ -1585,7 +1682,7 @@ export function updateScroll(avatar = null, text = ''){
 	if (scrolling) {
 		if (text.length > 0 && avatar != null) {   
 			document.querySelector('.newmessagepopup img').style.display = 'block';
-			document.querySelector('.newmessagepopup .msg').style.display = 'block';
+			document.querySelector('.newmessagepopup .msg').style.display = 'inline-block';
 			document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
 			document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).png`;
 			document.querySelector('.newmessagepopup img').classList.add('newmessagepopupavatar');
@@ -1639,7 +1736,9 @@ function getTypingString(userTypingMap){
 	}
 }
 
-
+/**
+ * @description Emits typing status of the current user to everyone
+ */
 function typingStatus(){
 	if (timeout) {
 		clearTimeout(timeout);
@@ -1655,6 +1754,9 @@ function typingStatus(){
 	}, 1000);
 }
 
+/**
+ * @description Resizes the textbox to fit the content after sending a message
+ */
 function resizeTextbox(){
 	textbox.style.height = 'auto';
 	textbox.style.height = textbox.scrollHeight + 'px';
@@ -1915,10 +2017,40 @@ quickSettings.addEventListener('click', (e) => {
 
 document.getElementById('sendingMethod').addEventListener('click', () => {
 	//get  value from the checkbox
-	sendBy = document.getElementById('sendingMethod').checked ? 'Ctrl+Enter' : 'Enter';
+	if (document.getElementById('sendingMethod').checked){
+		sendBy = 'Ctrl+Enter';
+	}else{
+		sendBy = 'Enter';
+		document.getElementById('sendingMethod').removeAttribute('checked');
+	}
+	//hideQuickSettings();
 	localStorage.setItem('sendBy', sendBy);
 	document.getElementById('send').title = sendBy;
 	popupMessage('Sending method changed to ' + sendBy);
+});
+
+document.getElementById('messageSounds').addEventListener('click', () => {
+	if (document.getElementById('messageSounds').checked){
+		messageSoundEnabled = true;
+	}else{
+		messageSoundEnabled = false;
+		document.getElementById('messageSounds').removeAttribute('checked');
+	}
+	//hideQuickSettings();
+	localStorage.setItem('messageSoundEnabled', messageSoundEnabled);
+	popupMessage('Message sounds ' + (messageSoundEnabled ? 'enabled' : 'disabled'));
+});
+
+document.getElementById('buttonSounds').addEventListener('click', () => {
+	if (document.getElementById('buttonSounds').checked){
+		buttonSoundEnabled = true;
+	}else{
+		buttonSoundEnabled = false;
+		document.getElementById('buttonSounds').removeAttribute('checked');
+	}
+	//hideQuickSettings();
+	localStorage.setItem('buttonSoundEnabled', buttonSoundEnabled);
+	popupMessage('Button sounds ' + (buttonSoundEnabled ? 'enabled' : 'disabled'));
 });
 
 document.getElementById('focus_glass').addEventListener('click', () => {
@@ -2000,7 +2132,7 @@ document.getElementById('stickers').addEventListener('click', e => {
 
 	if (e.target.tagName === 'IMG') {
 		const tempId = crypto.randomUUID();
-		stickerSound.play();
+		playStickerSound();
 		scrolling = false;
 		updateScroll();
 		insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {});
@@ -2009,10 +2141,10 @@ document.getElementById('stickers').addEventListener('click', e => {
 			//console.log('Server replay skipped');
 			const msg = document.getElementById(tempId);
 			msg?.classList.add('delevered');
-			outgoingmessage.play();
+			playOutgoingSound();
 		}else{
 			socket.emit('message', e.target.dataset.name, 'sticker', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, function(id){
-				outgoingmessage.play();
+				playOutgoingSound();
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
 				lastSeenMessage = id;
@@ -2070,7 +2202,7 @@ document.getElementById('invite').addEventListener('click', async () =>{
 });
 
 document.getElementById('themeButton').addEventListener('click', ()=>{
-	hideQuickSettings();
+	//hideQuickSettings();
 	themeClickHandler();
 });
 
@@ -2885,9 +3017,10 @@ sendButton.addEventListener('click', () => {
 	}
 
 	let message = textbox.value?.trim();
+
 	textbox.value = '';
-    
 	resizeTextbox();
+    
 	if (message != null && message.length) {
 		const tempId = crypto.randomUUID();
 		scrolling = false;
@@ -2911,10 +3044,10 @@ sendButton.addEventListener('click', () => {
 			//console.log('Server replay skipped');
 			const msg = document.getElementById(tempId);
 			msg?.classList.add('delevered');
-			outgoingmessage.play();
+			playOutgoingSound();
 		}else{
 			socket.emit('message', message, 'text', myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, function (id) {
-				outgoingmessage.play();
+				playOutgoingSound();
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
 				lastSeenMessage = id;
@@ -2993,7 +3126,7 @@ async function sendImageStoreRequest(){
 				msg.classList.add('delevered');
 				msg.dataset.downloaded = 'true';
 				msg.querySelector('.circleProgressLoader').remove();
-				outgoingmessage.play();
+				playOutgoingSound();
 			}else{
 				const elem = document.getElementById(tempId)?.querySelector('.messageMain');
 				if (elem == null){
@@ -3004,7 +3137,7 @@ async function sendImageStoreRequest(){
 		
 				let progress = 0;
 				fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: image.dataset.name}, myKey, (id) => {
-					outgoingmessage.play();
+					playOutgoingSound();
 					document.getElementById(tempId).classList.add('delevered');
 					document.getElementById(tempId).id = id;
 					tempId = id;
@@ -3100,13 +3233,13 @@ function sendFileStoreRequest(type = null){
 			msg.classList.add('delevered');
 			msg.dataset.downloaded = 'true';
 			msg.querySelector('.progress').style.visibility = 'hidden';
-			outgoingmessage.play();
+			playOutgoingSound();
 		}else{
 			let progress = 0;
 			const elem = document.getElementById(tempId)?.querySelector('.messageMain');
 	
 			fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name}, myKey, (id) => {
-				outgoingmessage.play();
+				playOutgoingSound();
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
 				tempId = id;
@@ -3218,12 +3351,14 @@ document.getElementById('lightbox__save').addEventListener('click', ()=>{
 
 
 textbox.addEventListener('keydown', (evt) => {
-	if (evt.key === 'Enter' && sendBy === 'Enter' && !evt.crtlKey ) {
+	if (evt.key === 'Enter' && sendBy === 'Enter' && !evt.ctrlKey ) { // if Enter key is pressed
+		evt.preventDefault(); // prevent default behavior of Enter key
 		sendButton.click();
-	}else if(evt.key === 'Enter' && sendBy === 'Ctrl+Enter' && evt.crtlKey ){
+	} else if(evt.key === 'Enter' && sendBy === 'Ctrl+Enter' && evt.ctrlKey ){ // if Ctrl+Enter key is pressed
 		sendButton.click();
 	}
 });
+
 
 let locationTimeout = undefined;
 
@@ -3251,7 +3386,7 @@ document.getElementById('send-location').addEventListener('click', () => {
 document.querySelectorAll('.clickable').forEach(elem => {
 	elem.addEventListener('click', () => {
 		clickSound.currentTime = 0;
-		clickSound.play();
+		playClickSound();
 	});
 });
 
@@ -3420,7 +3555,8 @@ function startRecordingAudio(){
 			mediaRecorder.start();
 			startTimer();
 			popupMessage('Recording...');
-			startrecordingSound.play();
+
+			playStartRecordSound();
 
 			micIcon.classList.replace('fa-play', 'fa-stop');
 			micIcon.classList.replace('fa-microphone', 'fa-stop');
@@ -3586,7 +3722,7 @@ function stopTimer(){
 
 //clear the previous thumbnail when user gets the file completely
 export function clearDownload(element, fileURL, type){
-	outgoingmessage.play();
+	playOutgoingSound();
 	if (type === 'image'){
 		setTimeout(() => {
 			element.querySelector('.circleProgressLoader').remove();

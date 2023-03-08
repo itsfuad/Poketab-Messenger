@@ -103,20 +103,19 @@ code{
         }
         .messageReply{
             background: var(--msg-get-reply);
-            color: hsla(0, 0%, 100%, 0.5);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
+            color: hsla(0,0%,100%,.5);
             border-radius: 15px 15px 15px 8px;
+            width: -moz-max-content;
             width: max-content;
-            max-width: 58%;
-            white-space: pre-wrap;
+            max-width: 218px;
+            white-space: pre;
+            overflow: hidden;
+            display: inline-block;
             text-overflow: ellipsis;
             transform: translateY(20px);
             cursor: pointer;
             z-index: 10;
             padding: 8px 8px 25px 8px;
-            align-items: flex-end;
             i {
                 padding: 2px 0 0 0;
                 color: #ffffff60;
@@ -548,9 +547,8 @@ pre{
     align-items: center;
     background: var(--msg-get);
     justify-content: center;
-    min-width: 185px;
+    min-width: 125px;
     max-width: 55vw;
-    min-height: 50px;
     .fa-file-lines{
         color: currentColor;
     }
@@ -584,8 +582,12 @@ pre{
     .fileName{
         text-decoration: underline;
         padding-left: 3px;
-        min-width: 64px;
-        word-break: break-all;
+        white-space: nowrap;
+        position: relative;
+        max-width: 35vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
     }
     .filemeta{
         font-size: .5rem;

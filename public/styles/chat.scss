@@ -312,11 +312,9 @@ img:is(.sticker){
         align-items: center;
         justify-content: space-between;
 
-        #themeButton{
-            background: var(--secondary-dark);
-        }
         #logoutButton{
             background: red;
+            font-size: 0.8rem;
         }
     }
 }
@@ -370,7 +368,7 @@ img:is(.sticker){
     left: 0;
     bottom: 0;
     right: 0;
-    z-index: 80;
+    z-index: 105;
     transition: 100ms ease-in-out;
     filter: drop-shadow(0 4px 5px black);
     &.active{
@@ -384,7 +382,7 @@ img:is(.sticker){
 .themeList{
     display: flex;
     flex-direction: column;
-    width: min(85vw, 380px);
+    width: min(85vw, 315px);
     gap: 10px;
     padding: 20px;
     background: var(--primary-dark);
@@ -904,13 +902,19 @@ input[type=file] {
     display: flex;
     flex-direction: row;
     align-items: center;
-    width: 100%;
+    width: 98%;
     justify-content: space-between;
     z-index: 1;
-    padding: 10px;
+    padding: 2px;
+    margin: 0 5px 5px 5px;
+    margin-right: 5px;
+    background: var(--primary-dark);
+    border-radius: 50px;
 
     #items-count{
-        font-size: 0.8rem;
+        font-size: .8rem;
+        padding: 0 10px;
+        text-align: center;
     }
 
     .close{
@@ -927,8 +931,9 @@ input[type=file] {
     justify-content: center;
     align-items: center;
     gap: 5px;
-
-
+    padding: 10px;
+    padding: 0px 10px;
+    width: 100%;
 
     input {
         position: absolute;
@@ -938,77 +943,58 @@ input[type=file] {
         width: 0;
     }
 
-    .checkmark {
-        position: relative;
-        height: 18px;
-        display: block;
-        width: 18px;
-        border-radius: 4px;
-        background-color: #eee;
-    }
-    
-    &:hover .checkmark {
-        background-color: #ccc;
-    }
-
     label{
+        width: max-content;
         display: flex;
         flex-direction: row;
-        gap: 5px;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-end;
+        text-align: right;
         width: 100%;
-        &:hover{
-            cursor: pointer;
-        }
+        gap: 5px;
     }
 
-    &.disabled{
-        color: #949494a8;
-        cursor: not-allowed;
-        .checkmark{
-            background-color: #949494a8;
+    label .toggleButton{
+        position: relative;
+        width: 40px;
+        height: 20px;
+        background: #aaa;
+        display: flex;
+        border-radius: 25px;
+        transition: 300ms ease-in-out;
+        &::after{
+            content: '';
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            border-radius: 50px;
+            background: white;
+            top: 0;
+            left: 0;
+            transition: 300ms ease-in-out;
+            transform: translateX(0px);
         }
-    }
-    
-    input:checked ~ label .checkmark {
-        background-color: var(--secondary-dark);
-    }
-    
-    .checkmark:after {
-        content: "";
-        position: absolute;
-        visibility: hidden;
-        opacity: 0;
-        transition: 200ms;
-        transform: rotate(90deg) translate(-50%, -50%) scale(0.5);
-    }
-    
-    input:checked ~ label .checkmark:after {
-        visibility: visible;
-        opacity: 1;
-    }
-    
-    .checkmark:after {
-        left: 27%;
-        top: 41%;
-        width: 3px;
-        height: 9px;
-        border: solid #fff;
-        border-width: 0 3px 3px 0;
-        transform: rotate(45deg) translate(-50%, -50%) scale(1);
+      }
+      
+      input:checked ~ label .toggleButton::after{
+        transform: translateX(20px);
+      }
+      
+      input:checked ~ label .toggleButton{
+        background: var(--secondary-dark);
     }
 }
 
 #themeButton{
     background: var(--secondary-dark);
+    margin-top: 10px;
 }
 
 
 .settings{
     transition: 200ms ease-in-out;
     &:hover{
-        transform: translateY(-2px);
+        transform: translateY(-2px) rotate(45deg);
     }
 }
 
@@ -1036,6 +1022,7 @@ input[type=file] {
         border-radius: 10px;
         filter: drop-shadow(2px 4px 6px #000);
         font-size: 0.8rem;
+        width: min(80vw,315px);
 
         opacity: 0;
         transform: translateY(80px);
@@ -1342,7 +1329,11 @@ i[class^=fa-]{
         width: 20px;
     }
     .msg{
-        font-size: 0.8rem;
+        font-size: .8rem;
+        max-width: 65px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 }
 

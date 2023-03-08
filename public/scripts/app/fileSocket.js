@@ -1,5 +1,5 @@
 import {io} from '../../libs/socket.io.js';
-import { myKey, myId, incommingmessage, insertNewMessage, notifyUser, userInfoMap, clearDownload, updateScroll } from './app.js';
+import { myKey, myId, playIncomingSound, insertNewMessage, notifyUser, userInfoMap, clearDownload, updateScroll } from './app.js';
 import { fileBuffer } from './app.js';
 //file socket to deliver file metadata [This is not used for file transfer, only for metadata. Files will be transferred using xhr requests]
 export const fileSocket = io('/file');
@@ -12,7 +12,7 @@ fileSocket.on('connect', () => {
 
 //gets an intermediate thumbnail and file metadata
 fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, options, metadata) => {
-	incommingmessage.play();
+	playIncomingSound();
 	fileBuffer.set(id, {type: type, data: '', uId: uId, reply: reply, replyId: replyId, options: options, metadata: metadata});
 	if (type === 'image'){
 		insertNewMessage(thumbnail, type, id, uId, reply, replyId, options, metadata);

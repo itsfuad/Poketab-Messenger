@@ -28,9 +28,7 @@ html {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  -khtml-user-select: none;
   -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -38,9 +36,7 @@ html {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  -khtml-user-select: none;
   -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -48,9 +44,7 @@ html {
   -webkit-tap-highlight-color: initial;
   -webkit-touch-callout: initial;
   -webkit-user-select: initial;
-  -khtml-user-select: initial;
   -moz-user-select: initial;
-  -ms-user-select: initial;
   user-select: initial;
 }
 
@@ -77,7 +71,8 @@ body {
   font-size: 0.6rem;
   transform: translateX(-50%);
   z-index: 100;
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
   z-index: 1000;
   visibility: hidden;
   opacity: 0;
@@ -239,7 +234,8 @@ img:is(.sticker) {
   padding: 10px 10px 0 10px;
   border-radius: 0 5px 5px 0;
   background: var(--primary-dark);
-  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
   z-index: 90;
   display: flex;
   flex-direction: column;
@@ -304,11 +300,9 @@ img:is(.sticker) {
   align-items: center;
   justify-content: space-between;
 }
-#sidebar .footer_options #themeButton {
-  background: var(--secondary-dark);
-}
 #sidebar .footer_options #logoutButton {
   background: red;
+  font-size: 0.8rem;
 }
 
 .footer_options .fa-gear {
@@ -327,7 +321,8 @@ img:is(.sticker) {
   display: none;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+          backdrop-filter: blur(5px);
   visibility: hidden;
   opacity: 0;
   transition: 100ms;
@@ -359,7 +354,7 @@ img:is(.sticker) {
   left: 0;
   bottom: 0;
   right: 0;
-  z-index: 80;
+  z-index: 105;
   transition: 100ms ease-in-out;
   filter: drop-shadow(0 4px 5px black);
 }
@@ -372,7 +367,7 @@ img:is(.sticker) {
 .themeList {
   display: flex;
   flex-direction: column;
-  width: min(85vw, 380px);
+  width: min(85vw, 315px);
   gap: 10px;
   padding: 20px;
   background: var(--primary-dark);
@@ -504,6 +499,7 @@ img {
   justify-content: center;
   align-items: center;
   text-align: center;
+  width: -moz-max-content;
   width: max-content;
   padding: 20px;
   gap: 20px;
@@ -582,6 +578,7 @@ img {
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
+  width: -moz-max-content;
   width: max-content;
   visibility: visible;
   opacity: 1;
@@ -644,7 +641,8 @@ img {
   border-radius: 15px;
   width: 260px;
   background: rgba(255, 255, 255, 0.1294117647);
-  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
   border: 3px solid var(--glass);
   align-items: center;
   position: relative;
@@ -834,7 +832,8 @@ input[type=file] {
   width: 100%;
   height: 100%;
   border-radius: inherit;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   height: inherit;
   background: var(--glass);
 }
@@ -859,13 +858,19 @@ input[type=file] {
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 100%;
+  width: 98%;
   justify-content: space-between;
   z-index: 1;
-  padding: 10px;
+  padding: 2px;
+  margin: 0 5px 5px 5px;
+  margin-right: 5px;
+  background: var(--primary-dark);
+  border-radius: 50px;
 }
 .option #items-count {
   font-size: 0.8rem;
+  padding: 0 10px;
+  text-align: center;
 }
 .option .close {
   background: red;
@@ -875,11 +880,16 @@ input[type=file] {
   display: flex;
   position: relative;
   cursor: pointer;
-  user-select: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
   flex-direction: row;
   justify-content: center;
   align-items: center;
   gap: 5px;
+  padding: 10px;
+  padding: 0px 10px;
+  width: 100%;
 }
 .field-checkers input {
   position: absolute;
@@ -888,69 +898,55 @@ input[type=file] {
   height: 0;
   width: 0;
 }
-.field-checkers .checkmark {
-  position: relative;
-  height: 18px;
-  display: block;
-  width: 18px;
-  border-radius: 4px;
-  background-color: #eee;
-}
-.field-checkers:hover .checkmark {
-  background-color: #ccc;
-}
 .field-checkers label {
+  width: -moz-max-content;
+  width: max-content;
   display: flex;
   flex-direction: row;
-  gap: 5px;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
+  text-align: right;
   width: 100%;
+  gap: 5px;
 }
-.field-checkers label:hover {
-  cursor: pointer;
+.field-checkers label .toggleButton {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  background: #aaa;
+  display: flex;
+  border-radius: 25px;
+  transition: 300ms ease-in-out;
 }
-.field-checkers.disabled {
-  color: rgba(148, 148, 148, 0.6588235294);
-  cursor: not-allowed;
-}
-.field-checkers.disabled .checkmark {
-  background-color: rgba(148, 148, 148, 0.6588235294);
-}
-.field-checkers input:checked ~ label .checkmark {
-  background-color: var(--secondary-dark);
-}
-.field-checkers .checkmark:after {
+.field-checkers label .toggleButton::after {
   content: "";
   position: absolute;
-  visibility: hidden;
-  opacity: 0;
-  transition: 200ms;
-  transform: rotate(90deg) translate(-50%, -50%) scale(0.5);
+  height: 20px;
+  width: 20px;
+  border-radius: 50px;
+  background: white;
+  top: 0;
+  left: 0;
+  transition: 300ms ease-in-out;
+  transform: translateX(0px);
 }
-.field-checkers input:checked ~ label .checkmark:after {
-  visibility: visible;
-  opacity: 1;
+.field-checkers input:checked ~ label .toggleButton::after {
+  transform: translateX(20px);
 }
-.field-checkers .checkmark:after {
-  left: 27%;
-  top: 41%;
-  width: 3px;
-  height: 9px;
-  border: solid #fff;
-  border-width: 0 3px 3px 0;
-  transform: rotate(45deg) translate(-50%, -50%) scale(1);
+.field-checkers input:checked ~ label .toggleButton {
+  background: var(--secondary-dark);
 }
 
 #themeButton {
   background: var(--secondary-dark);
+  margin-top: 10px;
 }
 
 .settings {
   transition: 200ms ease-in-out;
 }
 .settings:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) rotate(45deg);
 }
 
 .quickSettingPanel {
@@ -976,6 +972,7 @@ input[type=file] {
   border-radius: 10px;
   filter: drop-shadow(2px 4px 6px #000);
   font-size: 0.8rem;
+  width: min(80vw, 315px);
   opacity: 0;
   transform: translateY(80px);
   transition: 100ms ease-in-out;
@@ -1144,6 +1141,9 @@ i[class^=fa-] {
   background: var(--glass);
   scrollbar-width: none;
 }
+#textbox::-moz-placeholder {
+  color: rgba(255, 255, 255, 0.5411764706);
+}
 #textbox::placeholder {
   color: rgba(255, 255, 255, 0.5411764706);
 }
@@ -1240,6 +1240,7 @@ i[class^=fa-] {
   transform: translateX(-50%);
   z-index: 10;
   gap: 5px;
+  width: -moz-max-content;
   width: max-content;
   display: flex;
   visibility: hidden;
@@ -1268,6 +1269,10 @@ i[class^=fa-] {
 }
 .newmessagepopup .msg {
   font-size: 0.8rem;
+  max-width: 65px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 #lightbox {
@@ -1279,7 +1284,8 @@ i[class^=fa-] {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
   z-index: 100;
   visibility: hidden;
   opacity: 0;
@@ -1367,7 +1373,8 @@ i[class^=fa-] {
   display: flex;
   visibility: hidden;
   opacity: 0;
-  backdrop-filter: brightness(0.5);
+  -webkit-backdrop-filter: brightness(0.5);
+          backdrop-filter: brightness(0.5);
   transition: 100ms ease-in-out;
   z-index: 25;
 }
@@ -1402,6 +1409,7 @@ i[class^=fa-] {
 .reactOptionsWrapper {
   position: relative;
   transform: scale(1);
+  width: -moz-min-content;
   width: min-content;
   max-height: 35px;
   place-content: center;
@@ -1484,6 +1492,7 @@ i[class^=fa-] {
   flex-direction: row;
   justify-content: space-between;
   gap: 5px;
+  width: -moz-max-content;
   width: max-content;
   align-items: center;
   border-radius: 10px;
@@ -1550,7 +1559,8 @@ i[class^=fa-] {
   z-index: 90;
   visibility: hidden;
   opacity: 0;
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
 }
 .reactorContainerWrapper.active {
   visibility: visible;
@@ -1572,7 +1582,8 @@ i[class^=fa-] {
   align-items: flex-start;
   justify-content: flex-start;
   z-index: 10;
-  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+          backdrop-filter: blur(5px);
   scrollbar-width: none;
   transition: 100ms ease-in-out;
   filter: drop-shadow(0 4px 5px black);

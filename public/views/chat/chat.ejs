@@ -39,11 +39,28 @@
             <div class="title">
                 Settings <i class="fa-solid fa-gear settings"></i>
             </div>
-           
+
+            <!-- Enable/disable button sounds -->
             <div class="field-checkers clickable">
-                <input type="checkbox" id="sendingMethod" checked="checked">
+                <input type="checkbox" id="buttonSounds">
+                <label for="buttonSounds">Button sounds
+                    <span class="toggleButton"></span>
+                </label>
+            </div>
+
+            <!-- Enable/disable message sounds -->
+            <div class="field-checkers clickable">
+                <input type="checkbox" id="messageSounds">
+                <label for="messageSounds">Message sounds
+                    <span class="toggleButton"></span>
+                </label>
+            </div>
+
+           <!-- Shortcut to send message -->
+            <div class="field-checkers clickable">
+                <input type="checkbox" id="sendingMethod">
                 <label for="sendingMethod">Use Ctrl+Enter to send
-                    <span class="checkmark"></span>
+                    <span class="toggleButton"></span>
                 </label>
             </div>
             <div id="themeButton" class="button clickable"><i class="fa-solid fa-palette"></i><span>Theme</span></div>

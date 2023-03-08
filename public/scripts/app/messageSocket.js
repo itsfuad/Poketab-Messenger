@@ -15,16 +15,17 @@ import {
 	joinsound,
 	leavesound,
 	locationsound,
-	incommingmessage,
-	stickerSound,
-	typingsound,
 	serverMessage,
 	insertNewMessage,
 	notifyUser,
 	checkgaps,
 	updateScroll,
 	getReact,
-	deleteMessage
+	deleteMessage,
+	playTypingSound,
+	playIncomingSound,
+	playStickerSound,
+	messageSoundEnabled
 } from './app.js';
 //main socket to deliver messages
 export const socket = io(); 
@@ -104,25 +105,27 @@ socket.on('updateUserList', (users) => {
 });
 
 socket.on('server_message', (meta, type) => {
-	switch (type) {
-	case 'join':
-		joinsound.play();
-		break;
-	case 'leave':
-		leavesound.play();
-		break;
-	case 'location':
-		locationsound.play();
-		break;
+	if (messageSoundEnabled){
+		switch (type) {
+		case 'join':
+			joinsound.play();
+			break;
+		case 'leave':
+			leavesound.play();
+			break;
+		case 'location':
+			locationsound.play();
+			break;
+		}
 	}
 	serverMessage(meta, type);
 });
 
 socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
 	if (type == 'text'){
-		incommingmessage.play();
+		playIncomingSound();
 	}else if(type == 'sticker'){
-		stickerSound.play();
+		playStickerSound();
 	}
 	insertNewMessage(message, type, id, uid, reply, replyId, options, {});
 	notifyUser({data: type == 'text' ? message : '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uid)?.username, userInfoMap.get(uid)?.avatar);
@@ -166,7 +169,7 @@ socket.on('deleteMessage', (messageId, userName) => {
 });
 
 socket.on('typing', (user, id) => {
-	typingsound.play();
+	playTypingSound();
 	userTypingMap.set(id, user);
 	setTypingUsers();
 });
