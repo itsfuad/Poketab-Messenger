@@ -845,11 +845,15 @@ input[type=file] {
         padding: 10px;
         align-items: center;
         justify-content: center;
-        align-content: flex-start;
+        align-content: center;
         flex-wrap: wrap;
         overflow: scroll;
         z-index: 2;
         flex-direction: row;
+
+        &:has(> :nth-child(2)){
+            align-content: flex-start;
+        }
         
         .file-item{
             position: relative;
@@ -994,7 +998,7 @@ input[type=file] {
 .settings{
     transition: 200ms ease-in-out;
     &:hover{
-        transform: translateY(-2px) rotate(45deg);
+        transform: rotate(45deg);
     }
 }
 
