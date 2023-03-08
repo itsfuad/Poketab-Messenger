@@ -3,7 +3,6 @@
 
 import { socket } from './messageSocket.js';
 import { fileSocket } from './fileSocket.js';
-import Mustache from '../../libs/mustache.min.js';
 import {Stickers} from '../../stickers/stickersConfig.js';
 import { Prism } from '../../libs/prism/prism.min.js';
 import { PanZoom } from '../../libs/panzoom.min.js';
@@ -88,6 +87,7 @@ document.getElementById('audioMessageTemplate').remove();
 
 //current theme
 let THEME = '';
+let sendBy = 'Ctrl+Enter'; //send message by default by pressing ctrl+enter
 
 //this array contains all the emojis used in the app
 const reactArray = {
@@ -277,8 +277,6 @@ function loadReacts(){
 	}
 }
 
-loadReacts();
-
 /**
  * Loads theme
  */
@@ -300,12 +298,172 @@ function loadTheme(){
 	document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
 }
 
-loadTheme();
+function bootLoad(){
+	loadReacts();
+	loadTheme();
+	appHeight();
+	updateScroll();
+	sendBy = localStorage.getItem('sendBy') == 'Enter' ? 'Enter' : 'Ctrl+Enter';
+	document.getElementById('send').title = sendBy;
+	if (sendBy == 'Enter'){
+		document.getElementById('sendingMethod').setAttribute('checked', 'checked');
+	}
+}
+
+bootLoad();
 
 //sets the app height to the max height of the window
 function appHeight () {
 	const doc = document.documentElement;
 	doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+}
+
+
+function escapeXSS(text) {
+	// Define the characters that need to be escaped
+	const escapeChars = {
+	"'": "&apos;",
+	"<": "&lt;",
+	">": "&gt;",
+	"&": "&amp;",
+	'"': "&quot;"
+	};
+	return text.replace(/[<>'"&]/g, match => escapeChars[match]);
+}
+
+
+
+class TextParser {
+	constructor() {
+	  // Define regular expressions for parsing different markdown codes
+	  this.boldRegex = /\*\*([^*]+)\*\*/g;
+	  this.italicRegex = /_([^_]+)_/g;
+	  this.strikeRegex = /~~([^~]+)~~/g;
+	  this.headingRegex = /^#+\s+(.+)$/gm;
+	  this.codeRegex = /```([^`]+)```/g;
+	  this.monoRegex = /`([^`]+)`/g;
+	  this.linkRegex = /(https?:\/\/[^\s]+)/g;
+	  this.emojiRegex = /^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/;
+	}
+  
+	// Function to parse text and return HTML
+	parse(text) {
+	  // Escape special characters
+	  text = escapeXSS(text);
+  
+	  // Parse markdown codes
+	  text = this.parseBold(text);
+	  text = this.parseItalic(text);
+	  text = this.parseStrike(text);
+	  text = this.parseHeading(text);
+	  text = this.parseCode(text);
+	  text = this.parseMono(text);
+	  text = this.parseLink(text);
+	  text = this.parseEmoji(text);
+  
+	  return text;
+	}
+  
+	// Function to parse bold text
+	parseBold(text) {
+	  return text.replace(this.boldRegex, "<strong>$1</strong>");
+	}
+  
+	// Function to parse italic text
+	parseItalic(text) {
+	  return text.replace(this.italicRegex, "<em>$1</em>");
+	}
+  
+	// Function to parse strike-through text
+	parseStrike(text) {
+	  return text.replace(this.strikeRegex, "<s>$1</s>");
+	}
+  
+	// Function to parse headings
+	parseHeading(text) {
+		text = text.replace(/^(#{1,6})\s(.*)$/gm, function(match, p1, p2) {
+			let level = p1.length;
+			return `<h${level}>${p2}</h${level}>`;
+		  });
+	  	return text;
+	}
+  
+	// Function to parse code blocks
+	parseCode(text) {
+		const regex = /```(\w*)([^`]+?)```/gs;
+		return text.replace(regex, (match, lang, code) => {
+		  if (lang && !this.isSupportedLanguage(lang)) {
+			console.warn(`Unsupported language: ${lang}`);
+			lang = '';
+		  }
+		  lang = lang ? ` class="language-${lang}" data-lang="${lang}"` : ' class="language-txt"';
+		  return `<pre${lang}><code>${code.trim()}</code></pre>`;
+		});
+	  }
+	  
+	isSupportedLanguage(lang) {
+		const supportedLangs = ['js', 'py', 'java', 'html', 'css', 'cpp', 'c', 'php', 'sh', 'sql', 'json', 'txt', 'xml', 'cs', 'go', 'rb', 'bat'];
+		return supportedLangs.includes(lang);
+	}	  
+
+	// Function to parse mono text
+	parseMono(text) {
+	  return text.replace(this.monoRegex, "<code>$1</code>");
+	}
+  
+	// Function to parse links
+	parseLink(text) {
+	  return text.replace(this.linkRegex, "<a href='$&' rel='noopener noreferrer' target='_blank'>$&</a>");
+	}
+
+	parseEmoji(text) {
+		//replace white space with empty string
+		return text.replace(this.emojiRegex, '<span class="emoticon">$&</span>');
+	}
+  }
+/**
+ * 
+ * @param {string} template Template to parse 
+ * @param {Object} data 
+ * @returns string
+ */
+
+function parseTemplate(template, data) {
+	// regex to match mustache-like tags for HTML
+	const htmlRegex = /\{\{\{([\w\s\.\[\]]*)\}\}\}/g;
+	
+	// regex to match mustache-like tags for text
+	const textRegex = /\{\{([\w\s\.\[\]]*)\}\}/g;
+	
+	// replace all instances of mustache-like tags with the corresponding data value
+	const htmlResult = template.replace(htmlRegex, (match, tag) => {
+	  // use eval() to evaluate the tag expression and retrieve the data value
+	  if (data[tag]){
+		return data[tag];
+	  }
+	});
+  
+	const textResult = htmlResult.replace(textRegex, (match, tag) => {
+		if (data[tag]){
+			if( typeof data[tag] == 'number'){
+				return data[tag].toString();
+			}else{
+				return data[tag];
+			}
+		}
+	});
+  
+	return textResult;
+  }
+
+/**
+ * 
+ * @param {string} message 
+ * @returns {string}
+ */
+function isEmoji(message){
+	const regex = /^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/;
+	return regex.test(message);
 }
 
 //this function inserts a message in the chat box
@@ -341,12 +499,13 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 	
 		let classList = ''; //the class list for the message. Initially empty. 
 		const lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
-		let popupmsg = ''; //the message to be displayed in the popup if user scrolled up 
-		const messageIsEmoji = isEmoji(message); //detect if the message is an emoji or not
+		let popupmsg = ''; //the message to be displayed in the popup if user scrolled up
+		let messageIsEmoji = isEmoji(message); //if the message is an emoji
 		if (type === 'text'){ //if the message is a text message
-			popupmsg = message.length > 20 ? `${message.substring(0, 20)} ...` : message; //if the message is more than 20 characters then display only 20 characters
-			message = messageFilter(message); //filter the message
-			message = `<span class='text msg'>${message}</span>`;
+			message = `<div class="msg text">${new TextParser().parse(message)}</div>`;
+			const virtualElement = document.createElement('div');
+			virtualElement.innerHTML = message;
+			popupmsg = virtualElement.textContent.length > 10 ? virtualElement.textContent.substring(0, 7) + '...' : virtualElement.textContent;//the message to be displayed in the popup if user scrolled up
 		}else if(type === 'image'){ //if the message is an image
 			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
 			message = sanitizeImagePath(message); //sanitize the image path
@@ -449,7 +608,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 	
 		if (type === 'file'){
 			popupmsg = 'File';
-			html = Mustache.render(fileTemplate, {
+			html = parseTemplate(fileTemplate, {
 				classList: classList,
 				avatarSrc: `/images/avatars/${avatar}(custom).png`,
 				messageId: id,
@@ -468,7 +627,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 			});
 		}else if (type == 'audio'){
 			popupmsg = 'Audio';
-			html = Mustache.render(audioTemplate, {
+			html = parseTemplate(audioTemplate, {
 				classList: classList,
 				avatarSrc: `/images/avatars/${avatar}(custom).png`,
 				messageId: id,
@@ -485,7 +644,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 				timeStamp: timeStamp,
 			});
 		}else{
-			html = Mustache.render(messageTemplate, {
+			html = parseTemplate(messageTemplate, {
 				classList: classList,
 				avatarSrc: `/images/avatars/${avatar}(custom).png`,
 				messageId: id,
@@ -507,9 +666,9 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 			socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
 		}
 	
-		const fragment = document.createDocumentFragment();
-		fragment.append(document.createRange().createContextualFragment(html));
-		messages.append(fragment);
+		const fragment = document.createRange().createContextualFragment(html);
+
+		messages.appendChild(fragment);
 		
 		if (reply.type == 'image' || reply.type == 'sticker'){
 			document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
@@ -543,7 +702,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 			});
 		}
 
-		updateScroll(userInfoMap.get(uid)?.avatar, codes ? 'Code' : popupMessage);
+		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
 	}catch(err){
 		console.error(err);
 		popupMessage(err);
@@ -557,6 +716,11 @@ window.addEventListener('focus', () => {
 	socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
 });
 
+/**
+ * 
+ * @param {string} path 
+ * @returns string
+ */
 function sanitizeImagePath(path){
 
 	//path regex will contain normal characters, numbers, underscores, hyphens and base64 characters
@@ -602,143 +766,67 @@ function sanitize(str){
 	if (str == null || str == ''){
 		return '';
 	}
-	str = str.replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll('\'', '&#39;').replaceAll('/', '&#x2F;');
+	str = str.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\//g, '&#x2F;');
 	return str;
 }
 
 /**
  * 
- * @param {string} message
- * @returns {string} Filtered message
+ * @param {string} text 
+ * @returns string
  */
-function messageFilter(message){
-	message = censorBadWords(message); //check if the message contains bad words
-	//secure XSS attacks with html entity number
-	//message = sanitize(message);
-	message = linkify(message); //if the message contains links then linkify the message
-	
-	message = message.trim();
-
-	message = parseCode(message); //parse the code blocks
-
-	return message;
-}
-
-//this is the code to parse the message
-/**
- * 
- * @param {string} message 
- * @returns {string}
- */
-function parseCode(message) {
-
-	const supportedLanguages = {
-		'js': 'javascript',
-		'ts': 'typescript',
-		'html': 'html',
-		'css': 'css',
-		'json': 'json',
-		'sh': 'bash',
-		'bash': 'bash',
-		'c': 'c',
-		'cpp': 'cpp',
-		'c++': 'cpp',
-		'cs': 'csharp',
-		'c#': 'csharp',
-		'csharp': 'csharp',
-		'go': 'go',
-		'java': 'java',
-		'kotlin': 'kotlin',
-		'kt': 'kotlin',
-		'php': 'php',
-		'py': 'python',
-		'python': 'python',
-		'rb': 'ruby',
-		'ruby': 'ruby',
-		'swift': 'swift',
-		'yaml': 'yaml',
-		'yml': 'yaml',
-		'xml': 'xml',
-		'md': 'markdown',
-		'markdown': 'markdown',
-		'dart': 'dart',
-		'diff': 'diff',
-		'dockerfile': 'dockerfile',
-		'docker': 'dockerfile',
-		'r': 'r',
-		'vb': 'vb',
-		'vbnet': 'vb',
-		'vb.net': 'vb',
-	};
-	//use regex to get the code blocks
-	const regex = /```(.*?)```/gs;
-	const codeBlocks = message.match(regex);
-	//replace the code blocks with pre tags
-	for (let i = 0; i < codeBlocks?.length; i++) {
-		const codeBlock = codeBlocks[i];
-		const language = codeBlock.split('\n')[0].replace('```', '');
-		const codeBlockWithoutBackticks = codeBlock.replace(/```(.*)/g, '');
-		let codeBlockWithPreTags = '';
-		if (supportedLanguages[language]) {
-			codeBlockWithPreTags = `<pre class="line-numbers language-${language}" data-lang="${language}" data-clip="Copy"><code class='${language}'>${codeBlockWithoutBackticks.trim()}</code></pre>`;
-		} else {
-			if (language.split(/\s/).length > 1) {
-				const lang = language.split(' ');
-				if (supportedLanguages[lang[0]]) {
-					codeBlockWithPreTags = `<pre class="line-numbers language-${lang[0]}" data-lang="${[lang[0]]}" data-clip="Copy"><code class='language-${lang[0]}'>\n${lang.slice(1, lang.length).join(' ')}${codeBlockWithoutBackticks.trim()}</code></pre>`;
-				}
-			} else {
-				codeBlockWithPreTags = `<pre class="line-numbers language-text" data-lang="text" data-clip="Copy"><code class='language-text'>${language.trim()}${codeBlockWithoutBackticks.trim()}</code></pre>`;
-			}
-		}
-		message = message.replace(codeBlock, codeBlockWithPreTags);
-	}
-	//replace the inline code with code tags
-	const inlineCodeRegex = /`([^`]+)`/g;
-	message = message.replace(inlineCodeRegex, '<code>$1</code>');
-	return message;
-}
-
 function emojiParser(text){
-	const emojiMap = new Map();
-	emojiMap.set(':)', '🙂');
-	emojiMap.set(':\'(', '😢');
-	emojiMap.set(':D', '😀');
-	emojiMap.set(':P', '😛');
-	emojiMap.set(':p', '😛');
-	emojiMap.set(':O', '😮');
-	emojiMap.set(':o', '😮');
-	emojiMap.set(':|', '😐');
-	emojiMap.set(':/', '😕');
-	emojiMap.set(':*', '😘');
-	emojiMap.set('>:(', '😠');
-	emojiMap.set(':(', '😞');
-	emojiMap.set('o3o', '😗');
-	emojiMap.set('^3^', '😙');
-	emojiMap.set('^_^', '😊');
-	emojiMap.set('<3', '❤️');
-	emojiMap.set('>_<', '😣');
-	emojiMap.set('>_>', '😒');
-	emojiMap.set('-_-', '😑');
-	emojiMap.set('XD', '😆');
-	emojiMap.set('xD', '😆');
-	emojiMap.set('B)', '😎');
-	emojiMap.set(';)', '😉');
-	emojiMap.set('T-T', '😭');
-	emojiMap.set(':aww:', '🥺');
-	emojiMap.set(':lol:', '😂');
-	emojiMap.set(':haha:', '🤣');
-	emojiMap.set(':hehe:', '😅');
-	emojiMap.set(':meh:', '😶');
-	emojiMap.set(':hmm:', '😏');
-	emojiMap.set(':wtf:', '🤨');
-	emojiMap.set(':yay:', '🥳');
-	emojiMap.set(':yolo:', '🤪');
-	emojiMap.set(':yikes:', '😱');
-	emojiMap.set(':sweat:', '😅');
+
+	if (text == null || text == ''){
+		return '';
+	}
+
+	const emojiMaps = {
+		':)': '🙂',
+		':\'(': '😢',
+		':D': '😀',
+		':P': '😛',
+		':p': '😛',
+		':O': '😮',
+		':o': '😮',
+		':|': '😐',
+		':/': '😕',
+		';*': '😘',
+		':*': '😗',
+		'>:(': '😠',
+		':(': '😞',
+		'o3o': '😗',
+		'^3^': '😙',
+		'^_^': '😊',
+		'<3': '❤️',
+		'>_<': '😣',
+		'>_>': '😒',
+		'-_-': '😑',
+		'XD': '😆',
+		'xD': '😆',
+		'B)': '😎',
+		';)': '😉',
+		'T-T': '😭',
+		':aww:': '🥺',
+		':lol:': '😂',
+		':haha:': '🤣',
+		':hehe:': '😅',
+		':meh:': '😶',
+		':hmm:': '😏',
+		':wtf:': '🤨',
+		':yay:': '🥳',
+		':yolo:': '🤪',
+		':yikes:': '😱',
+		':sweat:': '😅'
+	}
+
+	//make it iterable
+	emojiMaps[Symbol.iterator] = function* () {
+		yield* Object.entries(this);
+	}
 
 	//find if the message contains the emoji
-	for (const [key, value] of emojiMap){
+	for (const [key, value] of emojiMaps){
 		if (text.indexOf(key) != -1){
 			const position = text.indexOf(key);
 			//all charecter regex
@@ -754,19 +842,9 @@ function emojiParser(text){
 	return text;
 }
 
-//returns true if the message contains only emoji
-/**
- * 
- * @param {string} text 
- * @returns {boolean}
- */
-function isEmoji(text) {
-	//replace white space with empty string
-	if(/^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/.test(text)){
-		return true;
-	}
-	return false;
-}
+
+
+
 
 //Reply, Copy, Download, remove, Reacts Optio handler.
 /**
@@ -849,6 +927,10 @@ function showOptions(type, sender, target){
 	}, 100);
 }
 
+/**
+ * 
+ * @param {boolean} backdrop Show the backdrop or not 
+ */
 function addFocusGlass(backdrop = true){
 	const focusGlass = document.getElementById('focus_glass');
 	focusGlass.classList.remove('backdrop');
@@ -864,6 +946,10 @@ function removeFocusGlass(){
 	focusGlass.classList.remove('backdrop');
 }
 
+/**
+ * 
+ * @param {Event} e 
+ */
 function optionsMainEvent(e){
 	const target = e.target;
 	//console.log(target);
@@ -997,6 +1083,10 @@ function downloadFile(){
 	document.body.removeChild(a);
 }
 
+/**
+ * 
+ * @param {Event} e 
+ */
 function optionsReactEvent(e){
 	const target = e.target?.classList[0];
 	if (target){
@@ -1004,6 +1094,10 @@ function optionsReactEvent(e){
 	}
 }
 
+/**
+ * 
+ * @param {string} react 
+ */
 function sendReact(react){
 	if (reactArray.primary.includes(react) || reactArray.expanded.includes(react)){
 		const messageId = targetMessage.id;
@@ -1202,6 +1296,11 @@ function hideReplyToast(){
 	clearTargetMessage();
 }
 
+/**
+ * 
+ * @param {string[]} array Array of reacts to process
+ * @returns Map
+ */
 function arrayToMap(array) {
 	const map = new Map();
 	array.forEach(element => {
@@ -1210,6 +1309,12 @@ function arrayToMap(array) {
 	return map;
 }
 
+/**
+ * 
+* @param {string} reactEmoji Emoji to react with
+ * @param {string} messageId Id of the message
+ * @param {string} uid Id of the user who reacted
+ */
 export function getReact(reactEmoji, messageId, uid){
 	try{
 		const target = document.getElementById(messageId).querySelector('.reactedUsers');
@@ -1305,7 +1410,11 @@ export function getReact(reactEmoji, messageId, uid){
 	}
 }
 
-
+/**
+ * 
+ * @param {string} targetId Id of the message
+ * @returns 
+ */
 export function checkgaps(targetId){
 	try{
 		if (targetId){
@@ -1364,6 +1473,12 @@ function clearFinalTarget(){
 	finalTarget.id = '';
 }
 
+/**
+ * 
+ * @param {Event} evt 
+ * @param {boolean} popup 
+ * @returns 
+ */
 function OptionEventHandler(evt, popup = true){
 
 	const typeList = {
@@ -1460,7 +1575,12 @@ function OptionEventHandler(evt, popup = true){
 	vibrate();
 }
 
-
+/**
+ * 
+ * @param {string} avatar 
+ * @param {string} text 
+ * @returns 
+ */
 export function updateScroll(avatar = null, text = ''){
 	if (scrolling) {
 		if (text.length > 0 && avatar != null) {   
@@ -1488,30 +1608,11 @@ function removeNewMessagePopup() {
 	document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
 }
 
-
-function censorBadWords(text) {
-	text = text.replace(/fuck/g, 'f**k');
-	text = text.replace(/shit/g, 's**t');
-	text = text.replace(/bitch/g, 'b**t');
-	text = text.replace(/asshole/g, 'a**hole');
-	text = text.replace(/dick/g, 'd**k');
-	text = text.replace(/pussy/g, 'p**s');
-	text = text.replace(/cock/g, 'c**k');
-	text = text.replace(/baal/g, 'b**l');
-	text = text.replace(/sex/g, 's*x');
-	text = text.replace(/Fuck/g, 'F**k');
-	text = text.replace(/Shit/g, 'S**t');
-	text = text.replace(/Bitch/g, 'B**t');
-	text = text.replace(/Asshole/g, 'A**hole');
-	text = text.replace(/Dick/g, 'D**k');
-	text = text.replace(/Pussy/g, 'P**s');
-	text = text.replace(/Cock/g, 'C**k');
-	text = text.replace(/Baal/g, 'B**l');
-	text = text.replace(/Sex/g, 'S*x');
-	return text;
-}
-
-
+/**
+ * 
+ * @param {Map} userTypingMap 
+ * @returns string
+ */
 function getTypingString(userTypingMap){
 	if (userTypingMap.size > 0){
 		const array = Array.from(userTypingMap.values());
@@ -1559,7 +1660,13 @@ function resizeTextbox(){
 	textbox.style.height = textbox.scrollHeight + 'px';
 }
 
-
+/**
+ * 
+ * @param {HTMLImageElement} img Image to resize
+ * @param {string} mimetype Mimetype of the image
+ * @param {number} q Quality of the image
+ * @returns Object{data: string, width: number, height: number}
+ */
 function resizeImage(img, mimetype, q = 1080) {
 	const canvas = document.createElement('canvas');
 	let width = img.width;
@@ -1585,24 +1692,12 @@ function resizeImage(img, mimetype, q = 1080) {
 	return {data: canvas.toDataURL(mimetype, 1), height: height, width: width}; 
 }
   
-function linkify(inputText) {
-	//URLs starting with http://, https://, www.
 
-	//if input text contains a link, then make it clickable
-	if (inputText.includes('http://') || inputText.includes('https://') || inputText.includes('www.')){
-		//wrap the link in an anchor tag and return the text
-		//find for https:// or http:// or www.
-		const regex = /(https?:\/\/|www\.)[^\s]+/g;
-		return inputText.replace(regex, function(url) {
-			url = sanitize(url);
-
-			return '<a href="' + url + '">' + url + '</a>';
-		});
-	}else{
-		return inputText;
-	}
-}
-
+/**
+ * 
+ * @param {string} text 
+ * @returns 
+ */
 function copyText(text){
 	if (text == null){
 		text = targetMessage.message;
@@ -1617,6 +1712,10 @@ function copyText(text){
 
 let popupTimeout = undefined;
 
+/**
+ * 
+ * @param {string} text Text to show in the popup
+ */
 export function popupMessage(text){
 	document.querySelector('.popup-message').textContent = text;
 	document.querySelector('.popup-message').classList.add('active');
@@ -1629,6 +1728,11 @@ export function popupMessage(text){
 	}, 1000);
 }
 
+/**
+ * 
+ * @param {string} message 
+ * @param {string} type Message type [Join, Leave, Location]
+ */
 export function serverMessage(message, type) {
 	const serverMessageElement = document.createElement('li');
 	serverMessageElement.classList.add('serverMessage', 'msg-item');
@@ -1710,6 +1814,10 @@ export function loadStickerHeader(){
 	}
 }
 
+/**
+ * 
+ * @param {HTMLImageElement} img 
+ */
 function retryImageLoad(img){
 	const src = img.src;
 	img.src = '';
@@ -1776,6 +1884,42 @@ function showSidePanel(){
 	addFocusGlass();
 }
 
+
+document.querySelector('.footer_options .settings').addEventListener('click', () => {
+	showQuickSettings();
+	hideOptions();
+});
+
+const quickSettings = document.querySelector('.quickSettingPanel');
+function showQuickSettings(){
+	//show setting panel
+	quickSettings.style.display = 'flex';
+	setTimeout(() => {
+		quickSettings.querySelector('.utils').classList.add('active');
+	}, 60);
+}
+
+function hideQuickSettings(){
+	quickSettings.querySelector('.utils').classList.remove('active');
+	setTimeout(() => {
+		quickSettings.style.display = 'none';
+	}, 300);
+}
+
+quickSettings.addEventListener('click', (e) => {
+	//if click on quickSettings, then hide quickSettings
+	if (e.target == quickSettings){
+		hideQuickSettings();
+	}
+});
+
+document.getElementById('sendingMethod').addEventListener('click', () => {
+	//get  value from the checkbox
+	sendBy = document.getElementById('sendingMethod').checked ? 'Ctrl+Enter' : 'Enter';
+	localStorage.setItem('sendBy', sendBy);
+	document.getElementById('send').title = sendBy;
+	popupMessage('Sending method changed to ' + sendBy);
+});
 
 document.getElementById('focus_glass').addEventListener('click', () => {
 	closeStickersPanel();
@@ -1926,6 +2070,7 @@ document.getElementById('invite').addEventListener('click', async () =>{
 });
 
 document.getElementById('themeButton').addEventListener('click', ()=>{
+	hideQuickSettings();
 	themeClickHandler();
 });
 
@@ -2267,6 +2412,8 @@ document.getElementById('selectedFiles').addEventListener('click', (evt) => {
 
 					target.remove();
 
+					document.getElementById('items-count').textContent = `${selectedFileArray.length} item${selectedFileArray.length > 1 ? 's' : ''} selected`;
+
 					//if there are no images left, hide the preview
 					if (selectedFileArray.length == 0){
 						//close the preview
@@ -2284,6 +2431,11 @@ document.getElementById('selectedFiles').addEventListener('click', (evt) => {
 
 let lastAudioMessagePlay = null;
 
+/**
+ * 
+ * @param {HTMLAudioElement} audioContainer 
+ * @returns 
+ */
 function playAudio(audioContainer){
 
 	try{
@@ -2347,6 +2499,10 @@ function playAudio(audioContainer){
 	}
 }
 
+/**
+ * 
+ * @param {HTMLAudioElement} audio 
+ */
 function stopAudio(audio){
 	//dataset.playing = 'false';
 	audio.currentTime = 0;
@@ -2354,7 +2510,11 @@ function stopAudio(audio){
 	audio = undefined;
 }
 
-
+/**
+ * 
+ * @param {HTMLAudioElement} audio 
+ * @param {number} time 
+ */
 function seekAudioMessage(audio, time){
 	try{
 		audio.currentTime = isNaN(time) ? 0 : time;
@@ -2364,6 +2524,12 @@ function seekAudioMessage(audio, time){
 	}
 }
 
+/**
+ * 
+ * @param {number} totalTime 
+ * @param {number} elapsedTime 
+ * @returns string
+ */
 function remainingTime(totalTime, elapsedTime) {
 	// Calculate the remaining time
 	const remaining = Math.floor(totalTime) - Math.floor(elapsedTime);
@@ -2428,6 +2594,12 @@ function clearFileFromInput(){
 	audioButton.value = '';
 }
 
+/**
+ * 
+ * @param {File} file 
+ * @param {string} type 
+ * @returns boolean
+ */
 function fileIsAcceptable(file, type){
 	if (file.size > 15 * 1024 * 1024){
 		popupMessage('File size must be less than 15 mb');
@@ -2448,6 +2620,11 @@ function fileIsAcceptable(file, type){
 	return true;
 }
 
+/**
+ * 
+ * @param {FileList} filesFromClipboard 
+ * @returns 
+ */
 function ImagePreview(filesFromClipboard = null){
 
 	const files = filesFromClipboard || photoButton.files;
@@ -2481,6 +2658,7 @@ function ImagePreview(filesFromClipboard = null){
 	loadingElement.textContent = 'Reading binary data';
 	loadingElement.append(loadingIcon);
 	document.getElementById('selectedFiles').append(loadingElement);
+	document.getElementById('items-count').textContent = `${files.length} item${files.length > 1 ? 's' : ''} selected`;
 	document.getElementById('previewFile')?.classList?.add('active');
 
 	try{
@@ -2541,6 +2719,12 @@ function ImagePreview(filesFromClipboard = null){
 	}
 }
 
+/**
+ * 
+ * @param {FileList} filesFromClipboard 
+ * @param {boolean} audio 
+ * @returns 
+ */
 function FilePreview(filesFromClipboard = null, audio = false){
 
 	const files = filesFromClipboard || (audio ? audioButton.files : fileButton.files);
@@ -2574,7 +2758,7 @@ function FilePreview(filesFromClipboard = null, audio = false){
 	loadingElement.textContent = 'Reading binary data';
 	loadingElement.append(loadingIcon);
 	document.getElementById('selectedFiles').append(loadingElement);
-
+	document.getElementById('items-count').textContent = `${files.length} item${files.length > 1 ? 's' : ''} selected`;
 	document.getElementById('previewFile')?.classList?.add('active');
 
 	try{
@@ -2713,9 +2897,6 @@ sendButton.addEventListener('click', () => {
 		}
 
 		message = emojiParser(message);
-		//replace spaces with unusual characters
-		message = message.replace(/>/g, '&gt;');
-		message = message.replace(/</g, '&lt;');
 
 		if (isEmoji(message)){
 			//replace whitespace with empty string
@@ -2764,6 +2945,7 @@ document.getElementById('previewFile').querySelector('.close')?.addEventListener
 	selectedFileArray.length = 0;
 
 	document.getElementById('previewFile').classList.remove('active');
+	document.getElementById('items-count').textContent = '0 items selected';
 
 	while (document.getElementById('selectedFiles').firstChild) {
 		document.getElementById('selectedFiles').removeChild(document.getElementById('selectedFiles').firstChild);
@@ -2893,6 +3075,11 @@ async function sendImageStoreRequest(){
 	selectedFileArray.length = 0;
 }
 
+/**
+ * 
+ * @param {string} type Type of file to be sent
+ * @returns 
+ */
 function sendFileStoreRequest(type = null){
 
 	for (let i = 0; i < selectedFileArray.length; i++){
@@ -2975,6 +3162,12 @@ function sendFileStoreRequest(type = null){
 
 let newMsgTimeOut = undefined;
 
+/**
+ * 
+ * @param {string} message 
+ * @param {string} username 
+ * @param {string} avatar 
+ */
 export function notifyUser(message, username, avatar){
 	if ( ('Notification' in window) && Notification.permission === 'granted') {
 		// Check whether notification permissions have already been granted;
@@ -3025,7 +3218,9 @@ document.getElementById('lightbox__save').addEventListener('click', ()=>{
 
 
 textbox.addEventListener('keydown', (evt) => {
-	if (evt.ctrlKey && (evt.key === 'Enter')) {
+	if (evt.key === 'Enter' && sendBy === 'Enter' && !evt.crtlKey ) {
+		sendButton.click();
+	}else if(evt.key === 'Enter' && sendBy === 'Ctrl+Enter' && evt.crtlKey ){
 		sendButton.click();
 	}
 });
@@ -3095,7 +3290,11 @@ window.addEventListener('drop', (evt) => {
 	}
 });
   
-
+/**
+ * 
+ * @param {string} filename 
+ * @returns string
+ */
 function shortFileName(filename){
 	if (filename.length > 30){
 		//then shorten the filename as abc...[last10chars]
@@ -3269,6 +3468,12 @@ function stopRecordingAudio(){
 	stream?.getTracks().forEach(track => track.stop());
 }
 
+/**
+ * 
+ * @param {HTMLAudioElement} audio 
+ * @param {HTMLElement} timerDisplay 
+ * @returns 
+ */
 function updateAudioMessageTimer(audio, timerDisplay){
 	const currentTime = audio.currentTime;
 	const duration = audio.duration;
@@ -3397,12 +3602,6 @@ export function clearDownload(element, fileURL, type){
 	}
 	element.closest('.message').dataset.downloaded = 'true';
 }
-
-//set the app height based on different browser topbar or bottom bar height
-appHeight();
-
-//scroll up the message container
-updateScroll();
 
 //on dom ready, show 'Slow internet' if 3 sec has been passed
 document.addEventListener('DOMContentLoaded', () => {

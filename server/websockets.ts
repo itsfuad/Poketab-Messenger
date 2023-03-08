@@ -12,8 +12,6 @@ import crypto from 'crypto';
 
 import { cleanJunks } from './cleaner.js';
 
-import { Worker } from 'worker_threads';
-
 export const io = new Server(server);
 
 //socket.io connection
@@ -77,13 +75,8 @@ io.on('connection', (socket) => {
 				//console.log(`Message: ${message}`);
 
 				if (type === 'text'){
-					//create new Worker
-					//TODO: use postMessage instead of workerData
-					const worker = new Worker('./production/server/workers/messageParser.js', {workerData: { message: message }});
-					worker.on('message', (data) => {
-						socket.broadcast.to(SocketIds[socket.id].key).emit('newMessage', data, type, id, uId, reply, replyId, options);
-						callback(id);
-					});
+					socket.broadcast.to(SocketIds[socket.id].key).emit('newMessage', message, type, id, uId, reply, replyId, options);
+					callback(id);
 				}else{
 					socket.broadcast.to(SocketIds[socket.id].key).emit('newMessage', message, type, id, uId, reply, replyId, options);
 					callback(id);

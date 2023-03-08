@@ -23,7 +23,7 @@
             </div>
             <ul id="userlist"></ul>
             <div class="footer_options">
-                <div id="themeButton" class="button clickable"><i class="fa-solid fa-palette"></i><span>Theme</span></div>
+                <i class="fa-solid fa-gear settings clickable"></i>
                 <div id="logoutButton" class="button clickable"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Leave</span></div>
             </div>
             <div class="credits">
@@ -33,6 +33,23 @@
         </div>
         <div class="close_area"></div>
     </div>
+
+    <div class="quickSettingPanel">
+        <div class="utils">
+            <div class="title">
+                Settings <i class="fa-solid fa-gear settings"></i>
+            </div>
+           
+            <div class="field-checkers clickable">
+                <input type="checkbox" id="sendingMethod" checked="checked">
+                <label for="sendingMethod">Use Ctrl+Enter to send
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+            <div id="themeButton" class="button clickable"><i class="fa-solid fa-palette"></i><span>Theme</span></div>
+        </div>
+    </div>
+
     <!--The dark overlay-->
     <div id="focus_glass"></div>
 
@@ -150,7 +167,7 @@
 
                   
                 <!-- Send Button-->
-                <button id="send" title="Ctrl + Enter"><i class="fa-solid fa-paper-plane"></i></button>
+                <button id="send" title="Ctrl+Enter"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
         <div class="stickersPanel" id="stickersPanel">
@@ -200,8 +217,9 @@
     <div id="previewFile">
         <div id="selectedFiles"></div>
         <div class="option">
-            <div class="close"><i class="fa-solid fa-xmark"></i></div>
-            <div id="fileSendButton"><i class="fa-solid fa-paper-plane"></i></div>
+            <div class="close btn-with-icon">Cancel <i class="fa-solid fa-trash default"></i></div>
+            <div id="items-count"></div>
+            <div id="fileSendButton" class="btn-with-icon">Send <i class="fa-solid fa-paper-plane default"></i></div>
         </div>
     </div>
 
