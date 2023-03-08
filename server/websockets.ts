@@ -71,16 +71,9 @@ io.on('connection', (socket) => {
 			if (isRealString(message)) {
 			
 				const id = crypto.randomUUID();
-			
 				//console.log(`Message: ${message}`);
-
-				if (type === 'text'){
-					socket.broadcast.to(SocketIds[socket.id].key).emit('newMessage', message, type, id, uId, reply, replyId, options);
-					callback(id);
-				}else{
-					socket.broadcast.to(SocketIds[socket.id].key).emit('newMessage', message, type, id, uId, reply, replyId, options);
-					callback(id);
-				}
+				socket.broadcast.to(SocketIds[socket.id].key).emit('newMessage', message, type, id, uId, reply, replyId, options);
+				callback(id);
 			}
 		});
 		/*

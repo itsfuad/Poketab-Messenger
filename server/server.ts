@@ -227,7 +227,7 @@ app.post('/chat', (req, res) => {
 			//console.log('User have permission to join this chat');
 			//console.log(`Redirecting to old chat with key: ${key}`);
 
-			const { maxUser, admin } = keyStore.getKey(key);
+			const { maxUser } = keyStore.getKey(key);
 
 			approveNewChatRequest(res, {username: username, key: key, avatar: avatar, max_users: maxUser});
 		}
