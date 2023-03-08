@@ -382,6 +382,11 @@ class TextParser {
 		this.headingRegex = /^#+\s+(.+)$/gm;
 		this.codeRegex = /```([^`]+)```/g;
 		this.monoRegex = /`([^`]+)`/g;
+		this.escapeBackTicksRegex = /\\`/g;
+		this.escapeBoldRegex = /\\*/g;
+		this.escapeItalicRegex = /\\_/g;
+		this.escapeStrikeRegex = /\\~/g;
+		this.escapeHeadingRegex = /\\#/g;
 		this.linkRegex = /(https?:\/\/[^\s]+)/g;
 		this.emojiRegex = /^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/;
 	}
@@ -390,8 +395,14 @@ class TextParser {
 	parse(text) {
 		// Escape special characters
 		text = escapeXSS(text);
-	
+
 		// Parse markdown codes
+		text = this.escapeBackTicks(text);
+		text = this.escapeBold(text);
+		text = this.escapeItalic(text);
+		text = this.escapeStrike(text);
+		text = this.escapeHeading(text);
+
 		text = this.parseBold(text);
 		text = this.parseItalic(text);
 		text = this.parseStrike(text);
@@ -407,6 +418,26 @@ class TextParser {
 	// Function to parse bold text
 	parseBold(text) {
 		return text.replace(this.boldRegex, '<strong>$1</strong>');
+	}
+
+	escapeBackTicks(text){
+		return text.replace(this.escapeBackTicksRegex, '&#96;');
+	}
+
+	escapeBold(text){
+		return text.replace(this.escapeBackTicksRegex, '&#96;');
+	}
+
+	escapeItalic(text){
+		return text.replace(this.escapeItalicRegex, '&#95;');
+	}
+
+	escapeStrike(text){
+		return text.replace(this.escapeStrikeRegex, '&#126;');
+	}
+
+	escapeHeading(text){
+		return text.replace(this.escapeHeadingRegex, '&#35;');
 	}
   
 	// Function to parse italic text
