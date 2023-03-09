@@ -888,7 +888,7 @@ input[type=file] {
   align-items: center;
   gap: 5px;
   padding: 10px;
-  padding: 0px 10px;
+  padding: 5px 10px;
   width: 100%;
 }
 .field-checkers input {
@@ -908,6 +908,17 @@ input[type=file] {
   width: 100%;
   gap: 5px;
   cursor: pointer;
+}
+.field-checkers label .textContainer {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 1rem;
+}
+.field-checkers label .moreInfo {
+  font-size: 0.7rem;
+  color: rgba(164, 164, 164, 0.5411764706);
 }
 .field-checkers label .toggleButton {
   position: relative;
@@ -944,6 +955,7 @@ input[type=file] {
 
 .settings {
   transition: 200ms ease-in-out;
+  color: white;
 }
 .settings:hover {
   transform: rotate(45deg);
@@ -985,8 +997,23 @@ input[type=file] {
   width: 100%;
   padding: 0 0 5px;
   margin-bottom: 10px;
-  border-bottom: 2px solid var(--secondary-dark);
+  border-bottom: 2px solid var(--option-color);
+  color: white;
   font-size: 1rem;
+}
+.quickSettingPanel .utils .title * {
+  color: inherit !important;
+}
+.quickSettingPanel .utils .subsettings {
+  width: 100%;
+}
+.quickSettingPanel .utils .subsettings .subtitle {
+  font-size: 1rem;
+  color: var(--secondary-dark);
+  padding-bottom: 5px;
+}
+.quickSettingPanel .utils .subsettings .subtitle * {
+  color: inherit;
 }
 
 i[class^=fa-] {

@@ -1,0 +1,91 @@
+<!-- Message template -->
+<template id="messageTemplate">
+    <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}"> <!-- noreply notitle delevered start end self react -->
+        <div class="seenBy"></div>
+        <div class="messageContainer">
+            <div class="replyIcon">
+                <i class="fa-solid fa-reply"></i>
+            </div>
+            <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
+            <div class="avatar"><img src="{{avatarSrc}}" width='30px' height='30px' alt='avatar'/></div>
+            <div class="messageBody">
+                <div class="messageTitle">{{{title}}}</div>
+                <div class="messageReply" data-repid="{{repId}}" data-replyfor="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
+                <div class="messageMain">
+                    {{{message}}}
+                    <div class="messageTime" data-timestamp="{{timeStamp}}">{{time}}</div>
+                </div>
+                <div class="reactsOfMessage"></div>
+            </div>
+            <div class="reactedUsers" style="display: none;"></div>
+        </div>
+    </li>
+</template>
+
+<template id="fileTemplate">
+    <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}">
+        <div class="seenBy"></div>
+        <div class="messageContainer">
+            <div class="replyIcon">
+                <i class="fa-solid fa-reply"></i>
+            </div>
+            <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
+            <div class="avatar"><img src="{{avatarSrc}}" width='30px' height='30px' alt='avatar'/></div>
+            <div class="messageBody">
+                <div class="messageTitle">{{{title}}}</div>
+                <div class="messageReply" data-repid="{{repId}}" data-replyfor="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
+                <div class="messageMain">
+                    <div class="file msg" data-src="{{source}}" data-ext="{{ext}}">
+                        <div class="fileIcon">
+                            <i class="fa-regular fa-file-lines"></i>
+                        </div>
+                        <div class="fileInfo">
+                            <div class="fileName">{{fileName}}</div>
+                            <div class="filemeta">
+                                <div class="progress"></div>
+                                <div class="fileSize">{{fileSize}}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="messageTime" data-timestamp="{{timeStamp}}">{{time}}</div>
+                </div>
+                <div class="reactsOfMessage"></div>
+            </div>
+            <div class="reactedUsers" style="display: none;"></div>
+        </div>
+    </li>
+</template>
+
+
+<template id="audioMessageTemplate">
+    <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}"> <!-- noreply notitle delevered start end self react -->
+        <div class="seenBy"></div>
+        <div class="messageContainer">
+            <div class="replyIcon">
+                <i class="fa-solid fa-reply"></i>
+            </div>
+            <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
+            <div class="avatar"><img src="{{avatarSrc}}" width='30px' height='30px' alt='avatar'/></div>
+            <div class="messageBody">
+                <div class="messageTitle">{{{title}}}</div>
+                <div class="messageReply" data-repid="{{repId}}" data-replyfor="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
+                <div class="messageMain">
+                    <div class="msg audioMessage" data-length="{{length}}" data-src="{{source}}" data-ext="{{ext}}">
+                        <div class="main-element">
+                            <audio style="display: none;"></audio>
+                            <div class="controls">
+                                <div class="play-pause control"><i class="fa-solid fa-play"></i></div>
+                                <div class="stop control"><i class="fa-solid fa-stop"></i></div>
+                            </div>
+                            <div class="progress">Uploading...</div>
+                            <div class="time">{{length}}</div>
+                        </div>
+                    </div>
+                    <div class="messageTime" data-timestamp="{{timeStamp}}">{{time}}</div>
+                </div>
+                <div class="reactsOfMessage"></div>
+            </div>
+            <div class="reactedUsers" style="display: none;"></div>
+        </div>
+    </li>
+</template>

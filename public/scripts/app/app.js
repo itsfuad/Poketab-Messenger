@@ -3,7 +3,8 @@
 
 import { socket } from './messageSocket.js';
 import { fileSocket } from './fileSocket.js';
-import {Stickers} from '../../stickers/stickersConfig.js';
+import { TextParser, parseTemplate, isEmoji } from './messageParser.js';
+import { Stickers } from '../../stickers/stickersConfig.js';
 import { Prism } from '../../libs/prism/prism.min.js';
 import { PanZoom } from '../../libs/panzoom.min.js';
 import { themeAccent, themeArray, themePicker } from './themes.js';
@@ -66,6 +67,7 @@ const audioButton = document.getElementById('audioChooser');
 export let isTyping = false;
 let timeout = undefined;
 let messageTimeStampUpdater;
+let popupTimeout = undefined;
 
 //all the variables that are fetched from the server
 export const myId = document.getElementById('myId').textContent;
@@ -301,13 +303,12 @@ function loadTheme(){
 }
 
 function loadSendShortcut(){
-	sendBy = localStorage.getItem('sendBy');
-	if (sendBy === 'Enter'){
-		sendBy = 'Enter';
-		document.getElementById('sendingMethod').removeAttribute('checked');
-	}else{
-		document.getElementById('sendingMethod').setAttribute('checked', 'checked');
+	if (sendBy === 'Ctrl+Enter'){
 		sendBy = 'Ctrl+Enter';
+		document.getElementById('Ctrl+Enter').checked = true;
+	}else{
+		document.getElementById('Enter').checked = true;
+		sendBy = 'Enter';
 		localStorage.setItem('sendBy', sendBy);
 	}
 	document.getElementById('send').title = sendBy;
@@ -338,6 +339,8 @@ function loadMessageSoundPreference(){
 }
 
 function bootLoad(){
+	sendBy = localStorage.getItem('sendBy');
+
 	loadReacts();
 	loadTheme();
 	appHeight();
@@ -354,191 +357,6 @@ bootLoad();
 function appHeight () {
 	const doc = document.documentElement;
 	doc.style.setProperty('--app-height', `${window.innerHeight}px`);
-}
-
-
-function escapeXSS(text) {
-	// Define the characters that need to be escaped
-	const escapeChars = {
-		'\'': '&apos;',
-		'<': '&lt;',
-		'>': '&gt;',
-		'&': '&amp;',
-		'"': '&quot;'
-	};
-	return text.replace(/[<>'"&]/g, match => escapeChars[match]);
-}
-
-
-/**
- * Class to parse text and return HTML
- */
-class TextParser {
-	constructor() {
-		// Define regular expressions for parsing different markdown codes
-		this.boldRegex = /\*\*([^*]+)\*\*/g;
-		this.italicRegex = /_([^_]+)_/g;
-		this.strikeRegex = /~~([^~]+)~~/g;
-		this.headingRegex = /^#+\s+(.+)$/gm;
-		this.codeRegex = /```([^`]+)```/g;
-		this.monoRegex = /`([^`]+)`/g;
-		this.escapeBackTicksRegex = /\\`/g;
-		this.escapeBoldRegex = /\\*/g;
-		this.escapeItalicRegex = /\\_/g;
-		this.escapeStrikeRegex = /\\~/g;
-		this.escapeHeadingRegex = /\\#/g;
-		this.linkRegex = /(https?:\/\/[^\s]+)/g;
-		this.emojiRegex = /^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/;
-	}
-  
-	// Function to parse text and return HTML
-	parse(text) {
-		// Escape special characters
-		text = escapeXSS(text);
-
-		// Parse markdown codes
-		text = this.escapeBackTicks(text);
-		text = this.escapeBold(text);
-		text = this.escapeItalic(text);
-		text = this.escapeStrike(text);
-		text = this.escapeHeading(text);
-
-		text = this.parseBold(text);
-		text = this.parseItalic(text);
-		text = this.parseStrike(text);
-		text = this.parseHeading(text);
-		text = this.parseCode(text);
-		text = this.parseMono(text);
-		text = this.parseLink(text);
-		text = this.parseEmoji(text);
-	
-		return text;
-	}
-  
-	// Function to parse bold text
-	parseBold(text) {
-		return text.replace(this.boldRegex, '<strong>$1</strong>');
-	}
-
-	escapeBackTicks(text){
-		return text.replace(this.escapeBackTicksRegex, '&#96;');
-	}
-
-	escapeBold(text){
-		return text.replace(this.escapeBackTicksRegex, '&#96;');
-	}
-
-	escapeItalic(text){
-		return text.replace(this.escapeItalicRegex, '&#95;');
-	}
-
-	escapeStrike(text){
-		return text.replace(this.escapeStrikeRegex, '&#126;');
-	}
-
-	escapeHeading(text){
-		return text.replace(this.escapeHeadingRegex, '&#35;');
-	}
-  
-	// Function to parse italic text
-	parseItalic(text) {
-		return text.replace(this.italicRegex, '<em>$1</em>');
-	}
-  
-	// Function to parse strike-through text
-	parseStrike(text) {
-		return text.replace(this.strikeRegex, '<s>$1</s>');
-	}
-  
-	// Function to parse headings
-	parseHeading(text) {
-		text = text.replace(/^(#{1,6})\s(.*)$/gm, function(match, p1, p2) {
-			const level = p1.length;
-			return `<h${level}>${p2}</h${level}>`;
-		});
-		return text;
-	}
-  
-	// Function to parse code blocks
-	parseCode(text) {
-		const regex = /```(\w*)([^`]+?)```/gs;
-		return text.replace(regex, (match, lang, code) => {
-			console.log(`Language found: ${lang} lang=='' ${lang == ''} lang==undefined ${lang == undefined} isSupportedLanguage ${this.isSupportedLanguage(lang)}`);
-			if (lang == '' || lang == undefined || !this.isSupportedLanguage(lang)) {
-				console.log(`Unsupported language: ${lang}`);
-				lang = 'txt';
-			}
-			console.log(`Language found: ${lang}`);
-			lang = `class="language-${lang} line-numbers" data-lang="${lang}" data-clip="Copy"`;
-			return `<pre ${lang}><code>${code.trim()}</code></pre>`;
-		});
-	}
-		
-	isSupportedLanguage(lang) {
-		const supportedLangs = ['js', 'py', 'java', 'html', 'css', 'cpp', 'c', 'php', 'sh', 'sql', 'json', 'txt', 'xml', 'cs', 'go', 'rb', 'bat'];
-		return supportedLangs.includes(lang);
-	}	  
-
-	// Function to parse mono text
-	parseMono(text) {
-		return text.replace(this.monoRegex, '<code>$1</code>');
-	}
-  
-	// Function to parse links
-	parseLink(text) {
-		return text.replace(this.linkRegex, '<a href=\'$&\' rel=\'noopener noreferrer\' target=\'_blank\'>$&</a>');
-	}
-
-	parseEmoji(text) {
-		//replace white space with empty string
-		return text.replace(this.emojiRegex, '<span class="emoticon">$&</span>');
-	}
-}
-/**
- * 
- * @param {string} template Template to parse 
- * @param {Object} data 
- * @returns string
- */
-
-function parseTemplate(template, data) {
-	// regex to match mustache-like tags for HTML
-	// eslint-disable-next-line no-useless-escape
-	const htmlRegex = /\{\{\{([\w\s\.\[\]]*)\}\}\}/g;
-	
-	// regex to match mustache-like tags for text
-	// eslint-disable-next-line no-useless-escape
-	const textRegex = /\{\{([\w\s\.\[\]]*)\}\}/g;
-	
-	// replace all instances of mustache-like tags with the corresponding data value
-	const htmlResult = template.replace(htmlRegex, (match, tag) => {
-		// use eval() to evaluate the tag expression and retrieve the data value
-		if (data[tag]){
-			return data[tag];
-		}
-	});
-  
-	const textResult = htmlResult.replace(textRegex, (match, tag) => {
-		if (data[tag]){
-			if( typeof data[tag] == 'number'){
-				return data[tag].toString();
-			}else{
-				return data[tag];
-			}
-		}
-	});
-  
-	return textResult;
-}
-
-/**
- * 
- * @param {string} message 
- * @returns {string}
- */
-function isEmoji(message){
-	const regex = /^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/;
-	return regex.test(message);
 }
 
 //this function inserts a message in the chat box
@@ -1556,24 +1374,27 @@ export function checkgaps(targetId){
 			}
     
 			if (target.dataset.uid === after.dataset.uid){
+
+				const gap = Math.abs(target.querySelector('.messageContainer').getBoundingClientRect().bottom - after.querySelector('.messageContainer').getBoundingClientRect().top);
+
 				if (target.dataset.uid == myId){
-					if ((Math.abs(target.querySelector('.messageContainer').getBoundingClientRect().bottom - after.querySelector('.messageContainer').getBoundingClientRect().top) > 2)){
-						target.querySelector('.messageMain > *').style.borderBottomRightRadius = '15px';
-						after.querySelector('.messageMain > *').style.borderTopRightRadius = '15px';
+					if (gap > 5){
+						target.querySelector('.messageMain .msg').style.borderBottomRightRadius = '15px';
+						after.querySelector('.messageMain .msg').style.borderTopRightRadius = '15px';
 					}else{
 						if (!target.classList.contains('end') && !after.classList.contains('start')){
-							target.querySelector('.messageMain > *').style.borderBottomRightRadius = '3px';
-							after.querySelector('.messageMain > *').style.borderTopRightRadius = '3px';
+							target.querySelector('.messageMain .msg').style.borderBottomRightRadius = '3px';
+							after.querySelector('.messageMain .msg').style.borderTopRightRadius = '3px';
 						}
 					}
 				}else{
-					if ((Math.abs(target.querySelector('.messageContainer').getBoundingClientRect().bottom - after.querySelector('.messageContainer').getBoundingClientRect().top) > 2)){
-						target.querySelector('.messageMain > *').style.borderBottomLeftRadius = '15px';
-						after.querySelector('.messageMain > *').style.borderTopLeftRadius = '15px';
+					if (gap > 5){
+						target.querySelector('.messageMain .msg').style.borderBottomLeftRadius = '15px';
+						after.querySelector('.messageMain .msg').style.borderTopLeftRadius = '15px';
 					}else{
 						if (!target.classList.contains('end') && !after.classList.contains('start')){
-							target.querySelector('.messageMain > *').style.borderBottomLeftRadius = '3px';
-							after.querySelector('.messageMain > *').style.borderTopLeftRadius = '3px';
+							target.querySelector('.messageMain .msg').style.borderBottomLeftRadius = '3px';
+							after.querySelector('.messageMain .msg').style.borderTopLeftRadius = '3px';
 						}
 					}
 				}
@@ -1839,8 +1660,6 @@ function copyText(text){
 	popupMessage('Copied to clipboard');
 }
 
-let popupTimeout = undefined;
-
 /**
  * 
  * @param {string} text Text to show in the popup
@@ -1922,12 +1741,14 @@ selectedStickerGroup = localStorage.getItem('selectedStickerGroup') || Stickers[
 
 const stickersGrp = document.getElementById('selectStickerGroup');
 
-const loadedStickerHeader = false;
+let loadedStickerHeader = false;
 
 export function loadStickerHeader(){
 	if (loadedStickerHeader){
 		return;
 	}
+
+	loadStickerHeader = true;
 
 	while (stickersGrp.firstChild){
 		stickersGrp.removeChild(stickersGrp.firstChild);
@@ -2042,19 +1863,22 @@ quickSettings.addEventListener('click', (e) => {
 	}
 });
 
-document.getElementById('sendingMethod').addEventListener('click', () => {
-	//get  value from the checkbox
-	if (document.getElementById('sendingMethod').checked){
-		sendBy = 'Ctrl+Enter';
-	}else{
-		sendBy = 'Enter';
-		document.getElementById('sendingMethod').removeAttribute('checked');
+
+document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => {
+	const option = evt.target?.closest('.field-checkers');
+	if (!option){
+		return;
 	}
+	sendBy = option.querySelector('input').value;
+
+	loadSendShortcut();
+
 	//hideQuickSettings();
 	localStorage.setItem('sendBy', sendBy);
 	document.getElementById('send').title = sendBy;
 	popupMessage('Sending method changed to ' + sendBy);
 });
+
 
 document.getElementById('messageSound').addEventListener('click', () => {
 	if (document.getElementById('messageSound').checked){
@@ -3383,6 +3207,10 @@ document.getElementById('lightbox__save').addEventListener('click', ()=>{
 
 textbox.addEventListener('keydown', (evt) => {
 	if (evt.key === 'Enter' && sendBy === 'Enter' && !evt.ctrlKey ) { // if Enter key is pressed
+		//if shift+enter is pressed, then add a new line
+		if (evt.shiftKey){
+			return;
+		}
 		evt.preventDefault(); // prevent default behavior of Enter key
 		sendButton.click();
 	} else if(evt.key === 'Enter' && sendBy === 'Ctrl+Enter' && evt.ctrlKey ){ // if Ctrl+Enter key is pressed

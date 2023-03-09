@@ -1,0 +1,84 @@
+<!-- Utilities -->
+
+<!--The dark overlay-->
+<div id="focus_glass"></div>
+
+<!-- Options container for reacts and other functionalities -->
+<div id="optionsContainerWrapper">
+    <div class="close_area"></div>
+    <div id="optionsContainer">
+        <div class="reactOptionsWrapper" data-closed="true">
+            <ul id="reactOptions" class="options">
+                <!--Reacts-->
+                <div class="more" title="More reactions" id="showMoreReactBtn"><i class="fa-solid fa-plus"></i></div>
+            </ul>
+        </div>
+        <div class="normalOptionWrapper">
+            <ul id="normalOptions" class="options">
+                <div class="replyOption"><i class="fa-solid fa-reply"></i> <span>Reply</span></div>
+                <div class="copyOption" style="display: none;"><i class="fa-solid fa-clone"></i> <span>Copy</span></div>
+                <div class="downloadOption" style="display: none;"><i class="fa-solid fa-download"></i> <span>Download</span></div>
+                <div class="deleteOption"><i class="fa-solid fa-trash"></i> <span>Delete</span></div>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<!-- Image Preview -->
+
+<div id="previewFile">
+    <div id="selectedFiles"></div>
+    <div class="option">
+        <div class="close btn-with-icon">Cancel <i class="fa-solid fa-trash default"></i></div>
+        <div id="items-count"></div>
+        <div id="fileSendButton" class="btn-with-icon">Send <i class="fa-solid fa-paper-plane default"></i></div>
+    </div>
+</div>
+
+<!--Image will be viewed here-->
+<div id="lightbox">
+    <div class="tool">
+        <div id="lightbox__save" class="btn"><i class="fa-solid fa-download"></i></div>
+        <div id="lightbox__close" class="btn"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div id="lightbox__image"></div>
+</div>
+
+<!-- Image Drag and drop overlay -->
+
+<div class="fileDropZone">
+    <div class="fileDropZoneContent">
+        <span>Drop file here</span>
+    </div>
+</div>
+
+<div class="stickersPanel" id="stickersPanel">
+    <div class="stickerGroups">
+        <div class="horizontal-flow">
+            <i class="fa-solid fa-angle-left" id="stickerMoveLeft"></i>
+            <div class="names" id="selectStickerGroup"></div>
+            <i class="fa-solid fa-angle-right" id="stickerMoveRight"></i>
+        </div>
+    </div>
+    <div class="stickers" id="stickers">Loading&nbsp;<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--secondary-dark)"></i></div>
+</div>
+
+<div class="moreReactsContainer">
+    <div class="horizontal-line"></div>
+    <div class="moreReacts">
+        <!-- Add more emojis -->
+    </div>
+</div>
+
+<!-- Reacts of all peoples -->
+<div class="reactorContainerWrapper">
+    <div class="reactorContainer">Reactions <ul></ul></div>
+</div>
+
+<svg class='hideSvgSoThatItSupportsFirefox'>
+    <filter id='sharpBlur'>
+      <feGaussianBlur stdDeviation='5'></feGaussianBlur>
+      <feComposite in2='SourceGraphic' operator='in'></feComposite>
+    </filter>
+</svg>

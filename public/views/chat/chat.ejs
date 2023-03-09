@@ -15,60 +15,10 @@
     </div>
     <!--All popups will be shown here-->
     <div class="popup-message"></div>
-    <!--The side menu-->
-    <div id="sidebar_wrapper">
-        <div id="sidebar">
-            <div class="topbar">
-                <div id="keyname" class="clickable keyCopy"><i class="fa-regular fa-clone"></i><span><%=myKey_%></span></div>
-            </div>
-            <ul id="userlist"></ul>
-            <div class="footer_options">
-                <i class="fa-solid fa-gear settings clickable"></i>
-                <div id="logoutButton" class="button clickable"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Leave</span></div>
-            </div>
-            <div class="credits">
-                <div class="version">Version: <%=version%></div>
-                <div class="author">Developed by <%=developer%></div>
-            </div>
-        </div>
-        <div class="close_area"></div>
-    </div>
 
-    <div class="quickSettingPanel">
-        <div class="utils">
-            <div class="title">
-                Settings <i class="fa-solid fa-gear settings"></i>
-            </div>
+    <%- include('../layout/app/sideBar.ejs') %>
 
-            <!-- Enable/disable button sounds -->
-            <div class="field-checkers clickable">
-                <input type="checkbox" id="buttonSound">
-                <label for="buttonSound">Button sound
-                    <span class="toggleButton"></span>
-                </label>
-            </div>
-
-            <!-- Enable/disable message sounds -->
-            <div class="field-checkers clickable">
-                <input type="checkbox" id="messageSound">
-                <label for="messageSound">Message sound
-                    <span class="toggleButton"></span>
-                </label>
-            </div>
-
-           <!-- Shortcut to send message -->
-            <div class="field-checkers clickable">
-                <input type="checkbox" id="sendingMethod">
-                <label for="sendingMethod">Use Ctrl+Enter to send
-                    <span class="toggleButton"></span>
-                </label>
-            </div>
-            <div id="themeButton" class="button clickable"><i class="fa-solid fa-palette"></i><span>Theme</span></div>
-        </div>
-    </div>
-
-    <!--The dark overlay-->
-    <div id="focus_glass"></div>
+    <%- include('../layout/app/quickSettings.ejs') %>
 
     <!--The main chat area-->
     <div class="chatBox">
@@ -115,7 +65,6 @@
         </div>
 
         
-
         <!-- All inputs -->
         <div class="footer">
             <div id="typingIndicator">
@@ -187,185 +136,14 @@
                 <button id="send" title="Ctrl+Enter"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
-        <div class="stickersPanel" id="stickersPanel">
-            <div class="stickerGroups">
-                <div class="horizontal-flow">
-                    <i class="fa-solid fa-angle-left" id="stickerMoveLeft"></i>
-                    <div class="names" id="selectStickerGroup"></div>
-                    <i class="fa-solid fa-angle-right" id="stickerMoveRight"></i>
-                </div>
-            </div>
-            <div class="stickers" id="stickers">Loading&nbsp;<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--secondary-dark)"></i></div>
-        </div>
     </div>
 
-    <!-- Utilities -->
 
-    <!-- Options container for reacts and other functionalities -->
-    <div id="optionsContainerWrapper">
-        <div class="close_area"></div>
-        <div id="optionsContainer">
-            <div class="reactOptionsWrapper" data-closed="true">
-                <ul id="reactOptions" class="options">
-                    <!--Reacts-->
-                    <div class="more" title="More reactions" id="showMoreReactBtn"><i class="fa-solid fa-plus"></i></div>
-                </ul>
-            </div>
-            <div class="normalOptionWrapper">
-                <ul id="normalOptions" class="options">
-                    <div class="replyOption"><i class="fa-solid fa-reply"></i> <span>Reply</span></div>
-                    <div class="copyOption" style="display: none;"><i class="fa-solid fa-clone"></i> <span>Copy</span></div>
-                    <div class="downloadOption" style="display: none;"><i class="fa-solid fa-download"></i> <span>Download</span></div>
-                    <div class="deleteOption"><i class="fa-solid fa-trash"></i> <span>Delete</span></div>
-                </ul>
-            </div>
-        </div>
-    </div>
+    <%- include('../layout/app/templates.ejs') %>
 
-    <div class="moreReactsContainer">
-        <div class="horizontal-line"></div>
-        <div class="moreReacts">
-            <!-- Add more emojis -->
-        </div>
-    </div>
+    <%- include('../layout/app/utils.ejs') %>
 
-    <!-- Image Preview -->
+    <%- include('../layout/app/metadata.ejs') %>
 
-    <div id="previewFile">
-        <div id="selectedFiles"></div>
-        <div class="option">
-            <div class="close btn-with-icon">Cancel <i class="fa-solid fa-trash default"></i></div>
-            <div id="items-count"></div>
-            <div id="fileSendButton" class="btn-with-icon">Send <i class="fa-solid fa-paper-plane default"></i></div>
-        </div>
-    </div>
-
-    <!--Image will be viewed here-->
-    <div id="lightbox">
-        <div class="tool">
-          <div id="lightbox__save" class="btn"><i class="fa-solid fa-download"></i></div>
-          <div id="lightbox__close" class="btn"><i class="fa-solid fa-xmark"></i></div>
-        </div>
-        <div id="lightbox__image"></div>
-    </div>
-
-    <!-- Image Drag and drop overlay -->
-
-    <div class="fileDropZone">
-        <div class="fileDropZoneContent">
-            <span>Drop file here</span>
-        </div>
-    </div>
-
-    <!-- Reacts of all peoples -->
-    <div class="reactorContainerWrapper">
-        <div class="reactorContainer">Reactions <ul></ul></div>
-    </div>
-
-    <!-- Message template -->
-    <template id="messageTemplate">
-        <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}"> <!-- noreply notitle delevered start end self react -->
-            <div class="seenBy"></div>
-            <div class="messageContainer">
-                <div class="replyIcon">
-                    <i class="fa-solid fa-reply"></i>
-                </div>
-                <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
-                <div class="avatar"><img src="{{avatarSrc}}" width='30px' height='30px' alt='avatar'/></div>
-                <div class="messageBody">
-                    <div class="messageTitle">{{{title}}}</div>
-                    <div class="messageReply" data-repid="{{repId}}" data-replyfor="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
-                    <div class="messageMain">
-                        {{{message}}}
-                        <div class="messageTime" data-timestamp="{{timeStamp}}">{{time}}</div>
-                    </div>
-                    <div class="reactsOfMessage"></div>
-                </div>
-                <div class="reactedUsers" style="display: none;"></div>
-            </div>
-        </li>
-    </template>
-    
-    <template id="fileTemplate">
-        <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}">
-            <div class="seenBy"></div>
-            <div class="messageContainer">
-                <div class="replyIcon">
-                    <i class="fa-solid fa-reply"></i>
-                </div>
-                <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
-                <div class="avatar"><img src="{{avatarSrc}}" width='30px' height='30px' alt='avatar'/></div>
-                <div class="messageBody">
-                    <div class="messageTitle">{{{title}}}</div>
-                    <div class="messageReply" data-repid="{{repId}}" data-replyfor="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
-                    <div class="messageMain">
-                        <div class="file msg" data-src="{{source}}" data-ext="{{ext}}">
-                            <div class="fileIcon">
-                                <i class="fa-regular fa-file-lines"></i>
-                            </div>
-                            <div class="fileInfo">
-                                <div class="fileName">{{fileName}}</div>
-                                <div class="filemeta">
-                                    <div class="progress"></div>
-                                    <div class="fileSize">{{fileSize}}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="messageTime" data-timestamp="{{timeStamp}}">{{time}}</div>
-                    </div>
-                    <div class="reactsOfMessage"></div>
-                </div>
-                <div class="reactedUsers" style="display: none;"></div>
-            </div>
-        </li>
-    </template>
-
-
-    <template id="audioMessageTemplate">
-        <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}"> <!-- noreply notitle delevered start end self react -->
-            <div class="seenBy"></div>
-            <div class="messageContainer">
-                <div class="replyIcon">
-                    <i class="fa-solid fa-reply"></i>
-                </div>
-                <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
-                <div class="avatar"><img src="{{avatarSrc}}" width='30px' height='30px' alt='avatar'/></div>
-                <div class="messageBody">
-                    <div class="messageTitle">{{{title}}}</div>
-                    <div class="messageReply" data-repid="{{repId}}" data-replyfor="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
-                    <div class="messageMain">
-                        <div class="msg audioMessage" data-length="{{length}}" data-src="{{source}}" data-ext="{{ext}}">
-                            <div class="main-element">
-                                <audio style="display: none;"></audio>
-                                <div class="controls">
-                                    <div class="play-pause control"><i class="fa-solid fa-play"></i></div>
-                                    <div class="stop control"><i class="fa-solid fa-stop"></i></div>
-                                </div>
-                                <div class="progress">Uploading...</div>
-                                <div class="time">{{length}}</div>
-                            </div>
-                        </div>
-                        <div class="messageTime" data-timestamp="{{timeStamp}}">{{time}}</div>
-                    </div>
-                    <div class="reactsOfMessage"></div>
-                </div>
-                <div class="reactedUsers" style="display: none;"></div>
-            </div>
-        </li>
-    </template>
-
-    <svg class='hideSvgSoThatItSupportsFirefox'>
-        <filter id='sharpBlur'>
-          <feGaussianBlur stdDeviation='5'></feGaussianBlur>
-          <feComposite in2='SourceGraphic' operator='in'></feComposite>
-        </filter>
-    </svg>
-    <div id="userMetaTemplate">
-        <div id="myId"><%=myId_%></div>
-        <div id="myName"><%=myName_%></div>
-        <div id="myAvatar"><%=myAvatar_%></div>
-        <div id="myKey"><%=myKey_%></div>
-        <div id="maxUser"><%=maxUser_%></div>
-    </div>
 </body>
 </html>

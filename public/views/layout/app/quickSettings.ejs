@@ -1,0 +1,57 @@
+<div class="quickSettingPanel">
+    <div class="utils">
+        <div class="title">
+            Settings <i class="fa-solid fa-gear"></i>
+        </div>
+
+        <div class="subsettings">
+            <div class="subtitle">Sounds <i class="fa-solid fa-volume-high"></i></div>
+            <!-- Enable/disable button sounds -->
+            <div class="field-checkers clickable">
+                <input type="checkbox" id="buttonSound">
+                <label for="buttonSound">
+                    <div class="textContainer">
+                        Click Sound
+                    </div>
+                    <span class="toggleButton"></span>
+                </label>
+            </div>
+            <!-- Enable/disable message sounds -->
+            <div class="field-checkers clickable">
+                <input type="checkbox" id="messageSound">
+                <label for="messageSound">
+                    <div class="textContainer">
+                        Message sound
+                    </div>
+                    <span class="toggleButton"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="subsettings">
+            <div class="subtitle">Keyboard <i class="fa-regular fa-keyboard"></i></div>
+            <div class="field-checkers clickable">
+                <input type="radio" name="sendMethod" id="Ctrl+Enter" value="Ctrl+Enter">
+                <label for="ctrl">
+                    <div class="textContainer">
+                        Use Ctrl+Enter to send
+                        <div class="moreInfo">Use Enter to add newlines</div>
+                    </div>
+                    <span class="toggleButton"></span>
+                </label>
+            </div>
+
+            <div class="field-checkers clickable">
+                <input type="radio" name="sendMethod" id="Enter" value="Enter">
+                <label for="nonctrl">
+                    <div class="textContainer">
+                        Use Enter to send
+                        <div class="moreInfo">Use Shift+Enter to add newlines</div>
+                    </div>
+                    <span class="toggleButton"></span>
+                </label>
+            </div>
+        </div>
+        <div id="themeButton" class="button clickable"><i class="fa-solid fa-palette"></i><span>Theme</span></div>
+    </div>
+</div>

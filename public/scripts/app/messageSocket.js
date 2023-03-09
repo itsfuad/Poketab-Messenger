@@ -25,7 +25,7 @@ import {
 	playTypingSound,
 	playIncomingSound,
 	playStickerSound,
-	messageSoundEnabled
+	messageSoundEnabled,
 } from './app.js';
 //main socket to deliver messages
 export const socket = io(); 
