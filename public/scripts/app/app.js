@@ -463,12 +463,14 @@ class TextParser {
 	parseCode(text) {
 		const regex = /```(\w*)([^`]+?)```/gs;
 		return text.replace(regex, (match, lang, code) => {
-			if (lang && !this.isSupportedLanguage(lang)) {
-				console.warn(`Unsupported language: ${lang}`);
-				lang = '';
+			console.log(`Language found: ${lang} lang=='' ${lang == ''} lang==undefined ${lang == undefined} isSupportedLanguage ${this.isSupportedLanguage(lang)}`);
+			if (lang == '' || lang == undefined || !this.isSupportedLanguage(lang)) {
+				console.log(`Unsupported language: ${lang}`);
+				lang = 'txt';
 			}
-			lang = lang ? ` class="language-${lang}" data-lang="${lang}"` : ' class="language-txt"';
-			return `<pre${lang}><code>${code.trim()}</code></pre>`;
+			console.log(`Language found: ${lang}`);
+			lang = `class="language-${lang} line-numbers" data-lang="${lang}" data-clip="Copy"`;
+			return `<pre ${lang}><code>${code.trim()}</code></pre>`;
 		});
 	}
 		
@@ -3385,6 +3387,15 @@ textbox.addEventListener('keydown', (evt) => {
 		sendButton.click();
 	} else if(evt.key === 'Enter' && sendBy === 'Ctrl+Enter' && evt.ctrlKey ){ // if Ctrl+Enter key is pressed
 		sendButton.click();
+	}
+});
+
+
+//show quickSetting when alt+s pressed
+document.addEventListener('keydown', (evt) => {
+	if (evt.key === 's' && evt.altKey){
+		hideOptions();
+		showQuickSettings();
 	}
 });
 
