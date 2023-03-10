@@ -564,9 +564,9 @@
                     <label for="key" id="keyLabel">Enter key <i id='lb__icon' class="fa-solid fa-key"></i></label>
                     <div id="keyErr" class="errLog"></div>
                     <% if (key) { %>
-                        <input type="text" autocomplete="off" name="key" id="key" placeholder="xxx-xxx-xxx-xxx" value="<%=key_%>">
+                        <input type="text" enterkeyhint="next" autocomplete="off" name="key" id="key" placeholder="xxx-xxx-xxx-xxx" value="<%=key_%>">
                     <% } else { %>
-                        <input type="text" class="select" autocomplete="off" name="key" id="key" placeholder="xxx-xxx-xxx-xxx">
+                        <input type="text" enterkeyhint="done" class="select" autocomplete="off" name="key" id="key" placeholder="xxx-xxx-xxx-xxx">
                     <% } %>
                 </div>
                 <div class="form-field">

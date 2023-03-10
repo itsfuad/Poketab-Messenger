@@ -1061,7 +1061,7 @@ input[type=file] {
             color: white;
             font-size: 1rem;
             & *{
-                color: inherit !important;
+                color: inherit;
             }
         }
 
@@ -1077,6 +1077,11 @@ input[type=file] {
             }
         }
     }
+}
+
+.shortcut{
+    color: #a4a4a48a !important;
+    font-size: 0.7rem;
 }
 
 i[class^=fa-]{

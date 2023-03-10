@@ -303,14 +303,31 @@ function loadTheme(){
 }
 
 function loadSendShortcut(){
+	console.log(`SendBy is: ${sendBy}`);
 	if (sendBy === 'Ctrl+Enter'){
 		sendBy = 'Ctrl+Enter';
 		document.getElementById('Ctrl+Enter').checked = true;
-	}else{
+		textbox.setAttribute('enterkeyhint', 'enter');
+	}else if (sendBy === 'Enter'){
 		document.getElementById('Enter').checked = true;
 		sendBy = 'Enter';
 		localStorage.setItem('sendBy', sendBy);
+		textbox.setAttribute('enterkeyhint', 'send');
+	}else{
+		if (isMobile){
+			sendBy = 'Ctrl+Enter';
+			document.getElementById('Ctrl+Enter').checked = true;
+			textbox.setAttribute('enterkeyhint', 'enter');
+		}else{
+			sendBy = 'Enter';
+			document.getElementById('Enter').checked = true;
+			localStorage.setItem('sendBy', sendBy);
+			textbox.setAttribute('enterkeyhint', 'send');
+		}
 	}
+
+	console.log('Input set to ' + sendBy);
+
 	document.getElementById('send').title = sendBy;
 }
 
@@ -340,7 +357,6 @@ function loadMessageSoundPreference(){
 
 function bootLoad(){
 	sendBy = localStorage.getItem('sendBy');
-
 	loadReacts();
 	loadTheme();
 	appHeight();
@@ -1748,11 +1764,12 @@ export function loadStickerHeader(){
 		return;
 	}
 
-	loadStickerHeader = true;
+	loadedStickerHeader = true;
 
 	while (stickersGrp.firstChild){
 		stickersGrp.removeChild(stickersGrp.firstChild);
 	}
+
 	for (const sticker of Stickers){
 		const img = document.createElement('img');
 		img.src = `/stickers/${sticker.name}/animated/${sticker.icon}.webp`;
@@ -1871,17 +1888,20 @@ document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => 
 	}
 	
 	const value = option.querySelector('input').value;
-	if (sendBy === value){
-		sendBy = !sendBy;
+
+	console.log(sendBy, value, evt.target);
+
+	//value can be 'Enter' or 'Ctrl+Enter'
+	//if clicked on the same option, then deselect it and set sendBy to 'Enter' if it was 'Ctrl+Enter' or 'Ctrl+Enter' if it was 'Enter'
+	if (sendBy == value){
+		sendBy = sendBy == 'Enter' ? 'Ctrl+Enter' : 'Enter';
 	}else{
 		sendBy = value;
 	}
 
 	loadSendShortcut();
-
 	//hideQuickSettings();
 	localStorage.setItem('sendBy', sendBy);
-	document.getElementById('send').title = sendBy;
 	popupMessage('Settings applied');
 });
 
