@@ -1056,7 +1056,7 @@ messages.addEventListener('touchmove', (evt) => {
 	try{
 		const msg = evt.target.closest('.message');
 		
-		if (evt.target.classList.contains('messageMain') || evt.target.closest('.messageMain') && msg.dataset.deleted != 'true'){            
+		if (evt.target.classList.contains('msg') || evt.target.closest('.msg') && msg.dataset.deleted != 'true'){            
 			//console.log(xDiff);
 
 			xDiff = xStart - (evt.touches[0].clientX/3);

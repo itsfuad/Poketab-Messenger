@@ -93,19 +93,20 @@ body{
     top: 0;
     height: 100%;
     position: fixed;
-    display: grid;
-    grid-template-columns: 80% 1fr;
+    display: flex;
+    flex-direction: row;
     transition: 100ms ease-in-out;
     left: -100%;
     z-index: 90;
     &.active{
         left: 0;
     }
+    .close_area{
+        //background: rgba(255, 0, 0, 0.5);
+        width: 25%;
+    }
 }
 
-.close_area{
-    //background: rgba(255, 0, 0, 0.5);
-}
 
 .clickable{
     cursor: pointer;
@@ -251,6 +252,7 @@ img:is(.sticker){
     backdrop-filter: blur(10px);
     z-index: 90;
     display: flex;
+    width: 75%;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -476,7 +478,7 @@ img{
     //transition on filter only
     transition: filter 100ms;
     &.offl{
-        filter: saturate(0) brightness(0.5);
+        filter: saturate(0.4) brightness(0.8);
     }
 
     .navbar{
@@ -901,7 +903,7 @@ input[type=file] {
 }
 
 
-.option{
+.previewFileOptions{
     position: relative;
     display: flex;
     flex-direction: row;
@@ -1239,7 +1241,6 @@ i[class^=fa-]{
     padding: 10px 38px 10px 23px;
     width: 100%;
     max-height: 100px;
-    //remove sidebars
     border: none;
     outline-color: transparent;
     border-radius: inherit;
@@ -1476,11 +1477,9 @@ i[class^=fa-]{
     display: flex;
     visibility: hidden;
     opacity: 0;
-    backdrop-filter: brightness(0.5);
+    backdrop-filter: brightness(0.8);
     transition: 100ms ease-in-out;
     z-index: 25;
-
-
     
     #optionsContainer{
         display: flex;
@@ -1490,48 +1489,46 @@ i[class^=fa-]{
         bottom: 0;
         width: 100%;
         gap: 50px;
+    }
 
-        .normalOptionWrapper{
-            position: relative;
-            width: 100%;
-            padding: 5px;
-            border-radius: 20px 20px 0 0;
-            background: var(--primary-dark);
-            place-content: center;
-            display: grid;
-            transition: 100ms ease-in-out;
-            filter: drop-shadow(0 4px 5px black);
-            transition: 100ms ease-in-out;
-            top: 30px;
-        }
+    .normalOptionWrapper{
+        position: relative;
+        width: 100%;
+        padding: 5px;
+        border-radius: 20px 20px 0 0;
+        background: var(--primary-dark);
+        place-content: center;
+        display: grid;
+        transition: 100ms ease-in-out;
+        filter: drop-shadow(0 4px 5px black);
+        transition: 100ms ease-in-out;
+        top: 30px;
+    }
 
-        .reactOptionsWrapper{
-            position: relative;
-            width: min-content;
-            max-height: 35px;
-            place-content: center;
-            display: grid;
-            transition: 100ms ease-in-out;
-            border-radius: 10px;
-            top: 60px;
-            transform: scale(0.7);
-            &.more{
-                max-height: 200px;
-            }
+    .reactOptionsWrapper{
+        position: relative;
+        width: min-content;
+        max-height: 35px;
+        place-content: center;
+        display: grid;
+        transition: 100ms ease-in-out;
+        border-radius: 10px;
+        top: 60px;
+        transform: scale(0.7);
+        &.more{
+            max-height: 200px;
         }
     }
 
     &.active{
         visibility: visible;
         opacity: 1;
-        #optionsContainer{
-            .normalOptionWrapper{
-                top: 0px;
-            }
-            .reactOptionsWrapper{
-                top: 0px;
-                transform: scale(1);
-            }
+        .normalOptionWrapper{
+            top: 0px;
+        }
+        .reactOptionsWrapper{
+            top: 0px;
+            transform: scale(1);
         }
     }
 }
@@ -1592,17 +1589,6 @@ i[class^=fa-]{
                 filter: saturate(1);
             }
         }
-    }
-}
-
-
-#optionsContainerWrapper.active{
-    .normalOptionWrapper{
-        top: 0;
-    }
-
-    .reactOptionsWrapper{
-        transform: scale(1);
     }
 }
 
@@ -1769,19 +1755,67 @@ i[class^=fa-]{
     }
 }
 
-@media (orientation: landscape) and (min-device-aspect-ratio: 1 / 1){
+@media screen and (orientation: landscape){
+    //width 2x height
+    @media screen and (min-aspect-ratio: 1.5 / 1){
+        //
+        .chatBox, .previewFileOptions{
+            padding: 0 25%;
+        }
+
+        #sidebar_wrapper{
+            #sidebar{
+                width: 25%;
+            }
+            .close_area{
+                width: 75%;
+            }
+        }
+    }
+
+    //width 1.5x height
+    @media screen and (min-aspect-ratio: 1.2 / 1) and  (max-aspect-ratio: 1.5 / 1) {
+        //
+        .chatBox, .previewFileOptions{
+            padding: 0 20%;
+        }
+
+        #sidebar_wrapper{
+            #sidebar{
+                width: 35%;
+            }
+            .close_area{
+                width: 65%;
+            }
+        }
+    }
+
+    //same
+    @media screen and (min-aspect-ratio: 1 / 1) and  (max-aspect-ratio: 1.2 / 1) {
+        //
+        .chatBox, .previewFileOptions{
+            padding: 0 10%;
+        }
+
+        #sidebar_wrapper{
+            #sidebar{
+                width: 50%;
+            }
+            .close_area{
+                width: 50%;
+            }
+        }
+    }
+}
+
+@media screen and (orientation: landscape) and (min-aspect-ratio: 1 / 1){
     .moreReactsContainer{
         width: 50%;
         min-width: 425px;
     }
-    .chatBox, #previewFile {
-        padding: 0 30%;
-    }
-    #sidebar_wrapper{
-        grid-template-columns: 30% 1fr;
-    }
-    .normalOptionWrapper{
-        width: 50%;
+
+    #optionsContainerWrapper .normalOptionWrapper{
+        width: min(50%, 400px);
     }
 
     .stickersPanel{

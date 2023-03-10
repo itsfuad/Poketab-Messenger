@@ -28,7 +28,9 @@ html {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
+  -khtml-user-select: none;
   -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
 }
 
@@ -36,7 +38,9 @@ html {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
+  -khtml-user-select: none;
   -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
 }
 
@@ -44,7 +48,9 @@ html {
   -webkit-tap-highlight-color: initial;
   -webkit-touch-callout: initial;
   -webkit-user-select: initial;
+  -khtml-user-select: initial;
   -moz-user-select: initial;
+  -ms-user-select: initial;
   user-select: initial;
 }
 
@@ -71,8 +77,7 @@ body {
   font-size: 0.6rem;
   transform: translateX(-50%);
   z-index: 100;
-  -webkit-backdrop-filter: blur(2px);
-          backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
   z-index: 1000;
   visibility: hidden;
   opacity: 0;
@@ -88,14 +93,17 @@ body {
   top: 0;
   height: 100%;
   position: fixed;
-  display: grid;
-  grid-template-columns: 80% 1fr;
+  display: flex;
+  flex-direction: row;
   transition: 100ms ease-in-out;
   left: -100%;
   z-index: 90;
 }
 #sidebar_wrapper.active {
   left: 0;
+}
+#sidebar_wrapper .close_area {
+  width: 25%;
 }
 
 .clickable {
@@ -234,10 +242,10 @@ img:is(.sticker) {
   padding: 10px 10px 0 10px;
   border-radius: 0 5px 5px 0;
   background: var(--primary-dark);
-  -webkit-backdrop-filter: blur(10px);
-          backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   z-index: 90;
   display: flex;
+  width: 75%;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -321,8 +329,7 @@ img:is(.sticker) {
   display: none;
   align-items: center;
   justify-content: center;
-  -webkit-backdrop-filter: blur(5px);
-          backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
   visibility: hidden;
   opacity: 0;
   transition: 100ms;
@@ -460,7 +467,7 @@ img {
   transition: filter 100ms;
 }
 .chatBox.offl {
-  filter: saturate(0) brightness(0.5);
+  filter: saturate(0.4) brightness(0.8);
 }
 .chatBox .navbar {
   display: flex;
@@ -499,7 +506,6 @@ img {
   justify-content: center;
   align-items: center;
   text-align: center;
-  width: -moz-max-content;
   width: max-content;
   padding: 20px;
   gap: 20px;
@@ -578,7 +584,6 @@ img {
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
-  width: -moz-max-content;
   width: max-content;
   visibility: visible;
   opacity: 1;
@@ -641,8 +646,7 @@ img {
   border-radius: 15px;
   width: 260px;
   background: rgba(255, 255, 255, 0.1294117647);
-  -webkit-backdrop-filter: blur(3px);
-          backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
   border: 3px solid var(--glass);
   align-items: center;
   position: relative;
@@ -835,8 +839,7 @@ input[type=file] {
   width: 100%;
   height: 100%;
   border-radius: inherit;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   height: inherit;
   background: var(--glass);
 }
@@ -856,7 +859,7 @@ input[type=file] {
   font-size: 1rem;
 }
 
-.option {
+.previewFileOptions {
   position: relative;
   display: flex;
   flex-direction: row;
@@ -870,12 +873,12 @@ input[type=file] {
   background: var(--primary-dark);
   border-radius: 50px;
 }
-.option #items-count {
+.previewFileOptions #items-count {
   font-size: 0.8rem;
   padding: 0 10px;
   text-align: center;
 }
-.option .close {
+.previewFileOptions .close {
   background: red;
 }
 
@@ -883,9 +886,7 @@ input[type=file] {
   display: flex;
   position: relative;
   cursor: pointer;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   flex-direction: row;
   justify-content: center;
   align-items: center;
@@ -902,7 +903,6 @@ input[type=file] {
   width: 0;
 }
 .field-checkers label {
-  width: -moz-max-content;
   width: max-content;
   display: flex;
   flex-direction: row;
@@ -1177,9 +1177,6 @@ i[class^=fa-] {
   background: var(--glass);
   scrollbar-width: none;
 }
-#textbox::-moz-placeholder {
-  color: rgba(255, 255, 255, 0.5411764706);
-}
 #textbox::placeholder {
   color: rgba(255, 255, 255, 0.5411764706);
 }
@@ -1276,7 +1273,6 @@ i[class^=fa-] {
   transform: translateX(-50%);
   z-index: 10;
   gap: 5px;
-  width: -moz-max-content;
   width: max-content;
   display: flex;
   visibility: hidden;
@@ -1320,8 +1316,7 @@ i[class^=fa-] {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.8);
-  -webkit-backdrop-filter: blur(2px);
-          backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
   z-index: 100;
   visibility: hidden;
   opacity: 0;
@@ -1409,8 +1404,7 @@ i[class^=fa-] {
   display: flex;
   visibility: hidden;
   opacity: 0;
-  -webkit-backdrop-filter: brightness(0.5);
-          backdrop-filter: brightness(0.5);
+  backdrop-filter: brightness(0.8);
   transition: 100ms ease-in-out;
   z-index: 25;
 }
@@ -1423,7 +1417,7 @@ i[class^=fa-] {
   width: 100%;
   gap: 50px;
 }
-#optionsContainerWrapper #optionsContainer .normalOptionWrapper {
+#optionsContainerWrapper .normalOptionWrapper {
   position: relative;
   width: 100%;
   padding: 5px;
@@ -1436,9 +1430,8 @@ i[class^=fa-] {
   transition: 100ms ease-in-out;
   top: 30px;
 }
-#optionsContainerWrapper #optionsContainer .reactOptionsWrapper {
+#optionsContainerWrapper .reactOptionsWrapper {
   position: relative;
-  width: -moz-min-content;
   width: min-content;
   max-height: 35px;
   place-content: center;
@@ -1448,17 +1441,17 @@ i[class^=fa-] {
   top: 60px;
   transform: scale(0.7);
 }
-#optionsContainerWrapper #optionsContainer .reactOptionsWrapper.more {
+#optionsContainerWrapper .reactOptionsWrapper.more {
   max-height: 200px;
 }
 #optionsContainerWrapper.active {
   visibility: visible;
   opacity: 1;
 }
-#optionsContainerWrapper.active #optionsContainer .normalOptionWrapper {
+#optionsContainerWrapper.active .normalOptionWrapper {
   top: 0px;
 }
-#optionsContainerWrapper.active #optionsContainer .reactOptionsWrapper {
+#optionsContainerWrapper.active .reactOptionsWrapper {
   top: 0px;
   transform: scale(1);
 }
@@ -1521,20 +1514,12 @@ i[class^=fa-] {
   filter: saturate(1);
 }
 
-#optionsContainerWrapper.active .normalOptionWrapper {
-  top: 0;
-}
-#optionsContainerWrapper.active .reactOptionsWrapper {
-  transform: scale(1);
-}
-
 .options {
   position: relative;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   gap: 5px;
-  width: -moz-max-content;
   width: max-content;
   align-items: center;
   border-radius: 10px;
@@ -1601,8 +1586,7 @@ i[class^=fa-] {
   z-index: 90;
   visibility: hidden;
   opacity: 0;
-  -webkit-backdrop-filter: blur(2px);
-          backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
 }
 .reactorContainerWrapper.active {
   visibility: visible;
@@ -1624,8 +1608,7 @@ i[class^=fa-] {
   align-items: flex-start;
   justify-content: flex-start;
   z-index: 10;
-  -webkit-backdrop-filter: blur(5px);
-          backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
   scrollbar-width: none;
   transition: 100ms ease-in-out;
   filter: drop-shadow(0 4px 5px black);
@@ -1684,19 +1667,46 @@ i[class^=fa-] {
     opacity: 1;
   }
 }
-@media (orientation: landscape) and (min-device-aspect-ratio: 1/1) {
+@media screen and (orientation: landscape) and (min-aspect-ratio: 1.5/1) {
+  .chatBox, .previewFileOptions {
+    padding: 0 25%;
+  }
+  #sidebar_wrapper #sidebar {
+    width: 25%;
+  }
+  #sidebar_wrapper .close_area {
+    width: 75%;
+  }
+}
+@media screen and (orientation: landscape) and (min-aspect-ratio: 1.2/1) and (max-aspect-ratio: 1.5/1) {
+  .chatBox, .previewFileOptions {
+    padding: 0 20%;
+  }
+  #sidebar_wrapper #sidebar {
+    width: 35%;
+  }
+  #sidebar_wrapper .close_area {
+    width: 65%;
+  }
+}
+@media screen and (orientation: landscape) and (min-aspect-ratio: 1/1) and (max-aspect-ratio: 1.2/1) {
+  .chatBox, .previewFileOptions {
+    padding: 0 10%;
+  }
+  #sidebar_wrapper #sidebar {
+    width: 50%;
+  }
+  #sidebar_wrapper .close_area {
+    width: 50%;
+  }
+}
+@media screen and (orientation: landscape) and (min-aspect-ratio: 1/1) {
   .moreReactsContainer {
     width: 50%;
     min-width: 425px;
   }
-  .chatBox, #previewFile {
-    padding: 0 30%;
-  }
-  #sidebar_wrapper {
-    grid-template-columns: 30% 1fr;
-  }
-  .normalOptionWrapper {
-    width: 50%;
+  #optionsContainerWrapper .normalOptionWrapper {
+    width: min(50%, 400px);
   }
   .stickersPanel {
     height: 42vh;
