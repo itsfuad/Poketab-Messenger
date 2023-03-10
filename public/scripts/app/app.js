@@ -303,7 +303,6 @@ function loadTheme(){
 }
 
 function loadSendShortcut(){
-	console.log(`SendBy is: ${sendBy}`);
 	if (sendBy === 'Ctrl+Enter'){
 		sendBy = 'Ctrl+Enter';
 		document.getElementById('Ctrl+Enter').checked = true;
@@ -325,9 +324,6 @@ function loadSendShortcut(){
 			textbox.setAttribute('enterkeyhint', 'send');
 		}
 	}
-
-	console.log('Input set to ' + sendBy);
-
 	document.getElementById('send').title = sendBy;
 }
 
@@ -631,17 +627,12 @@ window.addEventListener('focus', () => {
  * @returns string
  */
 function sanitizeImagePath(path){
-
 	//path regex will contain normal characters, numbers, underscores, hyphens and base64 characters
 	const regex = /[<>&'"\s]/g;
 
 	if (!path.match(regex)){
-		//console.log('path is valid');
-		//console.log(path);
 		return path;
 	}else{
-		//console.log('path is invalid');
-		//console.log(path);
 		return '/images/danger-mini.webp';
 	}
 }
@@ -827,13 +818,17 @@ function showOptions(type, sender, target){
 	}
 	//show the options
 	const options = document.getElementById('optionsContainerWrapper');
-	options.style.display = 'grid';
+	//options.style.display = 'grid';
+
+
+	options.classList.add('active');
+	//document.getElementById('focus_glass').classList.add('active');
+	addFocusGlass(false);
+	options.addEventListener('click', optionsMainEvent);
+	/*
 	setTimeout(() => {
-		options.classList.add('active');
-		//document.getElementById('focus_glass').classList.add('active');
-		addFocusGlass(false);
-		options.addEventListener('click', optionsMainEvent);
 	}, 100);
+	*/
 }
 
 /**
@@ -1032,8 +1027,8 @@ function hideOptions(){
 		copyOption.style.display = 'none';
 		downloadOption.style.display = 'none';
 		deleteOption.style.display = 'none';
-		options.style.display = 'none';
-	}, 100);
+		//options.style.display = 'none';
+	}, 120);
 	//document.getElementById('focus_glass').classList.remove('active');
 	removeFocusGlass();
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
@@ -1190,7 +1185,7 @@ function showReplyToast(){
 	replyToast.style.display = 'flex';
 	setTimeout(() => {
 		replyToast.classList.add('active');
-	}, 100);
+	}, 120);
 }
 
 function hideReplyToast(){
@@ -1826,7 +1821,7 @@ function showStickersPanel(){
 		document.getElementById('stickersPanel').classList.add('active');
 		const grp = document.getElementById('selectStickerGroup');
 		grp.querySelector(`img[data-name="${selectedStickerGroup}"]`).scrollIntoView({behavior: 'smooth', block: 'center', inline: 'center'});
-	}, 100);
+	}, 120);
 }
 
 
@@ -1840,7 +1835,7 @@ function themeClickHandler(){
 		document.querySelector('.themeChooser').querySelectorAll('.theme').forEach(theme => {
 			theme.querySelector('img').style.border = '';
 		});
-		document.querySelector(`.themeChooser #${THEME}`).querySelector('img').style.border = '2px solid var(--secondary-dark)';
+		document.querySelector(`.themeChooser #${THEME}`).querySelector('img').style.outline = '2px solid var(--secondary-dark)';
 	}
 	addFocusGlass();
 	document.querySelector('.themeChooser').classList.add('active');
@@ -1888,8 +1883,6 @@ document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => 
 	}
 	
 	const value = option.querySelector('input').value;
-
-	console.log(sendBy, value, evt.target);
 
 	//value can be 'Enter' or 'Ctrl+Enter'
 	//if clicked on the same option, then deselect it and set sendBy to 'Enter' if it was 'Ctrl+Enter' or 'Ctrl+Enter' if it was 'Enter'
@@ -1953,7 +1946,7 @@ function closeStickersPanel(){
 	document.getElementById('stickersPanel').classList.remove('active');
 	setTimeout(() => {
 		document.getElementById('stickersPanel').style.display = 'none';
-	}, 100);
+	}, 120);
 }
 
 function addAttachment(){
@@ -1967,7 +1960,7 @@ function removeAttachment(){
 	document.getElementById('attmain').classList.remove('active');
 	setTimeout(()=>{
 		document.getElementById('attmain').style.display = 'none';
-	}, 100);
+	}, 120);
 }
 
 
@@ -2384,7 +2377,7 @@ messages.addEventListener('click', (evt) => {
 					scrollIntoViewTimeout = setTimeout(() => {
 						document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'start'});
 						scrollIntoViewTimeout = undefined;
-					}, 100);
+					}, 120);
 				}catch(e){
 					popupMessage('Deleted message');
 				}
@@ -2619,7 +2612,6 @@ function fileIsAcceptable(file, type){
 		const supportedAudioFormats = ['audio/mp3', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/x-m4a'];
 		if (!supportedAudioFormats.includes(file.type)){
 			popupMessage('Audio format not supported. Try as file.');
-			console.log(file.type);
 			return false;
 		}
 	}else if(type == 'image'){
@@ -3656,7 +3648,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	history.pushState({}, '', '');
 	//console.log('Pushed state');
 	window.onpopstate = ()=>{
-		console.log('Skipped!');
 		history.forward();
 	};
 })();

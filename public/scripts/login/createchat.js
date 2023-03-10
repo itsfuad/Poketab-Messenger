@@ -13,7 +13,6 @@ function validateUser(){
 	const username = document.getElementById('username').value;
 	const avatarsChecked = document.querySelector('.avatar input[type="radio"]:checked');
 
-
 	if (username.length == 0){
 		document.getElementById('username').focus();
 		errlog('usernameErr', 'Username is required <i class="fa-solid fa-triangle-exclamation"></i>');

@@ -2,10 +2,15 @@
 
 export const clickSound = new Audio('/sounds/click.mp3');
 
-export const usernameformat = /^[a-zA-Z0-9\u0980-\u09FF]{3,20}$/;
+export const usernameformat = /^[a-zA-Z0-9_\u0980-\u09FF]{3,20}$/;
 
 let errTimeout = undefined;
 
+/**
+ * 
+ * @param {string} id errorId
+ * @param {string} msg error message
+ */
 export function errlog(id, msg){
 	const err = document.getElementById(id);
 	err.innerHTML = msg;

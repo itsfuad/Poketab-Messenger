@@ -1414,12 +1414,7 @@ i[class^=fa-] {
   transition: 100ms ease-in-out;
   z-index: 25;
 }
-#optionsContainerWrapper.active {
-  visibility: visible;
-  opacity: 1;
-}
-
-#optionsContainer {
+#optionsContainerWrapper #optionsContainer {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -1428,10 +1423,8 @@ i[class^=fa-] {
   width: 100%;
   gap: 50px;
 }
-
-.normalOptionWrapper {
+#optionsContainerWrapper #optionsContainer .normalOptionWrapper {
   position: relative;
-  top: 0px;
   width: 100%;
   padding: 5px;
   border-radius: 20px 20px 0 0;
@@ -1440,11 +1433,11 @@ i[class^=fa-] {
   display: grid;
   transition: 100ms ease-in-out;
   filter: drop-shadow(0 4px 5px black);
+  transition: 100ms ease-in-out;
+  top: 30px;
 }
-
-.reactOptionsWrapper {
+#optionsContainerWrapper #optionsContainer .reactOptionsWrapper {
   position: relative;
-  transform: scale(1);
   width: -moz-min-content;
   width: min-content;
   max-height: 35px;
@@ -1452,9 +1445,22 @@ i[class^=fa-] {
   display: grid;
   transition: 100ms ease-in-out;
   border-radius: 10px;
+  top: 60px;
+  transform: scale(0.7);
 }
-.reactOptionsWrapper.more {
+#optionsContainerWrapper #optionsContainer .reactOptionsWrapper.more {
   max-height: 200px;
+}
+#optionsContainerWrapper.active {
+  visibility: visible;
+  opacity: 1;
+}
+#optionsContainerWrapper.active #optionsContainer .normalOptionWrapper {
+  top: 0px;
+}
+#optionsContainerWrapper.active #optionsContainer .reactOptionsWrapper {
+  top: 0px;
+  transform: scale(1);
 }
 
 .moreReactsContainer {
