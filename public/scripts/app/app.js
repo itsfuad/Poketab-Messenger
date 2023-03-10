@@ -1869,14 +1869,20 @@ document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => 
 	if (!option){
 		return;
 	}
-	sendBy = option.querySelector('input').value;
+	
+	const value = option.querySelector('input').value;
+	if (sendBy === value){
+		sendBy = !sendBy;
+	}else{
+		sendBy = value;
+	}
 
 	loadSendShortcut();
 
 	//hideQuickSettings();
 	localStorage.setItem('sendBy', sendBy);
 	document.getElementById('send').title = sendBy;
-	popupMessage('Sending method changed to ' + sendBy);
+	popupMessage('Settings applied');
 });
 
 
