@@ -28,9 +28,7 @@ html {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  -khtml-user-select: none;
   -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -38,9 +36,7 @@ html {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  -khtml-user-select: none;
   -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -48,9 +44,7 @@ html {
   -webkit-tap-highlight-color: initial;
   -webkit-touch-callout: initial;
   -webkit-user-select: initial;
-  -khtml-user-select: initial;
   -moz-user-select: initial;
-  -ms-user-select: initial;
   user-select: initial;
 }
 
@@ -77,7 +71,8 @@ body {
   font-size: 0.6rem;
   transform: translateX(-50%);
   z-index: 100;
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
   z-index: 1000;
   visibility: hidden;
   opacity: 0;
@@ -242,7 +237,8 @@ img:is(.sticker) {
   padding: 10px 10px 0 10px;
   border-radius: 0 5px 5px 0;
   background: var(--primary-dark);
-  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
   z-index: 90;
   display: flex;
   width: 75%;
@@ -329,7 +325,8 @@ img:is(.sticker) {
   display: none;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+          backdrop-filter: blur(5px);
   visibility: hidden;
   opacity: 0;
   transition: 100ms;
@@ -506,6 +503,7 @@ img {
   justify-content: center;
   align-items: center;
   text-align: center;
+  width: -moz-max-content;
   width: max-content;
   padding: 20px;
   gap: 20px;
@@ -584,6 +582,7 @@ img {
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
+  width: -moz-max-content;
   width: max-content;
   visibility: visible;
   opacity: 1;
@@ -646,7 +645,8 @@ img {
   border-radius: 15px;
   width: 260px;
   background: rgba(255, 255, 255, 0.1294117647);
-  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
   border: 3px solid var(--glass);
   align-items: center;
   position: relative;
@@ -839,7 +839,8 @@ input[type=file] {
   width: 100%;
   height: 100%;
   border-radius: inherit;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   height: inherit;
   background: var(--glass);
 }
@@ -864,10 +865,11 @@ input[type=file] {
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 98%;
+  width: 100%;
+  max-width: 500px;
   justify-content: space-between;
   z-index: 1;
-  padding: 2px;
+  padding: 5px;
   margin: 0 5px 5px 5px;
   margin-right: 5px;
   background: var(--primary-dark);
@@ -886,7 +888,9 @@ input[type=file] {
   display: flex;
   position: relative;
   cursor: pointer;
-  user-select: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
   flex-direction: row;
   justify-content: center;
   align-items: center;
@@ -903,6 +907,7 @@ input[type=file] {
   width: 0;
 }
 .field-checkers label {
+  width: -moz-max-content;
   width: max-content;
   display: flex;
   flex-direction: row;
@@ -1177,6 +1182,9 @@ i[class^=fa-] {
   background: var(--glass);
   scrollbar-width: none;
 }
+#textbox::-moz-placeholder {
+  color: rgba(255, 255, 255, 0.5411764706);
+}
 #textbox::placeholder {
   color: rgba(255, 255, 255, 0.5411764706);
 }
@@ -1273,6 +1281,7 @@ i[class^=fa-] {
   transform: translateX(-50%);
   z-index: 10;
   gap: 5px;
+  width: -moz-max-content;
   width: max-content;
   display: flex;
   visibility: hidden;
@@ -1316,7 +1325,8 @@ i[class^=fa-] {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
   z-index: 100;
   visibility: hidden;
   opacity: 0;
@@ -1404,7 +1414,8 @@ i[class^=fa-] {
   display: flex;
   visibility: hidden;
   opacity: 0;
-  backdrop-filter: brightness(0.8);
+  -webkit-backdrop-filter: brightness(0.8);
+          backdrop-filter: brightness(0.8);
   transition: 100ms ease-in-out;
   z-index: 25;
 }
@@ -1419,7 +1430,8 @@ i[class^=fa-] {
 }
 #optionsContainerWrapper .normalOptionWrapper {
   position: relative;
-  width: 100%;
+  max-width: 100%;
+  width: 400px;
   padding: 5px;
   border-radius: 20px 20px 0 0;
   background: var(--primary-dark);
@@ -1432,6 +1444,7 @@ i[class^=fa-] {
 }
 #optionsContainerWrapper .reactOptionsWrapper {
   position: relative;
+  width: -moz-min-content;
   width: min-content;
   max-height: 35px;
   place-content: center;
@@ -1520,6 +1533,7 @@ i[class^=fa-] {
   flex-direction: row;
   justify-content: space-between;
   gap: 5px;
+  width: -moz-max-content;
   width: max-content;
   align-items: center;
   border-radius: 10px;
@@ -1586,7 +1600,8 @@ i[class^=fa-] {
   z-index: 90;
   visibility: hidden;
   opacity: 0;
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
 }
 .reactorContainerWrapper.active {
   visibility: visible;
@@ -1608,7 +1623,8 @@ i[class^=fa-] {
   align-items: flex-start;
   justify-content: flex-start;
   z-index: 10;
-  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+          backdrop-filter: blur(5px);
   scrollbar-width: none;
   transition: 100ms ease-in-out;
   filter: drop-shadow(0 4px 5px black);
@@ -1668,8 +1684,8 @@ i[class^=fa-] {
   }
 }
 @media screen and (orientation: landscape) and (min-aspect-ratio: 1.5/1) {
-  .chatBox, .previewFileOptions {
-    padding: 0 25%;
+  .chatBox {
+    padding: 0 30%;
   }
   #sidebar_wrapper #sidebar {
     width: 25%;
@@ -1679,8 +1695,8 @@ i[class^=fa-] {
   }
 }
 @media screen and (orientation: landscape) and (min-aspect-ratio: 1.2/1) and (max-aspect-ratio: 1.5/1) {
-  .chatBox, .previewFileOptions {
-    padding: 0 20%;
+  .chatBox {
+    padding: 0 25%;
   }
   #sidebar_wrapper #sidebar {
     width: 35%;
@@ -1690,8 +1706,8 @@ i[class^=fa-] {
   }
 }
 @media screen and (orientation: landscape) and (min-aspect-ratio: 1/1) and (max-aspect-ratio: 1.2/1) {
-  .chatBox, .previewFileOptions {
-    padding: 0 10%;
+  .chatBox {
+    padding: 0 15%;
   }
   #sidebar_wrapper #sidebar {
     width: 50%;
@@ -1700,13 +1716,23 @@ i[class^=fa-] {
     width: 50%;
   }
 }
+@media screen and (orientation: portrait) and (min-aspect-ratio: 0.6/1) {
+  .chatBox {
+    padding: 0 10%;
+  }
+}
+@media screen and (orientation: portrait) {
+  #sidebar_wrapper #sidebar {
+    width: 65%;
+  }
+  #sidebar_wrapper .close_area {
+    width: 35%;
+  }
+}
 @media screen and (orientation: landscape) and (min-aspect-ratio: 1/1) {
   .moreReactsContainer {
     width: 50%;
     min-width: 425px;
-  }
-  #optionsContainerWrapper .normalOptionWrapper {
-    width: min(50%, 400px);
   }
   .stickersPanel {
     height: 42vh;
