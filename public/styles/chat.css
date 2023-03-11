@@ -919,7 +919,7 @@ input[type=file] {
   justify-content: center;
   flex-direction: column;
   align-items: flex-start;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 .field-checkers label .moreInfo {
   font-size: 0.7rem;
@@ -981,7 +981,7 @@ input[type=file] {
 .quickSettingPanel .utils {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 10px;
   background: var(--primary-dark);
@@ -990,9 +990,10 @@ input[type=file] {
   filter: drop-shadow(2px 4px 6px #000);
   font-size: 0.8rem;
   width: min(80vw, 315px);
+  max-height: 90vh;
   opacity: 0;
   transform: translateY(80px);
-  transition: 100ms ease-in-out;
+  transition: 0.1s ease-in-out;
 }
 .quickSettingPanel .utils.active {
   transform: translateY(0px);
@@ -1009,15 +1010,24 @@ input[type=file] {
 .quickSettingPanel .utils .title * {
   color: inherit;
 }
-.quickSettingPanel .utils .subsettings {
+.quickSettingPanel .utils .subsettingsContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  overflow-y: scroll;
+}
+.quickSettingPanel .utils .subsettingsContainer .subsettings {
   width: 100%;
 }
-.quickSettingPanel .utils .subsettings .subtitle {
+.quickSettingPanel .utils .subsettingsContainer .subsettings .subtitle {
   font-size: 1rem;
   color: var(--secondary-dark);
   padding-bottom: 5px;
 }
-.quickSettingPanel .utils .subsettings .subtitle * {
+.quickSettingPanel .utils .subsettingsContainer .subsettings .subtitle * {
   color: inherit;
 }
 

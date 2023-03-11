@@ -1877,7 +1877,7 @@ quickSettings.addEventListener('click', (e) => {
 
 
 document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => {
-	const option = evt.target?.closest('.field-checkers');
+	const option = evt.target?.closest('.keyboardMode');
 	if (!option){
 		return;
 	}

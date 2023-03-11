@@ -966,7 +966,7 @@ input[type=file] {
             justify-content: center;
             flex-direction: column;
             align-items: flex-start;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .moreInfo{
@@ -1021,40 +1021,41 @@ input[type=file] {
 }
 
 .quickSettingPanel{
+
     position: fixed;
     height: 100%;
     width: 100%;
     top: 0;
     left: 0;
     z-index: 100;
-
+    
     display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
+    
+    
     .utils{
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
         gap: 10px;
         background: var(--primary-dark);
         padding: 15px;
         border-radius: 10px;
         filter: drop-shadow(2px 4px 6px #000);
-        font-size: 0.8rem;
+        font-size: .8rem;
         width: min(80vw,315px);
-
+        max-height: 90vh;
         opacity: 0;
         transform: translateY(80px);
-        transition: 100ms ease-in-out;
-
+        transition: .1s ease-in-out;
+        
         &.active{
             transform: translateY(0px);
             opacity: 1;
         }
-    
 
         .title{
             width: 100%;
@@ -1068,14 +1069,24 @@ input[type=file] {
             }
         }
 
-        .subsettings{
+        .subsettingsContainer{   
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 10px;
             width: 100%;
-            .subtitle{
-                font-size: 1rem;
-                color: var(--secondary-dark);
-                padding-bottom: 5px;
-                & *{
-                    color: inherit;
+            overflow-y: scroll;
+    
+            .subsettings{
+                width: 100%;
+                .subtitle{
+                    font-size: 1rem;
+                    color: var(--secondary-dark);
+                    padding-bottom: 5px;
+                    & *{
+                        color: inherit;
+                    }
                 }
             }
         }
