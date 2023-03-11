@@ -248,7 +248,7 @@ function approveNewChatRequest(res: any, data: {username: string, key: string, a
 
 	const uid = crypto.randomUUID();
 	const nonce = crypto.randomBytes(16).toString('hex');
-	const welcomeSticker = Math.floor(Math.random() * 10) + 1;
+	const welcomeSticker = Math.floor(Math.random() * 9) + 1;
 
 	res.setHeader('Developer', 'Fuad Hasan');
 	res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
