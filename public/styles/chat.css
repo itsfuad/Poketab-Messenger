@@ -864,10 +864,11 @@ input[type=file] {
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 98%;
+  width: 100%;
+  max-width: 500px;
   justify-content: space-between;
   z-index: 1;
-  padding: 2px;
+  padding: 5px;
   margin: 0 5px 5px 5px;
   margin-right: 5px;
   background: var(--primary-dark);
@@ -1419,7 +1420,8 @@ i[class^=fa-] {
 }
 #optionsContainerWrapper .normalOptionWrapper {
   position: relative;
-  width: 100%;
+  max-width: 100%;
+  width: 400px;
   padding: 5px;
   border-radius: 20px 20px 0 0;
   background: var(--primary-dark);
@@ -1668,8 +1670,8 @@ i[class^=fa-] {
   }
 }
 @media screen and (orientation: landscape) and (min-device-aspect-ratio: 1.5/1) {
-  .chatBox, .previewFileOptions {
-    padding: 0 25%;
+  .chatBox {
+    padding: 0 30%;
   }
   #sidebar_wrapper #sidebar {
     width: 25%;
@@ -1679,8 +1681,8 @@ i[class^=fa-] {
   }
 }
 @media screen and (orientation: landscape) and (min-device-aspect-ratio: 1.2/1) and (max-device-aspect-ratio: 1.5/1) {
-  .chatBox, .previewFileOptions {
-    padding: 0 20%;
+  .chatBox {
+    padding: 0 25%;
   }
   #sidebar_wrapper #sidebar {
     width: 35%;
@@ -1690,8 +1692,8 @@ i[class^=fa-] {
   }
 }
 @media screen and (orientation: landscape) and (min-device-aspect-ratio: 1/1) and (max-device-aspect-ratio: 1.2/1) {
-  .chatBox, .previewFileOptions {
-    padding: 0 10%;
+  .chatBox {
+    padding: 0 15%;
   }
   #sidebar_wrapper #sidebar {
     width: 50%;
@@ -1704,9 +1706,6 @@ i[class^=fa-] {
   .moreReactsContainer {
     width: 50%;
     min-width: 425px;
-  }
-  #optionsContainerWrapper .normalOptionWrapper {
-    width: min(50%, 400px);
   }
   .stickersPanel {
     height: 42vh;
