@@ -1757,7 +1757,7 @@ i[class^=fa-]{
 
 @media screen and (orientation: landscape){
     //width 2x height
-    @media screen and (min-aspect-ratio: 1.5 / 1){
+    @media screen and (min-device-aspect-ratio: 1.5 / 1){
         //
         .chatBox, .previewFileOptions{
             padding: 0 25%;
@@ -1774,7 +1774,7 @@ i[class^=fa-]{
     }
 
     //width 1.5x height
-    @media screen and (min-aspect-ratio: 1.2 / 1) and  (max-aspect-ratio: 1.5 / 1) {
+    @media screen and (min-device-aspect-ratio: 1.2 / 1) and  (max-device-aspect-ratio: 1.5 / 1) {
         //
         .chatBox, .previewFileOptions{
             padding: 0 20%;
@@ -1791,7 +1791,7 @@ i[class^=fa-]{
     }
 
     //same
-    @media screen and (min-aspect-ratio: 1 / 1) and  (max-aspect-ratio: 1.2 / 1) {
+    @media screen and (min-device-aspect-ratio: 1 / 1) and  (max-device-aspect-ratio: 1.2 / 1) {
         //
         .chatBox, .previewFileOptions{
             padding: 0 10%;
@@ -1808,7 +1808,7 @@ i[class^=fa-]{
     }
 }
 
-@media screen and (orientation: landscape) and (min-aspect-ratio: 1 / 1){
+@media screen and (orientation: landscape) and (min-device-aspect-ratio: 1 / 1){
     .moreReactsContainer{
         width: 50%;
         min-width: 425px;
