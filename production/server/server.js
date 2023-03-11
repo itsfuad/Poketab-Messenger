@@ -207,10 +207,11 @@ function blockNewChatRequest(res, message) {
 function approveNewChatRequest(res, data) {
     const uid = crypto.randomUUID();
     const nonce = crypto.randomBytes(16).toString('hex');
+    const welcomeSticker = Math.floor(Math.random() * 10) + 1;
     res.setHeader('Developer', 'Fuad Hasan');
     res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
     res.setHeader('Cluster', `ID: ${process.pid}`);
-    res.render('chat/chat', { myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, version: `${version}`, developer: developer, ENV: ENVIRONMENT, hash: nonce });
+    res.render('chat/chat', { myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, version: `${version}`, developer: developer, ENV: ENVIRONMENT, hash: nonce, welcomeSticker: welcomeSticker });
 }
 app.get('/offline', (_, res) => {
     res.setHeader('Developer', 'Fuad Hasan');

@@ -303,28 +303,32 @@ function loadTheme(){
 }
 
 function loadSendShortcut(){
-	if (sendBy === 'Ctrl+Enter'){
-		sendBy = 'Ctrl+Enter';
-		document.getElementById('Ctrl+Enter').checked = true;
-		textbox.setAttribute('enterkeyhint', 'enter');
-	}else if (sendBy === 'Enter'){
-		document.getElementById('Enter').checked = true;
-		sendBy = 'Enter';
-		localStorage.setItem('sendBy', sendBy);
-		textbox.setAttribute('enterkeyhint', 'send');
-	}else{
-		if (isMobile){
+	try{		
+		if (sendBy === 'Ctrl+Enter'){
 			sendBy = 'Ctrl+Enter';
 			document.getElementById('Ctrl+Enter').checked = true;
 			textbox.setAttribute('enterkeyhint', 'enter');
-		}else{
-			sendBy = 'Enter';
+		}else if (sendBy === 'Enter'){
 			document.getElementById('Enter').checked = true;
+			sendBy = 'Enter';
 			localStorage.setItem('sendBy', sendBy);
 			textbox.setAttribute('enterkeyhint', 'send');
+		}else{
+			if (isMobile){
+				sendBy = 'Ctrl+Enter';
+				document.getElementById('Ctrl+Enter').checked = true;
+				textbox.setAttribute('enterkeyhint', 'enter');
+			}else{
+				sendBy = 'Enter';
+				document.getElementById('Enter').checked = true;
+				localStorage.setItem('sendBy', sendBy);
+				textbox.setAttribute('enterkeyhint', 'send');
+			}
 		}
+		document.getElementById('send').title = sendBy;
+	}catch(e){
+		console.log(`Error: ${e}`);
 	}
-	document.getElementById('send').title = sendBy;
 }
 
 function loadButtonSoundPreference(){
@@ -972,7 +976,7 @@ function downloadFile(){
 	popupMessage('Preparing download...');
 
 	const downloadName = {
-		'file': `Poketab-${Date.now()}${targetFile.fileName}`,
+		'file': `Poketab-${Date.now()}-${targetFile.fileName}`,
 		'audio': `Poketab-${Date.now()}.${targetFile.ext == 'mpeg' ? 'mp3' : targetFile.ext}`,
 	};
 
@@ -1179,7 +1183,7 @@ function showReplyToast(){
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
 		document.querySelector('.newmessagepopup').classList.add('toastActive');
-		replyToast.querySelector('.replyData').textContent = finalTarget.message?.substring(0, 50);
+		replyToast.querySelector('.replyData').textContent = finalTarget.message?.length > 30 ? finalTarget.message.substring(0, 27) + '...' : finalTarget.message;
 	}
 	replyToast.querySelector('.username').textContent = finalTarget.sender;
 	replyToast.style.display = 'flex';
@@ -1746,33 +1750,38 @@ function vibrate(){
 	}
 }
 
-let selectedStickerGroup, selectedStickerGroupCount;
+let selectedStickerGroupCount;
 
-selectedStickerGroup = localStorage.getItem('selectedStickerGroup') || Stickers[0].name;
+let selectedStickerGroup = localStorage.getItem('selectedStickerGroup') || Stickers[0].name;
 
 const stickersGrp = document.getElementById('selectStickerGroup');
 
-let loadedStickerHeader = false;
+let stickerHeaderIsLoaded = false;
 
 export function loadStickerHeader(){
-	if (loadedStickerHeader){
-		return;
-	}
 
-	loadedStickerHeader = true;
-
-	while (stickersGrp.firstChild){
-		stickersGrp.removeChild(stickersGrp.firstChild);
-	}
-
-	for (const sticker of Stickers){
-		const img = document.createElement('img');
-		img.src = `/stickers/${sticker.name}/animated/${sticker.icon}.webp`;
-		img.onerror = function(){retryImageLoad(this);};
-		img.alt = sticker.name;
-		img.dataset.name = sticker.name;
-		img.classList.add('stickerName', 'clickable');
-		stickersGrp.append(img);
+	try{
+		if (stickerHeaderIsLoaded){
+			return;
+		}
+	
+		stickerHeaderIsLoaded = true;
+	
+		while (stickersGrp.firstChild){
+			stickersGrp.removeChild(stickersGrp.firstChild);
+		}
+	
+		for (const sticker of Stickers){
+			const img = document.createElement('img');
+			img.src = `/stickers/${sticker.name}/animated/${sticker.icon}.webp`;
+			img.onerror = function(){retryImageLoad(this);};
+			img.alt = sticker.name;
+			img.dataset.name = sticker.name;
+			img.classList.add('stickerName', 'clickable');
+			stickersGrp.append(img);
+		}
+	}catch(e){
+		console.log(`Error: ${e}`);
 	}
 }
 
@@ -2035,22 +2044,22 @@ document.getElementById('more').addEventListener('click', ()=>{
 	showSidePanel();
 });
 
-let timeoutClone;
-document.querySelectorAll('.keyCopy').forEach(elem => {
-	elem.addEventListener('click', (evt)=>{
-		const target = evt.target.closest('.keyCopy').querySelector('.fa-clone');
-		target.classList.replace('fa-clone', 'fa-check');
-		target.classList.replace('fa-regular', 'fa-solid');
-		target.style.color = 'var(--secondary-dark)';
-		if (timeoutClone) {clearTimeout(timeoutClone);}
-		timeoutClone = setTimeout(() => {
-			target.classList.replace('fa-check', 'fa-clone');
-			target.classList.replace('fa-solid', 'fa-regular');
-			target.style.color = 'var(--secondary-dark)';
-			timeoutClone = undefined;
-		}, 1000);
-		copyText(myKey);
-	});
+
+let copyKeyTimeOut;
+const keyname = document.getElementById('keyname');
+keyname.addEventListener('click', (evt)=>{
+	keyname.querySelector('.fa-clone');
+	keyname.classList.replace('fa-clone', 'fa-check');
+	keyname.classList.replace('fa-regular', 'fa-solid');
+	keyname.style.color = 'var(--secondary-dark)';
+	if (copyKeyTimeOut) {clearTimeout(copyKeyTimeOut);}
+	copyKeyTimeOut = setTimeout(() => {
+		keyname.classList.replace('fa-check', 'fa-clone');
+		keyname.classList.replace('fa-solid', 'fa-regular');
+		keyname.style.color = 'var(--secondary-dark)';
+		copyKeyTimeOut = undefined;
+	}, 1000);
+	copyText(myKey);
 });
 
 document.getElementById('invite').addEventListener('click', async () =>{

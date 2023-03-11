@@ -240,7 +240,7 @@ img:is(.sticker){
     flex-direction: row;
     gap: 5px;
     border-radius: 24px;
-    padding: 5px 10px;
+    padding: 8px 10px;
     align-items: center;
     justify-content: center;
 }
@@ -512,9 +512,12 @@ img{
     }
     .welcome_wrapper{
         //background: #e1eeff;
-        padding: 40vh 0 20vh 0;
         display: grid;
         place-content: center;
+        opacity: 1;
+        visibility: visible;
+        min-height: 80vh;
+        transition: 500ms;
     }
     .welcomeText{
         display: flex;
@@ -522,10 +525,12 @@ img{
         justify-content: center;
         align-items: center;
         text-align: center;
-        width: max-content;
+        min-width: 200px;
+        width: 300px;
+        max-width: 90vw;
         padding: 20px;
         gap: 20px;
-        background: #0000009c;
+        background: rgba(0,0,0,.6117647059);
         border-radius: 15px;
         .link-copy{
             background: rgba(255, 255, 255, 0.1215686275);
@@ -838,24 +843,18 @@ input[type=file] {
         visibility: visible;
         opacity: 1;
     }
+    
     #selectedFiles{
-        position: relative;
-        height: 100%;
-        width: 100%;
         display: flex;
-        gap: 10px;
-        padding: 10px;
-        align-items: center;
         justify-content: center;
-        align-content: center;
+        align-items: center;
         flex-wrap: wrap;
-        overflow: scroll;
-        z-index: 2;
-        flex-direction: row;
-
-        &:has(> :nth-child(2)){
-            align-content: flex-start;
-        }
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: scroll;
+        gap: 20px;
+        padding: 20px;
+        margin-bottom: 50px;
         
         .file-item{
             position: relative;
@@ -866,7 +865,7 @@ input[type=file] {
             max-height: 80vh;
             height: auto;
             border-radius: 10px;
-            background: #8383833b;
+            background: var(--glass);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -878,9 +877,9 @@ input[type=file] {
                 width: 100%;
                 height: 100%;
                 border-radius: inherit;
-                object-fit: cover;
+                object-fit: contain;
                 height: inherit;
-                background: var(--glass);
+                //background: var(--glass);
             }
 
             .close{
@@ -904,7 +903,7 @@ input[type=file] {
 
 
 .previewFileOptions{
-    position: relative;
+    position: absolute;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -912,11 +911,10 @@ input[type=file] {
     max-width: 500px;
     justify-content: space-between;
     z-index: 1;
-    padding: 5px;
-    margin: 0 5px 5px 5px;
-    margin-right: 5px;
+    padding: 10px;
     background: var(--primary-dark);
     border-radius: 50px;
+    bottom: 0;
 
     #items-count{
         font-size: .8rem;
@@ -1700,8 +1698,7 @@ i[class^=fa-]{
     padding: 20px;
     margin-bottom: 80px;
     width: 300px;
-    height: 220px;
-    overflow-y: scroll;
+    height: min(250px, 60vh);
     border-radius: 10px;
     align-items: flex-start;
     justify-content: flex-start;
@@ -1715,6 +1712,8 @@ i[class^=fa-]{
         flex-direction: column;
         list-style-type: none;
         width: 100%;
+        overflow-y: scroll;
+        gap: 5px;
         li{
             display: flex;
             align-items: center;

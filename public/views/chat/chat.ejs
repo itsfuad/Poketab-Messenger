@@ -13,11 +13,14 @@
         <div class="icon"><i class="fa-solid fa-circle-exclamation"></i></div>
         <div class="text"></div>
     </div>
+
     <!--All popups will be shown here-->
     <div class="popup-message"></div>
 
     <%- include('../layout/app/sideBar.ejs') %>
-
+    <%- include('../layout/app/templates.ejs') %>
+    <%- include('../layout/app/utils.ejs') %>
+    <%- include('../layout/app/metadata.ejs') %>
     <%- include('../layout/app/quickSettings.ejs') %>
 
     <!--The main chat area-->
@@ -38,12 +41,8 @@
         <ul id="messages">
             <div class="welcome_wrapper">
                 <li class="welcomeText">
-                    <div class="link-copy clickable keyCopy" title="Click to copy">
-                        <i class="fa-solid fa-link"></i>
-                        <span><%=myKey%></span>
-                        <i class="fa-regular fa-clone"></i>
-                    </div>
-                    <span>Share this chat link</span>
+                    <img src="/images/greetings/<%=welcomeSticker_%>.webp" alt="Welcome Sticker" height="160px" width="160px" id="welcomeSticker">
+                    <div>Share this chat link to others to join</div>
                     <span id="invite" class="clickable button" title="Click to share">Share <i class="fa-solid fa-share-nodes"></i></span>
                 </li>
             </div>
@@ -137,13 +136,6 @@
             </div>
         </div>
     </div>
-
-
-    <%- include('../layout/app/templates.ejs') %>
-
-    <%- include('../layout/app/utils.ejs') %>
-
-    <%- include('../layout/app/metadata.ejs') %>
 
 </body>
 </html>
