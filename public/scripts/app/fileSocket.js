@@ -1,3 +1,6 @@
+//enable strict mode
+'use strict';
+
 import {io} from '../../libs/socket.io.js';
 import { myKey, myId, playIncomingSound, insertNewMessage, notifyUser, userInfoMap, clearDownload, updateScroll } from './app.js';
 import { fileBuffer } from './app.js';

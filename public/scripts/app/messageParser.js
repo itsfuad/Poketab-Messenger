@@ -1,3 +1,6 @@
+//enable strict mode
+'use strict';
+
 function escapeXSS(text) {
 	// Define the characters that need to be escaped
 	const escapeChars = {

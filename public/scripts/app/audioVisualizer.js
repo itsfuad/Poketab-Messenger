@@ -1,3 +1,6 @@
+//enable strict mode
+'use strict';
+
 export function processAudioStream(stream){
 	const audioContext = new AudioContext();
 	//register the audio worklet

@@ -1,3 +1,6 @@
+//enable strict mode
+'use strict';
+
 import {io} from '../../libs/socket.io.js';
 import { 
 	myName, 

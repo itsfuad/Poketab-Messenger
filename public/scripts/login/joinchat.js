@@ -1,3 +1,6 @@
+//enable strict mode
+'use strict';
+
 import { errlog, usernameformat, clickSound } from './common.min.js';
 
 // eslint-disable-next-line no-undef

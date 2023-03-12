@@ -1,3 +1,6 @@
+//enable strict mode
+'use strict';
+
 //theme colors and backgrounds
 export const themeAccent = {
 	'blue': {
