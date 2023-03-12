@@ -34,7 +34,7 @@ export const isRealString = (str) => {
     return typeof str === 'string' && str.trim().length > 0;
 };
 export function validateUserName(username) {
-    const name_format = /^[a-zA-Z0-9\u0980-\u09FF]{3,20}$/;
+    const name_format = /^[a-zA-Z0-9_\u0980-\u09FF]{3,20}$/;
     return (isRealString(username) && name_format.test(username) && username.trim().length > 0);
 }
 export function validateAvatar(avatar) {
