@@ -1,4 +1,4 @@
-console.log('Running file API');
+console.log('Running File Relay System');
 import { Router } from 'express';
 import multer from 'multer';
 import { access } from 'fs/promises';

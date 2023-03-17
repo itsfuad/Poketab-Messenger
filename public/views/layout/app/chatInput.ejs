@@ -1,0 +1,25 @@
+<div class="chatInput">
+    <div class="clickable inputBtn" id="stickerBtn" title="Send stickers"><i class="fa-solid fa-note-sticky"></i></div>
+    <!-- Text input -->
+    <div class="attachments clickable inputBtn" id="attachment" title="Send attactments"><i class="fa-solid fa-paperclip"></i></div>
+    <div class="inputField">
+        <textarea dir="auto" id="textbox" rows="1" class="select" placeholder="Message..."></textarea>
+        <!-- Microphone -->
+        <div class="voiceRecorder" id="recorderOverlay" data-recordingstate="false">
+            <div class="recordBtn btn" id="recordVoiceButton" data-playstate="">
+                <i class="fa-solid fa-microphone" id="micIcon"></i>
+            </div>
+            <div class="recording">
+                <span class="recordingText"><i class="fa-solid fa-circle recordIcon"></i></span>
+                <span id="recordingTime" class="recordingTime">00:00</span>
+            </div>
+            <div class="cancelBtn btn clickable" id="cancelVoiceRecordButton">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            <div id="audiovisualizer"></div>
+        </div>
+    </div>
+      
+    <!-- Send Button-->
+    <button id="send" class=" inputBtn" title="Ctrl+Enter"><i class="fa-solid fa-paper-plane"></i></button>
+</div>

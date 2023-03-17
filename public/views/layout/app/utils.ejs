@@ -4,8 +4,7 @@
 <div id="focus_glass"></div>
 
 <!-- Options container for reacts and other functionalities -->
-<div id="optionsContainerWrapper">
-    <div class="close_area"></div>
+<div id="messageOptionsContainerWrapper">
     <div id="optionsContainer">
         <div class="reactOptionsWrapper" data-closed="true">
             <ul id="reactOptions" class="options">
@@ -24,6 +23,10 @@
     </div>
 </div>
 
+<!--message popup-->
+<div class="newmessagepopup clickable">
+    <img src="" alt="Avatar"><div class="msg"></div><div class="downarrow"><i class="fa-solid fa-arrow-down"></i></div>
+</div>
 
 <!-- Image Preview -->
 
@@ -53,16 +56,19 @@
     </div>
 </div>
 
-<div class="stickersPanel" id="stickersPanel">
-    <div class="stickerGroups">
-        <div class="horizontal-flow">
-            <i class="fa-solid fa-angle-left" id="stickerMoveLeft"></i>
-            <div class="names" id="selectStickerGroup"></div>
-            <i class="fa-solid fa-angle-right" id="stickerMoveRight"></i>
+<div class="stickersPanelWrapper close_area" id="stickersPanelWrapper">
+    <div class="stickersPanel" id="stickersPanel">
+        <div class="stickerGroups">
+            <div class="horizontal-flow">
+                <i class="fa-solid fa-angle-left" id="stickerMoveLeft"></i>
+                <div class="names" id="selectStickerGroup"></div>
+                <i class="fa-solid fa-angle-right" id="stickerMoveRight"></i>
+            </div>
         </div>
+        <div class="stickers" id="stickers">Loading&nbsp;<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--secondary-dark)"></i></div>
     </div>
-    <div class="stickers" id="stickers">Loading&nbsp;<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--secondary-dark)"></i></div>
 </div>
+
 
 <div class="moreReactsContainer">
     <div class="horizontal-line"></div>

@@ -7,7 +7,7 @@ import { TextParser, parseTemplate, isEmoji } from './messageParser.js';
 import { Stickers } from '../../stickers/stickersConfig.js';
 import { Prism } from '../../libs/prism/prism.min.js';
 import { PanZoom } from '../../libs/panzoom.min.js';
-import { themeAccent, themeArray, themePicker } from './themes.js';
+import { themeAccent, themeArray, themePicker, themeChooser } from './themes.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
@@ -33,6 +33,15 @@ const cancelVoiceRecordButton = document.getElementById('cancelVoiceRecordButton
 const recorderElement = document.getElementById('recorderOverlay');
 const micIcon = document.getElementById('micIcon');
 const recorderTimer = document.getElementById('recordingTime');
+
+//dynamic popups
+const stickersPanel = document.getElementById('stickersPanelWrapper');
+const sideBarPanel = document.getElementById('sidebarWrapper');
+const quickSettings = document.querySelector('.quickSettingPanel');
+const messageOptions = document.getElementById('messageOptionsContainerWrapper');
+
+//popups closearea
+const attachmentCloseArea = document.getElementById('attachmentCloseArea');
 
 //use a global variable to store the recorded audio
 /**
@@ -145,6 +154,7 @@ let lastNotification = undefined;
 //first load functions 
 //if user device is mobile
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
 
 //This class is used to detect the long press on messages and fire the callback function
 class ClickAndHold{
@@ -235,6 +245,11 @@ if(!isMobile){
 	});
 }
 
+//list of active modals
+const activeModals = [];
+
+//map of all the modals close functions
+const modalCloseMap = new Map();
 
 //! functions
 /**
@@ -359,7 +374,7 @@ function bootLoad(){
 	sendBy = localStorage.getItem('sendBy');
 	loadReacts();
 	loadTheme();
-	appHeight();
+	//appHeight();
 	updateScroll();
 	loadSendShortcut();
 	loadButtonSoundPreference();
@@ -369,11 +384,12 @@ function bootLoad(){
 
 bootLoad();
 
+/*
 //sets the app height to the max height of the window
 function appHeight () {
 	const doc = document.documentElement;
 	doc.style.setProperty('--app-height', `${window.innerHeight}px`);
-}
+}/
 
 //this function inserts a message in the chat box
 /**
@@ -551,6 +567,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 				replyFor: replyFor,
 				time: getFormattedDate(timeStamp),
 				timeStamp: timeStamp,
+				duration: metadata.duration,
 			});
 		}else{
 			html = parseTemplate(messageTemplate, {
@@ -750,9 +767,9 @@ function emojiParser(text){
 
 
 
-//Reply, Copy, Download, remove, Reacts Optio handler.
+
 /**
- * 
+ * Shows Reply, Copy, Download, remove, Reacts options
  * @param {string} type Any of the [image, audio, file, text]
  * @param {boolean} sender True if Sender is me, else false 
  * @param {HTMLElement} target The message that fired the event 
@@ -821,18 +838,9 @@ function showOptions(type, sender, target){
 		}
 	}
 	//show the options
-	const options = document.getElementById('optionsContainerWrapper');
-	//options.style.display = 'grid';
-
-
-	options.classList.add('active');
-	//document.getElementById('focus_glass').classList.add('active');
+	messageOptions.classList.add('active');
 	addFocusGlass(false);
-	options.addEventListener('click', optionsMainEvent);
-	/*
-	setTimeout(() => {
-	}, 100);
-	*/
+	messageOptions.addEventListener('click', optionsMainEvent);
 }
 
 /**
@@ -1020,23 +1028,19 @@ function sendReact(react){
 }
 
 function hideOptions(){
-	const options = document.getElementById('optionsContainerWrapper');
 	const container = document.querySelector('.reactOptionsWrapper');
 	container.dataset.closed = 'false';
 	updateReactsChooser();
-	options.classList.remove('active');
-	document.getElementById('sidebar_wrapper').classList.remove('active');
-	document.querySelector('.themeChooser').classList.remove('active');
-	setTimeout(() => {
-		copyOption.style.display = 'none';
-		downloadOption.style.display = 'none';
-		deleteOption.style.display = 'none';
-		//options.style.display = 'none';
-	}, 120);
+	messageOptions.classList.remove('active');
+	sideBarPanel.classList.remove('active');
+	themeChooser.classList.remove('active');
 	//document.getElementById('focus_glass').classList.remove('active');
 	removeFocusGlass();
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
-	options.removeEventListener('click', optionsMainEvent);
+	messageOptions.removeEventListener('click', optionsMainEvent);
+	copyOption.style.display = 'none';
+	downloadOption.style.display = 'none';
+	deleteOption.style.display = 'none';
 }
 
 
@@ -1155,6 +1159,17 @@ function showReplyToast(){
 	textbox.focus();
 	finalTarget = Object.assign({}, targetMessage);
 
+	replyToast.innerHTML = 
+	`
+		<div class="content">
+			<div class="title"><i class="fa-solid fa-reply"></i> Replying to <span class="username"></span></div>
+			<div class="replyData"></div>
+		</div>
+		<div class="close">
+			<i class="fa-solid fa-xmark"></i>
+		</div>
+	`;
+
 	if (finalTarget.type == 'image' || finalTarget.type == 'sticker'){
 
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
@@ -1186,22 +1201,36 @@ function showReplyToast(){
 		replyToast.querySelector('.replyData').textContent = finalTarget.message?.length > 30 ? finalTarget.message.substring(0, 27) + '...' : finalTarget.message;
 	}
 	replyToast.querySelector('.username').textContent = finalTarget.sender;
-	replyToast.style.display = 'flex';
+	replyToast.classList.add('active');
+
 	setTimeout(() => {
-		replyToast.classList.add('active');
+		if (!scrolling){
+			//console.log('scrolled to bottom');
+			messages.scrollTo(0, messages.scrollHeight);
+		}
 	}, 120);
+
+	replyToast.querySelector('.close').onclick = () => {
+		clearTargetMessage();
+		clearFinalTarget();
+		hideReplyToast();
+	};
 }
 
 function hideReplyToast(){
 	replyToast.classList.remove('active');
-	replyToast.style.display = 'none';
-	replyToast.querySelector('.replyData').textContent = '';
-	replyToast.querySelector('.username').textContent = '';
 	lastPageLength = messages.scrollTop;
 	document.querySelector('.newmessagepopup').classList.remove('toastActive');
 	document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
 	document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
 	clearTargetMessage();
+	replyToast.innerHTML = '';
+	setTimeout(() => {
+		if (!scrolling){
+			//console.log('scrolled to bottom');
+			messages.scrollTo(0, messages.scrollHeight);
+		}
+	}, 120);
 }
 
 /**
@@ -1554,10 +1583,12 @@ export function updateScroll(avatar = null, text = ''){
 		}
 		return;
 	}
+	
 	setTimeout(() => {
 		const messages = document.getElementById('messages');
 		messages.scrollTo(0, messages.scrollHeight);
 		lastPageLength = messages.scrollTop;
+
 	}, 20);
 }
 
@@ -1623,6 +1654,14 @@ function typingStatus(){
 function resizeTextbox(){
 	textbox.style.height = 'auto';
 	textbox.style.height = textbox.scrollHeight + 'px';
+	//translate the messages div up by css variable --textboxHeight
+	document.documentElement.style.setProperty('--textboxHeight', -(textbox.clientHeight + 32) + 'px');
+	if (textbox.value != ''){
+		document.querySelector('.voiceRecorder').classList.add('hidden');
+	}else{
+		document.querySelector('.voiceRecorder').classList.remove('hidden');
+	}
+	//updateScroll();
 }
 
 /**
@@ -1824,63 +1863,98 @@ export function loadStickers(){
 }
 
 function showStickersPanel(){
-	document.getElementById('stickersPanel').style.display = 'flex';
-	setTimeout(() => {
-		addFocusGlass(false);
-		document.getElementById('stickersPanel').classList.add('active');
+	if (!stickersPanel.classList.contains('active')){
+		console.log('showing stickers panel');
+		activeModals.push('stickersPanel');
+		modalCloseMap.set('stickersPanel', hideStickersPanel);
+		stickersPanel.classList.add('active');
 		const grp = document.getElementById('selectStickerGroup');
 		grp.querySelector(`img[data-name="${selectedStickerGroup}"]`).scrollIntoView({behavior: 'smooth', block: 'center', inline: 'center'});
-	}, 120);
-}
-
-
-function themeClickHandler(){
-	hideOptions();
-	if(THEME){
-		if (themeArray.includes(THEME) == false){
-			THEME = 'ocean';
-			localStorage.setItem('theme', THEME);
-		}
-		document.querySelector('.themeChooser').querySelectorAll('.theme').forEach(theme => {
-			theme.querySelector('img').style.border = '';
-		});
-		document.querySelector(`.themeChooser #${THEME}`).querySelector('img').style.outline = '2px solid var(--secondary-dark)';
 	}
-	addFocusGlass();
-	document.querySelector('.themeChooser').classList.add('active');
 }
 
+/**
+ * Shows the theme picker
+ */
+function showThemes(){
+	
+	if (!themeChooser.classList.contains('active')){
+		console.log('showing themes');
+		activeModals.push('themes');
+		modalCloseMap.set('themes', hideThemes);
+		hideOptions();
+		if(THEME){
+			if (themeArray.includes(THEME) == false){
+				THEME = 'ocean';
+				localStorage.setItem('theme', THEME);
+			}
+			themeChooser.querySelectorAll('.theme').forEach(theme => {
+				theme.querySelector('img').style.outline = '';
+			});
+			document.querySelector(`.themeChooser #${THEME}`).querySelector('img').style.outline = '2px solid var(--secondary-dark)';
+		}
+		//addFocusGlass();
+		themeChooser.classList.add('active');
+	}
+}
+
+/**
+ * Hides the theme picker
+ */
+function hideThemes(){
+	if (activeModals.includes('themes')){
+		themeChooser.classList.remove('active');
+		//removeFocusGlass();
+		activeModals.splice(activeModals.indexOf('themes'), 1);
+	}
+}
+
+/**
+ * Shows sidebar panel
+ */
 function showSidePanel(){
-	document.getElementById('sidebar_wrapper').classList.add('active');
-	addFocusGlass();
+	if (!activeModals.includes('sidePanel')){
+		console.log('showing side panel');
+		sideBarPanel.classList.add('active');
+		activeModals.push('sidePanel');
+		modalCloseMap.set('sidePanel', hideSidePanel);
+	}
 }
-
 
 document.querySelector('.footer_options .settings').addEventListener('click', () => {
 	showQuickSettings();
 	hideOptions();
 });
 
-const quickSettings = document.querySelector('.quickSettingPanel');
+/**
+ * Shows the quick settings panel
+ */
 function showQuickSettings(){
 	//show setting panel
-	quickSettings.style.display = 'flex';
-	setTimeout(() => {
-		quickSettings.querySelector('.utils').classList.add('active');
-	}, 60);
+	if(!quickSettings.classList.contains('active')){
+		console.log('showing quick settings');
+		activeModals.push('quickSettings');
+		modalCloseMap.set('quickSettings', hideQuickSettings);
+		quickSettings.classList.add('active');
+	}
 }
-
+/**
+ * Hides the quick settings panel
+ */
 function hideQuickSettings(){
-	quickSettings.querySelector('.utils').classList.remove('active');
-	setTimeout(() => {
-		quickSettings.style.display = 'none';
-	}, 300);
+	if (activeModals.includes('quickSettings')){
+		quickSettings.classList.remove('active');
+		activeModals.splice(activeModals.indexOf('quickSettings'), 1);
+	}
 }
 
 quickSettings.addEventListener('click', (e) => {
 	//if click on quickSettings, then hide quickSettings
 	if (e.target == quickSettings){
-		hideQuickSettings();
+		if (activeModals.includes('quickSettings')){
+			hideQuickSettings();
+			activeModals.splice(activeModals.indexOf('quickSettings'), 1);
+		}
 	}
 });
 
@@ -1932,8 +2006,14 @@ document.getElementById('buttonSound').addEventListener('click', () => {
 	popupMessage('Button sounds ' + (buttonSoundEnabled ? 'enabled' : 'disabled'));
 });
 
-document.getElementById('focus_glass').addEventListener('click', () => {
-	closeStickersPanel();
+stickersPanel.addEventListener('click', (evt) => {
+	if (evt.target == stickersPanel){
+		console.log('clicked on stickers panel');
+		if (activeModals.includes('stickersPanel')){
+			hideStickersPanel();
+			activeModals.splice(activeModals.indexOf('stickersPanel'), 1);
+		}
+	}
 });
 
 function stickerMoveLeft(){
@@ -1950,31 +2030,43 @@ function stickerMoveRight(){
 	});
 }
 
-function closeStickersPanel(){
-	removeFocusGlass();
-	document.getElementById('stickersPanel').classList.remove('active');
-	setTimeout(() => {
-		document.getElementById('stickersPanel').style.display = 'none';
-	}, 120);
+function hideStickersPanel(){
+	if (activeModals.includes('stickersPanel')){
+		removeFocusGlass();
+		stickersPanel.classList.remove('active');
+		activeModals.splice(activeModals.indexOf('stickersPanel'), 1);
+	}
 }
 
+
+/**
+ * Show attachment picker panel
+ */
 function addAttachment(){
-	document.getElementById('attmain').style.display = 'flex';
-	setTimeout(()=>{
-		document.getElementById('attmain').classList.add('active');
-	}, 50);
+	
+	if(!activeModals.includes('attachments')){
+		console.log('showing attachment');
+		activeModals.push('attachments');
+		modalCloseMap.set('attachments', removeAttachment);
+		attachmentCloseArea.classList.add('active');
+	}
 }
 
+/**
+ * Hide attachment picker panel
+ */
 function removeAttachment(){
-	document.getElementById('attmain').classList.remove('active');
-	setTimeout(()=>{
-		document.getElementById('attmain').style.display = 'none';
-	}, 120);
+	if (activeModals.includes('attachments')){
+		attachmentCloseArea.classList.remove('active');
+		console.log('removing attachment');
+		activeModals.splice(activeModals.indexOf('attachments'), 1);
+		console.log(activeModals);
+	}
 }
 
 
 //Event listeners
-document.querySelector('.stickerBtn').addEventListener('click', () => {
+document.getElementById('stickerBtn').addEventListener('click', () => {
 	showStickersPanel();
 });
 
@@ -2036,7 +2128,7 @@ document.getElementById('stickers').addEventListener('click', e => {
 		clearTargetMessage();
 		clearFinalTarget();
 		hideReplyToast();
-		closeStickersPanel();
+		hideStickersPanel();
 	}
 });
 
@@ -2082,13 +2174,12 @@ document.getElementById('invite').addEventListener('click', async () =>{
 
 document.getElementById('themeButton').addEventListener('click', ()=>{
 	//hideQuickSettings();
-	themeClickHandler();
+	showThemes();
 });
 
 //remove the theme optons from the screen when clicked outside
-document.querySelector('.themeChooser').addEventListener('click', ()=>{
-	document.querySelector('.themeChooser').classList.remove('active');
-	hideOptions();
+themeChooser.addEventListener('click', ()=>{
+	hideThemes();
 });
 
 document.querySelectorAll('.theme').forEach(theme => {
@@ -2103,7 +2194,7 @@ document.querySelectorAll('.theme').forEach(theme => {
 		document.documentElement.style.setProperty('--msg-get-reply', themeAccent[THEME].msg_get_reply);
 		document.documentElement.style.setProperty('--msg-send', themeAccent[THEME].msg_send);
 		document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_send_reply);
-		document.querySelector('.themeChooser').classList.remove('active');
+		themeChooser.classList.remove('active');
 		document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
 		hideOptions();
 	});
@@ -2143,7 +2234,7 @@ messages.addEventListener('scroll', () => {
 		if (scrolled >= 50){   
 			scrolling = true;
 		}
-		if (scrolled == 0){
+		if (scrolled <= 10 && scrolled >= 0){
 			document.querySelector('.newmessagepopup').classList.remove('active');
 			scrolling = false;
 		}
@@ -2162,12 +2253,7 @@ messages.addEventListener('scroll', () => {
 });
 
 
-textbox.addEventListener('input' , function () {
-	resizeTextbox();
-	typingStatus();
-});
-
-document.querySelector('.newmessagepopup').addEventListener('click', function () {
+document.querySelector('.newmessagepopup').addEventListener('click', () => {
 	scrolling = false;
 	updateScroll();
 	removeNewMessagePopup();
@@ -2177,13 +2263,6 @@ document.getElementById('logoutButton').addEventListener('click', () => {
 	document.getElementById('preload').querySelector('.text').textContent = 'Logging out';
 	document.getElementById('preload').style.display = 'flex';
 	window.location.href = '/';
-});
-
-
-replyToast.querySelector('.close').addEventListener('click', ()=>{
-	clearTargetMessage();
-	clearFinalTarget();
-	hideReplyToast();
 });
 
 document.addEventListener('contextmenu', event => event.preventDefault());
@@ -2196,11 +2275,16 @@ lightboxClose.addEventListener('click', () => {
 	}
 });
 
-textbox.addEventListener('focus', function () {
+textbox.addEventListener('input', () => {
+	resizeTextbox();
+	typingStatus();
+});
+
+textbox.addEventListener('focus', () => {
 	updateScroll();
 });
 
-textbox.addEventListener('blur', ()=>{
+textbox.addEventListener('blur', () => {
 	focusInput();
 });
 
@@ -2209,21 +2293,25 @@ function focusInput(){
 		textbox.focus();
 	}
 }
-
-function closeSidePanel(){
-	document.getElementById('sidebar_wrapper').classList.remove('active');
-	hideOptions();
+/**
+ * Closes the side panel
+ */
+function hideSidePanel(){
+	if (sideBarPanel.classList.contains('active')){
+		sideBarPanel.classList.remove('active');
+		activeModals.splice(activeModals.indexOf('sidePanel'), 1);
+	}
 }
 
-document.querySelector('.close_area').addEventListener('click', () => {
-	closeSidePanel();
+document.getElementById('closeSideBar').addEventListener('click', () => {
+	hideSidePanel();
 });
 
-document.getElementById('attmain').addEventListener('click', () => {
+attachmentCloseArea.addEventListener('click', () => {
 	removeAttachment();
 });
 
-document.getElementById('attachment').addEventListener('click', ()=>{
+document.getElementById('attachment').addEventListener('click', () => {
 	addAttachment();
 });
 
@@ -2240,8 +2328,9 @@ let scrollIntoViewTimeout = undefined;
 messages.addEventListener('click', (evt) => {
 	try {
 		//console.log(evt.target);
+		//if the target is a message
 		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')){
-			
+			//get the message sent time and show it
 			const messageTime = evt.target.closest('.message').querySelector('.messageTime');
 			messageTime.textContent = getFormattedDate(messageTime.dataset.timestamp);
 			messageTime.classList?.add('active');
@@ -2304,14 +2393,18 @@ messages.addEventListener('click', (evt) => {
 			if (evt.target.classList.contains('main-element')){
 				//if target audio is not paused, then seek to where is was clicked
 				if (!audio.paused){
-					//if audio seek was not within the seekable area or the duration is not loaded yet.
-					if (audioContainer.offsetWidth === 0 || isNaN(audio.duration)) {
-						// do not seek to a position
-						return;
+					//if audio seek was within the area
+					if (evt.offsetX < audioContainer.offsetWidth && evt.offsetX > 0){
+						//if duration is not finite, then set it to 0 and wait for it to be updated
+						if (!isFinite(audio.duration)){
+							popupMessage('Please wait for the audio to load');
+							return;
+						}
+						const duration = audio.duration;
+						//get the calculated time and seek to it
+						const time = (evt.offsetX / audioContainer.offsetWidth) * duration;
+						seekAudioMessage(audio, time);
 					}
-					//else get the calculated time to seek
-					const time = (evt.offsetX / audioContainer.offsetWidth) * audio.duration;
-					seekAudioMessage(audio, time);
 				}
 			}
 			
@@ -2401,30 +2494,39 @@ messages.addEventListener('click', (evt) => {
 	}
 });
 
+
+/**
+ * Handles the click event on the selected files container to remove files from the list of selected files
+ * @param {MouseEvent} evt
+ */
+
 document.getElementById('selectedFiles').addEventListener('click', (evt) => {
 	try{
+		//grab the file item element from the target
 		const target = evt.target.closest('.file-item');
+		//if the target is a valid file item
 		if (target){
+			//if the close button was clicked inside the file item
 			if (evt.target.classList.contains('close')){
+				//get the file type
 				const type = target.dataset?.type;
 				//get the image element id
 				const id = target.dataset?.id;
+				//if the id is valid
 				if (id){
-
+					//if the file type is image, revoke the object url of the image to free up memory
 					if (type === 'image'){
 						const imageToRemove = target.querySelector('img');
 						URL.revokeObjectURL(imageToRemove?.src);
 						//console.log(`Image src: ${imageToRemove.src} removed`);
 					}
-					
+					//remove the file item from the array
 					selectedFileArray.splice(selectedFileArray.findIndex(item => item.id === id), 1);
-
 					//console.log('File removed from Array');
-
+					//remove the file item from the DOM
 					target.remove();
-
+					//update the items count
 					document.getElementById('items-count').textContent = `${selectedFileArray.length} item${selectedFileArray.length > 1 ? 's' : ''} selected`;
-
 					//if there are no images left, hide the preview
 					if (selectedFileArray.length == 0){
 						//close the preview
@@ -2440,116 +2542,142 @@ document.getElementById('selectedFiles').addEventListener('click', (evt) => {
 });
 
 
-let lastAudioMessagePlay = null;
+// Initialize a variable to keep track of the last audio message played
+let lastPlayedAudioMessage = null;
 
 /**
- * 
- * @param {HTMLAudioElement} audioContainer 
- * @returns 
- */
+* Plays an audio file contained within a given HTMLAudioElement container
+@param {HTMLAudioElement} audioContainer - The container element for the audio file
+@returns
+*/
 function playAudio(audioContainer){
 
 	try{
+		// Get the audio element from the container
 		const audio = audioContainer.querySelector('audio');
-	
+
+		// Check if the audio file is ready to be played
 		if (!audioContainer.dataset?.src){
 			popupMessage('Audio is not ready to play');
 			return;
 		}
-	
+
+		// If the audio file source is not set, set it to the container's data source
 		if (!audio.src){
 			audio.src = audioContainer.dataset?.src;
 		}
-	
-		const timeElement = audioContainer.querySelector('.time');
-	
-		if (!!lastAudioMessagePlay && lastAudioMessagePlay.src != audio.src){
-			//console.log('Calling stop audio to stop last audio');
-			stopAudio(lastAudioMessagePlay);
+
+		// Check if the audio duration is a finite number
+		//console.log(`Audio duration is ${audio.duration}`);
+		if (!isFinite(audio.duration)){
+			audio.dataset.duration = audioContainer.dataset?.duration || 0;
+			//console.log(`Audio duration is infinity and is set to ${audio.dataset.duration}`);
 		}
-	
-		lastAudioMessagePlay = audio;
-	
-		lastAudioMessagePlay.ontimeupdate = () => {
+
+		// Get the time element for the audio file
+		const timeElement = audioContainer.querySelector('.time');
+
+		// If there was a previous audio message playing and the current message is different, stop the previous message
+		if (!!lastPlayedAudioMessage && lastPlayedAudioMessage.src != audio.src){
+			//console.log('Calling stop audio to stop last audio');
+			stopAudio(lastPlayedAudioMessage);
+		}
+
+		// Set the last audio message played to the current audio message
+		lastPlayedAudioMessage = audio;
+
+		// When the audio time is updated, update the audio message time and progress bar
+		lastPlayedAudioMessage.ontimeupdate = () => {
 			//updateAudioMessageTime(audioMessage);
 			//if audio.duration is number
-			if (isFinite(audio.duration)){
-				const percentage = updateAudioMessageTimer(audio, timeElement);
-				audioContainer.style.setProperty('--audioMessageProgress', `${percentage}%`);
-			}else{
-				//console.clear();
-				//console.log('Audio duration is not a number');
-				timeElement.textContent = 'Wait..!';
-			}
+			const percentage = updateAudioMessageTimer(audio, timeElement);
+			audioContainer.style.setProperty('--audioMessageProgress', `${percentage}%`);
 		};
-	
-		lastAudioMessagePlay.onended = () => {
+
+		// When the audio has ended, reset the play/pause button and progress bar
+		lastPlayedAudioMessage.onended = () => {
 			audioContainer.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
-			lastAudioMessagePlay.currentTime = 0;
+			lastPlayedAudioMessage.currentTime = 0;
 			audioContainer.style.setProperty('--audioMessageProgress', '0%');
 		};
-	
-		//if audio is stopped for some reason like stopped from another tab or notifcation bar. then update the ui
-		lastAudioMessagePlay.onpause = () => {
+
+		// When the audio is paused, update the play/pause button to "play"
+		lastPlayedAudioMessage.onpause = () => {
 			audioContainer.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
 		};
-	
-		//when stopped from another tab or notification bar
-		lastAudioMessagePlay.onstalled = () => {
+
+		// When the audio is stalled (e.g. due to slow network), update the play/pause button to "play"
+		lastPlayedAudioMessage.onstalled = () => {
 			audioContainer.querySelector('.play-pause i').classList.replace('fa-pause', 'fa-play');
 		};
-	
-		//when playing from another tab or notification bar
-		lastAudioMessagePlay.onplaying = () => {
+
+		// When the audio is playing (e.g. from another tab), update the play/pause button to "pause"
+		lastPlayedAudioMessage.onplaying = () => {
 			audioContainer.querySelector('.play-pause i').classList.replace('fa-play', 'fa-pause');
 		};
-	
-		lastAudioMessagePlay.play();
+
+		// Play the audio message
+		lastPlayedAudioMessage.play();
 	}catch(err){
 		console.log(err);
 	}
 }
 
 /**
- * 
- * @param {HTMLAudioElement} audio 
+ * Stops the audio playback and resets the time
+ *
+ * @param {HTMLAudioElement} audio - The audio element to stop
  */
 function stopAudio(audio){
-	//dataset.playing = 'false';
+	// Set the 'playing' attribute of the dataset object to false
+	// dataset.playing = 'false';
+	// Reset the current time of the audio to 0
 	audio.currentTime = 0;
+	// Pause the audio playback
 	audio.pause();
+	// Set the audio element to undefined
 	audio = undefined;
 }
 
 /**
- * 
- * @param {HTMLAudioElement} audio 
- * @param {number} time 
+ * Sets the current time of an HTML audio element to the specified time in seconds.
+ * @param {HTMLAudioElement} audio - the HTML audio element to seek
+ * @param {number} time - the time in seconds to seek to
  */
 function seekAudioMessage(audio, time){
 	try{
+		// Set the current time of the audio element to the specified time, or 0 if time is not a valid number
 		audio.currentTime = isNaN(time) ? 0 : time;
 	}catch(e){
+		// Log any errors that occur while setting the current time
 		console.log(e);
-		console.log('seekAudioMessage error - Time: ', time);
+		console.log('seekAudioMessage error - Time: ', time, 'Audio: ', audio);
 	}
 }
 
+
 /**
- * 
- * @param {number} totalTime 
- * @param {number} elapsedTime 
- * @returns string
+ * Returns a string in the format "mm:ss" representing the remaining time
+ * @param {number} totalTime - the total time in seconds
+ * @param {number} elapsedTime - the elapsed time in seconds
+ * @returns {string} - a string in the format "mm:ss"
  */
 function remainingTime(totalTime, elapsedTime) {
-	// Calculate the remaining time
-	const remaining = Math.floor(totalTime) - Math.floor(elapsedTime);
-	// Calculate the minutes and seconds
-	const minutes = Math.floor(remaining / 60);
-	const seconds = Math.floor(remaining % 60);	
-	// Return the remaining time in the format "00:00"
-	return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+	// Check if totalTime and elapsedTime are finite numbers and if totalTime is greater than 0
+	if(isFinite(totalTime) && totalTime > 0 && isFinite(elapsedTime)){
+		// Calculate the remaining time
+		const remaining = Math.floor(totalTime) - Math.floor(elapsedTime);
+		// Calculate the minutes and seconds from the remaining time
+		const minutes = Math.floor(remaining / 60);
+		const seconds = Math.floor(remaining % 60);
+		// Return the remaining time in the format "mm:ss"
+		return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+	}else{
+		// Return "00:00" if totalTime and elapsedTime are not valid numbers
+		return '00:00';
+	}
 }
+
 
 
 document.querySelector('.reactorContainerWrapper').addEventListener('click', (evt) => {
@@ -2559,7 +2687,7 @@ document.querySelector('.reactorContainerWrapper').addEventListener('click', (ev
 });
 
 window.addEventListener('resize',()=>{
-	appHeight();
+	//appHeight();
 	const temp = scrolling;
 	//last added
 	lastPageLength = messages.scrollTop;
@@ -3104,8 +3232,12 @@ function sendFileStoreRequest(type = null){
 
 		const fileUrl = URL.createObjectURL(selectedFileArray[i].data);
 		
-		insertNewMessage(fileUrl, type ? type : 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name});
-		
+		if (type && type == 'audio'){
+			insertNewMessage(fileUrl, 'audio', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name, duration: selectedFileArray[i].duration});
+		}else{
+			insertNewMessage(fileUrl, 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name});
+		}
+
 		if (Array.from(userInfoMap.keys()).length < 2){
 	
 			const msg = document.getElementById(tempId);
@@ -3231,8 +3363,69 @@ document.getElementById('lightbox__save').addEventListener('click', ()=>{
 	saveImage();
 });
 
+function closeAllModals(){
+	console.log('closing all modals');
+	activeModals.forEach((modal) => {
+		console.log(`Closing ${modal}`);
+		modalCloseMap.get(modal)();
+	});
+}
 
-textbox.addEventListener('keydown', (evt) => {
+document.addEventListener('keydown', (evt) => {	
+
+	const altKeys = ['o', 's', 't', 'i', 'a', 'f', 'p', 'm'];
+
+	if (evt.key == 'Control'){
+		console.log(activeModals);
+	}
+
+	if (altKeys.includes(evt.key) && evt.altKey){
+		//evt.preventDefault();
+		closeAllModals();
+		switch (evt.key) {
+			case 'o':
+				showSidePanel();
+				break;
+			case 's':
+				showQuickSettings();
+				break;
+			case 't':
+				showThemes();
+				break;
+			case 'i':
+				showStickersPanel();
+				break;
+			case 'a':
+				addAttachment();
+				break;
+			case 'f':
+				//choose file
+				fileButton.click();
+				break;
+			case 'p':
+				//choose photo
+				photoButton.click();
+				break;
+			case 'm':
+				//choose audio
+				audioButton.click();
+				break;
+		}
+		return;
+	}
+
+	//if escape key is pressed, close last opened modal
+	if (evt.key === 'Escape'){
+		//!Remove all modals
+		if (activeModals.length > 0){
+			evt.preventDefault();
+			const close = activeModals[activeModals.length - 1];
+			console.log(`closing ${close}`);
+			modalCloseMap.get(close)();
+		}
+		return;
+	}
+
 	if (evt.key === 'Enter' && sendBy === 'Enter' && !evt.ctrlKey ) { // if Enter key is pressed
 		//if shift+enter is pressed, then add a new line
 		if (evt.shiftKey){
@@ -3243,15 +3436,7 @@ textbox.addEventListener('keydown', (evt) => {
 	} else if(evt.key === 'Enter' && sendBy === 'Ctrl+Enter' && evt.ctrlKey ){ // if Ctrl+Enter key is pressed
 		sendButton.click();
 	}
-});
-
-
-//show quickSetting when alt+s pressed
-document.addEventListener('keydown', (evt) => {
-	if (evt.key === 's' && evt.altKey){
-		hideOptions();
-		showQuickSettings();
-	}
+	return;
 });
 
 
@@ -3445,7 +3630,7 @@ function startRecordingAudio(){
 			//create a media recorder
 			//const mediaRecorder = new MediaRecorder(stream);
 			//use low quality audio and mono channel and 32kbps
-			const mediaRecorder = new MediaRecorder(stream, {type: 'audio/mpeg;', audioBitsPerSecond: 32000, audioChannels: 1});
+			const mediaRecorder = new MediaRecorder(stream, {type: 'audio/mp3;', audioBitsPerSecond: 32000, audioChannels: 1});
 			//start recording
 			mediaRecorder.start();
 			startTimer();
@@ -3460,6 +3645,16 @@ function startRecordingAudio(){
 			recorderElement.classList.add('active');
 
 			recordCancel = false;
+			const maxRecordTime = 60;
+			let timePassed = 0;
+
+			let timerInterval = setInterval(() => {
+				timePassed += 1;
+				if (timePassed >= maxRecordTime){
+					clearInterval(timerInterval);
+				}
+			}, 1000);
+
 
 			if (autoStopRecordtimeout){
 				clearTimeout(autoStopRecordtimeout);
@@ -3468,18 +3663,22 @@ function startRecordingAudio(){
 			autoStopRecordtimeout = setTimeout(() => {
 				mediaRecorder.stop();
 				stopRecording();
+				clearInterval(timerInterval);
 				//console.log('%cAuto Stop Record', 'color: red');
-			}, 1 * 60 * 1000);
+			}, 1 * maxRecordTime * 1000);
 
 			//when the media recorder stops recording
 			mediaRecorder.onstop = function() {
 				if (!recordCancel){
-					const audioBlob = new Blob(audioChunks);
+					const audioBlob = new Blob(audioChunks, {type: 'audio/mp3;', audioBitsPerSecond: 32000, audioChannels: 1});
 					recordedAudio = new Audio();
 					recordedAudio.src = URL.createObjectURL(audioBlob);
+					recordedAudio.load();
+					recordedAudio.dataset.duration = timePassed;
 					recordCancel = false;
 					popupMessage('Recorded!');
-					//console.log("recorder state: ", mediaRecorder.state);
+					console.log("recorder state: ", mediaRecorder.state);
+					console.log(`Duration: ${recordedAudio.dataset.duration} seconds`);
 				}
 			};
 			//when the media recorder gets data
@@ -3502,12 +3701,12 @@ function stopRecordingAudio(){
 /**
  * 
  * @param {HTMLAudioElement} audio 
- * @param {HTMLElement} timerDisplay 
+ * @param {HTMLElement} timerDisplay
  * @returns 
  */
 function updateAudioMessageTimer(audio, timerDisplay){
 	const currentTime = audio.currentTime;
-	const duration = audio.duration;
+	const duration = isFinite(audio.duration) ? audio.duration : audio.dataset?.duration;
 	const percentage = (currentTime / duration) * 100;
 
 	timerDisplay.textContent = remainingTime(duration, currentTime);
@@ -3526,16 +3725,14 @@ function playRecordedAudio(){
 		//recordedAudio.currentTime = 0;
 		recordedAudio.play();
 
+		//updates the timer
 		recordedAudio.addEventListener('timeupdate', () => {
 			//if recordedaudio.duration is a number
-			if (isFinite(recordedAudio.duration)){
-				const percentage = updateAudioMessageTimer(recordedAudio, recorderTimer);
-				recorderElement.style.setProperty('--recordedAudioPlaybackProgress', percentage + '%');
-			}else{
-				recorderTimer.textContent = 'Wait..!';
-			}
+			const percentage = updateAudioMessageTimer(recordedAudio, recorderTimer);
+			recorderElement.style.setProperty('--recordedAudioPlaybackProgress', percentage + '%');
 		});
 
+		//after recorded audio is done playing.
 		recordedAudio.onended = function(){
 			micIcon.classList.replace('fa-stop', 'fa-play');
 			micIcon.classList.replace('fa-microphone', 'fa-play');
@@ -3556,6 +3753,7 @@ function stopPlayingRecordedAudio(){
 	micIcon.classList.replace('fa-stop', 'fa-play');
 	micIcon.classList.replace('fa-microphone', 'fa-play');
 	recordButton.dataset.playstate = 'play';
+	recorderTimer.textContent = '00:00';
 }
 
 function sendAudioRecord(){
@@ -3571,11 +3769,12 @@ function sendAudioRecord(){
 			const name = file.name;
 			const size = file.size;
 			const ext = 'mp3';
+			const duration = recordedAudio.dataset.duration;
 
 			const fileID = crypto.randomUUID();
 
 			selectedFileArray.length = 0;
-			selectedFileArray.push({data, name, size, ext, id: fileID});
+			selectedFileArray.push({data, name, size, ext, id: fileID, duration: duration});
 		
 			selectedObject = 'audio';
 		

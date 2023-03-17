@@ -151,7 +151,11 @@ app.get('/error', (_, res) => {
 });
 
 app.get('/chat', (_, res) => {
-	res.redirect('/join');
+	if (ENVIRONMENT != 'DEVELOPMENT'){
+		res.redirect('/join');
+	}else{
+		approveNewChatRequest(res, {username: 'Admin', key: '000-000-000-000', avatar: 'squirtle', max_users: 4});
+	}
 });
 
 app.post('/chat', (req, res) => {

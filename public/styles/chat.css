@@ -21,7 +21,7 @@ html {
   --app-height: 100vh;
   --pattern: url("/images/backgrounds/blue_w.webp");
   --amplitude: 0px;
-  --positionForStickers: fixed;
+  --positionForStickers: relative;
 }
 
 *:not(input, textarea) {
@@ -88,7 +88,7 @@ body {
   opacity: 1;
 }
 
-#sidebar_wrapper {
+#sidebarWrapper {
   width: 100%;
   top: 0;
   height: 100%;
@@ -99,10 +99,10 @@ body {
   left: -100%;
   z-index: 90;
 }
-#sidebar_wrapper.active {
+#sidebarWrapper.active {
   left: 0;
 }
-#sidebar_wrapper .close_area {
+#sidebarWrapper .close_area {
   width: 25%;
 }
 
@@ -114,14 +114,26 @@ body {
   cursor: pointer;
 }
 
-.stickersPanel {
-  position: var(--positionForStickers);
+.stickersPanelWrapper {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-end;
+  z-index: 10;
+  pointer-events: none;
+}
+.stickersPanelWrapper .stickersPanel {
+  position: relative;
   bottom: -20px;
   left: 50%;
   height: 42vh;
   min-height: 300px;
   width: 100%;
-  display: none;
   visibility: hidden;
   opacity: 0;
   flex-direction: column;
@@ -135,15 +147,17 @@ body {
   transform-origin: bottom;
   scrollbar-width: none;
   filter: drop-shadow(0 4px 5px black);
-  z-index: 20;
 }
-.stickersPanel.active {
+.stickersPanelWrapper .stickersPanel img {
+  -webkit-user-drag: none;
+}
+.stickersPanelWrapper.active {
+  pointer-events: all;
+}
+.stickersPanelWrapper.active .stickersPanel {
   visibility: visible;
   opacity: 1;
   bottom: 0;
-}
-.stickersPanel img {
-  -webkit-user-drag: none;
 }
 
 .horizontal-flow {
@@ -194,8 +208,8 @@ body {
   background: var(--secondary-dark);
 }
 
-.stickerBtn {
-  padding: 0 0 2px 5px;
+#stickerBtn {
+  padding: 0 0 4px 5px;
   display: grid;
   place-items: center;
 }
@@ -221,11 +235,6 @@ body {
 img:is(.sticker) {
   width: 100px;
   height: 100px;
-}
-
-#attmain {
-  display: none;
-  z-index: 20;
 }
 
 .button {
@@ -320,22 +329,22 @@ img:is(.sticker) {
 
 .fileDropZone {
   position: fixed;
+  display: flex;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.65);
   z-index: 100;
-  display: none;
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(5px);
   visibility: hidden;
   opacity: 0;
   transition: 100ms;
+  pointer-events: none;
 }
 .fileDropZone.active {
-  display: flex;
   visibility: visible;
   opacity: 1;
 }
@@ -452,18 +461,30 @@ img {
   opacity: 1;
 }
 
-.chatBox {
+.chatBoxWrapper {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
   width: 100%;
-  position: relative;
   height: var(--app-height);
   background: rgba(0, 0, 0, 0.6117647059) var(--pattern);
   background-blend-mode: soft-light;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+.chatBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 240px;
+  max-width: 100vw;
+  position: relative;
+  height: 100%;
   transition: filter 100ms;
 }
 .chatBox.offl {
@@ -480,6 +501,7 @@ img {
   z-index: 15;
   font-size: 0.9rem;
   color: var(--foreground-dark);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.0392156863);
 }
 .chatBox .navbar > div {
   padding: 10px;
@@ -500,7 +522,7 @@ img {
   place-content: center;
   opacity: 1;
   visibility: visible;
-  min-height: 80vh;
+  min-height: calc(100vh + 10px);
   transition: 500ms;
 }
 .chatBox .welcomeText {
@@ -550,36 +572,50 @@ img {
   display: none;
 }
 
+.footer {
+  padding-bottom: 10px;
+  position: relative;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  transform: translateX(-50%);
+  padding: inherit;
+  padding-bottom: 10px;
+}
+
 .chatInput {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
   position: relative;
 }
-.chatInput .close_area {
+
+.attachmentChooser {
   top: 0;
   left: 0;
   bottom: -20px;
   right: 0;
   position: fixed;
+  display: flex;
   visibility: hidden;
   opacity: 0;
   justify-content: center;
   align-items: center;
-  z-index: 1;
+  z-index: 20;
   transition: 100ms ease-in-out;
   transform: scale(0.5);
   transform-origin: bottom;
+  pointer-events: none;
 }
-.chatInput .close_area .attachmentButton {
+.attachmentChooser .attachmentButton {
   transition: 150ms;
   transform: translateY(20px) scale(0.5);
 }
-.chatInput .close_area .attachmentButton i {
+.attachmentChooser .attachmentButton i {
   pointer-events: none;
 }
-.chatInput .close_area .attachmentContainer {
+.attachmentChooser .attachmentContainer {
   position: absolute;
   bottom: 70px;
   padding: 20px;
@@ -596,7 +632,7 @@ img {
   filter: drop-shadow(0 4px 5px black);
   z-index: 20;
 }
-.chatInput .close_area .attachmentButton {
+.attachmentChooser .attachmentButton {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -605,32 +641,33 @@ img {
   position: relative;
   transform: translateY(0px) scale(1);
 }
-.chatInput .close_area .attachmentButton .text {
+.attachmentChooser .attachmentButton .text {
   font-size: 0.7rem;
 }
-.chatInput .close_area .attachmentButton:nth-child(1) {
+.attachmentChooser .attachmentButton:nth-child(1) {
   transition-delay: 50ms;
   animation-delay: 50ms;
 }
-.chatInput .close_area .attachmentButton:nth-child(2) {
+.attachmentChooser .attachmentButton:nth-child(2) {
   transition-delay: 80ms;
   animation-delay: 80ms;
 }
-.chatInput .close_area .attachmentButton:nth-child(3) {
+.attachmentChooser .attachmentButton:nth-child(3) {
   transition-delay: 110ms;
   animation-delay: 110ms;
 }
-.chatInput .close_area .attachmentButton:nth-child(4) {
+.attachmentChooser .attachmentButton:nth-child(4) {
   transition-delay: 140ms;
   animation-delay: 140ms;
 }
-.chatInput .close_area.active {
+.attachmentChooser.active {
   bottom: 0;
   visibility: visible;
   opacity: 1;
   transform: scale(1);
+  pointer-events: all;
 }
-.chatInput .close_area.active .attachmentButton {
+.attachmentChooser.active .attachmentButton {
   transform: translateY(0px) scale(1);
 }
 
@@ -639,7 +676,7 @@ img {
   --fa-animation-duration: 2s;
 }
 
-.attachments, .stickerBtn {
+.attachments, #stickerBtn {
   position: relative;
 }
 
@@ -708,6 +745,16 @@ input[type=file] {
   transition: 300ms ease-in-out;
   z-index: 2;
   isolation: isolate;
+  transform: translateY(0px);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
+.voiceRecorder.hidden {
+  transform: translateY(-20px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 .voiceRecorder::before {
   position: absolute;
@@ -970,10 +1017,22 @@ input[type=file] {
   top: 0;
   left: 0;
   z-index: 100;
-  display: none;
+  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: 0.1s ease-in-out;
+}
+.quickSettingPanel.active {
+  pointer-events: all;
+  visibility: visible;
+  opacity: 1;
+}
+.quickSettingPanel.active .utils {
+  transform: translateY(0px);
 }
 .quickSettingPanel .utils {
   display: flex;
@@ -988,13 +1047,8 @@ input[type=file] {
   font-size: 0.8rem;
   width: min(80vw, 315px);
   max-height: 90vh;
-  opacity: 0;
   transform: translateY(80px);
   transition: 0.1s ease-in-out;
-}
-.quickSettingPanel .utils.active {
-  transform: translateY(0px);
-  opacity: 1;
 }
 .quickSettingPanel .utils .title {
   width: 100%;
@@ -1176,28 +1230,22 @@ i[class^=fa-] {
 }
 
 #textbox {
-  resize: none;
   padding: 10px 38px 10px 23px;
   width: 100%;
   max-height: 100px;
+  min-height: 38px;
+  overflow-x: auto;
+  overflow-y: scroll;
   border: none;
   outline-color: transparent;
+  border-color: transparent;
   border-radius: inherit;
   background: var(--glass);
   scrollbar-width: none;
 }
-#textbox::placeholder {
-  color: rgba(255, 255, 255, 0.5411764706);
-}
 
-.footer {
-  position: relative;
-}
-.footer .chatInput {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-bottom: 10px;
+.inputBtn {
+  padding-bottom: 2px;
 }
 
 .credits {
@@ -1217,12 +1265,10 @@ i[class^=fa-] {
 }
 
 #replyToast {
-  display: none;
+  display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
-  margin: 10px 10px 0 10px;
   background: var(--primary-dark);
   border-radius: 10px;
   position: relative;
@@ -1231,11 +1277,15 @@ i[class^=fa-] {
   top: 20px;
   transition: 100ms ease-in-out;
   filter: drop-shadow(0 4px 5px black);
+  pointer-events: none;
 }
 #replyToast.active {
   visibility: visible;
   opacity: 1;
   top: 0;
+  pointer-events: all;
+  padding: 10px;
+  margin: 10px 10px 0 10px;
 }
 #replyToast .title, #replyToast .title * {
   color: var(--secondary-dark);
@@ -1259,18 +1309,14 @@ i[class^=fa-] {
 }
 #replyToast .close i {
   color: var(--red) !important;
-  transition: 100ms ease-in-out;
-}
-#replyToast .close i:hover {
   cursor: pointer;
-  transform: scale(1.2);
 }
 
 .newmessagepopup {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  position: absolute;
+  position: fixed;
   bottom: 30px;
   left: 50%;
   background: var(--primary-dark);
@@ -1404,20 +1450,21 @@ i[class^=fa-] {
   color: var(--red) !important;
 }
 
-#optionsContainerWrapper {
+#messageOptionsContainerWrapper {
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   right: 0;
   display: flex;
-  visibility: hidden;
-  opacity: 0;
   backdrop-filter: brightness(0.8);
   transition: 100ms ease-in-out;
   z-index: 25;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
 }
-#optionsContainerWrapper #optionsContainer {
+#messageOptionsContainerWrapper #optionsContainer {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -1426,7 +1473,7 @@ i[class^=fa-] {
   width: 100%;
   gap: 50px;
 }
-#optionsContainerWrapper .normalOptionWrapper {
+#messageOptionsContainerWrapper .normalOptionWrapper {
   position: relative;
   max-width: 100%;
   width: 400px;
@@ -1439,8 +1486,10 @@ i[class^=fa-] {
   filter: drop-shadow(0 4px 5px black);
   transition: 100ms ease-in-out;
   top: 30px;
+  visibility: hidden;
+  opacity: 0;
 }
-#optionsContainerWrapper .reactOptionsWrapper {
+#messageOptionsContainerWrapper .reactOptionsWrapper {
   position: relative;
   width: min-content;
   max-height: 35px;
@@ -1450,20 +1499,27 @@ i[class^=fa-] {
   border-radius: 10px;
   top: 60px;
   transform: scale(0.7);
+  visibility: hidden;
+  opacity: 0;
 }
-#optionsContainerWrapper .reactOptionsWrapper.more {
+#messageOptionsContainerWrapper .reactOptionsWrapper.more {
   max-height: 200px;
 }
-#optionsContainerWrapper.active {
+#messageOptionsContainerWrapper.active {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: all;
+}
+#messageOptionsContainerWrapper.active .normalOptionWrapper {
+  top: 0px;
   visibility: visible;
   opacity: 1;
 }
-#optionsContainerWrapper.active .normalOptionWrapper {
-  top: 0px;
-}
-#optionsContainerWrapper.active .reactOptionsWrapper {
+#messageOptionsContainerWrapper.active .reactOptionsWrapper {
   top: 0px;
   transform: scale(1);
+  visibility: visible;
+  opacity: 1;
 }
 
 .moreReactsContainer {
@@ -1680,34 +1736,37 @@ i[class^=fa-] {
 }
 @media screen and (orientation: landscape) and (min-device-aspect-ratio: 1.5/1) {
   .chatBox {
-    padding: 0 30%;
+    width: 50%;
+    min-width: 450px;
   }
-  #sidebar_wrapper #sidebar {
+  #sidebarWrapper #sidebar {
     width: 25%;
   }
-  #sidebar_wrapper .close_area {
+  #sidebarWrapper .close_area {
     width: 75%;
   }
 }
 @media screen and (orientation: landscape) and (min-device-aspect-ratio: 1.2/1) and (max-device-aspect-ratio: 1.5/1) {
   .chatBox {
-    padding: 0 25%;
+    width: 45%;
+    min-width: 450px;
   }
-  #sidebar_wrapper #sidebar {
+  #sidebarWrapper #sidebar {
     width: 35%;
   }
-  #sidebar_wrapper .close_area {
+  #sidebarWrapper .close_area {
     width: 65%;
   }
 }
 @media screen and (orientation: landscape) and (min-device-aspect-ratio: 1/1) and (max-device-aspect-ratio: 1.2/1) {
   .chatBox {
-    padding: 0 15%;
+    width: 40%;
+    min-width: 450px;
   }
-  #sidebar_wrapper #sidebar {
+  #sidebarWrapper #sidebar {
     width: 50%;
   }
-  #sidebar_wrapper .close_area {
+  #sidebarWrapper .close_area {
     width: 50%;
   }
 }
@@ -1716,10 +1775,15 @@ i[class^=fa-] {
     width: 50%;
     min-width: 425px;
   }
-  .stickersPanel {
+  .stickersPanelWrapper .stickersPanel {
     height: 42vh;
     min-height: 280px;
     width: 50%;
     min-width: 425px;
+  }
+}
+@media screen and (orientation: portrait) and (min-device-aspect-ratio: 16/9) {
+  .normalOptionWrapper {
+    width: 100%;
   }
 }/*# sourceMappingURL=chat.css.map */

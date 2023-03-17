@@ -16,6 +16,18 @@ function escapeXSS(text) {
 
 /**
  * Class to parse text and return HTML
+ * Supported markdown codes:
+ * 1. Bold: **bold text**
+ * 2. Italic: _italic text_
+ * 3. Strike-through: ~~strike-through text~~
+ * 4. Heading 1-6: # Heading 1 to ###### Heading 6
+ * 5. Code block: ```language
+ * 					code block
+ * 				```
+ * 6. Inline code: `inline code`
+ * 7. Links: https://www.google.com
+ * 8. Emojis: 😄
+ * 9. Escaping: \* to escape bold, \_ to escape italic, \~ to escape strike-through, \# to escape heading, \` to escape inline code
  */
 export class TextParser {
 	constructor() {
@@ -140,7 +152,8 @@ export class TextParser {
 }
 
 /**
- * 
+ * Simple templating engine that parses mustache-like tags in a template string and replaces them with the corresponding data value.
+ * {{tag}} for text and {{{tag}}} for HTML
  * @param {string} template Template to parse 
  * @param {Object} data 
  * @returns string
@@ -164,7 +177,9 @@ export function parseTemplate(template, data) {
 	});
   
 	const textResult = htmlResult.replace(textRegex, (match, tag) => {
+		//if tag found in data
 		if (data[tag]){
+			//if data is a number, convert to string, otherwise return data
 			if( typeof data[tag] == 'number'){
 				return data[tag].toString();
 			}else{
@@ -177,9 +192,8 @@ export function parseTemplate(template, data) {
 }
 
 /**
- * 
+ * Checks if a string is a single or continuous group of emoji characters
  * @param {string} message 
- * @returns {string}
  */
 export function isEmoji(message){
 	const regex = /^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/;

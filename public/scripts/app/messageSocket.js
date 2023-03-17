@@ -30,12 +30,15 @@ import {
 	playStickerSound,
 	messageSoundEnabled,
 } from './app.js';
+
 //main socket to deliver messages
 export const socket = io(); 
 
 //sockets
+//When connection is established to message relay server
 socket.on('connect', () => {
 	console.log('%cConnection established to message relay server', 'color: deepskyblue;');
+	//User parameters to join the chat
 	const params = {
 		name: myName,
 		id: myId,
@@ -43,7 +46,9 @@ socket.on('connect', () => {
 		key: myKey,
 		maxUser: maxUser,
 	};
+	//Emits the join signal with the user parameters
 	socket.emit('join', params, function(err){
+		//if error, display error message and reload page
 		if (err) {
 			console.log(err);
 			document.getElementById('preload').innerHTML = `${err} <i class="fa-solid fa-ghost"></i>`;
@@ -54,13 +59,16 @@ socket.on('connect', () => {
 			}, 5000);
 		} else {
 			console.log('%cNo errors!', 'color: limegreen;');
+			//check for the users who are typing
 			if (userTypingMap.size > 0){
 				setTypingUsers();
 			}
 			document.getElementById('preload').style.display = 'none';
 			popupMessage('Connected to message relay server');
+			//after connection is established, load the stickers
 			loadStickerHeader();
 			loadStickers();
+			//ask for notification permission
 			if ('Notification' in window){
 				Notification.requestPermission();
 			}else{
@@ -69,15 +77,18 @@ socket.on('connect', () => {
 		}
 	});
 });
-//updates current user list
+
+//updates current user list when a user joins or leaves
 socket.on('updateUserList', (users) => {
 
 	users.forEach(user => {
 		userInfoMap.set(user.uid, user);
 	});
+
 	if(isTyping){
 		socket.emit('typing');
 	}
+
 	document.getElementById('count').textContent = `${users.length}/${maxUser}`;
 	while (document.getElementById('userlist').firstChild) {
 		document.getElementById('userlist').removeChild(document.getElementById('userlist').firstChild);
@@ -107,6 +118,7 @@ socket.on('updateUserList', (users) => {
 	});
 });
 
+//any server side message
 socket.on('server_message', (meta, type) => {
 	if (messageSoundEnabled){
 		switch (type) {
@@ -123,7 +135,7 @@ socket.on('server_message', (meta, type) => {
 	}
 	serverMessage(meta, type);
 });
-
+//new message received from other users
 socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
 	if (type == 'text'){
 		playIncomingSound();
