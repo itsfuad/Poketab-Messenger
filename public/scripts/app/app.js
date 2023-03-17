@@ -3403,7 +3403,7 @@ document.getElementById('lightbox__save').addEventListener('click', ()=>{
 });
 
 function closeAllModals(){
-	console.log('closing all modals');
+	//console.log('closing all modals');
 	activeModals.forEach((modal) => {
 		//console.log(`Closing ${modal}`);
 		modalCloseMap.get(modal)();
@@ -3413,10 +3413,6 @@ function closeAllModals(){
 document.addEventListener('keydown', (evt) => {	
 
 	const altKeys = ['o', 's', 't', 'i', 'a', 'f', 'p', 'm'];
-
-	if (evt.key == 'Control'){
-		console.log(activeModals);
-	}
 
 	if (altKeys.includes(evt.key) && evt.altKey){
 		//evt.preventDefault();
@@ -3459,7 +3455,7 @@ document.addEventListener('keydown', (evt) => {
 		if (activeModals.length > 0){
 			evt.preventDefault();
 			const close = activeModals[activeModals.length - 1];
-			console.log(`closing ${close}`);
+			//console.log(`closing ${close}`);
 			modalCloseMap.get(close)();
 		}
 		return;
