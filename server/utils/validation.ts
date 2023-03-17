@@ -46,7 +46,7 @@ export function validateAvatar(avatar: string){
 }
 
 export function validateKey(key: string){
-	const keyformat = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/;
+	const keyformat = /^[a-zA-Z0-9]{2}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{2}$/;
 	return keyformat.test(key);
 }
 

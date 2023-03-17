@@ -15,7 +15,7 @@ const next = document.getElementById('next');
 const form1 = document.getElementById('subform1');
 const form2 = document.getElementById('subform2');
 
-const keyformat = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/;
+const keyformat = /^[a-zA-Z0-9]{2}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{2}$/;
 
 function validateKey(){
 	const key = document.getElementById('key').value;

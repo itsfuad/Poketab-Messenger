@@ -1,17 +1,15 @@
 //buit in modules
 import crypto from 'crypto';
-
-//utility functions for the server
-import { keyformat } from './utils/functions.js';
 import { io } from './websockets.js';
 import { keyStore } from './database/db.js';
+import { validateKey } from './utils/validation.js';
 //importing worker threads
 //The worker threads module provides a way to create multiple environments running on separate threads that can communicate with each other via inter-thread messaging or sharing memory.
 export const auth = io.of('/auth');
 
 function keyCheck(key: string){
 	try{
-		if (!keyformat.test(key)){
+		if (!validateKey(key)){
 			return {success: false, message: 'Invalid Key', icon: '<i class="fa-solid fa-triangle-exclamation"></i>', blocked: false};
 		}
 

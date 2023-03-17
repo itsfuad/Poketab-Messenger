@@ -1348,7 +1348,7 @@ i[class^=fa-] {
 }
 .newmessagepopup .msg {
   font-size: 0.8rem;
-  max-width: 65px;
+  max-width: 100px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

@@ -41,7 +41,7 @@ export function validateAvatar(avatar) {
     return avList.includes(avatar);
 }
 export function validateKey(key) {
-    const keyformat = /^[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}$/;
+    const keyformat = /^[a-zA-Z0-9]{2}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{2}$/;
     return keyformat.test(key);
 }
 export function validateAll(username, key, avatar) {

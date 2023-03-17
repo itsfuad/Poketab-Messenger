@@ -55,7 +55,7 @@ socket.on('connect', () => {
 			popupMessage('Self destruction in 5 seconds!');
 			setTimeout(() => {
 				document.body.remove();
-				location.reload();
+				window.location = '/';
 			}, 5000);
 		} else {
 			console.log('%cNo errors!', 'color: limegreen;');

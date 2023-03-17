@@ -9,7 +9,7 @@ import cors from 'cors';
 import crypto from 'crypto';
 
 //utility functions for the server
-import { validateUserName, validateAvatar, avList } from './utils/validation.js';
+import { validateUserName, validateAvatar, avList, validateKey } from './utils/validation.js';
 import { makeid } from './utils/functions.js';
 
 import { keyStore } from './database/db.js';
@@ -116,8 +116,7 @@ app.get('/join', (_, res) => {
 });
 
 app.get('/join/:key', (req, res)=>{
-	const key_format = /^[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}-[0-9a-zA-Z]{3}$/;
-	if (key_format.test(req.params.key)){
+	if (validateKey(req.params.key)){
 		if (keyStore.hasKey(req.params.key)){
 
 			//if key is full, redirect to join page
@@ -154,7 +153,7 @@ app.get('/chat', (_, res) => {
 	if (ENVIRONMENT != 'DEVELOPMENT'){
 		res.redirect('/join');
 	}else{
-		approveNewChatRequest(res, {username: 'Admin', key: '000-000-000-000', avatar: 'squirtle', max_users: 4});
+		approveNewChatRequest(res, {username: 'Admin', key: '00-000-00', avatar: 'squirtle', max_users: 4});
 	}
 });
 
@@ -187,22 +186,17 @@ app.post('/chat', (req, res) => {
 		//Create request
 		//get the key from the cookie which was delivered when the /create page was requested. 
 		// NOTE: The cookie will be there for 2 minutes
-		const cookie = req.signedCookies.key;
+		const cookie: string = req.signedCookies.key;
 		//console.log(req.signedCookies.key);
 		//if the cookie is present
 		if (cookie){
-			const regex = /[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{3}/;
-			const match = regex.exec(cookie);
+			const regex = /[a-zA-Z0-9]{2}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{2}/;
+			const match = cookie.match(regex);
 			key = match ? match[0] : undefined;
-			//if the key is not valid
-			if (!key){
-				//console.log('Invalid key found in cookie');
-				res.setHeader('Developer', 'Fuad Hasan');
-				res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-				res.status(400).send({error: 'Invalid key'});
-			}else{
-				//valid key found. Now user can join the chat
-				//check if the key is not in use
+
+			//if a key found and it is valid
+			if (key && validateKey(key)){
+				//if key does not exist in the keyStore
 				if (!keyStore.hasKey(key)){
 					//console.log(`Valid Key found: ${key}! Creating new chat`);
 					approveNewChatRequest(res, {username: username, key: key, avatar: avatar, max_users: req.body.maxuser});
@@ -213,6 +207,11 @@ app.post('/chat', (req, res) => {
 					res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 					res.status(400).send({error: 'Key clased!'});
 				}
+			}else{
+				//console.log('Invalid key found in cookie');
+				res.setHeader('Developer', 'Fuad Hasan');
+				res.setHeader('Content-Security-Policy', 'script-src \'none\'');
+				res.status(400).send({error: 'Invalid key'});
 			}
 		}else{
 			//console.log('No Key or Cookie found in cookie');
