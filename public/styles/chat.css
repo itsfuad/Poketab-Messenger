@@ -750,12 +750,6 @@ input[type=file] {
   visibility: visible;
   pointer-events: all;
 }
-.voiceRecorder.hidden {
-  transform: translateY(-20px);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
 .voiceRecorder::before {
   position: absolute;
   content: "";

@@ -1695,11 +1695,6 @@ function resizeTextbox(){
 	textbox.style.height = textbox.scrollHeight + 'px';
 	//translate the messages div up by css variable --textboxHeight
 	document.documentElement.style.setProperty('--textboxHeight', -(textbox.clientHeight + 32) + 'px');
-	if (textbox.value != ''){
-		document.querySelector('.voiceRecorder').classList.add('hidden');
-	}else{
-		document.querySelector('.voiceRecorder').classList.remove('hidden');
-	}
 	//updateScroll();
 }
 
@@ -3412,7 +3407,7 @@ function closeAllModals(){
 
 document.addEventListener('keydown', (evt) => {	
 
-	const altKeys = ['o', 's', 't', 'i', 'a', 'f', 'p', 'm'];
+	const altKeys = ['o', 's', 't', 'i', 'a', 'f', 'p', 'm', 'r'];
 
 	if (altKeys.includes(evt.key) && evt.altKey){
 		//evt.preventDefault();
@@ -3445,6 +3440,9 @@ document.addEventListener('keydown', (evt) => {
 				//choose audio
 				audioButton.click();
 				break;
+			case 'r':
+				//record voice
+				recordButton.click();
 		}
 		return;
 	}
