@@ -27,7 +27,7 @@ const deleteOption = document.querySelector('.deleteOption');
 const replyOption = document.querySelector('.replyOption');
 const fileDropZone = document.querySelector('.fileDropZone');
 const showMoreReactBtn = document.getElementById('showMoreReactBtn');
-
+//button elements
 const recordButton = document.getElementById('recordVoiceButton');
 const cancelVoiceRecordButton = document.getElementById('cancelVoiceRecordButton');
 const recorderElement = document.getElementById('recorderOverlay');
@@ -49,8 +49,18 @@ const attachmentCloseArea = document.getElementById('attachmentCloseArea');
  */
 let recordedAudio;
 const audioChunks = [];
+/**
+ * @type {MediaStream} stream
+ */
 let stream;
-let timerInterval, autoStopRecordtimeout;
+/**
+ * @type {number} timerInterval
+ */
+let timerInterval;
+/**
+ * @type {number} autoStopRecordtimeout
+ */
+let autoStopRecordtimeout;
 let recordCancel = false;
 
 //all the audio files used in the app
@@ -122,25 +132,37 @@ let scrolling = false; //to check if user is scrolling or not
 let lastPageLength = messages.scrollTop; // after adding a ^(?!\s*//).*console\.lognew message the page size gets updated
 let scroll = 0; //total scrolled up or down by pixel
 
+/**
+ * This array stores the selected files to be sent
+ */
 const selectedFileArray = [];
 
-//selected message info | file or image
+/**
+ * Selected file type [e.g. image, audio, file]
+ */
 let selectedObject = '';
-//the message which fires the event
+
+/**
+ * The message which fires the message handle event
+ */
 const targetMessage = {
 	sender: '',
 	message: '',
 	type: '',
 	id: '',
 };
-//the file which fires the event
+/**
+ * The file which fires  message handle event
+ */
 const targetFile = {
 	fileName: '',
 	fileData: '',
 	ext: '',
 };
 
-//after the message is varified we store the message info here
+/**
+ * after the message is varified we store the message info here
+ */
 let finalTarget = {
 	sender: '',
 	message: '',
@@ -156,7 +178,9 @@ let lastNotification = undefined;
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   
 
-//This class is used to detect the long press on messages and fire the callback function
+/**
+ * This class is used to detect the long press on messages and fire the callback function
+ */
 class ClickAndHold{
 	constructor(target, timeOut, callback){
 		this.target = target; //the target element
@@ -220,6 +244,7 @@ class ClickAndHold{
 		}
 	}
 }
+
 //detect if user is using a mobile device, if yes then use the click and hold class
 if (isMobile){
 	ClickAndHold.applyTo(messages, 300, (evt)=>{
@@ -316,7 +341,9 @@ function loadTheme(){
 	document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_send_reply);
 	document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
 }
-
+/**
+ * Loads the send shortcut
+ */
 function loadSendShortcut(){
 	try{		
 		if (sendBy === 'Ctrl+Enter'){
@@ -345,7 +372,9 @@ function loadSendShortcut(){
 		console.log(`Error: ${e}`);
 	}
 }
-
+/**
+ * Loads the button sound preference
+ */
 function loadButtonSoundPreference(){
 	const sound = localStorage.getItem('buttonSoundEnabled');
 	if (sound === 'false'){
@@ -357,7 +386,9 @@ function loadButtonSoundPreference(){
 		document.getElementById('buttonSound').setAttribute('checked', 'checked');
 	}
 }
-
+/**
+ * Loads the message sound preference
+ */
 function loadMessageSoundPreference(){
 	const sound = localStorage.getItem('messageSoundEnabled');
 	if(sound === 'false'){
@@ -369,7 +400,9 @@ function loadMessageSoundPreference(){
 		document.getElementById('messageSound').setAttribute('checked', 'checked');
 	}
 }
-
+/**
+ * Loads default settings
+ */
 function bootLoad(){
 	sendBy = localStorage.getItem('sendBy');
 	loadReacts();
@@ -381,7 +414,6 @@ function bootLoad(){
 	loadMessageSoundPreference();
 }
 
-
 bootLoad();
 
 /*
@@ -389,10 +421,11 @@ bootLoad();
 function appHeight () {
 	const doc = document.documentElement;
 	doc.style.setProperty('--app-height', `${window.innerHeight}px`);
-}/
+}
+*/
 
-//this function inserts a message in the chat box
 /**
+ * Inserts a new message on the DOM
  * @param {string} message The message to insert on DOM
  * @param {string} type Message type
  * @param {string} id Message id
@@ -410,6 +443,7 @@ function appHeight () {
  * @param {string} metadata.name FIle name 
  * @param {string} metadata.size File size 
  * @param {string} metadata.ext File extension
+ * @param {number} metadata.duration number of seconds the audio file is
  * 
  */
 export function insertNewMessage(message, type, id, uid, reply, replyId, options, metadata){
@@ -658,7 +692,11 @@ function sanitizeImagePath(path){
 	}
 }
 
-
+/**
+ * 
+ * @param {number} timestamp 
+ * @returns {string}
+ */
 function getFormattedDate(timestamp) {
 	timestamp = parseInt(timestamp);
 	const currentTime = Date.now();
@@ -679,7 +717,7 @@ function getFormattedDate(timestamp) {
 }
   
 /**
- * 
+ * Removes all charecter [<, >, ', "] from string
  * @param {string} str The string to sanitize
  * @returns {string} Removed all charecter [<, >, ', "] from string
  */
@@ -692,7 +730,7 @@ function sanitize(str){
 }
 
 /**
- * 
+ * Parses emoji from text and returns the parsed text [e.g. :D => 😀, :P => 😛, etc]
  * @param {string} text 
  * @returns string
  */
@@ -762,10 +800,6 @@ function emojiParser(text){
 	}
 	return text;
 }
-
-
-
-
 
 
 /**
@@ -844,7 +878,7 @@ function showOptions(type, sender, target){
 }
 
 /**
- * 
+ * Adds a backdrop to the options
  * @param {boolean} backdrop Show the backdrop or not 
  */
 function addFocusGlass(backdrop = true){
@@ -876,7 +910,7 @@ function optionsMainEvent(e){
 }
 
 /**
- * 
+ * Deletes the message from the DOM and the source
  * @param {string} messageId 
  * @param {string} user 
  */
@@ -944,7 +978,9 @@ export function deleteMessage(messageId, user){
 		lastPageLength = messages.scrollTop;
 	}
 }
-
+/**
+ * Handles the download of the file
+ */
 function downloadHandler(){
 	if (document.getElementById(targetMessage.id).dataset.downloaded != 'true'){
 		//if sender is me
@@ -964,7 +1000,9 @@ function downloadHandler(){
 		downloadFile();
 	}
 }
-
+/**
+ * Saves the image to the device
+ */
 function saveImage(){
 	try{
 		//console.log('Saving image');
@@ -979,7 +1017,9 @@ function saveImage(){
 		console.log(e);
 	}
 }
-
+/**
+ * Downloads the file
+ */
 function downloadFile(){
 	popupMessage('Preparing download...');
 
@@ -1011,7 +1051,7 @@ function optionsReactEvent(e){
 }
 
 /**
- * 
+ * Reacts to the message
  * @param {string} react 
  */
 function sendReact(react){
@@ -1397,7 +1437,7 @@ export function getReact(reactEmoji, messageId, uid){
 }
 
 /**
- * 
+ * Check if there is a gap between two messages, if there is a gap, add border radius to the message
  * @param {string} targetId Id of the message
  * @returns 
  */
@@ -1447,7 +1487,7 @@ export function checkgaps(targetId){
 	}catch(e){console.log(e);}
 }
 
-// util functions
+//* util functions
 function clearTargetMessage(){
 	targetMessage.sender = '';
 	targetMessage.message = '';
@@ -1584,12 +1624,11 @@ export function updateScroll(avatar = null, text = ''){
 		return;
 	}
 	
-	setTimeout(() => {
+	requestAnimationFrame(() => {
 		const messages = document.getElementById('messages');
 		messages.scrollTo(0, messages.scrollHeight);
 		lastPageLength = messages.scrollTop;
-
-	}, 20);
+	});
 }
 
 
@@ -1631,7 +1670,7 @@ function getTypingString(userTypingMap){
 }
 
 /**
- * @description Emits typing status of the current user to everyone
+ * Emits typing status of the current user to everyone
  */
 function typingStatus(){
 	if (timeout) {
@@ -1649,7 +1688,7 @@ function typingStatus(){
 }
 
 /**
- * @description Resizes the textbox to fit the content after sending a message
+ * Resizes the textbox to fit the content after sending a message
  */
 function resizeTextbox(){
 	textbox.style.height = 'auto';
@@ -1864,7 +1903,7 @@ export function loadStickers(){
 
 function showStickersPanel(){
 	if (!stickersPanel.classList.contains('active')){
-		console.log('showing stickers panel');
+		//console.log('showing stickers panel');
 		activeModals.push('stickersPanel');
 		modalCloseMap.set('stickersPanel', hideStickersPanel);
 		stickersPanel.classList.add('active');
@@ -1879,7 +1918,7 @@ function showStickersPanel(){
 function showThemes(){
 	
 	if (!themeChooser.classList.contains('active')){
-		console.log('showing themes');
+		//console.log('showing themes');
 		activeModals.push('themes');
 		modalCloseMap.set('themes', hideThemes);
 		hideOptions();
@@ -1914,7 +1953,7 @@ function hideThemes(){
  */
 function showSidePanel(){
 	if (!activeModals.includes('sidePanel')){
-		console.log('showing side panel');
+		//console.log('showing side panel');
 		sideBarPanel.classList.add('active');
 		activeModals.push('sidePanel');
 		modalCloseMap.set('sidePanel', hideSidePanel);
@@ -1932,7 +1971,7 @@ document.querySelector('.footer_options .settings').addEventListener('click', ()
 function showQuickSettings(){
 	//show setting panel
 	if(!quickSettings.classList.contains('active')){
-		console.log('showing quick settings');
+		//console.log('showing quick settings');
 		activeModals.push('quickSettings');
 		modalCloseMap.set('quickSettings', hideQuickSettings);
 		quickSettings.classList.add('active');
@@ -2045,7 +2084,7 @@ function hideStickersPanel(){
 function addAttachment(){
 	
 	if(!activeModals.includes('attachments')){
-		console.log('showing attachment');
+		//console.log('showing attachment');
 		activeModals.push('attachments');
 		modalCloseMap.set('attachments', removeAttachment);
 		attachmentCloseArea.classList.add('active');
@@ -3366,7 +3405,7 @@ document.getElementById('lightbox__save').addEventListener('click', ()=>{
 function closeAllModals(){
 	console.log('closing all modals');
 	activeModals.forEach((modal) => {
-		console.log(`Closing ${modal}`);
+		//console.log(`Closing ${modal}`);
 		modalCloseMap.get(modal)();
 	});
 }
