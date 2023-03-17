@@ -29,7 +29,7 @@
     
     &:has(.focused){
         .msg-item{
-            filter: brightness(0.5);
+            filter: brightness(0.7);
             transition: 150ms ease-in-out;
         }
     }

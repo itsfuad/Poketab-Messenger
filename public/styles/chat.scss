@@ -76,9 +76,8 @@ body{
     border-radius: 15px;
     font-size: .6rem;
     transform: translateX(-50%);
-    z-index: 100;
     backdrop-filter: blur(2px);
-    z-index: 1000;
+    z-index: 110;
     visibility: hidden;
     opacity: 0;
     transition: 100ms ease-in-out;
@@ -352,7 +351,6 @@ img:is(.sticker){
     visibility: hidden;
     opacity: 0;
     transition: 100ms;
-    pointer-events: none;
     &.active{
         visibility: visible;
         opacity: 1;
@@ -1374,7 +1372,7 @@ i[class^=fa-]{
             max-height: 50px;
             width: auto;
             padding: 3px;
-            border-radius: 5px;
+            border-radius: 8px;
         }
     }
     .close i{
@@ -1465,7 +1463,7 @@ i[class^=fa-]{
         position: fixed;
         top: 0;
         width: 100%;
-        z-index: 10000;
+        z-index: 101;
         .btn{
             padding: 10px;
             border-radius: 25px;
@@ -1664,7 +1662,7 @@ i[class^=fa-]{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    gap: 5px;
+    gap: 20px;
     width: max-content;
     align-items: center;
     border-radius: 10px;
@@ -1699,25 +1697,25 @@ i[class^=fa-]{
             }
         }
     }
-    &:is(#normalOptions){
-        & > div{
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 3px;
-            padding: 15px;
-            
-            i, span {
-                pointer-events: none;
-            }
+}
+#normalOptions{
+    & > div{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 3px;
+        padding: 15px;
+        
+        i, span {
+            pointer-events: none;
+        }
 
-            span{
-                font-size: 0.7rem;
-            }
-            &:is(.closeOption, .deleteOption) > *{
-                color: var(--red) !important;
-            }
+        span{
+            font-size: 0.7rem;
+        }
+        &:is(.closeOption, .deleteOption) > *{
+            color: var(--red) !important;
         }
     }
 }
@@ -1893,10 +1891,8 @@ i[class^=fa-]{
     }
 }
 
-//orientation: portrait for mobile aspact ratio 9:16
-@media screen and (orientation: portrait) and (min-device-aspect-ratio: 16 / 9){
-
-    .normalOptionWrapper{
+@media screen and (orientation: portrait) and (max-device-aspect-ratio: 11 / 16) and (min-device-aspect-ratio: 9 / 16) {
+    #messageOptionsContainerWrapper .normalOptionWrapper{
         width: 100%;
     }
 }

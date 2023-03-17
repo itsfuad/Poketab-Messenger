@@ -65,6 +65,7 @@ socket.on('connect', () => {
 			}
 			document.getElementById('preload').style.display = 'none';
 			popupMessage('Connected to message relay server');
+
 			//after connection is established, load the stickers
 			loadStickerHeader();
 			loadStickers();

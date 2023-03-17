@@ -11,6 +11,42 @@
 
   <meta name="apple-mobile-web-app-capable" content="yes">
 
+  <style nonce="<%=hash%>">
+    /* latin */
+    @font-face {
+      font-family: 'Comic';
+      src: url('/fonts/comic-webfont.woff2') format('woff2');
+    }
+
+    *{
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        font-family: 'Comic';
+    }
+
+    #preload{
+        z-index: 10000; 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        bottom: 0; 
+        right: 0; 
+        display:flex; 
+        flex-direction:row; 
+        gap: 5px; 
+        align-items:center; 
+        justify-content:center; 
+        background: var(--primary-dark, #111d2a); 
+    }
+    #preload .text{
+        color: var(--secondary-dark, hsl(213, 98%, 57%));
+    }
+    #preload .text i{
+        color: var(--secondary-dark, hsl(213, 98%, 57%));
+    }
+  </style>
+
   <link rel="apple-touch-startup-image" href="icons/apple-splash-2048-2732.jpg" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
   <link rel="apple-touch-startup-image" href="icons/apple-splash-2732-2048.jpg" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
   <link rel="apple-touch-startup-image" href="icons/apple-splash-1668-2388.jpg" media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
@@ -61,39 +97,3 @@
   <% } else { %>
     <script defer type="module" src="/scripts/app/app.js"></script>
   <% } %>
-
-  <style nonce="<%=hash%>">
-    /* latin */
-    @font-face {
-      font-family: 'Comic';
-      src: url('/fonts/comic-webfont.woff2') format('woff2');
-    }
-
-    *{
-        padding: 0;
-        margin: 0;
-        box-sizing: border-box;
-        font-family: 'Comic';
-    }
-
-    #preload{
-        z-index: 100; 
-        position: fixed; 
-        top: 0; 
-        left: 0; 
-        bottom: 0; 
-        right: 0; 
-        display:flex; 
-        flex-direction:row; 
-        gap: 5px; 
-        align-items:center; 
-        justify-content:center; 
-        background: var(--primary-dark, #111d2a); 
-    }
-    #preload .text{
-        color: var(--secondary-dark, hsl(213, 98%, 57%));
-    }
-    #preload .text i{
-        color: var(--secondary-dark, hsl(213, 98%, 57%));
-    }
-  </style>

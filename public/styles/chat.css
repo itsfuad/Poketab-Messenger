@@ -76,9 +76,8 @@ body {
   border-radius: 15px;
   font-size: 0.6rem;
   transform: translateX(-50%);
-  z-index: 100;
   backdrop-filter: blur(2px);
-  z-index: 1000;
+  z-index: 110;
   visibility: hidden;
   opacity: 0;
   transition: 100ms ease-in-out;
@@ -342,7 +341,6 @@ img:is(.sticker) {
   visibility: hidden;
   opacity: 0;
   transition: 100ms;
-  pointer-events: none;
 }
 .fileDropZone.active {
   visibility: visible;
@@ -1299,7 +1297,7 @@ i[class^=fa-] {
   max-height: 50px;
   width: auto;
   padding: 3px;
-  border-radius: 5px;
+  border-radius: 8px;
 }
 #replyToast .close i {
   color: var(--red) !important;
@@ -1387,7 +1385,7 @@ i[class^=fa-] {
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 10000;
+  z-index: 101;
 }
 #lightbox .tool .btn {
   padding: 10px;
@@ -1579,7 +1577,7 @@ i[class^=fa-] {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  gap: 5px;
+  gap: 20px;
   width: max-content;
   align-items: center;
   border-radius: 10px;
@@ -1613,7 +1611,8 @@ i[class^=fa-] {
   cursor: pointer;
   filter: saturate(1.2);
 }
-.options:is(#normalOptions) > div {
+
+#normalOptions > div {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1621,13 +1620,13 @@ i[class^=fa-] {
   gap: 3px;
   padding: 15px;
 }
-.options:is(#normalOptions) > div i, .options:is(#normalOptions) > div span {
+#normalOptions > div i, #normalOptions > div span {
   pointer-events: none;
 }
-.options:is(#normalOptions) > div span {
+#normalOptions > div span {
   font-size: 0.7rem;
 }
-.options:is(#normalOptions) > div:is(.closeOption, .deleteOption) > * {
+#normalOptions > div:is(.closeOption, .deleteOption) > * {
   color: var(--red) !important;
 }
 
@@ -1776,8 +1775,8 @@ i[class^=fa-] {
     min-width: 425px;
   }
 }
-@media screen and (orientation: portrait) and (min-device-aspect-ratio: 16/9) {
-  .normalOptionWrapper {
+@media screen and (orientation: portrait) and (max-device-aspect-ratio: 11/16) and (min-device-aspect-ratio: 9/16) {
+  #messageOptionsContainerWrapper .normalOptionWrapper {
     width: 100%;
   }
 }/*# sourceMappingURL=chat.css.map */

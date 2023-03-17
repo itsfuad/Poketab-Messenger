@@ -1199,16 +1199,36 @@ function showReplyToast(){
 	textbox.focus();
 	finalTarget = Object.assign({}, targetMessage);
 
-	replyToast.innerHTML = 
-	`
-		<div class="content">
-			<div class="title"><i class="fa-solid fa-reply"></i> Replying to <span class="username"></span></div>
-			<div class="replyData"></div>
-		</div>
-		<div class="close">
-			<i class="fa-solid fa-xmark"></i>
-		</div>
-	`;
+	//create reply toast manually
+	const content = document.createElement('div');
+	content.classList.add('content');
+	const title = document.createElement('div');
+	title.classList.add('title');
+	const replyIcon = document.createElement('i');
+	replyIcon.classList.add('fa-solid');
+	replyIcon.classList.add('fa-reply');
+	const username = document.createElement('span');
+	username.classList.add('username');
+	const replyData = document.createElement('div');
+	replyData.classList.add('replyData');
+	const close = document.createElement('div');
+	close.classList.add('close');
+	const closeIcon = document.createElement('i');
+	closeIcon.classList.add('fa-solid');
+	closeIcon.classList.add('fa-xmark');
+
+	title.appendChild(replyIcon);
+	title.appendChild(document.createTextNode(' Replying to '));
+	title.appendChild(username);
+
+	content.appendChild(title);
+	content.appendChild(replyData);
+
+	close.appendChild(closeIcon);
+
+	replyToast.appendChild(content);
+	replyToast.appendChild(close);
+
 
 	if (finalTarget.type == 'image' || finalTarget.type == 'sticker'){
 
@@ -1693,9 +1713,7 @@ function typingStatus(){
 function resizeTextbox(){
 	textbox.style.height = 'auto';
 	textbox.style.height = textbox.scrollHeight + 'px';
-	//translate the messages div up by css variable --textboxHeight
-	document.documentElement.style.setProperty('--textboxHeight', -(textbox.clientHeight + 32) + 'px');
-	//updateScroll();
+	updateScroll();
 }
 
 /**
@@ -1706,6 +1724,7 @@ function resizeTextbox(){
  * @returns Object{data: string, width: number, height: number}
  */
 function resizeImage(img, mimetype, q = 1080) {
+	//create a canvas object to resize the image
 	const canvas = document.createElement('canvas');
 	let width = img.width;
 	let height = img.height;
@@ -1732,24 +1751,27 @@ function resizeImage(img, mimetype, q = 1080) {
   
 
 /**
- * 
+ * Copies text to clipboard
  * @param {string} text 
  * @returns 
  */
 function copyText(text){
+	//return if the text is empty
 	if (text == null){
 		text = targetMessage.message;
 	}
+	//return if the device doesn't support clipboard access
 	if (!navigator.clipboard){
 		popupMessage('This browser does\'t support clipboard access');
 		return;
 	}
+	//copy the text to clipboard and show a popup
 	navigator.clipboard.writeText(text);
 	popupMessage('Copied to clipboard');
 }
 
 /**
- * 
+ * Shows a popup message for 1 second
  * @param {string} text Text to show in the popup
  */
 export function popupMessage(text){
@@ -1765,11 +1787,12 @@ export function popupMessage(text){
 }
 
 /**
- * 
+ * Message from the server
  * @param {string} message 
  * @param {string} type Message type [Join, Leave, Location]
  */
 export function serverMessage(message, type) {
+	//create a new message element manually and append it to the messages list
 	const serverMessageElement = document.createElement('li');
 	serverMessageElement.classList.add('serverMessage', 'msg-item');
 	serverMessageElement.id = message.id;
@@ -1817,6 +1840,9 @@ export function serverMessage(message, type) {
 	}
 }
 
+/**
+ * Vibrate the device for 50ms
+ */
 function vibrate(){
 	if (navigator.vibrate) {
 		navigator.vibrate(50);
@@ -1831,9 +1857,13 @@ const stickersGrp = document.getElementById('selectStickerGroup');
 
 let stickerHeaderIsLoaded = false;
 
+/**
+ * Loads the sticker header
+ */
 export function loadStickerHeader(){
 
 	try{
+		//if the header is already loaded, return
 		if (stickerHeaderIsLoaded){
 			return;
 		}
@@ -1859,7 +1889,7 @@ export function loadStickerHeader(){
 }
 
 /**
- * 
+ * Retries to load an image
  * @param {HTMLImageElement} img 
  */
 function retryImageLoad(img){
@@ -1868,7 +1898,9 @@ function retryImageLoad(img){
 	img.src = src;
 }
 
-
+/**
+ * Loads the stickers
+ */
 export function loadStickers(){
 	//if selectedStickerGroup is not contained in Stickers, then set it to the first sticker group
 	if (!Stickers.some(sticker => sticker.name == selectedStickerGroup)){
@@ -1896,6 +1928,9 @@ export function loadStickers(){
 	selectedSticker.dataset.selected = 'true';
 }
 
+/**
+ * Shows the stickers panel
+ */
 function showStickersPanel(){
 	if (!stickersPanel.classList.contains('active')){
 		//console.log('showing stickers panel');
@@ -3029,6 +3064,43 @@ window.addEventListener('dragover', (evt) => {
 	}, 200);
 });
 
+window.addEventListener('drop', (evt) => {
+	evt.preventDefault();
+	fileDropZone.classList.remove('active');
+	if (evt.target.classList.contains('fileDropZoneContent')) {
+		if (evt.dataTransfer.files.length > 0) {
+			if (Array.from(evt.dataTransfer.files).every(file => file.type.startsWith('image/'))) {
+				//set it to photobutton
+				photoButton.files = evt.dataTransfer.files;
+				photoButton.dispatchEvent(new Event('change'));
+			} else {
+				//set it to filebutton
+				fileButton.files = evt.dataTransfer.files;
+				fileButton.dispatchEvent(new Event('change'));
+			}
+		}
+	}
+});
+
+//listen for file paste
+window.addEventListener('paste', (e) => {
+	if (e.clipboardData.files?.length > 0) {
+		//if all files are images
+		if (Array.from(e.clipboardData.files).every(file => file.type.startsWith('image/'))){
+			//set it to photobutton
+			photoButton.files = e.clipboardData.files;
+			photoButton.dispatchEvent(new Event('change'));
+		}else{
+			//set it to filebutton
+			fileButton.files = e.clipboardData.files;
+			fileButton.dispatchEvent(new Event('change'));
+		}
+	}
+});
+
+
+
+
 window.addEventListener('offline', function() { 
 	console.log('offline'); 
 	document.querySelector('.offline .icon i').classList.replace('fa-wifi', 'fa-circle-exclamation');
@@ -3501,41 +3573,6 @@ document.querySelectorAll('.clickable').forEach(elem => {
 		clickSound.currentTime = 0;
 		playClickSound();
 	});
-});
-
-//listen for file paste
-window.addEventListener('paste', (e) => {
-	if (e.clipboardData.files?.length > 0) {
-		//if all files are images
-		if (Array.from(e.clipboardData.files).every(file => file.type.startsWith('image/'))){
-			//set it to photobutton
-			photoButton.files = e.clipboardData.files;
-			photoButton.dispatchEvent(new Event('change'));
-		}else{
-			//set it to filebutton
-			fileButton.files = e.clipboardData.files;
-			fileButton.dispatchEvent(new Event('change'));
-		}
-	}
-});
-
-
-window.addEventListener('drop', (evt) => {
-	evt.preventDefault();
-	fileDropZone.classList.remove('active');
-	if (evt.target.classList.contains('fileDropZoneContent')) {
-		if (evt.dataTransfer.files.length > 0) {
-			if (Array.from(evt.dataTransfer.files).every(file => file.type.startsWith('image/'))) {
-				//set it to photobutton
-				photoButton.files = evt.dataTransfer.files;
-				photoButton.dispatchEvent(new Event('change'));
-			} else {
-				//set it to filebutton
-				fileButton.files = evt.dataTransfer.files;
-				fileButton.dispatchEvent(new Event('change'));
-			}
-		}
-	}
 });
   
 /**
