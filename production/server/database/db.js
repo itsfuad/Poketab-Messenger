@@ -1,4 +1,4 @@
-console.log('Database ready');
+console.log('User schema loaded');
 import { Key } from './schema/Key.js';
 export const Keys = {};
 class KeyStore {

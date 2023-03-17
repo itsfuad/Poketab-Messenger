@@ -13,129 +13,41 @@
         <div class="icon"><i class="fa-solid fa-circle-exclamation"></i></div>
         <div class="text"></div>
     </div>
-
     <!--All popups will be shown here-->
     <div class="popup-message"></div>
 
+    <div class="chatBoxWrapper">
+        <!--The main chat area-->
+        <div class="chatBox">
+            <!-- Navigation -->
+            <%- include('../layout/app/navBar.ejs') %>
+            
+            <ul id="messages" data-scrolling="false">
+                <div class="welcome_wrapper">
+                    <li class="welcomeText">
+                        <img src="/images/greetings/<%=welcomeSticker_%>.webp" alt="Welcome Sticker" height="160px" width="160px" id="welcomeSticker">
+                        <div>Share this chat link to others to join</div>
+                        <span id="invite" class="clickable button" title="Click to share">Share <i class="fa-solid fa-share-nodes"></i></span>
+                    </li>
+                </div>
+                <!-- All messages will be added under here -->
+            </ul>
+            <!-- Reply toast popup-->
+            <div id="replyToast"></div>
+            <!-- All inputs -->
+            <div class="footer">
+                <!--typing indicator-->
+                <%- include('../layout/app/typingIndicator.ejs') %>
+                <%- include('../layout/app/chatInput.ejs') %>
+            </div>
+        </div>
+    </div>
+    <!--Other reactive elements-->
+    <%- include('../layout/app/attachmentChooser.ejs') %>
     <%- include('../layout/app/sideBar.ejs') %>
     <%- include('../layout/app/templates.ejs') %>
     <%- include('../layout/app/utils.ejs') %>
     <%- include('../layout/app/metadata.ejs') %>
     <%- include('../layout/app/quickSettings.ejs') %>
-
-    <!--The main chat area-->
-    <div class="chatBox">
-        <!-- Navigation -->
-        <div class="navbar">
-            <div id="currentlyActive"><i class="fa-solid fa-user"></i> Active: <div id="count"></div></div>
-            <div class="optionPanel">                
-                <!--div class="call-btn clickable">
-                    <i class="fa-solid fa-phone"></i>
-                </!--div-->
-                <div id="more" class="clickable" title="Active users and Settings">
-                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                </div>
-            </div>
-        </div>
-        <!-- Chat Messages will append here -->
-        <ul id="messages">
-            <div class="welcome_wrapper">
-                <li class="welcomeText">
-                    <img src="/images/greetings/<%=welcomeSticker_%>.webp" alt="Welcome Sticker" height="160px" width="160px" id="welcomeSticker">
-                    <div>Share this chat link to others to join</div>
-                    <span id="invite" class="clickable button" title="Click to share">Share <i class="fa-solid fa-share-nodes"></i></span>
-                </li>
-            </div>
-            <!-- All messages will be added here -->
-        </ul>
-        <!--message popup-->
-        <div class="newmessagepopup clickable">
-            <img src="" alt="Avatar"><div class="msg"></div><div class="downarrow"><i class="fa-solid fa-arrow-down"></i></div>
-        </div>
-        <!-- Reply toast popup-->
-        <div id="replyToast">
-            <div class="content">
-                <div class="title"><i class="fa-solid fa-reply"></i> Replying to <span class="username"></span></div>
-                <div class="replyData"></div>
-            </div>
-            <div class="close">
-                <i class="fa-solid fa-xmark"></i>
-            </div>
-        </div>
-
-        
-        <!-- All inputs -->
-        <div class="footer">
-            <div id="typingIndicator">
-                <div class="text"></div>
-                <div class="bubble">
-                    <div class="dot bouncing"></div>
-                    <div class="dot bouncing"></div>
-                    <div class="dot bouncing"></div>
-                </div>
-            </div>
-            <div class="chatInput">
-                <div class="stickerBtn clickable" title="Send stickers"><i class="fa-solid fa-note-sticky"></i></div>
-                <!-- Text input -->
-                <div class="attachments clickable" id="attachment" title="Send attactments"><i class="fa-solid fa-paperclip"></i></div>
-                <div class="close_area" id="attmain">
-                    <div class="attachmentContainer">
-                        <!-- File Choose -->
-                        <div class="upload_file clickable attachmentButton">
-                            <label for="fileChooser" class="file-input-label"><i class="fa-regular fa-file-lines fa-shake"></i></label>
-                            <input type="file" multiple name="file" id="fileChooser" >
-                            <div class="text">File</div>
-                        </div>
-                        <!-- Image Choose -->
-                        <div class="upload_image clickable attachmentButton">
-                            <label for="photoChooser"><i class="fa-regular fa-image fa-shake"></i></label>
-                            <input type="file" multiple name="photo" id="photoChooser"  accept="image/png, image/jpg, image/jpeg, image/gif">
-                            <div class="text">Image</div>
-                        </div>
-
-                        <!-- Audio Choose -->
-                        <div class="upload_audio clickable attachmentButton">
-                            <label for="audioChooser"><i class="fa-solid fa-music fa-shake"></i></label>
-                            <input type="file" multiple name="audio"  id="audioChooser" accept="audio/*">
-                            <div class="text">Audio</div>
-                        </div>
-
-                        <!-- Location input -->
-                        <div class="location clickable attachmentButton" id="send-location">
-                            <i class="fa-solid fa-location-crosshairs fa-shake"></i>
-                            <div class="text">Location</div>
-                        </div>
-                        <!-- Poll -->
-                        <!--div class="poll clickable" id="createPollBtn">
-                            <i class="fa-solid fa-square-poll-horizontal"></i>
-                            <div class="text">Poll</div>
-                        </!div-->
-                    </div>
-                </div>
-                <div class="inputField">
-                    <textarea name="chatInputBox" id="textbox" class="select" rows="1" placeholder="Message..."></textarea>
-                    <!-- Microphone -->
-                    <div class="voiceRecorder" id="recorderOverlay" data-recordingstate="false">
-                        <div class="recordBtn btn" id="recordVoiceButton" data-playstate="">
-                            <i class="fa-solid fa-microphone" id="micIcon"></i>
-                        </div>
-                        <div class="recording">
-                            <span class="recordingText"><i class="fa-solid fa-circle recordIcon"></i></span>
-                            <span id="recordingTime" class="recordingTime">00:00</span>
-                        </div>
-                        <div class="cancelBtn btn clickable" id="cancelVoiceRecordButton">
-                            <i class="fa-solid fa-xmark"></i>
-                        </div>
-                        <div id="audiovisualizer"></div>
-                    </div>
-                </div>
-
-                  
-                <!-- Send Button-->
-                <button id="send" title="Ctrl+Enter"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-        </div>
-    </div>
-
 </body>
 </html>

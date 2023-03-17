@@ -98,9 +98,8 @@ code {
   background: var(--msg-get-reply);
   color: hsla(0, 0%, 100%, 0.5);
   border-radius: 15px 15px 15px 8px;
-  width: -moz-max-content;
   width: max-content;
-  max-width: 218px;
+  max-width: 250px;
   white-space: pre;
   overflow: hidden;
   display: inline-block;
@@ -196,6 +195,10 @@ code {
   right: 10px;
   flex-wrap: nowrap;
   max-width: unset;
+}
+
+.serverMessage + .message {
+  margin-top: 25px;
 }
 
 .message.noreply .messageReply {
@@ -343,10 +346,6 @@ pre code {
   visibility: visible;
 }
 
-.message.start:not(.sticker, .emoji) {
-  padding-top: 30px;
-}
-
 .message.notitle {
   padding-top: 0;
 }
@@ -359,7 +358,11 @@ pre code {
 }
 
 .message.sticker {
-  padding-top: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.message.sticker + .message.sticker {
+  margin-top: 0;
 }
 
 .message.self .messageContainer {
@@ -670,4 +673,8 @@ pre code {
   flex-direction: row;
   align-items: flex-end;
   justify-content: center;
+  margin-top: 15px;
+}
+.serverMessage + .serverMessage {
+  margin-top: 0;
 }/*# sourceMappingURL=message.css.map */

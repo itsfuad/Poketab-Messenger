@@ -1,4 +1,4 @@
-console.log('Running admin');
+console.log('Admin view started');
 
 import { Router } from 'express';
 import cookieParser from 'cookie-parser';

@@ -31,11 +31,11 @@ export function cleanJunks(){
 			}
 		});
 		Promise.all(filesToDelete).then(() => {
-			console.log('Cleaned all junk files');
+			console.log('Cleaned all garbage files');
 		}).catch(() => {
-			console.log('Error while cleaning junk files');
+			console.log('Error while cleaning garbage files');
 		});
-		console.log(`Cleaning junk files | Process ID: ${process.pid}`);
+		console.log(`Checking garbage files | Process ID: ${process.pid}`);
 	}).catch(err => {
 		console.log(err);
 	});
