@@ -407,7 +407,7 @@ function bootLoad(){
 	sendBy = localStorage.getItem('sendBy');
 	loadReacts();
 	loadTheme();
-	//appHeight();
+	appHeight();
 	updateScroll();
 	loadSendShortcut();
 	loadButtonSoundPreference();
@@ -416,13 +416,13 @@ function bootLoad(){
 
 bootLoad();
 
-/*
+
 //sets the app height to the max height of the window
 function appHeight () {
 	const doc = document.documentElement;
 	doc.style.setProperty('--app-height', `${window.innerHeight}px`);
 }
-*/
+
 
 /**
  * Inserts a new message on the DOM
@@ -2756,7 +2756,7 @@ document.querySelector('.reactorContainerWrapper').addEventListener('click', (ev
 });
 
 window.addEventListener('resize',()=>{
-	//appHeight();
+	appHeight();
 	const temp = scrolling;
 	//last added
 	lastPageLength = messages.scrollTop;
