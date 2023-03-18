@@ -1270,14 +1270,14 @@ i[class^=fa-] {
   transition: 100ms ease-in-out;
   filter: drop-shadow(0 4px 5px black);
   pointer-events: none;
+  padding: 10px;
+  margin: 10px 10px 0 10px;
 }
 #replyToast.active {
   visibility: visible;
   opacity: 1;
   top: 0;
   pointer-events: all;
-  padding: 10px;
-  margin: 10px 10px 0 10px;
 }
 #replyToast .title, #replyToast .title * {
   color: var(--secondary-dark);

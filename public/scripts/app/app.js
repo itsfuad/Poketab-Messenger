@@ -16,7 +16,6 @@ console.log('%cloaded app.js', 'color: deepskyblue;');
 const messages = document.getElementById('messages');
 
 const maxWindowHeight = window.innerHeight; //max height of the window
-const replyToast = document.getElementById('replyToast'); //reply toast element appears when a user clicks on a message to reply
 const lightboxClose = document.getElementById('lightbox__close'); //lightbox close button
 const textbox = document.getElementById('textbox'); //textbox element where user types messages
 
@@ -37,7 +36,7 @@ const recorderTimer = document.getElementById('recordingTime');
 //dynamic popups
 const stickersPanel = document.getElementById('stickersPanelWrapper');
 const sideBarPanel = document.getElementById('sidebarWrapper');
-const quickSettings = document.querySelector('.quickSettingPanel');
+const quickSettings = document.getElementById('quickSettingPanel');
 const messageOptions = document.getElementById('messageOptionsContainerWrapper');
 
 //popups closearea
@@ -1199,52 +1198,72 @@ function showReplyToast(){
 	textbox.focus();
 	finalTarget = Object.assign({}, targetMessage);
 
-	//create reply toast manually
-	const content = document.createElement('div');
-	content.classList.add('content');
-	const title = document.createElement('div');
-	title.classList.add('title');
-	const replyIcon = document.createElement('i');
-	replyIcon.classList.add('fa-solid');
-	replyIcon.classList.add('fa-reply');
-	const username = document.createElement('span');
-	username.classList.add('username');
-	const replyData = document.createElement('div');
-	replyData.classList.add('replyData');
-	const close = document.createElement('div');
-	close.classList.add('close');
-	const closeIcon = document.createElement('i');
-	closeIcon.classList.add('fa-solid');
-	closeIcon.classList.add('fa-xmark');
+	const exists = document.getElementById('replyToast');
 
-	title.appendChild(replyIcon);
-	title.appendChild(document.createTextNode(' Replying to '));
-	title.appendChild(username);
+	let replyToast;
+	let content;
+	let title;
+	let replyIcon;
+	let username;
+	let replyData;
+	let close;
+	let closeIcon;
 
-	content.appendChild(title);
-	content.appendChild(replyData);
+	if (exists){
+		replyToast = document.getElementById('replyToast');
+		content = replyToast.querySelector('.content');
+		title = replyToast.querySelector('.title');
+		replyIcon = replyToast.querySelector('.replyIcon');
+		username = replyToast.querySelector('.username');
+		replyData = replyToast.querySelector('.replyData');
+		close = replyToast.querySelector('.close');
+		closeIcon = replyToast.querySelector('.closeIcon');
+	}else{
+		//create reply toast manually
+		replyToast = document.createElement('div');
+		replyToast.id = 'replyToast';
+		replyToast.classList.add('replyToast');
 
-	close.appendChild(closeIcon);
+		content = document.createElement('div');
+		content.classList.add('content');
 
-	replyToast.appendChild(content);
-	replyToast.appendChild(close);
+		title = document.createElement('div');
+		title.classList.add('title');
 
+		replyIcon = document.createElement('i');
+		replyIcon.classList.add('fa-solid');
+		replyIcon.classList.add('fa-reply');
 
+		username = document.createElement('span');
+		username.classList.add('username');
+
+		replyData = document.createElement('div');
+		replyData.classList.add('replyData');
+
+		close = document.createElement('div');
+		close.classList.add('close');
+
+		closeIcon = document.createElement('i');
+		closeIcon.classList.add('fa-solid');
+		closeIcon.classList.add('fa-xmark');
+	}
+
+	//add data to reply toast
 	if (finalTarget.type == 'image' || finalTarget.type == 'sticker'){
 
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
 		document.querySelector('.newmessagepopup').classList.add('toastActiveImage');
-		if (finalTarget.message.src !== replyToast.querySelector('.replyData').firstChild?.src){
-			while (replyToast.querySelector('.replyData').firstChild) {
-				replyToast.querySelector('.replyData').removeChild(replyToast.querySelector('.replyData').firstChild);
+		if (finalTarget.message.src !== replyData.firstChild?.src){
+			while (replyData.firstChild) {
+				replyData.removeChild(replyData.firstChild);
 			}
-			replyToast.querySelector('.replyData').appendChild(finalTarget.message);
+			replyData.appendChild(finalTarget.message);
 		}
 	}else if (finalTarget.type == 'file' || finalTarget.type == 'audio'){
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
 		document.querySelector('.newmessagepopup').classList.add('toastActiveFile');
-		while (replyToast.querySelector('.replyData').firstChild) {
-			replyToast.querySelector('.replyData').removeChild(replyToast.querySelector('.replyData').firstChild);
+		while (replyData.firstChild) {
+			replyData.removeChild(replyData.firstChild);
 		}
 		const fileIcon = document.createElement('i');
 		const iconSet = {
@@ -1252,22 +1271,38 @@ function showReplyToast(){
 			'audio': 'fa-music',
 		};
 		fileIcon.classList.add('fa-solid', iconSet[finalTarget.type]);
-		replyToast.querySelector('.replyData').appendChild(fileIcon);
-		replyToast.querySelector('.replyData').appendChild(document.createTextNode(finalTarget.message?.substring(0, 50)));
+		replyData.appendChild(fileIcon);
+		replyData.appendChild(document.createTextNode(finalTarget.message?.substring(0, 50)));
 	}else{
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
 		document.querySelector('.newmessagepopup').classList.add('toastActive');
-		replyToast.querySelector('.replyData').textContent = finalTarget.message?.length > 30 ? finalTarget.message.substring(0, 27) + '...' : finalTarget.message;
+		replyData.textContent = finalTarget.message?.length > 30 ? finalTarget.message.substring(0, 27) + '...' : finalTarget.message;
 	}
-	replyToast.querySelector('.username').textContent = finalTarget.sender;
-	replyToast.classList.add('active');
+	
+	username.textContent = finalTarget.sender;
 
+	if (!document.getElementById('replyToast')){
+		title.appendChild(replyIcon);
+		title.appendChild(document.createTextNode(' Replying to '));
+		title.appendChild(username);
+	
+		content.appendChild(title);
+		content.appendChild(replyData);
+	
+		close.appendChild(closeIcon);
+	
+		replyToast.appendChild(content);
+		replyToast.appendChild(close);
+		document.querySelector('.footer').insertAdjacentElement('beforebegin', replyToast);
+	}
+	
 	setTimeout(() => {
 		if (!scrolling){
 			//console.log('scrolled to bottom');
 			messages.scrollTo(0, messages.scrollHeight);
 		}
+		replyToast.classList.add('active');
 	}, 120);
 
 	replyToast.querySelector('.close').onclick = () => {
@@ -1278,19 +1313,25 @@ function showReplyToast(){
 }
 
 function hideReplyToast(){
-	replyToast.classList.remove('active');
-	lastPageLength = messages.scrollTop;
-	document.querySelector('.newmessagepopup').classList.remove('toastActive');
-	document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
-	document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
-	clearTargetMessage();
-	replyToast.innerHTML = '';
-	setTimeout(() => {
-		if (!scrolling){
-			//console.log('scrolled to bottom');
-			messages.scrollTo(0, messages.scrollHeight);
-		}
-	}, 120);
+	const replyToast = document.getElementById('replyToast');
+	if (replyToast){
+		replyToast.classList.remove('active');
+		lastPageLength = messages.scrollTop;
+		document.querySelector('.newmessagepopup').classList.remove('toastActive');
+		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
+		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
+		clearTargetMessage();
+		setTimeout(() => {
+			setTimeout(() => {
+				if (!scrolling){
+					//recalculate scroll length
+					messages.scrollTop = lastPageLength;
+					messages.scrollTo(0, messages.scrollHeight);
+				}
+			}, 200);
+			replyToast.remove();
+		}, 100);
+	}
 }
 
 /**
