@@ -46,6 +46,3 @@ auth.on('connection', (socket) => {
 		}
 	});
 });
-
-// Path: server\authSocket.js
-//module.exports = { auth };

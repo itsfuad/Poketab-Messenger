@@ -59,15 +59,6 @@ io.on('connection', (socket) => {
                 callback(id);
             }
         });
-        /*
-      socket.on('askForLinkPreview', (url, callback) => {
-        console.log('URL requested: ', url);
-        const worker = new Worker('./server/linkPreviewWorker.js', {workerData: {url: url}});
-        worker.on('message', (data) => {
-          callback(data);
-        });
-      });
-      */
         socket.on('seen', (meta) => {
             if (SocketIds[socket.id]) {
                 socket.broadcast.to(SocketIds[socket.id].key).emit('seen', meta);
@@ -135,6 +126,4 @@ io.on('connection', (socket) => {
         console.log(err);
     }
 });
-// Path: server/websockets.js
-//module.exports = { io };
 //# sourceMappingURL=websockets.js.map

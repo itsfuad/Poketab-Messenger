@@ -1,10 +1,14 @@
 //enable strict mode
 'use strict';
 
-import {io} from '../../libs/socket.io.js';
-import { myKey, myId, playIncomingSound, insertNewMessage, notifyUser, userInfoMap, clearDownload, updateScroll } from './app.js';
-import { fileBuffer } from './app.js';
+import { io } from './../../../libs/socket.io.js';
+import { myKey, myId, userInfoMap, fileBuffer, insertNewMessage, notifyUser, updateScroll, clearDownload } from './../app.js';
+import { playIncomingSound } from './media.js';
+
 //file socket to deliver file metadata [This is not used for file transfer, only for metadata. Files will be transferred using xhr requests]
+/**
+ * @type {SocketIOClient.Socket}
+ */
 export const fileSocket = io('/file');
 
 //files metadata will be sent on different socket

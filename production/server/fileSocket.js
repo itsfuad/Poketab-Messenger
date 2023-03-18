@@ -29,6 +29,4 @@ fileSocket.on('connection', (socket) => {
         console.log(e);
     }
 });
-// Path: server\fileSocket.js
-//module.exports = { fileSocket };
 //# sourceMappingURL=fileSocket.js.map

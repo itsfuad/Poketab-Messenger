@@ -55,8 +55,8 @@ export const themeAccent = {
 
 export const themeArray = Object.keys(themeAccent);
 
-export const themeChooser = document.createElement('div');
-themeChooser.className = 'themeChooser';
+export const themePicker = document.createElement('div');
+themePicker.className = 'themeChooser';
 
 const themeList = document.createElement('ul');
 themeList.className = 'themeList';
@@ -80,6 +80,4 @@ themeArray.forEach((theme) => {
 	themeList.appendChild(themeElement);
 });
 
-themeChooser.appendChild(themeList);
-
-export const themePicker = themeChooser;
+themePicker.appendChild(themeList);

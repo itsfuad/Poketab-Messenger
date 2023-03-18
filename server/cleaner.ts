@@ -42,5 +42,3 @@ export function cleanJunks(){
 }
 
 cleanJunks();
-
-//module.exports = { markForDelete, cleanJunks };

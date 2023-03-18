@@ -1,7 +1,7 @@
 //enable strict mode
 'use strict';
 
-function escapeXSS(text) {
+export function escapeXSS(text) {
 	// Define the characters that need to be escaped
 	const escapeChars = {
 		'\'': '&apos;',
@@ -33,7 +33,7 @@ export class TextParser {
 	constructor() {
 		// Define regular expressions for parsing different markdown codes
 		this.boldRegex = /\*\*([^*]+)\*\*/g;
-		this.italicRegex = /_([^_]+)_/g;
+		this.italicRegex = /__([^_]+)__/g;
 		this.strikeRegex = /~~([^~]+)~~/g;
 		this.headingRegex = /^#+\s+(.+)$/gm;
 		this.codeRegex = /```([^`]+)```/g;
@@ -103,7 +103,7 @@ export class TextParser {
   
 	// Function to parse strike-through text
 	parseStrike(text) {
-		return text.replace(this.strikeRegex, '<s>$1</s>');
+		return text.replace(this.strikeRegex, '<del>$1</del>');
 	}
   
 	// Function to parse headings
@@ -198,4 +198,76 @@ export function parseTemplate(template, data) {
 export function isEmoji(message){
 	const regex = /^([\uD800-\uDBFF][\uDC00-\uDFFF])+$/;
 	return regex.test(message);
+}
+
+/**
+ * Parses emoji from text and returns the parsed text [e.g. :D => 😀, :P => 😛, etc]
+ * @param {string} text 
+ * @returns string
+ */
+export function emojiParser(text){
+
+	if (text == null || text == ''){
+		return '';
+	}
+
+	const emojiMaps = {
+		':)': '🙂',
+		':\'(': '😢',
+		':D': '😀',
+		':P': '😛',
+		':p': '😛',
+		':O': '😮',
+		':o': '😮',
+		':|': '😐',
+		':/': '😕',
+		';*': '😘',
+		':*': '😗',
+		'>:(': '😠',
+		':(': '😞',
+		'o3o': '😗',
+		'^3^': '😙',
+		'^_^': '😊',
+		'<3': '❤️',
+		'>_<': '😣',
+		'>_>': '😒',
+		'-_-': '😑',
+		'XD': '😆',
+		'xD': '😆',
+		'B)': '😎',
+		';)': '😉',
+		'T-T': '😭',
+		':aww:': '🥺',
+		':lol:': '😂',
+		':haha:': '🤣',
+		':hehe:': '😅',
+		':meh:': '😶',
+		':hmm:': '😏',
+		':wtf:': '🤨',
+		':yay:': '🥳',
+		':yolo:': '🤪',
+		':yikes:': '😱',
+		':sweat:': '😅'
+	};
+
+	//make it iterable
+	emojiMaps[Symbol.iterator] = function* () {
+		yield* Object.entries(this);
+	};
+
+	//find if the message contains the emoji
+	for (const [key, value] of emojiMaps){
+		if (text.indexOf(key) != -1){
+			const position = text.indexOf(key);
+			//all charecter regex
+			const regex = /[a-zA-Z0-9_!@#$%^&*()+\-=[\]{};':"\\|,.<>/?]/;
+			//if there is any kind of charecters before or after the match then don't replace it. 
+			if (text.charAt(position - 1).match(regex) || text.charAt(position + key.length).match(regex)){
+				continue;
+			}else{
+				text = text.replaceAll(key, value);
+			}
+		}
+	}
+	return text;
 }

@@ -1558,7 +1558,7 @@ i[class^=fa-] {
   justify-content: center;
 }
 .moreReactsContainer .moreReacts .react-emoji {
-  border-radius: 10px;
+  border-radius: 30px;
   width: 35px;
   height: 35px;
   display: flex;
@@ -1590,16 +1590,17 @@ i[class^=fa-] {
   cursor: pointer;
   border-radius: 10px;
 }
-.options:is(#reactOptions) {
+
+#reactOptions {
   gap: 5px;
   font-size: 1.5rem;
-  padding: 3px 10px;
+  padding: 8px 10px;
   background: var(--primary-dark);
-  border-radius: 25px;
+  border-radius: 30px;
   filter: drop-shadow(0 4px 5px black);
 }
-.options:is(#reactOptions) > div {
-  border-radius: 10px;
+#reactOptions > div {
+  border-radius: 30px;
   width: 35px;
   height: 35px;
   display: flex;
@@ -1607,7 +1608,7 @@ i[class^=fa-] {
   align-items: center;
   justify-content: center;
 }
-.options:is(#reactOptions) > div:hover {
+#reactOptions > div:hover {
   cursor: pointer;
   filter: saturate(1.2);
 }

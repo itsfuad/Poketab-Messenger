@@ -1,3 +1,4 @@
+import { keyStore } from "../database/db.js";
 export function makeid() {
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let id = '';
@@ -7,6 +8,11 @@ export function makeid() {
         if (i === 1 || i === 4) {
             id += '-';
         }
+    }
+    if (keyStore.hasKey(id)) {
+        console.log('Duplicate key generated, generating new key...');
+        // if the key already exists, generate a new one
+        return makeid();
     }
     return id;
 }

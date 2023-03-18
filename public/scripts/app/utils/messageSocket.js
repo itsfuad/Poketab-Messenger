@@ -1,37 +1,36 @@
 //enable strict mode
 'use strict';
 
-import {io} from '../../libs/socket.io.js';
+import { io } from './../../../libs/socket.io.js';
+
+import { playJoinSound, playLeaveSound, playLocationSound, playIncomingSound, playStickerSound, playTypingSound } from './media.js';
+
 import { 
 	myName, 
 	myId, 
 	myAvatar, 
-	myKey, 
 	maxUser, 
-	userTypingMap, 
-	setTypingUsers,
-	popupMessage,
-	loadStickerHeader,
-	loadStickers,
-	userInfoMap,
-	isTyping,
-	joinsound,
-	leavesound,
-	locationsound,
-	serverMessage,
+	myKey, 
+	popupMessage, 
+	deleteMessage, 
+	setTypingUsers, 
+	loadStickerHeader, 
+	loadStickers, 
+	isTyping, 
+	serverMessage, 
+	notifyUser, 
+	checkgaps, 
+	updateScroll, 
+	getReact, 
 	insertNewMessage,
-	notifyUser,
-	checkgaps,
-	updateScroll,
-	getReact,
-	deleteMessage,
-	playTypingSound,
-	playIncomingSound,
-	playStickerSound,
-	messageSoundEnabled,
-} from './app.js';
+	userTypingMap,
+	userInfoMap,
+} from './../app.js';
 
 //main socket to deliver messages
+/**
+ * @type {SocketIOClient.Socket}
+ */
 export const socket = io(); 
 
 //sockets
@@ -121,18 +120,16 @@ socket.on('updateUserList', (users) => {
 
 //any server side message
 socket.on('server_message', (meta, type) => {
-	if (messageSoundEnabled){
-		switch (type) {
-		case 'join':
-			joinsound.play();
-			break;
-		case 'leave':
-			leavesound.play();
-			break;
-		case 'location':
-			locationsound.play();
-			break;
-		}
+	switch (type) {
+	case 'join':
+		playJoinSound();
+		break;
+	case 'leave':
+		playLeaveSound();
+		break;
+	case 'location':
+		playLocationSound();
+		break;
 	}
 	serverMessage(meta, type);
 });

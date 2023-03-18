@@ -1,13 +1,31 @@
 //enable strict mode
 'use strict';
 
-import { socket } from './messageSocket.js';
-import { fileSocket } from './fileSocket.js';
-import { TextParser, parseTemplate, isEmoji } from './messageParser.js';
+import { socket } from './utils/messageSocket.js';
+import { fileSocket } from './utils/fileSocket.js';
 import { Stickers } from '../../stickers/stickersConfig.js';
 import { Prism } from '../../libs/prism/prism.min.js';
 import { PanZoom } from '../../libs/panzoom.min.js';
-import { themeAccent, themeArray, themePicker, themeChooser } from './themes.js';
+import { sanitizeImagePath, sanitize } from './utils/sanitizer.js';
+import { 
+	getFormattedDate, 
+	arrayToMap, 
+	reactArray, 
+	shortFileName, 
+	getTypingString,
+	remainingTime
+} from './utils/helperFunctions.js';
+
+import { 
+	playReactSound, 
+	playStickerSound, 
+	playOutgoingSound, 
+	playClickSound,
+	playStartRecordSound,
+} from './utils/media.js';
+
+import { emojiParser, isEmoji, TextParser, parseTemplate } from './utils/messageParser.js';
+import { themePicker, themeArray, themeAccent } from './utils/themes.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
@@ -62,18 +80,6 @@ let timerInterval;
 let autoStopRecordtimeout;
 let recordCancel = false;
 
-//all the audio files used in the app
-export const incommingmessage = new Audio('/sounds/incommingmessage.mp3');
-const outgoingmessage = new Audio('/sounds/outgoingmessage.mp3');
-export const joinsound = new Audio('/sounds/join.mp3');
-export const leavesound = new Audio('/sounds/leave.mp3');
-export const typingsound = new Audio('/sounds/typing.mp3');
-export const locationsound = new Audio('/sounds/location.mp3');
-const reactsound = new Audio('/sounds/react.mp3');
-const clickSound = new Audio('/sounds/click.mp3');
-export const stickerSound = new Audio('/sounds/sticker.mp3');
-const startrecordingSound = new Audio('/sounds/startrecording.mp3');
-
 //three main types of messages are sent in the app by these three buttons
 const sendButton = document.getElementById('send');
 const fileSendButton = document.getElementById('fileSendButton');
@@ -105,19 +111,13 @@ document.getElementById('messageTemplate').remove();
 document.getElementById('fileTemplate').remove();
 document.getElementById('audioMessageTemplate').remove();
 
-//current theme
-let THEME = '';
-let sendBy = 'Ctrl+Enter'; //send message by default by pressing ctrl+enter
-export let messageSoundEnabled = true; //message sound is enabled by default
-let buttonSoundEnabled = true; //button sound is enabled by default
+let softKeyIsUp = false; //to check if soft keyboard of phone is up or not
+let scrolling = false; //to check if user is scrolling or not
+let lastPageLength = messages.scrollTop; // after adding a ^(?!\s*//).*console\.lognew message the page size gets updated
+let scroll = 0; //total scrolled up or down by pixel
 
-//this array contains all the emojis used in the app
-const reactArray = {
-	//the first 6 emojis are the default emojis
-	primary: ['💙', '😆','😠','😢','😮','🙂','🌻'],
-	last: '🌻',
-	expanded: ['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','🥰','😗','😙','😚','🙂','🤗','🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥺','🤠','🤡','🤥','🤫','🤭','🧐','🤓','😈','👿','👹','👺','💀','☠','👻','👽','👾','🤖','💩','😺','😸','😹','😻','🙈','🙉','🙊','🐵','🐶','🐺','🐱','🦁','🐯','🦒','🦊','🦝','🐮','🐷','🐗','🐭','🐹','🐰','🐻','🐨','🐼','🐸','🦓','🐴','🦄','🐔','🐲','🐽','🐧','🐥','🐤','🐣', '🌻', '🌸', '🥀', '🌼', '🌷', '🌹', '🏵️', '🌺', '🦇','🦋','🐌','🐛','🦟','🦗','🐜','🐝','🐞','🦂','🕷','🕸','🦠','🧞‍♀️','🧞‍♂️','🗣','👀','🦴','🦷','👅','👄','🧠','🦾','🦿','👩🏻','👨🏻','🧑🏻','👧🏻','👦🏻','🧒🏻','👶🏻','👵🏻','👴🏻','🧓🏻','👩🏻‍🦰','👨🏻‍🦰','👩🏻‍🦱','👨🏻‍🦱','👩🏻‍🦲','👨🏻‍🦲','👩🏻‍🦳','👨🏻‍🦳','👱🏻‍♀️','👱🏻‍♂️','👸🏻','🤴🏻','👳🏻‍♀️','👳🏻‍♂️','👲🏻','🧔🏻','👼🏻','🤶🏻','🎅🏻','👮🏻‍♀️','👮🏻‍♂️','🕵🏻‍♀️','🕵🏻‍♂️','💂🏻‍♀️','💂🏻‍♂️','👷🏻‍♀️','👷🏻‍♂️','👩🏻‍⚕️','👨🏻‍⚕️','👩🏻‍🎓','👨🏻‍🎓','👩🏻‍🏫','👨🏻‍🏫','👩🏻‍⚖️','👨🏻‍⚖️','👩🏻‍🌾','👨🏻‍🌾','👩🏻‍🍳','👨🏻‍🍳','👩🏻‍🔧','👨🏻‍🔧','👩🏻‍🏭','👨🏻‍🏭','👩🏻‍💼','👨🏻‍💼','👩🏻‍🔬','👨🏻‍🔬','👩🏻‍💻','👨🏻‍💻','👩🏻‍🎤','👨🏻‍🎤','👩🏻‍🎨','👨🏻‍🎨','👩🏻‍✈️','👨🏻‍✈️','👩🏻‍🚀','👨🏻‍🚀','👩🏻‍🚒','👨🏻‍🚒','🧕🏻','👰🏻','🤵🏻','🤱🏻','🤰🏻','🦸🏻‍♀️','🦸🏻‍♂️','🦹🏻‍♀️','🦹🏻‍♂️','🧙🏻‍♀️','🧙🏻‍♂️','🧚🏻‍♀️','🧚🏻‍♂️','🧛🏻‍♀️','🧛🏻‍♂️','🧜🏻‍♀️','🧜🏻‍♂️','🧝🏻‍♀️','🧝🏻‍♂️','🧟🏻‍♀️','🧟🏻‍♂️','🙍🏻‍♀️','🙍🏻‍♂️','🙎🏻‍♀️','🙎🏻‍♂️','🙅🏻‍♀️','🙅🏻‍♂️','🙆🏻‍♀️','🙆🏻‍♂️','🧏🏻‍♀️','🧏🏻‍♂️','💁🏻‍♀️','💁🏻‍♂️','🙋🏻‍♀️','🙋🏻‍♂️','🙇🏻‍♀️','🙇🏻‍♂️','🤦🏻‍♀️','🤦🏻‍♂️','🤷🏻‍♀️','🤷🏻‍♂️','💆🏻‍♀️','💆🏻‍♂️','💇🏻‍♀️','💇🏻‍♂️','🧖🏻‍♀️','🧖🏻‍♂️','🤹🏻‍♀️','🤹🏻‍♂️','👩🏻‍🦽','👨🏻‍🦽','👩🏻‍🦼','👨🏻‍🦼','👩🏻‍🦯','👨🏻‍🦯','🧎🏻‍♀️','🧎🏻‍♂️','🧍🏻‍♀️','🧍🏻‍♂️','🚶🏻‍♀️','🚶🏻‍♂️','🏃🏻‍♀️','🏃🏻‍♂️','💃🏻','🕺🏻','🧗🏻‍♀️','🧗🏻‍♂️','🧘🏻‍♀️','🧘🏻‍♂️','🛀🏻','🛌🏻','🕴🏻','🏇🏻','🏂🏻','💪🏻','🦵🏻','🦶🏻','👂🏻','🦻🏻','👃🏻','🤏🏻','👈🏻','👉🏻','☝🏻','👆🏻','👇🏻','✌🏻','🤞🏻','🖖🏻','🤘🏻','🤙🏻','🖐🏻','✋🏻','👌🏻','👍🏻','👎🏻','✊🏻','👊🏻','🤛🏻','🤜🏻','🤚🏻','👋🏻','🤟🏻','✍🏻','👏🏻','👐🏻','🙌🏻','🤲🏻','🙏🏻','🤝🏻','💅🏻','📌','❤️','🧡','💛','💚','💙','💜','🤎','🖤','🤍','💔','❣','💕','💞','💓','💗','💖','💘','💝','💟','💌','💢','💥','💤','💦','💨','💫'],
-};
+export let messageSoundEnabled = true; //message sound is enabled by default
+export let buttonSoundEnabled = true; //button sound is enabled by default
 
 //here we add the usernames who are typing
 export const userTypingMap = new Map();
@@ -125,11 +125,6 @@ export const userTypingMap = new Map();
 export const userInfoMap = new Map();
 //all file meta data is stored in this map which may arrive later
 export const fileBuffer = new Map();
-
-let softKeyIsUp = false; //to check if soft keyboard of phone is up or not
-let scrolling = false; //to check if user is scrolling or not
-let lastPageLength = messages.scrollTop; // after adding a ^(?!\s*//).*console\.lognew message the page size gets updated
-let scroll = 0; //total scrolled up or down by pixel
 
 /**
  * This array stores the selected files to be sent
@@ -171,6 +166,10 @@ let finalTarget = {
 
 let lastSeenMessage = null;
 let lastNotification = undefined;
+
+//current theme
+let THEME = '';
+let sendBy = 'Ctrl+Enter'; //send message by default by pressing ctrl+enter
 
 //first load functions 
 //if user device is mobile
@@ -675,130 +674,6 @@ window.addEventListener('focus', () => {
 	socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
 });
 
-/**
- * 
- * @param {string} path 
- * @returns string
- */
-function sanitizeImagePath(path){
-	//path regex will contain normal characters, numbers, underscores, hyphens and base64 characters
-	const regex = /[<>&'"\s]/g;
-
-	if (!path.match(regex)){
-		return path;
-	}else{
-		return '/images/danger-mini.webp';
-	}
-}
-
-/**
- * 
- * @param {number} timestamp 
- * @returns {string}
- */
-function getFormattedDate(timestamp) {
-	timestamp = parseInt(timestamp);
-	const currentTime = Date.now();
-	const differenceInMinutes = Math.floor((currentTime - timestamp) / 1000 / 60);
-  
-	if (differenceInMinutes === 0) {
-		return 'Just now';
-	} else if (differenceInMinutes === 1) {
-		return '1 min ago';
-	} else if (differenceInMinutes < 10) {
-		return `${differenceInMinutes} mins ago`;
-	} else {
-		return new Intl.DateTimeFormat('default', {
-			hour: 'numeric',
-			minute: 'numeric'
-		}).format(timestamp);
-	}
-}
-  
-/**
- * Removes all charecter [<, >, ', "] from string
- * @param {string} str The string to sanitize
- * @returns {string} Removed all charecter [<, >, ', "] from string
- */
-function sanitize(str){
-	if (str == null || str == ''){
-		return '';
-	}
-	str = str.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\//g, '&#x2F;');
-	return str;
-}
-
-/**
- * Parses emoji from text and returns the parsed text [e.g. :D => 😀, :P => 😛, etc]
- * @param {string} text 
- * @returns string
- */
-function emojiParser(text){
-
-	if (text == null || text == ''){
-		return '';
-	}
-
-	const emojiMaps = {
-		':)': '🙂',
-		':\'(': '😢',
-		':D': '😀',
-		':P': '😛',
-		':p': '😛',
-		':O': '😮',
-		':o': '😮',
-		':|': '😐',
-		':/': '😕',
-		';*': '😘',
-		':*': '😗',
-		'>:(': '😠',
-		':(': '😞',
-		'o3o': '😗',
-		'^3^': '😙',
-		'^_^': '😊',
-		'<3': '❤️',
-		'>_<': '😣',
-		'>_>': '😒',
-		'-_-': '😑',
-		'XD': '😆',
-		'xD': '😆',
-		'B)': '😎',
-		';)': '😉',
-		'T-T': '😭',
-		':aww:': '🥺',
-		':lol:': '😂',
-		':haha:': '🤣',
-		':hehe:': '😅',
-		':meh:': '😶',
-		':hmm:': '😏',
-		':wtf:': '🤨',
-		':yay:': '🥳',
-		':yolo:': '🤪',
-		':yikes:': '😱',
-		':sweat:': '😅'
-	};
-
-	//make it iterable
-	emojiMaps[Symbol.iterator] = function* () {
-		yield* Object.entries(this);
-	};
-
-	//find if the message contains the emoji
-	for (const [key, value] of emojiMaps){
-		if (text.indexOf(key) != -1){
-			const position = text.indexOf(key);
-			//all charecter regex
-			const regex = /[a-zA-Z0-9_!@#$%^&*()+\-=[\]{};':"\\|,.<>/?]/;
-			//if there is any kind of charecters before or after the match then don't replace it. 
-			if (text.charAt(position - 1).match(regex) || text.charAt(position + key.length).match(regex)){
-				continue;
-			}else{
-				text = text.replaceAll(key, value);
-			}
-		}
-	}
-	return text;
-}
 
 
 /**
@@ -1072,7 +947,7 @@ function hideOptions(){
 	updateReactsChooser();
 	messageOptions.classList.remove('active');
 	sideBarPanel.classList.remove('active');
-	themeChooser.classList.remove('active');
+	themePicker.classList.remove('active');
 	//document.getElementById('focus_glass').classList.remove('active');
 	removeFocusGlass();
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
@@ -1334,67 +1209,6 @@ function hideReplyToast(){
 	}
 }
 
-/**
- * 
- * @param {string[]} array Array of reacts to process
- * @returns Map
- */
-function arrayToMap(array) {
-	const map = new Map();
-	array.forEach(element => {
-		map.set(element.textContent, map.get(element.textContent) + 1 || 1);
-	});
-	return map;
-}
-
-function playStartRecordSound(){
-	if (!buttonSoundEnabled){
-		return;
-	}
-	startrecordingSound.play();
-}
-
-function playClickSound(){
-	if (!buttonSoundEnabled){
-		return;
-	}
-	clickSound.play();
-}
-
-function playOutgoingSound(){
-	if (!messageSoundEnabled){
-		return;
-	}
-	outgoingmessage.play();
-}
-
-export function playIncomingSound(){
-	if (!messageSoundEnabled){
-		return;
-	}
-	incommingmessage.play();
-}
-
-export function playTypingSound(){
-	if (!messageSoundEnabled){
-		return;
-	}
-	typingsound.play();
-}
-
-export function playStickerSound(){
-	if (!messageSoundEnabled){
-		return;
-	}
-	stickerSound.play();
-}
-
-function playReactSound(){
-	if (!messageSoundEnabled){
-		return;
-	}
-	reactsound.play();
-}
 
 /**
  * 
@@ -1699,36 +1513,6 @@ function removeNewMessagePopup() {
 	document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
 }
 
-/**
- * 
- * @param {Map} userTypingMap 
- * @returns string
- */
-function getTypingString(userTypingMap){
-	if (userTypingMap.size > 0){
-		const array = Array.from(userTypingMap.values());
-		let string = '';
-      
-		if (array.length >= 1){
-			if (array.length == 1){
-				string = array[0];
-			}
-			else if (array.length == 2){
-				string = `${array[0]} and ${array[1]}`;
-			}
-			else if (array.length ==  3){
-				string = `${array[0]}, ${array[1]} and ${array[2]}`;
-			}
-			else{
-				string = `${array[0]}, ${array[1]}, ${array[2]} and ${array.length - 3} other${array.length - 3 > 1 ? 's' : ''}`;
-			}
-		}
-		string += `${array.length > 1 ? ' are ': ' is '} typing`;
-		return string;
-	}else{
-		return '';
-	}
-}
 
 /**
  * Emits typing status of the current user to everyone
@@ -1988,7 +1772,7 @@ function showStickersPanel(){
  */
 function showThemes(){
 	
-	if (!themeChooser.classList.contains('active')){
+	if (!themePicker.classList.contains('active')){
 		//console.log('showing themes');
 		activeModals.push('themes');
 		modalCloseMap.set('themes', hideThemes);
@@ -1998,13 +1782,13 @@ function showThemes(){
 				THEME = 'ocean';
 				localStorage.setItem('theme', THEME);
 			}
-			themeChooser.querySelectorAll('.theme').forEach(theme => {
+			themePicker.querySelectorAll('.theme').forEach(theme => {
 				theme.querySelector('img').style.outline = '';
 			});
-			document.querySelector(`.themeChooser #${THEME}`).querySelector('img').style.outline = '2px solid var(--secondary-dark)';
+			document.querySelector(`.themePicker #${THEME}`).querySelector('img').style.outline = '2px solid var(--secondary-dark)';
 		}
 		//addFocusGlass();
-		themeChooser.classList.add('active');
+		themePicker.classList.add('active');
 	}
 }
 
@@ -2013,7 +1797,7 @@ function showThemes(){
  */
 function hideThemes(){
 	if (activeModals.includes('themes')){
-		themeChooser.classList.remove('active');
+		themePicker.classList.remove('active');
 		//removeFocusGlass();
 		activeModals.splice(activeModals.indexOf('themes'), 1);
 	}
@@ -2249,7 +2033,7 @@ document.getElementById('more').addEventListener('click', ()=>{
 
 let copyKeyTimeOut;
 const keyname = document.getElementById('keyname');
-keyname.addEventListener('click', (evt)=>{
+keyname.addEventListener('click', () => {
 	keyname.querySelector('.fa-clone');
 	keyname.classList.replace('fa-clone', 'fa-check');
 	keyname.classList.replace('fa-regular', 'fa-solid');
@@ -2288,7 +2072,7 @@ document.getElementById('themeButton').addEventListener('click', ()=>{
 });
 
 //remove the theme optons from the screen when clicked outside
-themeChooser.addEventListener('click', ()=>{
+themePicker.addEventListener('click', ()=>{
 	hideThemes();
 });
 
@@ -2304,7 +2088,7 @@ document.querySelectorAll('.theme').forEach(theme => {
 		document.documentElement.style.setProperty('--msg-get-reply', themeAccent[THEME].msg_get_reply);
 		document.documentElement.style.setProperty('--msg-send', themeAccent[THEME].msg_send);
 		document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_send_reply);
-		themeChooser.classList.remove('active');
+		themePicker.classList.remove('active');
 		document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
 		hideOptions();
 	});
@@ -2764,30 +2548,6 @@ function seekAudioMessage(audio, time){
 		console.log('seekAudioMessage error - Time: ', time, 'Audio: ', audio);
 	}
 }
-
-
-/**
- * Returns a string in the format "mm:ss" representing the remaining time
- * @param {number} totalTime - the total time in seconds
- * @param {number} elapsedTime - the elapsed time in seconds
- * @returns {string} - a string in the format "mm:ss"
- */
-function remainingTime(totalTime, elapsedTime) {
-	// Check if totalTime and elapsedTime are finite numbers and if totalTime is greater than 0
-	if(isFinite(totalTime) && totalTime > 0 && isFinite(elapsedTime)){
-		// Calculate the remaining time
-		const remaining = Math.floor(totalTime) - Math.floor(elapsedTime);
-		// Calculate the minutes and seconds from the remaining time
-		const minutes = Math.floor(remaining / 60);
-		const seconds = Math.floor(remaining % 60);
-		// Return the remaining time in the format "mm:ss"
-		return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
-	}else{
-		// Return "00:00" if totalTime and elapsedTime are not valid numbers
-		return '00:00';
-	}
-}
-
 
 
 document.querySelector('.reactorContainerWrapper').addEventListener('click', (evt) => {
@@ -3526,36 +3286,36 @@ document.addEventListener('keydown', (evt) => {
 		//evt.preventDefault();
 		closeAllModals();
 		switch (evt.key) {
-			case 'o':
-				showSidePanel();
-				break;
-			case 's':
-				showQuickSettings();
-				break;
-			case 't':
-				showThemes();
-				break;
-			case 'i':
-				showStickersPanel();
-				break;
-			case 'a':
-				addAttachment();
-				break;
-			case 'f':
-				//choose file
-				fileButton.click();
-				break;
-			case 'p':
-				//choose photo
-				photoButton.click();
-				break;
-			case 'm':
-				//choose audio
-				audioButton.click();
-				break;
-			case 'r':
-				//record voice
-				recordButton.click();
+		case 'o':
+			showSidePanel();
+			break;
+		case 's':
+			showQuickSettings();
+			break;
+		case 't':
+			showThemes();
+			break;
+		case 'i':
+			showStickersPanel();
+			break;
+		case 'a':
+			addAttachment();
+			break;
+		case 'f':
+			//choose file
+			fileButton.click();
+			break;
+		case 'p':
+			//choose photo
+			photoButton.click();
+			break;
+		case 'm':
+			//choose audio
+			audioButton.click();
+			break;
+		case 'r':
+			//record voice
+			recordButton.click();
 		}
 		return;
 	}
@@ -3611,23 +3371,10 @@ document.getElementById('send-location').addEventListener('click', () => {
 //play clicky sound on click on each clickable elements
 document.querySelectorAll('.clickable').forEach(elem => {
 	elem.addEventListener('click', () => {
-		clickSound.currentTime = 0;
 		playClickSound();
 	});
 });
-  
-/**
- * 
- * @param {string} filename 
- * @returns string
- */
-function shortFileName(filename){
-	if (filename.length > 30){
-		//then shorten the filename as abc...[last10chars]
-		filename = filename.substring(0, 10) + '...' + filename.substring(filename.length - 10, filename.length);
-	}
-	return filename;
-}
+
 
 export function setTypingUsers(){
 	const typingString = getTypingString(userTypingMap);
@@ -3759,7 +3506,7 @@ function startRecordingAudio(){
 			const maxRecordTime = 60;
 			let timePassed = 0;
 
-			let timerInterval = setInterval(() => {
+			const timerInterval = setInterval(() => {
 				timePassed += 1;
 				if (timePassed >= maxRecordTime){
 					clearInterval(timerInterval);
@@ -3788,7 +3535,7 @@ function startRecordingAudio(){
 					recordedAudio.dataset.duration = timePassed;
 					recordCancel = false;
 					popupMessage('Recorded!');
-					console.log("recorder state: ", mediaRecorder.state);
+					console.log('recorder state: ', mediaRecorder.state);
 					console.log(`Duration: ${recordedAudio.dataset.duration} seconds`);
 				}
 			};

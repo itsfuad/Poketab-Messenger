@@ -39,5 +39,4 @@ export function cleanJunks() {
     });
 }
 cleanJunks();
-//module.exports = { markForDelete, cleanJunks };
 //# sourceMappingURL=cleaner.js.map
