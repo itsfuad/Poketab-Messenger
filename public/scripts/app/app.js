@@ -1901,7 +1901,7 @@ document.getElementById('buttonSound').addEventListener('click', () => {
 
 stickersPanel.addEventListener('click', (evt) => {
 	if (evt.target == stickersPanel){
-		console.log('clicked on stickers panel');
+		//console.log('clicked on stickers panel');
 		if (activeModals.includes('stickersPanel')){
 			hideStickersPanel();
 			activeModals.splice(activeModals.indexOf('stickersPanel'), 1);
@@ -1951,9 +1951,9 @@ function addAttachment(){
 function removeAttachment(){
 	if (activeModals.includes('attachments')){
 		attachmentCloseArea.classList.remove('active');
-		console.log('removing attachment');
+		//console.log('removing attachment');
 		activeModals.splice(activeModals.indexOf('attachments'), 1);
-		console.log(activeModals);
+		//console.log(activeModals);
 	}
 }
 
@@ -3534,8 +3534,8 @@ function startRecordingAudio(){
 					recordedAudio.dataset.duration = timePassed;
 					recordCancel = false;
 					popupMessage('Recorded!');
-					console.log('recorder state: ', mediaRecorder.state);
-					console.log(`Duration: ${recordedAudio.dataset.duration} seconds`);
+					//console.log('recorder state: ', mediaRecorder.state);
+					//console.log(`Duration: ${recordedAudio.dataset.duration} seconds`);
 				}
 			};
 			//when the media recorder gets data
