@@ -217,6 +217,9 @@ code {
 .messageMain:hover {
   cursor: pointer;
 }
+.messageMain .msg {
+  transition: 100ms ease-in-out;
+}
 .messageMain .text {
   background: var(--msg-get);
   padding: 8px;

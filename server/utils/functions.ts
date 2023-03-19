@@ -1,20 +1,36 @@
-import { keyStore } from "../database/db.js";
+import crypto from 'crypto';
+import { keyStore } from '../database/db';
 
-export function makeid() : string {
-	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	let id = '';
-	for (let i = 0; i < 7; i++) {
-		// generate a random character from 0-9, A-Z, or a-z for xx-xxx-xx
-		id += possible.charAt(Math.floor(Math.random() * possible.length));
-		if (i === 1 || i === 4) {
-			id += '-';
+class idGenerator{
+	private static instance: idGenerator;
+	private constructor() {
+		// private constructor to prevent creating new instances
+	}
+	public static getInstance(): idGenerator {
+		if (!idGenerator.instance) {
+			idGenerator.instance = new idGenerator();
 		}
+		return idGenerator.instance;
 	}
 
-	if (keyStore.hasKey(id)) {
-		console.log('Duplicate key generated, generating new key...');
-		// if the key already exists, generate a new one
-		return makeid();
+	public makeid(): string {
+		const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		let id = '';
+		for (let i = 0; i < 7; i++) {
+			// generate a random character from 0-9, A-Z, or a-z for xx-xxx-xx
+			//use crypto.randomBytes instead of Math.random
+			id += possible.charAt(crypto.randomBytes(1)[0] % possible.length);
+			if (i === 1 || i === 4) {
+				id += '-';
+			}
+		}
+
+		if (keyStore.hasKey(id)) {
+			// if id already exists, generate a new one
+			return this.makeid();
+		}
+		return id;
 	}
-	return id;
 }
+
+export const makeid = idGenerator.getInstance().makeid;

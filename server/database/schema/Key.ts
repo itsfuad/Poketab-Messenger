@@ -7,7 +7,7 @@ export class Key{
 	admin: string | null;
 	created: number = Date.now();
 	keyName: string;
-	constructor(key: string){
+	public constructor(key: string){
 		this.keyName = key;
 		this.users = {};
 		this.admin = null;

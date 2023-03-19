@@ -660,6 +660,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 		}
 
 		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
+
 	}catch(err){
 		console.error(err);
 		popupMessage(err);
@@ -1204,7 +1205,7 @@ function hideReplyToast(){
 				}
 			}, 200);
 			replyToast.remove();
-		}, 100);
+		}, 150);
 	}
 }
 
@@ -1498,11 +1499,11 @@ export function updateScroll(avatar = null, text = ''){
 		return;
 	}
 	
-	requestAnimationFrame(() => {
+	setTimeout(() => {
 		const messages = document.getElementById('messages');
 		messages.scrollTo(0, messages.scrollHeight);
 		lastPageLength = messages.scrollTop;
-	});
+	}, 150);
 }
 
 
@@ -2005,7 +2006,7 @@ document.getElementById('stickers').addEventListener('click', e => {
 			//console.log('Server replay skipped');
 			const msg = document.getElementById(tempId);
 			msg?.classList.add('delevered');
-			playOutgoingSound();
+			//playOutgoingSound();
 		}else{
 			socket.emit('message', e.target.dataset.name, 'sticker', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, function(id){
 				playOutgoingSound();

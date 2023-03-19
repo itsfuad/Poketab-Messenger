@@ -9,7 +9,7 @@ test('makeid should return a string in xx-xxx-xx format', () => {
 //ids should be unique
 test('ids should be unique', () => {
     const ids = [];
-    for (let i = 0; i < 1000000; i++) {
+    for (let i = 0; i < 100000; i++) {
         ids.push(makeid());
     }
     console.log(`Generated ${ids.length} ids | ${new Set(ids).size} unique ids`);

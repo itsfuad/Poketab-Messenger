@@ -234,6 +234,9 @@ code{
     &:hover{
         cursor: pointer;
     }
+    .msg{
+        transition: 100ms ease-in-out;
+    }
     .text{
         background: var(--msg-get);
         padding: 8px;

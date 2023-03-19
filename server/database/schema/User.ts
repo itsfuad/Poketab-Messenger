@@ -3,7 +3,7 @@ export class User {
 	avatar: string;
 	uid: string;
 	joined: number;
-	constructor(username: string, uid: string, avatar: string){
+	public constructor(username: string, uid: string, avatar: string){
 		this.username = username;
 		this.avatar = avatar;
 		this.uid = uid;
