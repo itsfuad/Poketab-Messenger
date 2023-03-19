@@ -29,7 +29,6 @@ import { themePicker, themeArray, themeAccent } from './utils/themes.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
-
 //main message Element where all messages araree inserted
 const messages = document.getElementById('messages');
 
