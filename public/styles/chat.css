@@ -245,6 +245,9 @@ img:is(.sticker) {
   align-items: center;
   justify-content: center;
 }
+.button:hover {
+  filter: brightness(0.9);
+}
 
 #sidebar {
   padding: 10px 10px 0 10px;
@@ -932,6 +935,9 @@ input[type=file] {
   padding: 5px 10px;
   width: 100%;
 }
+.field-checkers:hover {
+  background: rgba(255, 255, 255, 0.0392156863);
+}
 .field-checkers input {
   position: absolute;
   opacity: 0;
@@ -1225,7 +1231,7 @@ i[class^=fa-] {
   padding: 10px 38px 10px 23px;
   width: 100%;
   max-height: 100px;
-  min-height: 38px;
+  min-height: 40px;
   overflow-x: auto;
   overflow-y: scroll;
   border: none;

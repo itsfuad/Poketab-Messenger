@@ -253,6 +253,9 @@ img:is(.sticker){
     padding: 8px 10px;
     align-items: center;
     justify-content: center;
+    &:hover{
+        filter: brightness(0.9);
+    }
 }
 
 #sidebar{
@@ -983,6 +986,10 @@ input[type=file] {
     padding: 5px 10px;
     width: 100%;
 
+    &:hover{
+        background: #ffffff0a;
+    }
+
     input {
         position: absolute;
         opacity: 0;
@@ -1301,7 +1308,7 @@ i[class^=fa-]{
     padding: 10px 38px 10px 23px;
     width: 100%;
     max-height: 100px;
-    min-height: 38px;
+    min-height: 40px;
     overflow-x: auto;
     overflow-y: scroll;
     border: none;
