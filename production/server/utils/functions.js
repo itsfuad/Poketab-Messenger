@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import { keyStore } from '../database/db.js';
 class idGenerator {
     constructor() {
@@ -16,7 +15,7 @@ class idGenerator {
         for (let i = 0; i < 7; i++) {
             // generate a random character from 0-9, A-Z, or a-z for xx-xxx-xx
             //use crypto.randomBytes instead of Math.random
-            id += possible.charAt(crypto.randomBytes(1)[0] % possible.length);
+            id += possible.charAt(Math.floor(Math.random() * possible.length));
             if (i === 1 || i === 4) {
                 id += '-';
             }
@@ -28,5 +27,5 @@ class idGenerator {
         return id;
     }
 }
-export const makeid = idGenerator.getInstance().makeid;
+export const generateUniqueId = idGenerator.getInstance().makeid;
 //# sourceMappingURL=functions.js.map

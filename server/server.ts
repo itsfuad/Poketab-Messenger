@@ -10,7 +10,7 @@ import crypto from 'crypto';
 
 //utility functions for the server
 import { validateUserName, validateAvatar, avList, validateKey } from './utils/validation.js';
-import { makeid } from './utils/functions.js';
+import { generateUniqueId } from './utils/functions.js';
 import { keyStore } from './database/db.js';
 
 import cookieParser from 'cookie-parser';
@@ -93,7 +93,7 @@ app.get('/create', (req, res) => {
 	res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);
 	res.setHeader('Developer', 'Fuad Hasan');
 	//create a key and send it to the client as cookie
-	const key = makeid();
+	const key = generateUniqueId();
 
 	//st cookie for 2 minutes
 	res.cookie('key', key, {maxAge: 120000, httpOnly: true, signed: true, sameSite: 'strict'});

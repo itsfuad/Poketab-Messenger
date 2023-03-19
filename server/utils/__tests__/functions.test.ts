@@ -1,18 +1,18 @@
 import { test, expect } from '@jest/globals';
-import { makeid } from './../functions.js';
+import { generateUniqueId } from './../functions.js';
 import { validateUserName } from './../validation.js';
 //using jest
 
 //makeid should return a string in xx-xxx-xx format
 test('makeid should return a string in xx-xxx-xx format', () => {
-	expect(makeid()).toMatch(/^[a-zA-Z0-9]{2}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{2}$/);
+	expect(generateUniqueId()).toMatch(/^[a-zA-Z0-9]{2}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{2}$/);
 });
 
 //ids should be unique
 test('ids should be unique', () => {
 	const ids = [];
 	for (let i = 0; i < 100000; i++) {
-		ids.push(makeid());
+		ids.push(generateUniqueId());
 	}
 	console.log(`Generated ${ids.length} ids | ${new Set(ids).size} unique ids`);
 	expect(new Set(ids).size).toBe(ids.length);
