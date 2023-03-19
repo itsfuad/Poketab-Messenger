@@ -356,7 +356,7 @@ img:is(.sticker) {
   color: inherit;
 }
 
-.themeChooser {
+.themePicker {
   width: 100vw;
   height: 100vh;
   display: grid;
@@ -372,7 +372,7 @@ img:is(.sticker) {
   transition: 100ms ease-in-out;
   filter: drop-shadow(0 4px 5px black);
 }
-.themeChooser.active {
+.themePicker.active {
   visibility: visible;
   opacity: 1;
   top: 0;

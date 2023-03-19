@@ -56,7 +56,7 @@ export const themeAccent = {
 export const themeArray = Object.keys(themeAccent);
 
 export const themePicker = document.createElement('div');
-themePicker.className = 'themeChooser';
+themePicker.className = 'themePicker';
 
 const themeList = document.createElement('ul');
 themeList.className = 'themeList';

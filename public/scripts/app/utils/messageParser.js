@@ -167,6 +167,31 @@ export function parseTemplate(template, data) {
 	// regex to match mustache-like tags for text
 	// eslint-disable-next-line no-useless-escape
 	const textRegex = /\{\{([\w\s\.\[\]]*)\}\}/g;
+
+	//if data is not an object, throw error
+	if (typeof data !== 'object' || data === null){
+		throw new Error('Data must be an object');
+	}
+
+	//if template is not a string, throw error
+	if (typeof template !== 'string'){
+		throw new Error('Template must be a string');
+	}
+
+	//if no template, return empty string
+	if (!template.trim()){
+		return '';
+	}
+
+	//if template has no tags, return template
+	if (!htmlRegex.test(template) && !textRegex.test(template)){
+		return template;
+	}
+
+	//if data is empty, return template by replacing all tags with empty string
+	if (Object.keys(data).length === 0){
+		return template.replace(htmlRegex, '').replace(textRegex, '');
+	}
 	
 	// replace all instances of mustache-like tags with the corresponding data value
 	const htmlResult = template.replace(htmlRegex, (match, tag) => {

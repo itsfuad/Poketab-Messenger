@@ -38,4 +38,41 @@ test('parseTemplate Parses the template', () => {
 	const template3 = 'Hello, {{name}}! You have {{count}} unread messages. {{{html}}}';
 	const data3 = { name: 'John', count: 5, html: '<strong>HTML</strong>' };
 	expect(parseTemplate(template3, data3)).toBe('Hello, John! You have 5 unread messages. <strong>HTML</strong>');
+
+	const template4 = 'Hello, {{name}}! You have {{count}} unread messages. {{{html}}} {{{html}}}';
+	const data4 = { name: 'John', count: 5, html: '<strong>HTML</strong>' };
+	expect(parseTemplate(template4, data4)).toBe('Hello, John! You have 5 unread messages. <strong>HTML</strong> <strong>HTML</strong>');
+
+	//empty data
+	const template5 = 'Hello, {{name}}! You have {{count}} unread messages. {{{html}}} {{{html}}}';
+	const data5 = {};
+	expect(parseTemplate(template5, data5)).toBe('Hello, ! You have  unread messages.  ');
+
+	//empty template
+	const template6 = '';
+	const data6 = { name: 'John', count: 5, html: '<strong>HTML</strong>' };
+	expect(parseTemplate(template6, data6)).toBe('');
+});
+
+//test for template parser to handle invalid data
+test('parseTemplate should handle invalid data', () => {
+	//empty data and template
+	const template7 = '';
+	const data7 = {};
+	expect(parseTemplate(template7, data7)).toBe('');
+
+	//invalid template
+	const template8 = 'Hello World';
+	const data8 = { name: 'John', count: 5, html: '<strong>HTML</strong>' };
+	expect(parseTemplate(template8, data8)).toBe('Hello World');
+
+	//invalid data
+	const template9 = 'Hello, {{name}}! You have {{count}} unread messages. {{{html}}} {{{html}}}';
+	//expect to throw error
+	expect(() => parseTemplate(template9, null)).toThrowError('Data must be an object');
+
+	//invalid template
+	const template10 = 293;
+	const data10 = { name: 'John', count: 5, html: '<strong>HTML</strong>' };
+	expect(() => parseTemplate(template10, data10)).toThrowError('Template must be a string');
 });
