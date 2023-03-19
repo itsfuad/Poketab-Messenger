@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { keyStore } from '../database/db';
+import { keyStore } from '../database/db.js';
 
 class idGenerator{
 	private static instance: idGenerator;
