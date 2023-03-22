@@ -985,7 +985,7 @@ input[type=file] {
     padding: 10px;
     padding: 5px 10px;
     width: 100%;
-
+    border-radius: 10px;
     &:hover{
         background: #ffffff0a;
     }
@@ -1605,7 +1605,6 @@ i[class^=fa-]{
     }
 }
 
-
 .moreReactsContainer{
     position: fixed;
     bottom: -20px;
@@ -1641,26 +1640,13 @@ i[class^=fa-]{
         flex-direction: row;
         align-items: center;
         font-size: 1.6rem;
+        padding: 5px;
         flex-wrap: wrap;
         width: 100%;
         overflow-y: scroll;
         transition: 100ms ease-in-out;
         align-content: flex-start;
         justify-content: center;
-        .react-emoji{
-            border-radius: 30px;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            filter: saturate(0.8);
-            align-items: center;
-            justify-content: center;
-            &:hover{
-                cursor: pointer;
-                background: var(--focus-dark);
-                filter: saturate(1);
-            }
-        }
     }
 }
 
@@ -1675,13 +1661,13 @@ i[class^=fa-]{
     border-radius: 10px;
     //background: var(--primary-dark);
     transition: 100ms ease-in-out;
-    & > *{
+    .option {
         transition: 100ms ease-in;
-    }
-    & > :hover{
-        cursor: pointer;
-        //background: var(--focus-dark);
-        border-radius: 10px;
+        &:hover{
+            cursor: pointer;
+            //background: var(--focus-dark);
+            border-radius: 10px;
+        }
     }
 }
 
@@ -1692,23 +1678,64 @@ i[class^=fa-]{
     background: var(--primary-dark);
     border-radius: 30px;
     filter: drop-shadow(0 4px 5px black);
-    & > div{
-        border-radius: 30px;
-        width: 35px;
-        height: 35px;
-        display: flex;
-        filter: saturate(0.8);
-        align-items: center;
-        justify-content: center;
-        &:hover{
-            cursor: pointer;
+}
+
+
+.reactWrapper{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 30px;
+    width: 35px;
+    height: 35px;
+    filter: saturate(0.8);
+    .react-emoji{
+        transform: scale(1);
+        transition: 150ms ease-in-out;
+        filter: saturate(1);
+        transform-origin: bottom;
+        pointer-events: none;
+    }
+    &:hover{
+        .react-emoji{
             filter: saturate(1.2);
+            transform: scale(1.2);
         }
     }
 }
 
+.react{
+    position: relative;
+}
+
+
+.react-popup{
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: bottom;
+    
+    &.active{        
+        animation: popup 600ms alternate 2;
+    }
+}
+
+@keyframes popup {
+    0%{
+        transform: scale(1) translateY(0px);
+        opacity: 0;
+    }
+    100%{
+        transform: scale(1.6) translateY(-10px);
+        opacity: 1;
+    }
+}
+
+
 #normalOptions{
-    & > div{
+    .option{
         display: flex;
         flex-direction: column;
         justify-content: center;

@@ -151,6 +151,7 @@ export class TextParser {
 	}
 }
 
+
 /**
  * Simple templating engine that parses mustache-like tags in a template string and replaces them with the corresponding data value.
  * {{tag}} for text and {{{tag}}} for HTML
@@ -195,22 +196,25 @@ export function parseTemplate(template, data) {
 	
 	// replace all instances of mustache-like tags with the corresponding data value
 	const htmlResult = template.replace(htmlRegex, (match, tag) => {
-		// use eval() to evaluate the tag expression and retrieve the data value
-		if (data[tag]){
-			return data[tag];
+		if (data[tag] == undefined || data[tag] == ''){
+			return '';
 		}
+		if (typeof data[tag] === 'number'){
+			data[tag] = toString(data[tag]);
+		}
+		return data[tag];
 	});
   
 	const textResult = htmlResult.replace(textRegex, (match, tag) => {
 		//if tag found in data
-		if (data[tag]){
-			//if data is a number, convert to string, otherwise return data
-			if( typeof data[tag] == 'number'){
-				return data[tag].toString();
-			}else{
-				return data[tag];
-			}
+		if (data[tag] == undefined || data[tag] == ''){
+			return '';
 		}
+		if (typeof data[tag] === 'number'){
+			data[tag] = data[tag].toString();
+		}
+		data[tag] = escapeXSS(data[tag]);
+		return data[tag] ? data[tag] : '';
 	});
   
 	return textResult;

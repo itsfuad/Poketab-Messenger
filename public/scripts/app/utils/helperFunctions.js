@@ -20,7 +20,6 @@ export function arrayToMap(array) {
 	return map;
 }
 
-
 /**
  * 
  * @param {number} timestamp 

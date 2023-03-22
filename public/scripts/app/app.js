@@ -9,7 +9,6 @@ import { PanZoom } from '../../libs/panzoom.min.js';
 import { sanitizeImagePath, sanitize } from './utils/sanitizer.js';
 import { 
 	getFormattedDate, 
-	arrayToMap, 
 	reactArray, 
 	shortFileName, 
 	getTypingString,
@@ -279,16 +278,21 @@ const modalCloseMap = new Map();
  */
 function loadReacts(){
 	//load all the reacts from the react object
-	const reacts = document.getElementById('reactOptions');
+	const reactOptions = document.getElementById('reactOptions');
 
 	for (let i = 0; i < reactArray.primary.length - 1; i++){
-		const react = document.createElement('div');
 
-		react.classList.add(`${reactArray.primary[i]}`);
+		const reactWrapper = document.createElement('div');
+		reactWrapper.classList.add('reactWrapper');
+
+		const react = document.createElement('div');
 		react.classList.add('react-emoji');
 		react.textContent = reactArray.primary[i];
+		reactWrapper.dataset.react = reactArray.primary[i];
+
+		reactWrapper.appendChild(react);
      
-		reacts.insertBefore(react, reacts.lastElementChild);
+		reactOptions.insertBefore(reactWrapper, reactOptions.lastElementChild);
 	}
 
 	let lastReact = localStorage.getItem('lastReact') || reactArray.last;
@@ -297,24 +301,30 @@ function loadReacts(){
 		lastReact = '🌻';
 	}
 
+	const lastWrapper = document.createElement('div');
+	lastWrapper.classList.add('reactWrapper', 'last');
+
 	const last = document.createElement('div');
-
-	last.classList.add(`${lastReact}`);
 	last.classList.add('react-emoji');
-	last.classList.add('last');
 	last.textContent = lastReact;
+	lastWrapper.dataset.react = lastReact;
 
-	reacts.insertBefore(last, reacts.lastElementChild);
+	lastWrapper.appendChild(last);
+
+	reactOptions.insertBefore(lastWrapper, reactOptions.lastElementChild);
 
 	const moreReacts = document.querySelector('.moreReacts');
 
 	for (let i = 0; i < reactArray.expanded.length; i++){
-       
-		const moreRreact = document.createElement('div');
-		moreRreact.classList.add('react-emoji');
-		moreRreact.classList.add(`${reactArray.expanded[i]}`);
-		moreRreact.textContent = reactArray.expanded[i];
-		moreReacts.appendChild(moreRreact);
+		const moreReactWrapper = document.createElement('div');
+		moreReactWrapper.classList.add('reactWrapper');
+
+		const moreReact = document.createElement('div');
+		moreReact.classList.add('react-emoji');
+		moreReact.textContent = reactArray.expanded[i];
+		moreReactWrapper.dataset.react = reactArray.expanded[i];
+		moreReactWrapper.appendChild(moreReact);
+		moreReacts.appendChild(moreReactWrapper);
 	}
 }
 
@@ -459,9 +469,11 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 		const messageIsEmoji = isEmoji(message); //if the message is an emoji
 		if (type === 'text'){ //if the message is a text message
 			message = `<div class="msg text">${new TextParser().parse(message)}</div>`;
-			const virtualElement = document.createElement('div');
-			virtualElement.innerHTML = message;
-			popupmsg = virtualElement.textContent.length > 10 ? virtualElement.textContent.substring(0, 7) + '...' : virtualElement.textContent;//the message to be displayed in the popup if user scrolled up
+			const fragment = document.createDocumentFragment();
+			const el = document.createElement('div');
+			el.innerHTML = message;
+			fragment.appendChild(el);
+			popupmsg = fragment.textContent.length > 10 ? fragment.textContent.substring(0, 7) + '...' : fragment.textContent;//the message to be displayed in the popup if user scrolled up
 		}else if(type === 'image'){ //if the message is an image
 			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
 			message = sanitizeImagePath(message); //sanitize the image path
@@ -691,15 +703,15 @@ function showOptions(type, sender, target){
 	//removes all showing options first if any
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
 
-	document.querySelectorAll('#reactOptions div').forEach(
+	document.getElementById('reactOptions').querySelectorAll('.reactWrapper').forEach(
+		emoji => emoji.style.background = 'none'
+	);
+
+	document.querySelectorAll('.moreReacts .reactWrapper').forEach(
 		option => option.style.background = 'none'
 	);
 
-	document.querySelectorAll('.moreReacts div').forEach(
-		option => option.style.background = 'none'
-	);
-
-	document.getElementById('showMoreReactBtn').style.background = 'none';
+	//!document.getElementById('showMoreReactBtn').style.background = 'none';
 	
 	const downloadable = {
 		'image': true,
@@ -727,21 +739,20 @@ function showOptions(type, sender, target){
 	if (clicked){ //if the message has my reaction
 		//get how many reactions the message has
 		const clickedElement = target.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
-		//console.log(clickedElement);
 		if (reactArray.primary.includes(clickedElement)){ //if the message has my primary reaction
 			//selected react color
-			document.querySelector(`#reactOptions .${clickedElement}`).style.background = themeAccent[THEME].secondary;
+			document.querySelector(`#reactOptions [data-react="${clickedElement}"]`).style.background = themeAccent[THEME].secondary;
 		}
 		if (reactArray.expanded.includes(clickedElement)){
-			document.querySelector(`.moreReacts .${clickedElement}`).style.background = themeAccent[THEME].secondary;
+			document.querySelector(`.moreReacts [data-react="${clickedElement}"]`).style.background = themeAccent[THEME].secondary;
 		}
 		if (reactArray.expanded.includes(clickedElement) && !reactArray.primary.includes(clickedElement)){
 			//2nd last element
 			const elm = document.querySelector('#reactOptions');
 			const lastElm = elm.lastElementChild.previousElementSibling;
 			lastElm.style.background = themeAccent[THEME].secondary;
-			lastElm.classList.replace(lastElm.classList[0], clickedElement);
-			lastElm.textContent = clickedElement;
+			lastElm.dataset.react = clickedElement;
+			lastElm.querySelector('.react-emoji').textContent = clickedElement;
 			reactArray.last = clickedElement;
 		}
 	}
@@ -780,6 +791,7 @@ function optionsMainEvent(e){
 	if (target.classList.contains('close_area') || target.id == 'optionsContainer'){
 		hideOptions();
 	}
+	//passes the event to the react event handler, Which handles the reactions if the target is a react
 	optionsReactEvent(e);
 }
 
@@ -914,12 +926,15 @@ function downloadFile(){
 }
 
 /**
- * 
+ * Handles the react event
+ * This function is called when the user clicks on a react
  * @param {Event} e 
  */
 function optionsReactEvent(e){
-	const target = e.target?.classList[0];
-	if (target){
+	//get the react
+	const isReact = e.target?.classList.contains('reactWrapper');
+	if (isReact){
+		const target = e.target.dataset.react;
 		sendReact(target);
 	}
 }
@@ -1209,6 +1224,20 @@ function hideReplyToast(){
 	}
 }
 
+/**
+ * 
+ * @param {HTMLElement} target 
+ * @param {string} uid 
+ * @param {string} reactEmoji 
+ */
+function appendReactToMessage(target, uid, reactEmoji){
+	playReactSound();
+	const div = document.createElement('div');
+	div.classList.add('list');
+	div.dataset.uid = uid;
+	div.textContent = reactEmoji;
+	target.append(div);
+}
 
 /**
  * 
@@ -1218,7 +1247,8 @@ function hideReplyToast(){
  */
 export function getReact(reactEmoji, messageId, uid){
 	try{
-		const target = document.getElementById(messageId).querySelector('.reactedUsers');
+		const targetMessage = document.getElementById(messageId);
+		const target = targetMessage.querySelector('.reactedUsers');
 		const exists = target.querySelector('.list') ? true : false;
 		if (exists){
 			const list = target.querySelector('.list[data-uid="'+uid+'"]');
@@ -1229,85 +1259,111 @@ export function getReact(reactEmoji, messageId, uid){
 					list.textContent = reactEmoji;
 				}
 			}else{
-				playReactSound();
-				const fragment = document.createDocumentFragment();
-				const div = document.createElement('div');
-				div.classList.add('list');
-				div.dataset.uid = uid;
-				div.textContent = reactEmoji;
-				fragment.append(div);
-				target.append(fragment);
+				appendReactToMessage(target, uid, reactEmoji);
 			}
-    
 		}
 		else{
-			const fragment = document.createDocumentFragment();
-			const div = document.createElement('div');
-			div.classList.add('list');
-			div.dataset.uid = uid;
-			div.textContent = reactEmoji;
-			fragment.append(div);
-			target.append(fragment);
-			playReactSound();
+			appendReactToMessage(target, uid, reactEmoji);
 		}
     
 		const list = Array.from(target.querySelectorAll('.list'));
-		
-		const map = arrayToMap(list);
     
-		const reactsOfMessage = document.getElementById(messageId).querySelector('.reactsOfMessage');
+		//main react container
+		const reactsOfMessage = targetMessage.querySelector('.reactsOfMessage');
 
-		if (reactsOfMessage && map.size > 0){
-			//delete reactsOfMessage all child nodes
-			while (reactsOfMessage.firstChild) {
-				reactsOfMessage.removeChild(reactsOfMessage.firstChild);
-			}
+		//reacts container
+		const reactItem = reactsOfMessage.querySelector('.react-item');
 
-
-			let count = 0;
-			let totalReacts = 0;
-
-			const reactItems = document.createElement('span');
-			reactItems.classList.add('react-item');
-
-			map.forEach((value, key) => {
-				if (count >= 3){
-					reactItems.querySelector('.react-emoji').remove();
+		//if other react has the uid
+		const currentReact = reactItem.querySelector(`.react[data-emoji="${reactEmoji}"]`);
+		if (currentReact){
+			//console.log('Same react found: ', currentReact);
+			//if the sender is same, then remove uid
+			if ( currentReact.dataset.uids.includes(uid) ){
+				currentReact.dataset.uids = currentReact.dataset.uids.replace(`${uid};`, '');
+				//console.log('uid removed from : ', currentReact.dataset.emoji);
+				if (currentReact.dataset.uids == ''){
+					currentReact.remove();
 				}
-
-				const react = document.createElement('span');
-				react.classList.add('react-emoji');
-				react.textContent = key;
-
-				reactItems.append(react);
-
-				count++;
-				totalReacts += value;
-			});
-			
-			const reactsCount = document.createElement('span');
-			reactsCount.classList.add('react-count');
-			reactsCount.textContent = totalReacts;
-
-			reactsOfMessage.append(reactItems, reactsCount);
-
-			if (parseInt(reactsCount.textContent) > 1){
-				reactsOfMessage.classList.add('pad');
 			}else{
-				reactsOfMessage.classList.remove('pad');
+				//if user has other reacts on the same target
+				const previousReact = reactItem.querySelector(`.react[data-uids*="${uid}"]`);
+				if (previousReact){
+					//remove uid
+					previousReact.dataset.uids = previousReact.dataset.uids.replace(`${uid};`, '');
+					//console.log('uid removed from previous : ', previousReact.dataset.emoji);
+					if (previousReact.dataset.uids == ''){
+						previousReact.remove();
+					}
+				}
+				//add uid to the current react
+				currentReact.dataset.uids += `${uid};`;
+				//reset the animation
+				const animation = reactItem.querySelector('.react-popup');
+				animation.classList.remove('active');
+				setTimeout(() => {
+					animation.classList.add('active');
+				}, 10);
 			}
-
-			document.getElementById(messageId).classList.add('react');
-			//document.getElementById(messageId).querySelector('.messageContainer').style.paddingBottom = '12px';
-
-			checkgaps(messageId);
 		}else{
-			document.getElementById(messageId).classList.remove('react');
-			checkgaps(messageId);
+
+			//if user has other reacts on the same target
+			const previousReact = reactItem.querySelector(`.react[data-uids*="${uid}"]`);
+			if (previousReact){
+				//remove uid
+				previousReact.dataset.uids = previousReact.dataset.uids.replace(`${uid};`, '');
+				//console.log('uid removed from previous : ', previousReact.dataset.emoji);
+				if (previousReact.dataset.uids == ''){
+					previousReact.remove();
+				}
+			}
+			//react does not exists, so make it.
+			//console.log('Creating new react : ', reactEmoji);
+			const react = document.createElement('span');
+			react.classList.add('react');
+			react.dataset.uids = `${uid};`;
+			react.dataset.emoji = reactEmoji;
+
+			const emoji = document.createElement('span');
+			emoji.classList.add('emoji');
+			emoji.textContent = reactEmoji;
+
+			const animation = document.createElement('span');
+			animation.classList.add('react-popup');
+			animation.textContent = reactEmoji;
+			animation.classList.add('active');
+			
+			react.appendChild(emoji);
+			react.appendChild(animation);
+			
+			reactItem.appendChild(react);
 		}
+
+		const reactsCount = reactsOfMessage.querySelector('.react-count');
+
+		reactsCount.textContent = list.length;
+		
+		if (list.length > 0){
+			targetMessage.classList.add('react');
+			//console.log('Reacted');
+		}else{
+			targetMessage.classList.remove('react');
+			//console.log('No react');
+		}
+
+		if (list.length > 1){
+			reactsOfMessage.classList.add('pad');
+		}else{
+			reactsOfMessage.classList.remove('pad');
+		}
+
+		//targetMessage.querySelector('.messageContainer').style.paddingBottom = '12px';
+
+		checkgaps(messageId);
+
 		updateScroll();
 	}catch(e){
-		console.log('Message not exists');
+		console.log(e);
 	}
 }
 
@@ -2113,9 +2169,10 @@ function updateReactsChooser(){
 
 document.querySelector('.moreReacts').addEventListener('click', (evt)=>{
 	const target = evt.target;
+	console.log(target);
 	//if target is not self
-	if (target.classList.contains('react-emoji')){
-		const react = target.textContent;
+	if (target.classList.contains('reactWrapper')){
+		const react = target.dataset.react;
 		sendReact(react);
 		hideOptions();
 	}

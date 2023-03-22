@@ -41,6 +41,7 @@ io.on('connection', (socket) => {
 				//get all taken avatars
 				const takenAvatars = keyStore.getUserList(params.key).map((user) => user.avatar);
 				//check if the avatar is taken
+				//console.log(takenAvatars);
 				if (takenAvatars.includes(params.avatar)){
 					return callback('Avatar is taken');
 				}
@@ -134,6 +135,8 @@ io.on('connection', (socket) => {
 				socket.leave(key);
 
 				const users = keyStore.getKey(key).getUserList();
+
+				//console.log(users);
 		
 				socket.broadcast.to(key).emit('updateUserList', users);
 				const srvID = crypto.randomUUID();

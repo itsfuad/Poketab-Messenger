@@ -934,6 +934,7 @@ input[type=file] {
   padding: 10px;
   padding: 5px 10px;
   width: 100%;
+  border-radius: 10px;
 }
 .field-checkers:hover {
   background: rgba(255, 255, 255, 0.0392156863);
@@ -1556,26 +1557,13 @@ i[class^=fa-] {
   flex-direction: row;
   align-items: center;
   font-size: 1.6rem;
+  padding: 5px;
   flex-wrap: wrap;
   width: 100%;
   overflow-y: scroll;
   transition: 100ms ease-in-out;
   align-content: flex-start;
   justify-content: center;
-}
-.moreReactsContainer .moreReacts .react-emoji {
-  border-radius: 30px;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  filter: saturate(0.8);
-  align-items: center;
-  justify-content: center;
-}
-.moreReactsContainer .moreReacts .react-emoji:hover {
-  cursor: pointer;
-  background: var(--focus-dark);
-  filter: saturate(1);
 }
 
 .options {
@@ -1589,10 +1577,10 @@ i[class^=fa-] {
   border-radius: 10px;
   transition: 100ms ease-in-out;
 }
-.options > * {
+.options .option {
   transition: 100ms ease-in;
 }
-.options > :hover {
+.options .option:hover {
   cursor: pointer;
   border-radius: 10px;
 }
@@ -1605,21 +1593,55 @@ i[class^=fa-] {
   border-radius: 30px;
   filter: drop-shadow(0 4px 5px black);
 }
-#reactOptions > div {
+
+.reactWrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
   border-radius: 30px;
   width: 35px;
   height: 35px;
-  display: flex;
   filter: saturate(0.8);
-  align-items: center;
-  justify-content: center;
 }
-#reactOptions > div:hover {
-  cursor: pointer;
+.reactWrapper .react-emoji {
+  transform: scale(1);
+  transition: 150ms ease-in-out;
+  filter: saturate(1);
+  transform-origin: bottom;
+  pointer-events: none;
+}
+.reactWrapper:hover .react-emoji {
   filter: saturate(1.2);
+  transform: scale(1.2);
 }
 
-#normalOptions > div {
+.react {
+  position: relative;
+}
+
+.react-popup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: bottom;
+}
+.react-popup.active {
+  animation: popup 600ms alternate 2;
+}
+
+@keyframes popup {
+  0% {
+    transform: scale(1) translateY(0px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.6) translateY(-10px);
+    opacity: 1;
+  }
+}
+#normalOptions .option {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1627,13 +1649,13 @@ i[class^=fa-] {
   gap: 3px;
   padding: 15px;
 }
-#normalOptions > div i, #normalOptions > div span {
+#normalOptions .option i, #normalOptions .option span {
   pointer-events: none;
 }
-#normalOptions > div span {
+#normalOptions .option span {
   font-size: 0.7rem;
 }
-#normalOptions > div:is(.closeOption, .deleteOption) > * {
+#normalOptions .option:is(.closeOption, .deleteOption) > * {
   color: var(--red) !important;
 }
 

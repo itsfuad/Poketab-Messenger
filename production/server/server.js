@@ -115,7 +115,18 @@ app.get('/chat', (_, res) => {
         res.redirect('/join');
     }
     else {
-        approveNewChatRequest(res, { username: 'Admin', key: '00-000-00', avatar: 'squirtle', max_users: 4 });
+        //make random username
+        const usernameList = [
+            'Jay',
+            'John',
+            'Levi',
+            'Cristine',
+            'Alex',
+            'Ruby'
+        ];
+        const username = usernameList[Math.floor(Math.random() * usernameList.length)];
+        const avatar = avList[Math.floor(Math.random() * avList.length)];
+        approveNewChatRequest(res, { username: username, key: '00-000-00', avatar: avatar, max_users: 4 });
     }
 });
 app.post('/chat', (req, res) => {
@@ -229,7 +240,7 @@ server.listen(port, () => {
     console.log(`Server is up on port ${port} | Process ID: ${process.pid} in ${ENVIRONMENT} mode`);
     const HOOK_API_KEY = process.env.HOOK_API_KEY;
     const CHAT_ID = process.env.CHAT_ID;
-    if (HOOK_API_KEY && CHAT_ID) {
+    if (ENVIRONMENT === 'PRODUCTION' && HOOK_API_KEY && CHAT_ID) {
         fetch(`https://api.telegram.org/bot${HOOK_API_KEY}/sendMessage?chat_id=${CHAT_ID}&text=Server is up on port ${port} | Process ID: ${process.pid} in ${ENVIRONMENT} mode`, { method: 'GET' });
     }
 });

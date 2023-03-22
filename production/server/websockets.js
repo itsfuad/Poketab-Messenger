@@ -35,6 +35,7 @@ io.on('connection', (socket) => {
                 //get all taken avatars
                 const takenAvatars = keyStore.getUserList(params.key).map((user) => user.avatar);
                 //check if the avatar is taken
+                //console.log(takenAvatars);
                 if (takenAvatars.includes(params.avatar)) {
                     return callback('Avatar is taken');
                 }
@@ -108,6 +109,7 @@ io.on('connection', (socket) => {
                 delete SocketIds[socket.id];
                 socket.leave(key);
                 const users = keyStore.getKey(key).getUserList();
+                //console.log(users);
                 socket.broadcast.to(key).emit('updateUserList', users);
                 const srvID = crypto.randomUUID();
                 socket.broadcast.to(key).emit('server_message', { color: 'orangered', text: `${user.username} left the chat.🐸`, who: user.uid, id: srvID }, 'leave');

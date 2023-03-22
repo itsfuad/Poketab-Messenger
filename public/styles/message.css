@@ -47,7 +47,7 @@ code {
   flex-direction: row-reverse;
   align-items: flex-end;
   position: relative;
-  padding: 0 12px 0 5px;
+  padding: 0 15px 0 5px;
 }
 .message .messageContainer {
   display: flex;

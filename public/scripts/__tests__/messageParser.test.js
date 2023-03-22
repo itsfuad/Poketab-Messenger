@@ -52,6 +52,10 @@ test('parseTemplate Parses the template', () => {
 	const template6 = '';
 	const data6 = { name: 'John', count: 5, html: '<strong>HTML</strong>' };
 	expect(parseTemplate(template6, data6)).toBe('');
+
+	const template7 = '<div class="{{classes}}" reply-id="{{repID}}">{{{html}}}</div>';
+	const data7 = {'classes': 'self start', 'repID': '2a-28afa-2a981'};
+	expect(parseTemplate(template7, data7)).toBe('<div class="self start" reply-id="2a-28afa-2a981"></div>');
 });
 
 //test for template parser to handle invalid data
