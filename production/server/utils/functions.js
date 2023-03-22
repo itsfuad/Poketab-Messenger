@@ -1,4 +1,5 @@
 import { keyStore } from '../database/db.js';
+import { avList } from './validation.js';
 class idGenerator {
     constructor() {
         // private constructor to prevent creating new instances
@@ -25,6 +26,32 @@ class idGenerator {
             return this.makeid();
         }
         return id;
+    }
+}
+//make random username
+const usernameList = [
+    'Jay',
+    'John',
+    'Levi',
+    'Cristine',
+    'Alex',
+    'Ruby',
+    'Silva',
+    'Daniel',
+    'Lena',
+    'Gabbie Carter',
+    'Ella Knox'
+];
+export function makeUsernameandPasswordForDevelopment(key) {
+    const username = usernameList[Math.floor(Math.random() * usernameList.length)];
+    const avatar = avList[Math.floor(Math.random() * avList.length)];
+    const existingNames = keyStore.getUserList(key).map((user => user.username));
+    const existingAvatars = keyStore.getUserList(key).map((user => user.avatar));
+    if (existingNames.includes(username) || existingAvatars.includes(avatar)) {
+        return makeUsernameandPasswordForDevelopment(key);
+    }
+    else {
+        return { username, avatar };
     }
 }
 export const generateUniqueId = idGenerator.getInstance().makeid;

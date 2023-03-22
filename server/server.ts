@@ -10,7 +10,7 @@ import crypto from 'crypto';
 
 //utility functions for the server
 import { validateUserName, validateAvatar, avList, validateKey } from './utils/validation.js';
-import { generateUniqueId } from './utils/functions.js';
+import { generateUniqueId, makeUsernameandPasswordForDevelopment } from './utils/functions.js';
 import { keyStore } from './database/db.js';
 
 import cookieParser from 'cookie-parser';
@@ -146,17 +146,7 @@ app.get('/chat', (_, res) => {
 	if (ENVIRONMENT != 'DEVELOPMENT'){
 		res.redirect('/join');
 	}else{
-		//make random username
-		const usernameList = [
-			'Jay',
-			'John',
-			'Levi', 
-			'Cristine', 
-			'Alex',
-			'Ruby'
-		];
-		const username = usernameList[Math.floor(Math.random() * usernameList.length)];
-		const avatar = avList[Math.floor(Math.random() * avList.length)];
+        const { username, avatar } = makeUsernameandPasswordForDevelopment('00-000-00');
 		approveNewChatRequest(res, {username: username, key: '00-000-00', avatar: avatar, max_users: 4});
 	}
 });
