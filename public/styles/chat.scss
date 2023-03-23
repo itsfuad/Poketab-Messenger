@@ -96,7 +96,7 @@ body{
     flex-direction: row;
     transition: 100ms ease-in-out;
     left: -100%;
-    z-index: 90;
+    z-index: 60;
     &.active{
         left: 0;
     }
@@ -125,7 +125,7 @@ body{
     right: 0;
     display: flex;
     align-items: flex-end;
-    z-index: 10;
+    z-index: 40;
     pointer-events: none;
 
     .stickersPanel{
@@ -273,6 +273,9 @@ img:is(.sticker){
     #keyname{
         padding-bottom: 20px;
         font-weight: 300;
+        & *{
+            pointer-events: none;
+        }
         &:hover{
             filter: brightness(0.9);
         }
@@ -382,7 +385,7 @@ img:is(.sticker){
     left: 0;
     bottom: 0;
     right: 0;
-    z-index: 105;
+    z-index: 55;
     transition: 100ms ease-in-out;
     filter: drop-shadow(0 4px 5px black);
     &.active{
@@ -407,7 +410,16 @@ img:is(.sticker){
     display: flex;
     flex-direction: row;
     align-items: center;
+    padding: 5px;
+    border-radius: 10px;
     gap: 10px;
+    &:hover{
+        background: #ffffff0a;
+    }
+    //all elements inside theme should not fire click event
+    & *{
+        pointer-events: none;
+    }
 }
 
 .themeIcon{
@@ -516,13 +528,11 @@ img{
         width: 100%;
         z-index: 15;
         font-size: 0.9rem;
+        padding: 5px;
         color: var(--foreground-dark);
         border-bottom: 1px solid #ffffff0a;
         //background: var(--primary-dark);
         //filter: drop-shadow(0 4px 5px black);
-        & > div{
-            padding: 10px;
-        }
         i{
             color: inherit;
             font-size: 0.9rem;
@@ -533,6 +543,7 @@ img{
             align-items: center;
             justify-content: center;
             gap: 5px;
+            padding: 10px;
         }
     }
     .welcome_wrapper{
@@ -867,7 +878,7 @@ input[type=file] {
 
 
 
-#previewFile{
+#filePreviewContainer{
     position: fixed;
     bottom: 0;
     left: 0;
@@ -880,7 +891,7 @@ input[type=file] {
     justify-content: center;
     align-items: center;
     gap: 5px;
-    z-index: 20;
+    z-index: 110;
     isolation: isolate;
     visibility: hidden;
     opacity: 0;
@@ -947,20 +958,30 @@ input[type=file] {
     }   
 }
 
-
-.previewFileOptions{
+#filePreviewOptions{
     position: absolute;
     display: flex;
     flex-direction: row;
     align-items: center;
-    width: 100%;
     max-width: 500px;
     justify-content: space-between;
     z-index: 1;
     padding: 10px;
     background: var(--primary-dark);
     border-radius: 50px;
-    bottom: 0;
+    transition: 100ms ease-in-out;
+    //transition-delay: 100ms;
+    bottom: -50px;
+    width: 80%;
+    opacity: 0;
+    visibility: hidden;
+
+    &.active{
+        opacity: 1;
+        visibility: visible;
+        bottom: 0px;
+        width: 100%;
+    }
 
     #items-count{
         font-size: .8rem;
@@ -1075,7 +1096,7 @@ input[type=file] {
     width: 100%;
     top: 0;
     left: 0;
-    z-index: 100;
+    z-index: 50;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1178,12 +1199,23 @@ i[class^=fa-]{
     }
 }
 
-#more{
-    padding: 0 10px;
-    position: relative;
-    transition: 150ms ease-in-out;
+#more i{
+    font-size: 1.2rem;
 }
 
+.hoverBtn{
+    width: 40px;
+    height: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 25px;
+    cursor: pointer;
+    &:hover{
+        background: #ffffff0a;
+    }
+}
 
 .optionPanel{
     display: flex;
@@ -1371,12 +1403,14 @@ i[class^=fa-]{
         flex-direction: row;
         align-items: center;
         color: grey;
+        max-height: 120px;
+        overflow: hidden;
         i {
             font-size: 0.8rem;
             color: grey;
         }
         .image, .sticker{
-            max-height: 50px;
+            max-height: 100px;
             width: auto;
             padding: 3px;
             border-radius: 8px;
@@ -1484,7 +1518,7 @@ i[class^=fa-]{
             }
         }
     }
-    #lightbox__image{
+    #lightboxImage{
         max-width: 90%;
         max-height: 90%;
         display: flex;
@@ -1706,30 +1740,18 @@ i[class^=fa-]{
     }
 }
 
-.react{
-    position: relative;
-}
-
-
-.react-popup{
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform-origin: bottom;
-    
-    &.active{        
-        animation: popup 600ms alternate 2;
-    }
-}
-
-@keyframes popup {
-    0%{
-        transform: scale(1) translateY(0px);
-        opacity: 0;
-    }
-    100%{
-        transform: scale(1.6) translateY(-10px);
-        opacity: 1;
+#showMoreReactBtn{
+    border-radius: 25px;
+    background: #ffffff3d;
+    transition: none;
+    border-radius: 30px;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &:hover{
+        background: #ffffff2d;
     }
 }
 

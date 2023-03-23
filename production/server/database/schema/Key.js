@@ -50,5 +50,4 @@ export class Key {
         return avatarArray;
     }
 }
-//module.exports = { Key };
 //# sourceMappingURL=Key.js.map

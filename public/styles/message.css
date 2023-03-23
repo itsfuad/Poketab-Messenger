@@ -135,33 +135,31 @@ code {
   object-fit: inherit;
   border-radius: inherit;
 }
-.message .messageBody .reactsOfMessage {
-  position: absolute;
-  bottom: -12px;
-  z-index: 15;
-  flex-direction: row;
-  background: var(--msg-get-reply);
-  border-radius: 10px;
-  z-index: 15;
-  display: none;
-  width: max-content;
-}
-.message .messageBody .reactsOfMessage .react-count {
-  display: none;
-}
-.message .messageBody .reactsOfMessage.pad {
-  padding: 0 5px;
-}
-.message .messageBody .reactsOfMessage.pad .react-count {
-  display: block;
-}
-.message .messageBody .reactsOfMessage .react-item {
-  pointer-events: none;
-}
-.message .messageBody .reactsOfMessage:hover {
-  cursor: pointer;
+
+.react {
+  position: relative;
 }
 
+.react-popup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: bottom;
+}
+.react-popup.active {
+  animation: popup 500ms alternate 2;
+}
+
+@keyframes popup {
+  0% {
+    transform: scale(1) translateY(0px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.6) translateY(-10px);
+    opacity: 1;
+  }
+}
 .newGroup:not(.sticker, .emoji) {
   margin-top: 10px;
 }
@@ -180,7 +178,6 @@ code {
   justify-content: center;
   gap: 1px;
   position: absolute;
-  flex-wrap: wrap;
   max-width: 70px;
   right: 0;
   z-index: 10;
@@ -332,6 +329,36 @@ pre code {
 
 .message.react .reactsOfMessage {
   display: flex;
+}
+
+.reactsOfMessage {
+  position: absolute;
+  bottom: -12px;
+  z-index: 15;
+  flex-direction: row;
+  background: var(--msg-send-reply);
+  border-radius: 10px;
+  z-index: 15;
+  display: none;
+  width: max-content;
+}
+.reactsOfMessage .reactsCount {
+  display: none;
+}
+.reactsOfMessage.pad {
+  padding: 0 5px;
+}
+.reactsOfMessage.pad .reactsCount {
+  display: block;
+}
+.reactsOfMessage .reactsContainer {
+  pointer-events: none;
+}
+.reactsOfMessage .reactsContainer .react:not(:nth-last-child(-n+3)) {
+  display: none;
+}
+.reactsOfMessage:hover {
+  cursor: pointer;
 }
 
 .message.start .messageMain > * {
@@ -488,6 +515,8 @@ pre code {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  white-space: break-spaces;
+  text-align: center;
 }
 
 .emoji .messageMain .text {

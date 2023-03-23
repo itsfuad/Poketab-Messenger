@@ -45,5 +45,3 @@ class KeyStore {
 export const keyStore = new KeyStore();
 
 export const SocketIds: {[key: string]: {[key: string]: string}} = {};
-
-//module.exports = { Keys, SocketIds };

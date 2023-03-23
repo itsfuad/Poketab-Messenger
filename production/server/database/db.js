@@ -34,5 +34,4 @@ class KeyStore {
 ;
 export const keyStore = new KeyStore();
 export const SocketIds = {};
-//module.exports = { Keys, SocketIds };
 //# sourceMappingURL=db.js.map

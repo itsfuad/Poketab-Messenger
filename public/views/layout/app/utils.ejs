@@ -9,7 +9,7 @@
         <div class="reactOptionsWrapper" data-closed="true">
             <ul id="reactOptions" class="options">
                 <!--Reacts-->
-                <div class="more reactWrapper option" title="More reactions" id="showMoreReactBtn"><i class="fa-solid fa-plus"></i></div>
+                <div class="more option" title="More reactions" id="showMoreReactBtn"><i class="fa-solid fa-plus"></i></div>
             </ul>
         </div>
         <div class="normalOptionWrapper">
@@ -24,28 +24,28 @@
 </div>
 
 <!--message popup-->
-<div class="newmessagepopup clickable">
+<div class="newmessagepopup clickable playable">
     <img src="" alt="Avatar"><div class="msg"></div><div class="downarrow"><i class="fa-solid fa-arrow-down"></i></div>
 </div>
 
 <!-- Image Preview -->
 
-<div id="previewFile">
+<div id="filePreviewContainer">
     <div id="selectedFiles"></div>
-    <div class="previewFileOptions">
-        <div class="close btn-with-icon">Cancel <i class="fa-solid fa-trash default"></i></div>
+    <div id="filePreviewOptions">
+        <div class="close button clickable playable btn-with-icon">Cancel <i class="fa-solid fa-trash default"></i></div>
         <div id="items-count"></div>
-        <div id="fileSendButton" class="btn-with-icon">Send <i class="fa-solid fa-paper-plane default"></i></div>
+        <div id="fileSendButton" class="button clickable btn-with-icon">Send <i class="fa-solid fa-paper-plane default"></i></div>
     </div>
 </div>
 
 <!--Image will be viewed here-->
 <div id="lightbox">
     <div class="tool">
-        <div id="lightbox__save" class="btn"><i class="fa-solid fa-download"></i></div>
-        <div id="lightbox__close" class="btn"><i class="fa-solid fa-xmark"></i></div>
+        <div id="lightboxSaveButton" class="btn"><i class="fa-solid fa-download"></i></div>
+        <div id="lightboxCloseButton" class="btn"><i class="fa-solid fa-xmark"></i></div>
     </div>
-    <div id="lightbox__image"></div>
+    <div id="lightboxImage"></div>
 </div>
 
 <!-- Image Drag and drop overlay -->

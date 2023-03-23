@@ -32,7 +32,6 @@ console.log('%cloaded app.js', 'color: deepskyblue;');
 const messages = document.getElementById('messages');
 
 const maxWindowHeight = window.innerHeight; //max height of the window
-const lightboxClose = document.getElementById('lightbox__close'); //lightbox close button
 const textbox = document.getElementById('textbox'); //textbox element where user types messages
 
 //all options in the message options menu when a user right clicks on a message or taps and holds on mobile
@@ -54,6 +53,14 @@ const stickersPanel = document.getElementById('stickersPanelWrapper');
 const sideBarPanel = document.getElementById('sidebarWrapper');
 const quickSettings = document.getElementById('quickSettingPanel');
 const messageOptions = document.getElementById('messageOptionsContainerWrapper');
+const filePreviewContainer = document.getElementById('filePreviewContainer');
+const filePreviewOptions = document.getElementById('filePreviewOptions');
+const selectedFilesCount = document.getElementById('items-count');
+
+const lightbox = document.getElementById('lightbox');
+const lightboxImage = document.getElementById('lightboxImage');
+const lightboxSaveButton = document.getElementById('lightboxSaveButton'); 
+const lightboxCloseButton = document.getElementById('lightboxCloseButton');
 
 //popups closearea
 const attachmentCloseArea = document.getElementById('attachmentCloseArea');
@@ -489,7 +496,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 								a 40 40 0 0 1 0 -80">
 						</path>
 					</svg>
-					<div class="progressPercent">Not uploaded yet</div>
+					<div class="progressPercent">Waiting for upload</div>
 				</div>
 			</div>
 			`; //insert the image
@@ -562,7 +569,16 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 			if (replyFor === 'message') {
 				replyMsg = sanitize(reply.data);
 			} else {
-				replyMsg = document.getElementById(replyId)?.querySelector(`.messageMain .${reply.type}`).outerHTML.replace(`class="${reply.type}"`, `class="${reply.type} imageReply"`);
+				//replyMsg = document.getElementById(replyId)?.querySelector(`.messageMain .${reply.type}`).outerHTML.replace(`class="${reply.type}"`, `class="${reply.type} imageReply"`);
+				const replyTarget = document.getElementById(replyId)?.querySelector(`.messageMain .${reply.type}`).cloneNode(true);
+				//remove attributes
+				replyTarget.removeAttribute('data-name');
+				replyTarget.removeAttribute('style');
+				replyTarget.removeAttribute('height');
+				replyTarget.removeAttribute('width');
+				replyTarget.setAttribute('alt', 'Reply');
+				replyTarget.setAttribute('class', `${reply.type} imageReply`);
+				replyMsg = replyTarget.outerHTML;
 			}
 
 		}
@@ -710,8 +726,6 @@ function showOptions(type, sender, target){
 	document.querySelectorAll('.moreReacts .reactWrapper').forEach(
 		option => option.style.background = 'none'
 	);
-
-	//!document.getElementById('showMoreReactBtn').style.background = 'none';
 	
 	const downloadable = {
 		'image': true,
@@ -741,10 +755,10 @@ function showOptions(type, sender, target){
 		const clickedElement = target.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
 		if (reactArray.primary.includes(clickedElement)){ //if the message has my primary reaction
 			//selected react color
-			document.querySelector(`#reactOptions [data-react="${clickedElement}"]`).style.background = themeAccent[THEME].secondary;
+			document.querySelector(`#reactOptions [data-react="${clickedElement}"]`).style.background = '#ffffff3d';
 		}
 		if (reactArray.expanded.includes(clickedElement)){
-			document.querySelector(`.moreReacts [data-react="${clickedElement}"]`).style.background = themeAccent[THEME].secondary;
+			document.querySelector(`.moreReacts [data-react="${clickedElement}"]`).style.background = '#ffffff3d';
 		}
 		if (reactArray.expanded.includes(clickedElement) && !reactArray.primary.includes(clickedElement)){
 			//2nd last element
@@ -878,7 +892,7 @@ function downloadHandler(){
 		return;
 	}
 	if (targetMessage.type === 'image'){
-		document.querySelector('#lightbox__image img').src = targetMessage.message.src;
+		lightboxImage.querySelector('img').src = targetMessage.message.src;
 		hideOptions();
 		saveImage();
 	}else{
@@ -894,7 +908,7 @@ function saveImage(){
 		//console.log('Saving image');
 		popupMessage('Preparing image...');
 		const a = document.createElement('a');
-		a.href = document.querySelector('#lightbox__image img').src;
+		a.href = lightboxImage.querySelector('img').src;
 		a.download = `poketab-${Date.now()}`;
 		document.body.appendChild(a);
 		a.click();
@@ -1272,10 +1286,10 @@ export function getReact(reactEmoji, messageId, uid){
 		const reactsOfMessage = targetMessage.querySelector('.reactsOfMessage');
 
 		//reacts container
-		const reactItem = reactsOfMessage.querySelector('.react-item');
+		const reactsContainer = reactsOfMessage.querySelector('.reactsContainer');
 
 		//if other react has the uid
-		const currentReact = reactItem.querySelector(`.react[data-emoji="${reactEmoji}"]`);
+		const currentReact = reactsContainer.querySelector(`.react[data-emoji="${reactEmoji}"]`);
 		if (currentReact){
 			//console.log('Same react found: ', currentReact);
 			//if the sender is same, then remove uid
@@ -1287,7 +1301,7 @@ export function getReact(reactEmoji, messageId, uid){
 				}
 			}else{
 				//if user has other reacts on the same target
-				const previousReact = reactItem.querySelector(`.react[data-uids*="${uid}"]`);
+				const previousReact = reactsContainer.querySelector(`.react[data-uids*="${uid}"]`);
 				if (previousReact){
 					//remove uid
 					previousReact.dataset.uids = previousReact.dataset.uids.replace(`${uid};`, '');
@@ -1296,19 +1310,27 @@ export function getReact(reactEmoji, messageId, uid){
 						previousReact.remove();
 					}
 				}
+
+				//move the react to the last
+				reactsContainer.appendChild(currentReact); //This react is moved to the last, because it is the latest react
+
 				//add uid to the current react
 				currentReact.dataset.uids += `${uid};`;
 				//reset the animation
-				const animation = reactItem.querySelector('.react-popup');
+				const animation = currentReact.querySelector('.react-popup');
 				animation.classList.remove('active');
 				setTimeout(() => {
 					animation.classList.add('active');
+					setTimeout(() => {
+						animation.classList.remove('active');
+					}, 1000);
 				}, 10);
+
 			}
 		}else{
 
 			//if user has other reacts on the same target
-			const previousReact = reactItem.querySelector(`.react[data-uids*="${uid}"]`);
+			const previousReact = reactsContainer.querySelector(`.react[data-uids*="${uid}"]`);
 			if (previousReact){
 				//remove uid
 				previousReact.dataset.uids = previousReact.dataset.uids.replace(`${uid};`, '');
@@ -1332,14 +1354,17 @@ export function getReact(reactEmoji, messageId, uid){
 			animation.classList.add('react-popup');
 			animation.textContent = reactEmoji;
 			animation.classList.add('active');
+			setTimeout(() => {
+				animation.classList.remove('active');
+			}, 1000);
 			
 			react.appendChild(emoji);
 			react.appendChild(animation);
 			
-			reactItem.appendChild(react);
+			reactsContainer.appendChild(react);
 		}
 
-		const reactsCount = reactsOfMessage.querySelector('.react-count');
+		const reactsCount = reactsOfMessage.querySelector('.reactsCount');
 
 		reactsCount.textContent = list.length;
 		
@@ -1356,8 +1381,6 @@ export function getReact(reactEmoji, messageId, uid){
 		}else{
 			reactsOfMessage.classList.remove('pad');
 		}
-
-		//targetMessage.querySelector('.messageContainer').style.paddingBottom = '12px';
 
 		checkgaps(messageId);
 
@@ -1477,21 +1500,25 @@ function OptionEventHandler(evt, popup = true){
 	}
 	else if (type == 'image'){
 		//image
-		while (document.querySelector('#lightbox__image').firstChild) {
-			document.querySelector('#lightbox__image').removeChild(document.querySelector('#lightbox__image').firstChild);
+		while (lightboxImage.firstChild) {
+			lightboxImage.removeChild(lightboxImage.firstChild);
 		}
 		const fragment = document.createDocumentFragment();
 		const img = document.createElement('img');
 		img.src = evt.target.closest('.messageMain')?.querySelector('.image').src;
 		img.alt = 'Image';
 		fragment.append(img);
-		document.querySelector('#lightbox__image').append(fragment);
+		lightboxImage.append(fragment);
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
 		if (targetMessage.sender == myName){
 			targetMessage.sender = 'You';
 		}
         
 		const targetNode = evt.target.closest('.messageMain').querySelector('.image').cloneNode(true);
+		//remove all attributes
+		targetNode.removeAttribute('alt');
+		targetNode.removeAttribute('id');
+		targetNode.setAttribute('class', 'image');
 		targetMessage.message = targetNode;
 		targetMessage.type = type;
 		targetMessage.id = evt.target.closest('.message').id;
@@ -1525,6 +1552,10 @@ function OptionEventHandler(evt, popup = true){
 			targetMessage.sender = 'You';
 		}
 		const targetNode = evt.target.closest('.messageMain').querySelector('.sticker').cloneNode(true);
+		//remove all attributes
+		targetNode.removeAttribute('alt');
+		targetNode.removeAttribute('id');
+		targetNode.setAttribute('class', 'image');
 		targetMessage.message = targetNode;
 		targetMessage.type = type;
 		targetMessage.id = evt.target.closest('.message').id;
@@ -1761,7 +1792,7 @@ export function loadStickerHeader(){
 			img.onerror = function(){retryImageLoad(this);};
 			img.alt = sticker.name;
 			img.dataset.name = sticker.name;
-			img.classList.add('stickerName', 'clickable');
+			img.classList.add('stickerName', 'clickable', 'playable');
 			stickersGrp.append(img);
 		}
 	}catch(e){
@@ -1931,6 +1962,12 @@ document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => 
 	popupMessage('Settings applied');
 });
 
+document.addEventListener('click', (evt) => {
+	//if target is .clickable
+	if (evt.target.closest('.playable')){
+		playClickSound();
+	}
+});
 
 document.getElementById('messageSound').addEventListener('click', () => {
 	if (document.getElementById('messageSound').checked){
@@ -2169,7 +2206,6 @@ function updateReactsChooser(){
 
 document.querySelector('.moreReacts').addEventListener('click', (evt)=>{
 	const target = evt.target;
-	console.log(target);
 	//if target is not self
 	if (target.classList.contains('reactWrapper')){
 		const react = target.dataset.react;
@@ -2219,10 +2255,10 @@ document.getElementById('logoutButton').addEventListener('click', () => {
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 
-lightboxClose.addEventListener('click', () => {
-	document.getElementById('lightbox').classList.remove('active');
-	while (document.getElementById('lightbox__image').firstChild) {
-		document.getElementById('lightbox__image').removeChild(document.getElementById('lightbox__image').firstChild);
+lightboxCloseButton.addEventListener('click', () => {
+	lightbox.classList.remove('active');
+	while (lightboxImage.firstChild) {
+		lightboxImage.removeChild(lightboxImage.firstChild);
 	}
 });
 
@@ -2315,20 +2351,20 @@ messages.addEventListener('click', (evt) => {
 				return;
 			}
 			
-			while (document.getElementById('lightbox__image').firstChild) {
-				document.getElementById('lightbox__image').removeChild(document.getElementById('lightbox__image').firstChild);
+			while (lightboxImage.firstChild) {
+				lightboxImage.removeChild(lightboxImage.firstChild);
 			}
 
 			const imageElement = document.createElement('img');
 			imageElement.src = evt.target.closest('.messageMain')?.querySelector('.image')?.src;
 			imageElement.classList.add('lb');
 			imageElement.alt = 'Image';
-			document.getElementById('lightbox__image').appendChild(imageElement);
+			lightboxImage.appendChild(imageElement);
 
 			// eslint-disable-next-line no-undef
-			PanZoom(document.getElementById('lightbox__image').querySelector('img'));
+			PanZoom(lightboxImage.querySelector('img'));
 
-			document.getElementById('lightbox').classList.add('active');
+			lightbox.classList.add('active');
 		}else if (evt.target?.closest('.message')?.dataset?.type == 'audio' && evt.target.closest('.main-element')){
 			
 			evt.preventDefault();
@@ -2477,12 +2513,12 @@ document.getElementById('selectedFiles').addEventListener('click', (evt) => {
 					//remove the file item from the DOM
 					target.remove();
 					//update the items count
-					document.getElementById('items-count').textContent = `${selectedFileArray.length} item${selectedFileArray.length > 1 ? 's' : ''} selected`;
+					selectedFilesCount.textContent = `${selectedFileArray.length} item${selectedFileArray.length > 1 ? 's' : ''} selected`;
 					//if there are no images left, hide the preview
 					if (selectedFileArray.length == 0){
 						//close the preview
 						//console.log('Closing preview');
-						document.getElementById('previewFile').querySelector('.close').click();
+						filePreviewContainer.querySelector('.close').click();
 					}
 				}
 			}
@@ -2710,12 +2746,6 @@ function ImagePreview(filesFromClipboard = null){
 		}
 	}
 
-	fileSendButton.style.display = 'none';
-
-	while (document.getElementById('selectedFiles').firstChild) {
-		document.getElementById('selectedFiles').removeChild(document.getElementById('selectedFiles').firstChild);
-	}
-
 	const loadingElement = document.createElement('span');
 	loadingElement.classList.add('load');
 	loadingElement.style.color = themeAccent[THEME].secondary;
@@ -2726,8 +2756,8 @@ function ImagePreview(filesFromClipboard = null){
 	loadingElement.textContent = 'Reading binary data';
 	loadingElement.append(loadingIcon);
 	document.getElementById('selectedFiles').append(loadingElement);
-	document.getElementById('items-count').textContent = `${files.length} item${files.length > 1 ? 's' : ''} selected`;
-	document.getElementById('previewFile')?.classList?.add('active');
+
+	filePreviewContainer.style.display = 'flex';
 
 	try{
 		for (let i = 0; i < files.length; i++){
@@ -2741,7 +2771,7 @@ function ImagePreview(filesFromClipboard = null){
 			fileContainer.dataset.id = fileID;
 
 			const close = document.createElement('i');
-			close.classList.add('close', 'fa-solid', 'fa-xmark');
+			close.classList.add('close', 'fa-solid', 'fa-xmark', 'button', 'clickable');
 
 			const imageElement = document.createElement('img');
 
@@ -2778,6 +2808,13 @@ function ImagePreview(filesFromClipboard = null){
 				clearFinalTarget();
 			};
 		}
+
+		setTimeout(() => {
+			filePreviewContainer.classList.add('active');
+			filePreviewOptions.classList.add('active');
+		}, 50);
+
+		selectedFilesCount.textContent = `${selectedFileArray.length} item${selectedFileArray.length > 1 ? 's' : ''} selected`;
 	}catch(e){
 		console.log(e);
 		popupMessage('Error reading Image');
@@ -2811,12 +2848,6 @@ function FilePreview(filesFromClipboard = null, audio = false){
 		}
 	}
 
-	fileSendButton.style.display = 'none';
-
-	while (document.getElementById('selectedFiles').firstChild) {
-		document.getElementById('selectedFiles').removeChild(document.getElementById('selectedFiles').firstChild);
-	}
-
 	const loadingElement = document.createElement('span');
 	loadingElement.classList.add('load');
 	loadingElement.style.color = themeAccent[THEME].secondary;
@@ -2827,8 +2858,8 @@ function FilePreview(filesFromClipboard = null, audio = false){
 	loadingElement.textContent = 'Reading binary data';
 	loadingElement.append(loadingIcon);
 	document.getElementById('selectedFiles').append(loadingElement);
-	document.getElementById('items-count').textContent = `${files.length} item${files.length > 1 ? 's' : ''} selected`;
-	document.getElementById('previewFile')?.classList?.add('active');
+
+	filePreviewContainer.style.display = 'flex';
 
 	try{
 		for (let i = 0; i < files.length; i++){
@@ -2890,6 +2921,11 @@ function FilePreview(filesFromClipboard = null, audio = false){
 				clearFileFromInput();
 			}
 		}
+		setTimeout(() => {
+			filePreviewContainer.classList.add('active');
+			filePreviewOptions.classList.add('active');
+		}, 50);
+		selectedFilesCount.textContent = `${selectedFileArray.length} item${selectedFileArray.length > 1 ? 's' : ''} selected`;
 	}catch(e){
 		console.log(e);
 		popupMessage('Error reading File');
@@ -2955,9 +2991,6 @@ window.addEventListener('paste', (e) => {
 		}
 	}
 });
-
-
-
 
 window.addEventListener('offline', function() { 
 	console.log('offline'); 
@@ -3045,23 +3078,29 @@ sendButton.addEventListener('click', () => {
 	socket.emit('stoptyping');
 });
 
-document.getElementById('previewFile').querySelector('.close')?.addEventListener('click', ()=>{
-	
+function closeFilePreview(){
+
+	filePreviewContainer.classList.remove('active');
+	filePreviewOptions.classList.remove('active');
+
+	setTimeout(() => {
+		while (document.getElementById('selectedFiles').firstChild) {
+			document.getElementById('selectedFiles').removeChild(document.getElementById('selectedFiles').firstChild);
+		}
+		filePreviewContainer.style.display = 'none';
+		selectedFilesCount.textContent = '0 items selected';
+	}, 100);
+}
+
+filePreviewContainer.querySelector('.close')?.addEventListener('click', ()=>{
 	clearFileFromInput();
-
 	selectedFileArray.length = 0;
-
-	document.getElementById('previewFile').classList.remove('active');
-	document.getElementById('items-count').textContent = '0 items selected';
-
-	while (document.getElementById('selectedFiles').firstChild) {
-		document.getElementById('selectedFiles').removeChild(document.getElementById('selectedFiles').firstChild);
-	}
+	closeFilePreview();
 });
 
 fileSendButton.addEventListener('click', ()=>{
 	
-	document.getElementById('previewFile').classList.remove('active');
+	closeFilePreview();
 	
 	//check if image or file is selected
 	if (selectedObject === 'image'){
@@ -3135,38 +3174,43 @@ async function sendImageStoreRequest(){
 				const xhr = new XMLHttpRequest();
 		
 				const progresCircle = elem.querySelector('.circleProgressLoader');
-				progresCircle.querySelector('.animated').classList.remove('inactive');
 				const progressText = elem.querySelector('.circleProgressLoader .progressPercent');
-		
+
+				xhr.onreadystatechange = function() {
+					if (xhr.readyState === XMLHttpRequest.OPENED) {
+						// Remove 'inactive' class from element with class 'animated'
+						console.log('Request sent');
+						progressText.textContent = 'Uploading...';
+						progresCircle.querySelector('.animated').classList.remove('inactive');
+					} else if (xhr.readyState === XMLHttpRequest.DONE) {
+						if (xhr.status === 0) {
+							// Handle network errors or server unreachable errors
+							//console.log('Error: could not connect to server');
+							popupMessage('Upload failed..!');
+							progresCircle.querySelector('.animated').style.visibility = 'hidden';
+							progressText.textContent = 'Upload failed\nNo internet..!';
+							fileSocket.emit('fileUploadError', myKey, tempId, 'image');
+						} else {
+							// Handle successful response from server
+							if (elem){
+								progresCircle.remove();
+								progressText.textContent = 'Finishing...';
+								elem.querySelector('.image').style.filter = 'none';
+							}
+							document.getElementById(tempId).dataset.downloaded = 'true';
+							fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(xhr.response).downlink);
+						}
+					}
+				};
+
 				//send file via xhr post request
 				xhr.open('POST', `${location.origin}/api/files/upload`, true);
 				xhr.upload.onprogress = function(e) {
 					if (e.lengthComputable) {
+						progresCircle.querySelector('.animated').classList.remove('inactive');
 						progress = (e.loaded / e.total) * 100;
 						progresCircle.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
 						progressText.textContent = `${Math.round(progress)}%`;
-						if (progress === 100){
-							progresCircle.querySelector('.animated').style.visibility = 'hidden';
-							progressText.textContent = 'Finishing...';
-						}
-					}
-				};
-		
-				xhr.onload = function(e) {
-					if (this.status == 200) {                
-						if (elem){
-							elem.querySelector('.circleProgressLoader').remove();
-							elem.querySelector('.image').style.filter = 'none';
-						}
-						document.getElementById(tempId).dataset.downloaded = 'true';
-						fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
-					}
-					else{
-						console.log('error uploading image');
-						popupMessage('Error uploading image');
-						elem.querySelector('.circleProgressLoader .animated').style.visibility = 'hidden';
-						elem.querySelector('.circleProgressLoader .progressPercent').textContent = 'Upload failed';
-						fileSocket.emit('fileUploadError', myKey, tempId, 'image');
 					}
 				};
 				
@@ -3322,8 +3366,7 @@ export function notifyUser(message, username, avatar){
 	}   
 }
 
-
-document.getElementById('lightbox__save').addEventListener('click', ()=>{
+lightboxSaveButton.addEventListener('click', ()=>{
 	saveImage();
 });
 
@@ -3335,7 +3378,15 @@ function closeAllModals(){
 	});
 }
 
-document.addEventListener('keydown', (evt) => {	
+/**
+ * Handles keyboard shortcuts
+ */
+document.addEventListener('keydown', (evt) => {
+
+	if (lightbox.classList.contains('active') || filePreviewContainer.classList.contains('active')){
+		//console.log('Skipping keyboard shortcuts because lightbox or file preview is active');
+		return;
+	}
 
 	const altKeys = ['o', 's', 't', 'i', 'a', 'f', 'p', 'm', 'r'];
 
@@ -3422,14 +3473,6 @@ document.getElementById('send-location').addEventListener('click', () => {
 	locationTimeout = setTimeout(() => {
 		popupMessage('Could not connect to the internet');
 	}, 5000);
-});
-
-
-//play clicky sound on click on each clickable elements
-document.querySelectorAll('.clickable').forEach(elem => {
-	elem.addEventListener('click', () => {
-		playClickSound();
-	});
 });
 
 

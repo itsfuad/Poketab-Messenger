@@ -145,34 +145,34 @@ code{
                 }
             }
         }
+    }
+}
 
 
-        .reactsOfMessage{
-            position: absolute;
-            bottom: -12px;
-            z-index: 15;
-            flex-direction: row;
-            background: var(--msg-get-reply);
-            border-radius: 10px;
-            z-index: 15;
-            display: none;
-            width: max-content;
-            .react-count{
-                display: none;
-            }
-            &.pad{
-                padding: 0 5px;
-                .react-count{
-                    display: block;
-                }
-            }
-            .react-item{
-                pointer-events: none;
-            }
-            &:hover{
-                cursor: pointer;
-            }
-        }
+.react{
+    position: relative;
+}
+
+
+.react-popup{
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: bottom;
+    
+    &.active{        
+        animation: popup 500ms alternate 2;
+    }
+}
+
+@keyframes popup {
+    0%{
+        transform: scale(1) translateY(0px);
+        opacity: 0;
+    }
+    100%{
+        transform: scale(1.6) translateY(-10px);
+        opacity: 1;
     }
 }
 
@@ -194,7 +194,6 @@ code{
     justify-content: center;
     gap: 1px;
     position: absolute;
-    flex-wrap: wrap;
     max-width: 70px;
     right: 0;
     z-index: 10;
@@ -355,6 +354,37 @@ pre{
 
 .message.react .reactsOfMessage{
     display: flex;
+}
+
+.reactsOfMessage{
+    position: absolute;
+    bottom: -12px;
+    z-index: 15;
+    flex-direction: row;
+    background: var(--msg-send-reply);
+    border-radius: 10px;
+    z-index: 15;
+    display: none;
+    width: max-content;
+    .reactsCount{
+        display: none;
+    }
+    &.pad{
+        padding: 0 5px;
+        .reactsCount{
+            display: block;
+        }
+    }
+    .reactsContainer{
+        pointer-events: none;
+        //show tha last 3 reacts
+        .react:not(:nth-last-child(-n+3)){
+            display: none;
+        }
+    }
+    &:hover{
+        cursor: pointer;
+    }
 }
 
 
@@ -537,6 +567,8 @@ pre{
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
+                white-space: break-spaces;
+                text-align: center;
             }
 
         }

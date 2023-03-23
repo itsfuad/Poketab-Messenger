@@ -35,28 +35,36 @@ class idGenerator{
 
 //make random username
 const usernameList = [
-	'Jay',
-	'John',
-	'Levi', 
-	'Cristine', 
-	'Alex',
-	'Ruby',
-	'Silva',
-	'Daniel',
-	'Lena',
+	'Jay Parker',
+	'John Doe',
+	'Levi Ackerman', 
+	'Cristine Fox', 
+	'Alex Grey',
+	'Ruby Knox',
+	'Silva Gunbard',
+	'Daniel Dani',
+	'Lena Paul',
 	'Gabbie Carter',
-	'Ella Knox'
+	'Ella Knox',
+	'Kendra Spade',
+	'Kayla Kayden',
+	'Jenna Sativa',
+	'Mia Malkova',
 ];
 
 export function makeUsernameandPasswordForDevelopment(key: string):{ username: string; avatar: string; }{
 	const username = usernameList[Math.floor(Math.random() * usernameList.length)];
 	const avatar = avList[Math.floor(Math.random() * avList.length)];
-	const existingNames = keyStore.getUserList(key).map((user => user.username));
-	const existingAvatars = keyStore.getUserList(key).map((user => user.avatar));
-	if (existingNames.includes(username) || existingAvatars.includes(avatar)){
-		return makeUsernameandPasswordForDevelopment(key);
+	if (Keys[key]){
+		const existingNames = Keys[key].getUserList().map((user => user.username));
+		const existingAvatars = Keys[key].getUserList().map((user => user.avatar));
+		if (existingNames.includes(username) || existingAvatars.includes(avatar)){
+			return makeUsernameandPasswordForDevelopment(key);
+		}else{
+			return {username, avatar};
+		}
 	}else{
-		return {username, avatar};
+		return { username, avatar };
 	}
 }
 

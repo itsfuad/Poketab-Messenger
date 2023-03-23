@@ -47,7 +47,7 @@ export const themeAccent = {
 		secondary: 'hsl(162, 60%, 42%)',
 		foreground: '#e1eeff',
 		msg_get: 'hsl(162, 18%, 41%)',
-		msg_get_reply: 'hsl(162, 32%, 34%)',
+		msg_get_reply: 'hsl(162, 32%, 27%)',
 		msg_send: 'hsl(162, 60%, 42%)',
 		msg_send_reply: 'hsl(162, 14%, 27%)',
 	}
@@ -63,7 +63,7 @@ themeList.className = 'themeList';
 
 themeArray.forEach((theme) => {
 	const themeElement = document.createElement('li');
-	themeElement.className = 'theme clickable';
+	themeElement.className = 'theme clickable playable';
 	themeElement.id = theme;
 
 	const themeIcon = document.createElement('img');

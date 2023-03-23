@@ -116,7 +116,7 @@ app.get('/chat', (_, res) => {
     }
     else {
         const { username, avatar } = makeUsernameandPasswordForDevelopment('00-000-00');
-        approveNewChatRequest(res, { username: username, key: '00-000-00', avatar: avatar, max_users: 4 });
+        approveNewChatRequest(res, { username: username, key: '00-000-00', avatar: avatar, max_users: 10 });
     }
 });
 app.post('/chat', (req, res) => {
