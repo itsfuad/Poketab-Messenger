@@ -321,7 +321,7 @@ pre{
 .messageTime{
     color: gray;
     font-size: 0.6rem;
-    padding: 0 0 0 5px;
+    padding: 0 0 0 25px;
     visibility: hidden;
     opacity: 0;
     transition: 200ms ease-in-out;
@@ -340,7 +340,7 @@ pre{
 
 .self .messageTime{
     justify-content: flex-end;
-    padding: 0 5px 0 0;
+    padding: 0 25px 0 0;
 }
 
 .message:last-child .messageTime{
@@ -349,7 +349,7 @@ pre{
 }
 
 .message.react .messageContainer {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .message.react .reactsOfMessage{
@@ -358,12 +358,12 @@ pre{
 
 .reactsOfMessage{
     position: absolute;
-    bottom: -12px;
+    bottom: -10px;
     z-index: 15;
     flex-direction: row;
     background: var(--msg-send-reply);
     border-radius: 10px;
-    z-index: 15;
+    max-height: 18px;
     display: none;
     width: max-content;
     .reactsCount{

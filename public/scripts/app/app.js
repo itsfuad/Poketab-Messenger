@@ -711,69 +711,73 @@ window.addEventListener('focus', () => {
  * @param {HTMLElement} target The message that fired the event 
  */
 function showOptions(type, sender, target){
-
-	if (target == null){
-		return;
-	}
-
-	//removes all showing options first if any
-	document.querySelector('.reactorContainerWrapper').classList.remove('active');
-
-	document.getElementById('reactOptions').querySelectorAll('.reactWrapper').forEach(
-		emoji => emoji.style.background = 'none'
-	);
-
-	document.querySelectorAll('.moreReacts .reactWrapper').forEach(
-		option => option.style.background = 'none'
-	);
+	try{
+		if (target == null){
+			return;
+		}
 	
-	const downloadable = {
-		'image': true,
-		'file': true,
-		'audio': true,
-	};
-
-	//if the message is a text message
-	if (type === 'text'){
-		copyOption.style.display = 'flex';
-	}else if (downloadable[type]){ //if the message is an image
-		if (target.closest('.message')?.dataset.downloaded == 'true'){
-			downloadOption.style.display = 'flex';
+		//removes all showing options first if any
+		document.querySelector('.reactorContainerWrapper').classList.remove('active');
+	
+		document.getElementById('reactOptions').querySelectorAll('.reactWrapper').forEach(
+			emoji => emoji.style.background = 'none'
+		);
+	
+		document.querySelectorAll('.moreReacts .reactWrapper').forEach(
+			option => option.style.background = 'none'
+		);
+		
+		const downloadable = {
+			'image': true,
+			'file': true,
+			'audio': true,
+		};
+	
+		//if the message is a text message
+		if (type === 'text'){
+			copyOption.style.display = 'flex';
+		}else if (downloadable[type]){ //if the message is an image
+			if (target.closest('.message')?.dataset.downloaded == 'true'){
+				downloadOption.style.display = 'flex';
+			}
 		}
+		if (sender === true){ //if the message is sent by me
+			deleteOption.style.display = 'flex'; //then show the delete option
+		}else{ //else dont show the delete option
+			deleteOption.style.display = 'none';
+		}
+		//get if the message has my reaction or not
+		const clicked = Array.from(target.closest('.message').querySelectorAll('.reactedUsers .list')).reduce((acc, curr) => {
+			return acc || curr.dataset.uid == myId;
+		}, false);
+		if (clicked){ //if the message has my reaction
+			//get how many reactions the message has
+			const clickedElement = target.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
+			console.log(clickedElement);
+			if (reactArray.primary.includes(clickedElement)){ //if the message has my primary reaction
+				//selected react color
+				document.querySelector(`#reactOptions [data-react="${clickedElement}"]`).style.background = '#ffffff3d';
+			}
+			if (reactArray.expanded.includes(clickedElement)){
+				document.querySelector(`.moreReacts [data-react="${clickedElement}"]`).style.background = '#ffffff3d';
+			}
+			if (reactArray.expanded.includes(clickedElement) && !reactArray.primary.includes(clickedElement)){
+				//2nd last element
+				const elm = document.querySelector('#reactOptions');
+				const lastElm = elm.lastElementChild.previousElementSibling;
+				lastElm.style.background = '#ffffff3d';
+				lastElm.dataset.react = clickedElement;
+				lastElm.querySelector('.react-emoji').textContent = clickedElement;
+				reactArray.last = clickedElement;
+			}
+		}
+		//show the options
+		messageOptions.classList.add('active');
+		addFocusGlass(false);
+		messageOptions.addEventListener('click', optionsMainEvent);
+	}catch(err){
+		console.error(err);
 	}
-	if (sender === true){ //if the message is sent by me
-		deleteOption.style.display = 'flex'; //then show the delete option
-	}else{ //else dont show the delete option
-		deleteOption.style.display = 'none';
-	}
-	//get if the message has my reaction or not
-	const clicked = Array.from(target.closest('.message').querySelectorAll('.reactedUsers .list')).reduce((acc, curr) => {
-		return acc || curr.dataset.uid == myId;
-	}, false);
-	if (clicked){ //if the message has my reaction
-		//get how many reactions the message has
-		const clickedElement = target.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
-		if (reactArray.primary.includes(clickedElement)){ //if the message has my primary reaction
-			//selected react color
-			document.querySelector(`#reactOptions [data-react="${clickedElement}"]`).style.background = '#ffffff3d';
-		}
-		if (reactArray.expanded.includes(clickedElement)){
-			document.querySelector(`.moreReacts [data-react="${clickedElement}"]`).style.background = '#ffffff3d';
-		}
-		if (reactArray.expanded.includes(clickedElement) && !reactArray.primary.includes(clickedElement)){
-			//2nd last element
-			const elm = document.querySelector('#reactOptions');
-			const lastElm = elm.lastElementChild.previousElementSibling;
-			lastElm.style.background = themeAccent[THEME].secondary;
-			lastElm.dataset.react = clickedElement;
-			lastElm.querySelector('.react-emoji').textContent = clickedElement;
-			reactArray.last = clickedElement;
-		}
-	}
-	//show the options
-	messageOptions.classList.add('active');
-	addFocusGlass(false);
-	messageOptions.addEventListener('click', optionsMainEvent);
 }
 
 /**
@@ -981,9 +985,11 @@ function hideOptions(){
 	removeFocusGlass();
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
 	messageOptions.removeEventListener('click', optionsMainEvent);
-	copyOption.style.display = 'none';
-	downloadOption.style.display = 'none';
-	deleteOption.style.display = 'none';
+	setTimeout(() => {
+		copyOption.style.display = 'none';
+		downloadOption.style.display = 'none';
+		deleteOption.style.display = 'none';
+	}, 100);
 }
 
 

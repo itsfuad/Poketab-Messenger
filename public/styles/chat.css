@@ -95,10 +95,21 @@ body {
   display: flex;
   flex-direction: row;
   transition: 100ms ease-in-out;
-  left: -100%;
   z-index: 60;
+  visibility: hidden;
+  opacity: 0;
+  backdrop-filter: brightness(0.8);
+}
+#sidebarWrapper #sidebar, #sidebarWrapper #closeSideBar {
+  position: relative;
+  left: -100px;
+  transition: 100ms ease-in-out;
 }
 #sidebarWrapper.active {
+  visibility: visible;
+  opacity: 1;
+}
+#sidebarWrapper.active #sidebar, #sidebarWrapper.active #closeSideBar {
   left: 0;
 }
 #sidebarWrapper .close_area {
@@ -125,6 +136,9 @@ body {
   align-items: flex-end;
   z-index: 40;
   pointer-events: none;
+  backdrop-filter: brightness(0.8);
+  visibility: hidden;
+  opacity: 0;
 }
 .stickersPanelWrapper .stickersPanel {
   position: relative;
@@ -152,6 +166,8 @@ body {
 }
 .stickersPanelWrapper.active {
   pointer-events: all;
+  visibility: visible;
+  opacity: 1;
 }
 .stickersPanelWrapper.active .stickersPanel {
   visibility: visible;
@@ -514,7 +530,6 @@ img {
   font-size: 0.9rem;
   padding: 5px;
   color: var(--foreground-dark);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.0392156863);
 }
 .chatBox .navbar i {
   color: inherit;
@@ -615,16 +630,8 @@ img {
   align-items: center;
   z-index: 20;
   transition: 100ms ease-in-out;
-  transform: scale(0.5);
-  transform-origin: bottom;
   pointer-events: none;
-}
-.attachmentChooser .attachmentButton {
-  transition: 150ms;
-  transform: translateY(20px) scale(0.5);
-}
-.attachmentChooser .attachmentButton i {
-  pointer-events: none;
+  backdrop-filter: brightness(0.8);
 }
 .attachmentChooser .attachmentContainer {
   position: absolute;
@@ -642,6 +649,9 @@ img {
   background: var(--primary-dark);
   filter: drop-shadow(0 4px 5px black);
   z-index: 20;
+  transform: scale(0.5);
+  transform-origin: bottom;
+  transition: 150ms;
 }
 .attachmentChooser .attachmentButton {
   display: flex;
@@ -650,33 +660,39 @@ img {
   justify-content: center;
   gap: 10px;
   position: relative;
-  transform: translateY(0px) scale(1);
+  transition: 150ms;
+  transform: translateY(20px) scale(0.5);
+}
+.attachmentChooser .attachmentButton i {
+  pointer-events: none;
 }
 .attachmentChooser .attachmentButton .text {
   font-size: 0.7rem;
 }
 .attachmentChooser .attachmentButton:nth-child(1) {
-  transition-delay: 50ms;
-  animation-delay: 50ms;
+  transition-delay: 30ms;
+  animation-delay: 30ms;
 }
 .attachmentChooser .attachmentButton:nth-child(2) {
-  transition-delay: 80ms;
-  animation-delay: 80ms;
+  transition-delay: 60ms;
+  animation-delay: 60ms;
 }
 .attachmentChooser .attachmentButton:nth-child(3) {
-  transition-delay: 110ms;
-  animation-delay: 110ms;
+  transition-delay: 90ms;
+  animation-delay: 90ms;
 }
 .attachmentChooser .attachmentButton:nth-child(4) {
-  transition-delay: 140ms;
-  animation-delay: 140ms;
+  transition-delay: 120ms;
+  animation-delay: 120ms;
 }
 .attachmentChooser.active {
   bottom: 0;
   visibility: visible;
   opacity: 1;
-  transform: scale(1);
   pointer-events: all;
+}
+.attachmentChooser.active .attachmentContainer {
+  transform: scale(1);
 }
 .attachmentChooser.active .attachmentButton {
   transform: translateY(0px) scale(1);
@@ -1129,12 +1145,12 @@ i[class^=fa-] {
 }
 
 #more i {
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 .hoverBtn {
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  aspect-ratio: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1235,13 +1251,13 @@ i[class^=fa-] {
   animation: bouncing 1s infinite;
 }
 #typingIndicator .bubble .bouncing:nth-child(1) {
-  animation-delay: 0s;
+  animation-delay: 0;
 }
 #typingIndicator .bubble .bouncing:nth-child(2) {
-  animation-delay: 0.2s;
+  animation-delay: 0.2;
 }
 #typingIndicator .bubble .bouncing:nth-child(3) {
-  animation-delay: 0.4s;
+  animation-delay: 0.4;
 }
 #typingIndicator .text:empty + .bubble {
   display: none;
@@ -1490,7 +1506,7 @@ i[class^=fa-] {
   right: 0;
   display: flex;
   backdrop-filter: brightness(0.8);
-  transition: 100ms ease-in-out;
+  transition: 200ms ease-in-out;
   z-index: 25;
   pointer-events: none;
   visibility: hidden;
@@ -1514,9 +1530,9 @@ i[class^=fa-] {
   background: var(--primary-dark);
   place-content: center;
   display: grid;
-  transition: 100ms ease-in-out;
+  transition: 200ms ease-in-out;
   filter: drop-shadow(0 4px 5px black);
-  transition: 100ms ease-in-out;
+  transition: 200ms ease-in-out;
   top: 30px;
   visibility: hidden;
   opacity: 0;
@@ -1527,7 +1543,7 @@ i[class^=fa-] {
   max-height: 35px;
   place-content: center;
   display: grid;
-  transition: 100ms ease-in-out;
+  transition: 200ms ease-in-out;
   border-radius: 10px;
   top: 60px;
   transform: scale(0.7);
@@ -1536,6 +1552,39 @@ i[class^=fa-] {
 }
 #messageOptionsContainerWrapper .reactOptionsWrapper.more {
   max-height: 200px;
+}
+#messageOptionsContainerWrapper #reactOptions {
+  gap: 5px;
+  font-size: 1.5rem;
+  padding: 8px 10px;
+  background: var(--primary-dark);
+  border-radius: 30px;
+  filter: drop-shadow(0 4px 5px black);
+}
+#messageOptionsContainerWrapper #reactOptions .reactWrapper {
+  transform: rotate(-30deg) scale(0.4);
+  transform-origin: bottom;
+}
+#messageOptionsContainerWrapper #reactOptions .reactWrapper:nth-of-type(1) {
+  animation-delay: 0ms !important;
+}
+#messageOptionsContainerWrapper #reactOptions .reactWrapper:nth-of-type(2) {
+  animation-delay: 40ms !important;
+}
+#messageOptionsContainerWrapper #reactOptions .reactWrapper:nth-of-type(3) {
+  animation-delay: 80ms !important;
+}
+#messageOptionsContainerWrapper #reactOptions .reactWrapper:nth-of-type(4) {
+  animation-delay: 120ms !important;
+}
+#messageOptionsContainerWrapper #reactOptions .reactWrapper:nth-of-type(5) {
+  animation-delay: 160ms !important;
+}
+#messageOptionsContainerWrapper #reactOptions .reactWrapper:nth-of-type(6) {
+  animation-delay: 200ms !important;
+}
+#messageOptionsContainerWrapper #reactOptions .reactWrapper:nth-of-type(7) {
+  animation-delay: 240ms !important;
 }
 #messageOptionsContainerWrapper.active {
   visibility: visible;
@@ -1552,6 +1601,46 @@ i[class^=fa-] {
   transform: scale(1);
   visibility: visible;
   opacity: 1;
+}
+#messageOptionsContainerWrapper.active #reactOptions .reactWrapper {
+  animation: bubbleUp 400ms ease-in-out forwards;
+}
+
+@keyframes bubbleUp {
+  0% {
+    transform: rotate(-30deg) scale(0.4);
+  }
+  30% {
+    transform: rotate(15deg) scale(1.2);
+  }
+  60% {
+    transform: rotate(-15deg) scale(0.8);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+.reactWrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 30px;
+  width: 35px;
+  height: 35px;
+  filter: saturate(0.8);
+}
+.reactWrapper .react-emoji {
+  transform: scale(1);
+  transition: 150ms ease-in-out;
+  filter: saturate(1);
+  transform-origin: bottom;
+  pointer-events: none;
+}
+.reactWrapper:hover .react-emoji {
+  filter: saturate(1.2);
+  transform: scale(1.2);
 }
 
 .moreReactsContainer {
@@ -1618,41 +1707,9 @@ i[class^=fa-] {
   border-radius: 10px;
 }
 
-#reactOptions {
-  gap: 5px;
-  font-size: 1.5rem;
-  padding: 8px 10px;
-  background: var(--primary-dark);
-  border-radius: 30px;
-  filter: drop-shadow(0 4px 5px black);
-}
-
-.reactWrapper {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  border-radius: 30px;
-  width: 35px;
-  height: 35px;
-  filter: saturate(0.8);
-}
-.reactWrapper .react-emoji {
-  transform: scale(1);
-  transition: 150ms ease-in-out;
-  filter: saturate(1);
-  transform-origin: bottom;
-  pointer-events: none;
-}
-.reactWrapper:hover .react-emoji {
-  filter: saturate(1.2);
-  transform: scale(1.2);
-}
-
 #showMoreReactBtn {
   border-radius: 25px;
-  background: rgba(255, 255, 255, 0.2392156863);
+  background: rgba(255, 255, 255, 0.0823529412);
   transition: none;
   border-radius: 30px;
   width: 35px;
@@ -1662,7 +1719,7 @@ i[class^=fa-] {
   align-items: center;
 }
 #showMoreReactBtn:hover {
-  background: rgba(255, 255, 255, 0.1764705882);
+  background: rgba(255, 255, 255, 0.062745098);
 }
 
 #normalOptions .option {
