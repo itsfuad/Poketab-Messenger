@@ -11,6 +11,7 @@ const reactsound = new Audio('/sounds/react.mp3');
 const clickSound = new Audio('/sounds/click.mp3');
 const stickerSound = new Audio('/sounds/sticker.mp3');
 const startrecordingSound = new Audio('/sounds/startrecording.mp3');
+const expandSound = new Audio('/sounds/expand.mp3');
 
 export function playStartRecordSound(){
 	if (!buttonSoundEnabled){
@@ -92,4 +93,12 @@ export function playLeaveSound(){
 	}
 	leavesound.currentTime = 0;
 	leavesound.play();
+}
+
+export function playExpandSound(){
+	if (!buttonSoundEnabled){
+		return;
+	}
+	expandSound.currentTime = 0;
+	expandSound.play();
 }

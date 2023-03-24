@@ -674,7 +674,7 @@ img{
         z-index: 20;
         transform: scale(0.5);
         transform-origin: bottom;
-        transition: 150ms;
+        transition: 200ms;
     }
     
     .attachmentButton{
@@ -684,8 +684,10 @@ img{
         justify-content: center;
         gap: 10px;
         position: relative;
-        transition: 150ms;
-        transform: translateY(20px) scale(0.5);
+        transition: 200ms;
+        opacity: 0;
+        transform: scale(0);
+        transform-origin: bottom;
         i {
             pointer-events: none;
         }
@@ -695,8 +697,7 @@ img{
 
         @for $i from 1 through 4 {
             &:nth-child(#{$i}){
-                transition-delay: $i * 30ms;
-                animation-delay: $i * 30ms;
+                animation-delay: $i * 30ms !important;
             }
         }
     }
@@ -712,7 +713,7 @@ img{
         }
 
         .attachmentButton{
-            transform: translateY(0px) scale(1);
+            animation: bubbleUp2 300ms ease-in-out forwards;
         }
     }
 }
@@ -1634,12 +1635,14 @@ i[class^=fa-]{
     
         .reactWrapper{
 
-            transform: rotate(-30deg) scale(0.4);
+            transform: scale(0);
             transform-origin: bottom;
+            opacity: 0;
+            transition: 200ms;
 
             @for $i from 0 through 6{
                 &:nth-of-type(#{$i + 1}){
-                    animation-delay: #{($i * 40)}ms !important;
+                    animation-delay: #{($i * 50)}ms !important;
                 }
             }
         }
@@ -1663,7 +1666,7 @@ i[class^=fa-]{
 
         #reactOptions{      
             .reactWrapper{
-                animation: bubbleUp 400ms ease-in-out forwards;
+                animation: bubbleUp 500ms ease-in-out forwards;
             }
         }
     }
@@ -1671,18 +1674,38 @@ i[class^=fa-]{
 
 @keyframes bubbleUp{
     0%{
-        transform: rotate(-30deg) scale(0.4);
+        opacity: 0;
+        transform: scale(0);
     }
-    30%{
-        transform: rotate(15deg) scale(1.2);
+    25%{
+        opacity: 0.5;
+        transform: scale(1.3);
     }
-    60%{
-        transform: rotate(-15deg) scale(0.8);
+    50%{
+        opacity: 1;
+        transform: scale(0.8);
     }
     100%{
-        transform: rotate(0deg) scale(1);
+        opacity: 1;
+        transform: scale(1);
     }
 }
+
+@keyframes bubbleUp2{
+    0%{
+        opacity: 0;
+        transform: scale(0);
+    }
+    50%{
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    100%{
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 
 .reactWrapper{
 

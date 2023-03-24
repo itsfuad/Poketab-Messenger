@@ -21,6 +21,7 @@ import {
 	playOutgoingSound, 
 	playClickSound,
 	playStartRecordSound,
+	playExpandSound,
 } from './utils/media.js';
 
 import { emojiParser, isEmoji, TextParser, parseTemplate } from './utils/messageParser.js';
@@ -715,6 +716,10 @@ function showOptions(type, sender, target){
 		if (target == null){
 			return;
 		}
+
+		if (hideOptionsTimeout != null){
+			clearTimeout(hideOptionsTimeout);
+		}
 	
 		//removes all showing options first if any
 		document.querySelector('.reactorContainerWrapper').classList.remove('active');
@@ -736,15 +741,19 @@ function showOptions(type, sender, target){
 		//if the message is a text message
 		if (type === 'text'){
 			copyOption.style.display = 'flex';
+			//console.log('Copy Option Shown');
 		}else if (downloadable[type]){ //if the message is an image
 			if (target.closest('.message')?.dataset.downloaded == 'true'){
 				downloadOption.style.display = 'flex';
+				//console.log('Download Option Shown');
 			}
 		}
 		if (sender === true){ //if the message is sent by me
 			deleteOption.style.display = 'flex'; //then show the delete option
+			//console.log('Delete Option Shown');
 		}else{ //else dont show the delete option
 			deleteOption.style.display = 'none';
+			//console.log('Delete Option Hidden');
 		}
 		//get if the message has my reaction or not
 		const clicked = Array.from(target.closest('.message').querySelectorAll('.reactedUsers .list')).reduce((acc, curr) => {
@@ -753,7 +762,6 @@ function showOptions(type, sender, target){
 		if (clicked){ //if the message has my reaction
 			//get how many reactions the message has
 			const clickedElement = target.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
-			console.log(clickedElement);
 			if (reactArray.primary.includes(clickedElement)){ //if the message has my primary reaction
 				//selected react color
 				document.querySelector(`#reactOptions [data-react="${clickedElement}"]`).style.background = '#ffffff3d';
@@ -772,6 +780,7 @@ function showOptions(type, sender, target){
 			}
 		}
 		//show the options
+		playExpandSound();
 		messageOptions.classList.add('active');
 		addFocusGlass(false);
 		messageOptions.addEventListener('click', optionsMainEvent);
@@ -843,7 +852,7 @@ export function deleteMessage(messageId, user){
 
 		const fragment = document.createDocumentFragment();
 		const p = document.createElement('p');
-		p.classList.add('text');
+		p.classList.add('text', 'msg');
 		p.textContent = 'Deleted message';
 		fragment.append(p);
 		message.querySelector('.msg').replaceWith(fragment);
@@ -974,6 +983,7 @@ function sendReact(react){
 	}
 }
 
+let hideOptionsTimeout = null;
 function hideOptions(){
 	const container = document.querySelector('.reactOptionsWrapper');
 	container.dataset.closed = 'false';
@@ -985,11 +995,17 @@ function hideOptions(){
 	removeFocusGlass();
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
 	messageOptions.removeEventListener('click', optionsMainEvent);
-	setTimeout(() => {
+
+	if (hideOptionsTimeout != null){
+		clearTimeout(hideOptionsTimeout);
+	}
+
+	hideOptionsTimeout = setTimeout(() => {
+		//console.log('Hiding options');
 		copyOption.style.display = 'none';
 		downloadOption.style.display = 'none';
 		deleteOption.style.display = 'none';
-	}, 100);
+	}, 200);
 }
 
 
