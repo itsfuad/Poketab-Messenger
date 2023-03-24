@@ -1723,9 +1723,9 @@ export function popupMessage(text){
 /**
  * Message from the server
  * @param {string} message 
- * @param {string} type Message type [Join, Leave, Location]
+ * @param {string} type Message type [Join, leave, location]
  */
-export function serverMessage(message, type) {
+export function serverMessage(message, type = null) {
 	//create a new message element manually and append it to the messages list
 	const serverMessageElement = document.createElement('li');
 	serverMessageElement.classList.add('serverMessage', 'msg-item');

@@ -61,8 +61,8 @@ io.on('connection', (socket) => {
 			
 			io.to(params.key).emit('updateUserList', userList);
 			const srvID = crypto.randomUUID();
-			socket.emit('server_message', {color: 'dodgerblue', text: 'You joined the chat.🔥', id: srvID}, 'join');
-			socket.broadcast.to(params.key).emit('server_message', {color: 'dodgerblue', text: `${params.name} joined the chat.🔥`, id: srvID}, 'join');
+			socket.emit('server_message', {color: 'dodgerblue', text: 'You joined the chat🔥', id: srvID}, 'join');
+			socket.broadcast.to(params.key).emit('server_message', {color: 'dodgerblue', text: `${params.name} joined the chat🔥`, id: srvID}, 'join');
 		});
 	
 		socket.on('message', (message, type, uId, reply, replyId, options, callback) => {
@@ -140,7 +140,7 @@ io.on('connection', (socket) => {
 		
 				socket.broadcast.to(key).emit('updateUserList', users);
 				const srvID = crypto.randomUUID();
-				socket.broadcast.to(key).emit('server_message', {color: 'lightslategray', text: `${user.username} left the chat.🐸`, who: user.uid, id: srvID}, 'leave');
+				socket.broadcast.to(key).emit('server_message', {color: 'lightslategray', text: `${user.username} left the chat🐸`, who: user.uid, id: srvID}, 'leave');
 				//console.log(`User ${user.username} disconnected from key ${user.key}`);
 		
 				const remainingUsers = keyStore.getKey(key).userCount;
