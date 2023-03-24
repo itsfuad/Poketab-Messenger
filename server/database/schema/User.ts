@@ -10,5 +10,3 @@ export class User {
 		this.joined = Date.now();
 	}
 }
-
-//module.exports = { User };

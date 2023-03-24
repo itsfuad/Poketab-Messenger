@@ -983,7 +983,7 @@ function sendReact(react){
 	}
 }
 
-let hideOptionsTimeout = null;
+let hideOptionsTimeout = undefined;
 function hideOptions(){
 	const container = document.querySelector('.reactOptionsWrapper');
 	container.dataset.closed = 'false';
@@ -996,7 +996,7 @@ function hideOptions(){
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
 	messageOptions.removeEventListener('click', optionsMainEvent);
 
-	if (hideOptionsTimeout != null){
+	if (hideOptionsTimeout){
 		clearTimeout(hideOptionsTimeout);
 	}
 
@@ -1005,6 +1005,7 @@ function hideOptions(){
 		copyOption.style.display = 'none';
 		downloadOption.style.display = 'none';
 		deleteOption.style.display = 'none';
+		hideOptionsTimeout = undefined;
 	}, 200);
 }
 
@@ -1638,6 +1639,7 @@ function typingStatus(){
 	timeout = setTimeout(function () {
 		isTyping = false;
 		socket.emit('stoptyping');
+		timeout = undefined;
 	}, 1000);
 }
 
@@ -3492,8 +3494,15 @@ document.getElementById('send-location').addEventListener('click', () => {
 	}, (error) => {
 		popupMessage(error.message);
 	});
+
+	if (locationTimeout){
+		clearTimeout(locationTimeout);
+		locationTimeout = undefined;
+	}
+
 	locationTimeout = setTimeout(() => {
 		popupMessage('Could not connect to the internet');
+		locationTimeout = undefined;
 	}, 5000);
 });
 
@@ -3628,7 +3637,7 @@ function startRecordingAudio(){
 			const maxRecordTime = 60;
 			let timePassed = 0;
 
-			const timerInterval = setInterval(() => {
+			let timerInterval = setInterval(() => {
 				timePassed += 1;
 				if (timePassed >= maxRecordTime){
 					clearInterval(timerInterval);
@@ -3644,6 +3653,8 @@ function startRecordingAudio(){
 				mediaRecorder.stop();
 				stopRecording();
 				clearInterval(timerInterval);
+				autoStopRecordtimeout = undefined;
+				timerInterval = undefined;
 				//console.log('%cAuto Stop Record', 'color: red');
 			}, 1 * maxRecordTime * 1000);
 

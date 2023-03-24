@@ -1,5 +1,3 @@
-console.log('User schema loaded');
-
 import { Key } from './schema/Key.js';
 import { User } from './schema/User.js';
 

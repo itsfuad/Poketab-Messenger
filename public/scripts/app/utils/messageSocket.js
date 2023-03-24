@@ -197,5 +197,6 @@ socket.on('disconnect', () => {
 	const id = crypto.randomUUID();
 	console.log('%cDisconnected from message relay server.', 'color: red;');
 	serverMessage({color: 'grey', text: 'Disconnected from server😔', id: id}, 'disconnect');
-	popupMessage('Disconnected from message relay server');
+	playLeaveSound();
+	popupMessage('Disconnected from server');
 });

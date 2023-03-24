@@ -1,5 +1,3 @@
-console.log('Running File Relay System');
-
 import { Router } from 'express';
 import multer from 'multer';
 import { access } from 'fs/promises';
@@ -74,5 +72,3 @@ router.get('*', (req, res) => {
 	//unknown route
 	res.status(404).send({ error: 'Unknown route' });
 });
-
-//module.exports = { router, store, fileStore, deleteFileStore };

@@ -1,5 +1,3 @@
-console.log('Admin view started');
-
 import { Router } from 'express';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
@@ -144,5 +142,3 @@ router.get('*', (req, res) => {
 	//unknown route
 	res.status(404).send({ error: 'Unknown route' });
 });
-
-//module.exports = router;
