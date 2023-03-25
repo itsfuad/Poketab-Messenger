@@ -56,7 +56,7 @@ app.get('/', (_, res) => {
     const nonce = crypto.randomBytes(16).toString('hex');
     res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}' ; img-src 'self' data:;`);
     res.setHeader('Developer', 'Fuad Hasan');
-    res.render('home/home', { title: 'Get Started', hash: nonce });
+    res.render('home/home', { title: 'Get Started', hash: nonce, version: `v.${version}` });
 });
 import adminRouter from './routes/admin.js';
 import fileRouter from './routes/fileAPI.js';
