@@ -33,6 +33,9 @@
 #messages .msg-item.focused {
   filter: brightness(1) !important;
 }
+#messages .msg-item.focused .msg {
+  border-color: rgba(255, 255, 255, 0.5607843137);
+}
 
 a {
   color: inherit;
@@ -47,7 +50,7 @@ code {
   flex-direction: row-reverse;
   align-items: flex-end;
   position: relative;
-  padding: 0 15px 0 5px;
+  padding: 0 18px 0 5px;
 }
 .message .messageContainer {
   display: flex;
@@ -97,7 +100,7 @@ code {
 .message .messageBody .messageReply {
   background: var(--msg-get-reply);
   color: hsla(0, 0%, 100%, 0.5);
-  border-radius: 15px 15px 15px 8px;
+  border-radius: 18px 18px 18px 8px;
   width: max-content;
   max-width: 250px;
   white-space: pre;
@@ -125,7 +128,7 @@ code {
   min-height: 100px;
   object-fit: cover;
   vertical-align: bottom;
-  border-radius: 15px 15px 15px 8px !important;
+  border-radius: 18px 18px 18px 8px !important;
 }
 .message .messageBody .messageReply.imageReply img {
   max-width: inherit;
@@ -216,6 +219,7 @@ code {
 }
 .messageMain .msg {
   transition: 100ms ease-in-out;
+  border: 2px solid transparent;
 }
 .messageMain .text {
   background: var(--msg-get);
@@ -237,7 +241,7 @@ code {
   background: rgba(255, 255, 255, 0.0901960784);
 }
 .messageMain > * {
-  border-radius: 3px 15px 15px 3px;
+  border-radius: 5px 18px 18px 5px;
   z-index: 10;
 }
 
@@ -362,15 +366,15 @@ pre code {
 }
 
 .message.start .messageMain > * {
-  border-bottom-left-radius: 3px;
-  border-top-left-radius: 15px;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 18px;
 }
 .message.start .messageTitle {
   display: flex;
 }
 
 .message.end .messageMain > * {
-  border-bottom-left-radius: 15px;
+  border-bottom-left-radius: 18px;
 }
 .message.end .avatar {
   visibility: visible;
@@ -420,13 +424,13 @@ pre code {
 }
 .message.self .messageBody .messageReply {
   background: var(--msg-send-reply);
-  border-radius: 15px 15px 8px 15px;
+  border-radius: 18px 18px 8px 18px;
 }
 .message.self .messageBody .messageReply .image {
-  border-radius: 15px 15px 8px 15px;
+  border-radius: 18px 18px 8px 18px;
 }
 .message.self .messageBody .messageReply.imageReply {
-  border-radius: 15px 15px 8px 15px !important;
+  border-radius: 18px 18px 8px 18px !important;
 }
 .message.self .messageBody .messageMain {
   flex-direction: row-reverse;
@@ -445,17 +449,17 @@ pre code {
   background: var(--msg-send);
 }
 .message.self .messageBody .messageMain > * {
-  border-radius: 15px 3px 3px 15px;
+  border-radius: 18px 5px 5px 18px;
 }
 .message.self.start .messageMain > * {
-  border-bottom-right-radius: 3px;
-  border-top-right-radius: 15px;
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 18px;
 }
 .message.self.start .messageTitle {
   display: flex;
 }
 .message.self.end .messageMain > * {
-  border-bottom-right-radius: 15px;
+  border-bottom-right-radius: 18px;
 }
 .message.self.end .avatar {
   visibility: visible;
@@ -590,7 +594,7 @@ pre code {
   min-width: 200px;
   max-width: 230px;
   background-color: var(--msg-get);
-  border-radius: 15px;
+  border-radius: 18px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -674,7 +678,6 @@ pre code {
   background: none !important;
   border: 2px solid #7d858c !important;
   color: #7d858c !important;
-  height: 34px !important;
   font-style: italic !important;
   cursor: not-allowed;
 }
@@ -705,7 +708,7 @@ pre code {
   flex-direction: row;
   align-items: flex-end;
   justify-content: center;
-  margin-top: 15px;
+  margin-top: 18px;
 }
 .serverMessage + .serverMessage {
   margin-top: 0;

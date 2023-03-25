@@ -36,6 +36,9 @@
     
     .msg-item.focused{
         filter: brightness(1) !important;
+        .msg{
+            border-color: #ffffff8f;
+        }
     }
 }
 
@@ -54,7 +57,7 @@ code{
     flex-direction: row-reverse;
     align-items: flex-end;
     position: relative;
-    padding: 0 15px 0 5px;
+    padding: 0 18px 0 5px;
 
     .messageContainer{
         display: flex;
@@ -104,7 +107,7 @@ code{
         .messageReply{
             background: var(--msg-get-reply);
             color: hsla(0,0%,100%,.5);
-            border-radius: 15px 15px 15px 8px;
+            border-radius: 18px 18px 18px 8px;
             width: max-content;
             max-width: 250px;
             white-space: pre;
@@ -133,7 +136,7 @@ code{
                 object-fit: cover;
                 vertical-align: bottom;
 
-                border-radius: 15px 15px 15px 8px !important;
+                border-radius: 18px 18px 18px 8px !important;
 
                 img{
                     max-width: inherit;
@@ -235,6 +238,7 @@ code{
     }
     .msg{
         transition: 100ms ease-in-out;
+        border: 2px solid transparent;
     }
     .text{
         background: var(--msg-get);
@@ -257,7 +261,7 @@ code{
         background: #ffffff17;
     }
     & > *{
-        border-radius: 3px 15px 15px 3px;
+        border-radius: 5px 18px 18px 5px;
         z-index: 10;
     }
 }
@@ -391,8 +395,8 @@ pre{
 .message.start{
     .messageMain{
         & > *{
-            border-bottom-left-radius: 3px;
-            border-top-left-radius: 15px;
+            border-bottom-left-radius: 5px;
+            border-top-left-radius: 18px;
         }
     }
     .messageTitle{
@@ -402,7 +406,7 @@ pre{
 .message.end{
     .messageMain{
         & > *{
-            border-bottom-left-radius: 15px;
+            border-bottom-left-radius: 18px;
         }
     }
     .avatar{
@@ -458,12 +462,12 @@ pre{
         align-items: flex-end;
         .messageReply{
             background: var(--msg-send-reply);
-            border-radius: 15px 15px 8px 15px;
+            border-radius: 18px 18px 8px 18px;
             .image{
-                border-radius: 15px 15px 8px 15px;
+                border-radius: 18px 18px 8px 18px;
             }
             &.imageReply{
-                border-radius: 15px 15px 8px 15px !important;
+                border-radius: 18px 18px 8px 18px !important;
             }
         }
         .messageMain{
@@ -483,15 +487,15 @@ pre{
                 background: var(--msg-send)
             }
             & > *{
-                border-radius: 15px 3px 3px 15px;
+                border-radius: 18px 5px 5px 18px;
             }
         }
     }
     &.start{
         .messageMain{
             & > *{
-                border-bottom-right-radius: 3px;
-                border-top-right-radius: 15px;
+                border-bottom-right-radius: 5px;
+                border-top-right-radius: 18px;
             }
         }
         .messageTitle{
@@ -501,7 +505,7 @@ pre{
     &.end{
         .messageMain{
             & > *{
-                border-bottom-right-radius: 15px;
+                border-bottom-right-radius: 18px;
             }
         }
         .avatar{
@@ -647,7 +651,7 @@ pre{
     min-width: 200px;
     max-width: 230px;
     background-color: var(--msg-get);
-    border-radius: 15px;
+    border-radius: 18px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -738,7 +742,6 @@ pre{
         background: none !important;
         border: 2px solid #7d858c !important;
         color: #7d858c !important;
-        height: 34px !important;
         font-style: italic !important;
         cursor: not-allowed;
     }
@@ -770,7 +773,7 @@ pre{
     flex-direction: row;
     align-items: flex-end;
     justify-content: center;
-    margin-top: 15px;
+    margin-top: 18px;
     & + .serverMessage{
         margin-top: 0;
     }

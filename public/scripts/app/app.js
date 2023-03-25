@@ -95,9 +95,7 @@ const fileButton = document.getElementById('fileChooser');
 const audioButton = document.getElementById('audioChooser');
 
 export let isTyping = false;
-let timeout = undefined;
 let messageTimeStampUpdater;
-let popupTimeout = undefined;
 
 //all the variables that are fetched from the server
 export const myId = document.getElementById('myId').textContent;
@@ -764,16 +762,16 @@ function showOptions(type, sender, target){
 			const clickedElement = target.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
 			if (reactArray.primary.includes(clickedElement)){ //if the message has my primary reaction
 				//selected react color
-				document.querySelector(`#reactOptions [data-react="${clickedElement}"]`).style.background = '#ffffff3d';
+				document.querySelector(`#reactOptions [data-react="${clickedElement}"]`).style.background = 'var(--secondary-dark)';
 			}
 			if (reactArray.expanded.includes(clickedElement)){
-				document.querySelector(`.moreReacts [data-react="${clickedElement}"]`).style.background = '#ffffff3d';
+				document.querySelector(`.moreReacts [data-react="${clickedElement}"]`).style.background = 'var(--secondary-dark)';
 			}
 			if (reactArray.expanded.includes(clickedElement) && !reactArray.primary.includes(clickedElement)){
 				//2nd last element
 				const elm = document.querySelector('#reactOptions');
 				const lastElm = elm.lastElementChild.previousElementSibling;
-				lastElm.style.background = '#ffffff3d';
+				lastElm.style.background = 'var(--secondary-dark)';
 				lastElm.dataset.react = clickedElement;
 				lastElm.querySelector('.react-emoji').textContent = clickedElement;
 				reactArray.last = clickedElement;
@@ -1440,22 +1438,22 @@ export function checkgaps(targetId){
 
 				if (target.dataset.uid == myId){
 					if (gap > 5){
-						target.querySelector('.messageMain .msg').style.borderBottomRightRadius = '15px';
-						after.querySelector('.messageMain .msg').style.borderTopRightRadius = '15px';
+						target.querySelector('.messageMain .msg').style.borderBottomRightRadius = '18px';
+						after.querySelector('.messageMain .msg').style.borderTopRightRadius = '18px';
 					}else{
 						if (!target.classList.contains('end') && !after.classList.contains('start')){
-							target.querySelector('.messageMain .msg').style.borderBottomRightRadius = '3px';
-							after.querySelector('.messageMain .msg').style.borderTopRightRadius = '3px';
+							target.querySelector('.messageMain .msg').style.borderBottomRightRadius = '5px';
+							after.querySelector('.messageMain .msg').style.borderTopRightRadius = '5px';
 						}
 					}
 				}else{
 					if (gap > 5){
-						target.querySelector('.messageMain .msg').style.borderBottomLeftRadius = '15px';
-						after.querySelector('.messageMain .msg').style.borderTopLeftRadius = '15px';
+						target.querySelector('.messageMain .msg').style.borderBottomLeftRadius = '18px';
+						after.querySelector('.messageMain .msg').style.borderTopLeftRadius = '18px';
 					}else{
 						if (!target.classList.contains('end') && !after.classList.contains('start')){
-							target.querySelector('.messageMain .msg').style.borderBottomLeftRadius = '3px';
-							after.querySelector('.messageMain .msg').style.borderTopLeftRadius = '3px';
+							target.querySelector('.messageMain .msg').style.borderBottomLeftRadius = '5px';
+							after.querySelector('.messageMain .msg').style.borderTopLeftRadius = '5px';
 						}
 					}
 				}
@@ -1624,22 +1622,23 @@ function removeNewMessagePopup() {
 }
 
 
+let typingStatusTimeout = undefined;
 /**
  * Emits typing status of the current user to everyone
  */
 function typingStatus(){
-	if (timeout) {
-		clearTimeout(timeout);
-		timeout = undefined;
+	if (typingStatusTimeout) {
+		clearTimeout(typingStatusTimeout);
+		typingStatusTimeout = undefined;
 	}
 	if (!isTyping) {
 		isTyping = true;
 		socket.emit('typing');
 	}
-	timeout = setTimeout(function () {
+	typingStatusTimeout = setTimeout(function () {
 		isTyping = false;
 		socket.emit('stoptyping');
-		timeout = undefined;
+		typingStatusTimeout = undefined;
 	}, 1000);
 }
 
@@ -1706,6 +1705,8 @@ function copyText(text){
 	popupMessage('Copied to clipboard');
 }
 
+
+let popupTimeout = undefined;
 /**
  * Shows a popup message for 1 second
  * @param {string} text Text to show in the popup
@@ -1745,7 +1746,7 @@ export function serverMessage(message, type = null) {
 		locationLink.textContent = `${message.user}'s location`;
 		const locationIcon = document.createElement('i');
 		locationIcon.classList.add('fa-solid', 'fa-location-dot', 'fa-flip');
-		locationIcon.style.padding = '15px 5px';
+		locationIcon.style.padding = '18px 5px';
 		locationIcon.style['--fa-animation-duration'] = '2s';
 		locationIcon.style.fontSize = '2rem';
 		locationLink.prepend(locationIcon);
@@ -2465,12 +2466,11 @@ messages.addEventListener('click', (evt) => {
 			document.querySelector('.reactorContainerWrapper').classList.add('active');
 			addFocusGlass(false);
 		}else if (evt.target?.closest('.messageReply')){
-			if (document.getElementById(evt.target.closest('.messageReply').dataset.repid).dataset.deleted != 'true'){
+			const target = evt.target.closest('.messageReply')?.dataset.repid;
+			const targetElement = document.getElementById(target);
+
+			if (target && targetElement){
 				try{
-
-					const target = evt.target.closest('.messageReply')?.dataset.repid;
-
-					const targetElement = document.getElementById(target);
 
 					targetElement.classList.add('focused');
 
@@ -3094,7 +3094,7 @@ sendButton.addEventListener('click', () => {
 	hideOptions();
 	hideReplyToast();
 	try{
-		clearTimeout(timeout);
+		clearTimeout(typingStatusTimeout);
 	}catch(e){
 		console.log('timeout not set');
 	}
