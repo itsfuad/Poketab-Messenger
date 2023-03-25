@@ -1,27 +1,44 @@
-## Welcome to Poketab Messanger
+# Poketab Messenger: A Secure and User-Friendly Chatting WebApp
 
-This is a realtime instant dynamic chatting WebApp which you can use for secret chatting. You can join from 2 to upto 15 peoples. 
+Poketab Messenger is an instant dynamic chatting WebApp that lets you enjoy secure, real-time messaging. You can join 2 to 10 people in a single chat room and use the app for secret chatting. 
 
+## Features
 
-### Features
+Poketab Messenger comes with a variety of features that make chatting easy and fun:
 
-+ Instant messaging.
-+ Image support without loosing quality.
-+ Reacts and replies.
-+ User friendly UI.
+- Instant messaging with friends and family
+- High-quality image sharing without compromising quality
+- Multiple file sharing
+- Stickers to add a fun touch to your conversations
+- Share your location with ease
+- Reply to specific messages
+- React to messages with emojis
+- User-friendly UI that makes navigating the app a breeze
 
+## How to Use
 
-### How it works?
-+ Poketab uses temporary dynamic keys that allow users to authenticate and join chats. Other intruders cannot see any of the text or media messages and also cannot access media files from the download link if he does not have the key. So do not share the key with anyone.
-+ When two or more users join the chat they can share messages between them which are secured and encrypted. First the message gets delivered to the server then the sender gets acknowledgement that the message has been sent from his device. Then the server sends the message to all other connected clients.
-+ The other client gets a notification if he is not on the app or web tab active when he receives the message. Otherwise a 'seen' event gets triggered and notifies the server that he has seen the message. Then the server shares this info with all other connected clients.
-+ When a client sends an image, first a low resolution image of that image is generated and then sent to all other clients by the server. So all other clients get an instant blurred image while the original image is being uploaded to the server. A dynamic link is generated to download the file when upload is complete. The link is then shared with all other clients, and the other clients use the link to load the full resolution image. 
-+ File upload uses the same mechanism.
+Using Poketab Messenger is simple and easy:
 
+### Sending Messages
+Just type your message and press `Enter` to send it. Alternatively, you can change the send trigger to `Alt + s` in the settings.
 
+### Replying to Specific Messages
+Swipe the message to reply to it, or right-click on it from your PC.
 
-To add or change anything, pull request and our admins will varify the changes then will merge your code.
-**Avoid using 3rd party libraries for simple tasks. Try to use Pure Javascript as possible.**
+### Reacts 😁😂😠😍
+Press and hold a message to react to it with emojis. You can also reply, copy, or delete messages from this menu.
 
+## How It Works
 
+Poketab Messenger ensures privacy with temporary dynamic keys that authenticate and join users to chat rooms. Messages are encrypted and secure, and only users with the key can access them.
+
+When a message is sent, it is delivered to the server, and the sender receives an acknowledgment that it has been sent. The server then relays the message to all other connected clients. If a client is inactive, they will receive a notification when they receive a message.
+
+When a user sends an image, the server generates a low-resolution thumbnail and sends it to all other clients instantly. The original image is uploaded to the server, and a dynamic link is created for other clients to download the file. File upload uses the same mechanism.
+
+For location sharing, Poketab Messenger uses the browser's built-in location API.
+
+## Conclusion
+
+Poketab Messenger is a secure and user-friendly app that enables you to chat with your friends and family without compromising your privacy. With its fun features and easy-to-use interface, Poketab Messenger is the perfect choice for all your instant messaging needs.
 
