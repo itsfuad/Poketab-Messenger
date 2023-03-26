@@ -690,7 +690,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 
 	}catch(err){
 		console.error(err);
-		popupMessage(err);
+		showPopupMessage(err);
 	}
 }
 
@@ -857,7 +857,7 @@ export function deleteMessage(messageId, user){
 		message.classList.add('deleted');
 		message.dataset.deleted = true;
 		message.querySelector('.messageTitle').textContent = user;
-		popupMessage(`${user == myName ? 'You': user} deleted a message`);
+		showPopupMessage(`${user == myName ? 'You': user} deleted a message`);
         
 		if (maxUser == 2 || (message.dataset.uid == myId)) {
 			message.querySelector('.messageTitle').style.visibility = 'hidden';
@@ -896,9 +896,9 @@ function downloadHandler(){
 	if (document.getElementById(targetMessage.id).dataset.downloaded != 'true'){
 		//if sender is me
 		if (targetMessage.sender == 'You'){
-			popupMessage('Not uploaded yet');
+			showPopupMessage('Not uploaded yet');
 		}else{
-			popupMessage('Not downloaded yet');
+			showPopupMessage('Not downloaded yet');
 		}
 		return;
 	}
@@ -917,7 +917,7 @@ function downloadHandler(){
 function saveImage(){
 	try{
 		//console.log('Saving image');
-		popupMessage('Preparing image...');
+		showPopupMessage('Preparing image...');
 		const a = document.createElement('a');
 		a.href = lightboxImage.querySelector('img').src;
 		a.download = `poketab-${Date.now()}`;
@@ -932,7 +932,7 @@ function saveImage(){
  * Downloads the file
  */
 function downloadFile(){
-	popupMessage('Preparing download...');
+	showPopupMessage('Preparing download...');
 
 	const downloadName = {
 		'file': `Poketab-${Date.now()}-${targetFile.fileName}`,
@@ -1073,7 +1073,7 @@ messages.addEventListener('touchmove', (evt) => {
 		//console.log('Swipe moved');
 	}catch(e){
 		console.log(e);
-		popupMessage(e);
+		showPopupMessage(e);
 	}
 });
 
@@ -1112,7 +1112,7 @@ messages.addEventListener('touchend', (evt) => {
 		}
 	}catch(e){
 		console.log(e);
-		popupMessage(e);
+		showPopupMessage(e);
 	}
 });
 
@@ -1697,12 +1697,12 @@ function copyText(text){
 	}
 	//return if the device doesn't support clipboard access
 	if (!navigator.clipboard){
-		popupMessage('This browser does\'t support clipboard access');
+		showPopupMessage('This browser doesn\'t support clipboard access');
 		return;
 	}
 	//copy the text to clipboard and show a popup
 	navigator.clipboard.writeText(text);
-	popupMessage('Copied to clipboard');
+	showPopupMessage('Copied to clipboard');
 }
 
 
@@ -1711,14 +1711,24 @@ let popupTimeout = undefined;
  * Shows a popup message for 1 second
  * @param {string} text Text to show in the popup
  */
-export function popupMessage(text){
-	document.querySelector('.popup-message').textContent = text;
-	document.querySelector('.popup-message').classList.add('active');
+export function showPopupMessage(text){
+
+	let popup = document.querySelector('.popup-message');
+	if (!popup){
+		popup = document.createElement('div');
+		popup.classList.add('popup-message');
+		document.body.appendChild(popup);
+	}
+	popup.textContent = text;
+	popup.classList.add('active');
 	if (popupTimeout){
 		clearTimeout(popupTimeout);
 	}
 	popupTimeout = setTimeout(function () {
-		document.querySelector('.popup-message').classList.remove('active');
+		popup.classList.remove('active');
+		setTimeout(() => {
+			popup.remove();
+		}, 150);
 		popupTimeout = undefined;
 	}, 1000);
 }
@@ -1984,7 +1994,7 @@ document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => 
 	loadSendShortcut();
 	//hideQuickSettings();
 	localStorage.setItem('sendBy', sendBy);
-	popupMessage('Settings applied');
+	showPopupMessage('Settings applied');
 });
 
 document.addEventListener('click', (evt) => {
@@ -2003,7 +2013,7 @@ document.getElementById('messageSound').addEventListener('click', () => {
 	}
 	//hideQuickSettings();
 	localStorage.setItem('messageSoundEnabled', messageSoundEnabled);
-	popupMessage('Message sounds ' + (messageSoundEnabled ? 'enabled' : 'disabled'));
+	showPopupMessage('Message sounds ' + (messageSoundEnabled ? 'enabled' : 'disabled'));
 });
 
 document.getElementById('buttonSound').addEventListener('click', () => {
@@ -2015,7 +2025,7 @@ document.getElementById('buttonSound').addEventListener('click', () => {
 	}
 	//hideQuickSettings();
 	localStorage.setItem('buttonSoundEnabled', buttonSoundEnabled);
-	popupMessage('Button sounds ' + (buttonSoundEnabled ? 'enabled' : 'disabled'));
+	showPopupMessage('Button sounds ' + (buttonSoundEnabled ? 'enabled' : 'disabled'));
 });
 
 stickersPanel.addEventListener('click', (evt) => {
@@ -2170,7 +2180,7 @@ document.getElementById('invite').addEventListener('click', async () =>{
 	//copy inner link
 	try {
 		if (!navigator.share){
-			popupMessage('Sharing in not supported by this browser');
+			showPopupMessage('Sharing in not supported by this browser');
 			return;
 		}
 		await navigator.share({
@@ -2178,9 +2188,9 @@ document.getElementById('invite').addEventListener('click', async () =>{
 			text: 'Join chat!',
 			url: `${location.origin}/join/${myKey}`,
 		});
-		popupMessage('Shared!');
+		showPopupMessage('Shared!');
 	} catch (err) {
-		popupMessage(`${err}`);
+		showPopupMessage(`${err}`);
 	}
 });
 
@@ -2198,7 +2208,7 @@ document.querySelectorAll('.theme').forEach(theme => {
 	theme.addEventListener('click', (evt) => {
 		THEME = evt.target.closest('li').id;
 		localStorage.setItem('theme', THEME);
-		popupMessage('Theme applied');
+		showPopupMessage('Theme applied');
 		//edit css variables
 		document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${THEME}_w.webp')`);
 		document.documentElement.style.setProperty('--secondary-dark', themeAccent[THEME].secondary);
@@ -2272,8 +2282,24 @@ document.querySelector('.newmessagepopup').addEventListener('click', () => {
 });
 
 document.getElementById('logoutButton').addEventListener('click', () => {
-	document.getElementById('preload').querySelector('.text').textContent = 'Logging out';
-	document.getElementById('preload').style.display = 'flex';
+	//show logout screen
+	const preload = document.createElement('div');
+	preload.id = 'preload';
+	const text = document.createElement('div');
+	text.classList.add('text');
+	text.textContent = 'Logging out';
+	const icon = document.createElement('i');
+	icon.classList.add('fa-solid', 'fa-circle-notch', 'fa-spin');
+	preload.appendChild(text);
+	preload.appendChild(icon);
+	
+	//clear body
+	while (document.body.firstChild) {
+		document.body.removeChild(document.body.firstChild);
+	}
+
+	document.body.appendChild(preload);
+
 	window.location.href = '/';
 });
 
@@ -2351,7 +2377,7 @@ messages.addEventListener('click', (evt) => {
 			if (evt.target.tagName == 'PRE' || evt.target.tagName == 'CODE'){
 				//copy textContent
 				navigator.clipboard.writeText(evt.target.textContent);
-				popupMessage('Copied to clipboard');
+				showPopupMessage('Copied to clipboard');
 			}
 
 			if (messageTime.timeOut){
@@ -2368,9 +2394,9 @@ messages.addEventListener('click', (evt) => {
 			evt.stopPropagation();
 			if (evt.target.closest('.message')?.dataset.downloaded != 'true'){  
 				if (evt.target.closest('.message')?.dataset.uid == myId){
-					popupMessage('Not sent yet');
+					showPopupMessage('Not sent yet');
 				}else{
-					popupMessage('Not downloaded yet');
+					showPopupMessage('Not downloaded yet');
 				}
 				console.log('%cNot availabe yet', 'color: blue');
 				return;
@@ -2409,7 +2435,7 @@ messages.addEventListener('click', (evt) => {
 					if (evt.offsetX < audioContainer.offsetWidth && evt.offsetX > 0){
 						//if duration is not finite, then set it to 0 and wait for it to be updated
 						if (!isFinite(audio.duration)){
-							popupMessage('Please wait for the audio to load');
+							showPopupMessage('Please wait for the audio to load');
 							return;
 						}
 						const duration = audio.duration;
@@ -2492,10 +2518,10 @@ messages.addEventListener('click', (evt) => {
 						scrollIntoViewTimeout = undefined;
 					}, 120);
 				}catch(e){
-					popupMessage('Deleted message');
+					showPopupMessage('Deleted message');
 				}
 			}else{
-				popupMessage('Deleted message');
+				showPopupMessage('Deleted message');
 			}
 		}else{
 			hideOptions();
@@ -2569,7 +2595,7 @@ function playAudio(audioContainer){
 
 		// Check if the audio file is ready to be played
 		if (!audioContainer.dataset?.src){
-			popupMessage('Audio is not ready to play');
+			showPopupMessage('Audio is not ready to play');
 			return;
 		}
 
@@ -2640,8 +2666,6 @@ function playAudio(audioContainer){
  * @param {HTMLAudioElement} audio - The audio element to stop
  */
 function stopAudio(audio){
-	// Set the 'playing' attribute of the dataset object to false
-	// dataset.playing = 'false';
 	// Reset the current time of the audio to 0
 	audio.currentTime = 0;
 	// Pause the audio playback
@@ -2687,11 +2711,14 @@ window.addEventListener('resize',()=>{
 });
 
 replyOption.addEventListener('click', showReplyToast);
+
 copyOption.addEventListener('click', () => {
 	hideOptions();
 	copyText(null);
 });
+
 downloadOption.addEventListener('click', downloadHandler);
+
 deleteOption.addEventListener('click', ()=>{
 	const uid = document.getElementById(targetMessage.id)?.dataset?.uid;
 	if (uid){
@@ -2728,20 +2755,20 @@ function clearFileFromInput(){
  */
 function fileIsAcceptable(file, type){
 	if (file.size > 15 * 1024 * 1024){
-		popupMessage('File size must be less than 15 mb');
+		showPopupMessage('File size must be less than 15 mb');
 		return false;
 	}
 
 	if (type == 'audio'){
 		const supportedAudioFormats = ['audio/mp3', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/x-m4a'];
 		if (!supportedAudioFormats.includes(file.type)){
-			popupMessage('Audio format not supported. Try as file.');
+			showPopupMessage('Audio format not supported. Try as file.');
 			return false;
 		}
 	}else if(type == 'image'){
 		const supportedImageFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 		if (!supportedImageFormats.includes(file.type)){
-			popupMessage('Image format not supported. Try as file.');
+			showPopupMessage('Image format not supported. Try as file.');
 			return false;
 		}
 	}
@@ -2759,7 +2786,7 @@ function ImagePreview(filesFromClipboard = null){
 
 	//user can select multiple images upto 3
 	if (files.length > 10){
-		popupMessage('Maximum 10 images can be sent at a time');
+		showPopupMessage('Maximum 10 images can be sent at a time');
 		return;
 	}
 
@@ -2826,7 +2853,7 @@ function ImagePreview(filesFromClipboard = null){
 			imageElement.onerror = () => {
 				URL.revokeObjectURL(fileURL);
 				selectedFileArray.length = 0;
-				popupMessage('Error reading file');
+				showPopupMessage('Error reading file');
 				clearFileFromInput();
 				clearTargetMessage();
 				clearFinalTarget();
@@ -2841,7 +2868,7 @@ function ImagePreview(filesFromClipboard = null){
 		selectedFilesCount.textContent = `${selectedFileArray.length} item${selectedFileArray.length > 1 ? 's' : ''} selected`;
 	}catch(e){
 		console.log(e);
-		popupMessage('Error reading Image');
+		showPopupMessage('Error reading Image');
 		clearFileFromInput();
 		clearTargetMessage();
 		clearFinalTarget();
@@ -2860,7 +2887,7 @@ function FilePreview(filesFromClipboard = null, audio = false){
 
 	//user can select multiple images upto 3
 	if (files.length > 5){
-		popupMessage('Select upto 5 files');
+		showPopupMessage('Select upto 5 files');
 		return;
 	}
 
@@ -2952,14 +2979,14 @@ function FilePreview(filesFromClipboard = null, audio = false){
 		selectedFilesCount.textContent = `${selectedFileArray.length} item${selectedFileArray.length > 1 ? 's' : ''} selected`;
 	}catch(e){
 		console.log(e);
-		popupMessage('Error reading File');
+		showPopupMessage('Error reading File');
 		clearFileFromInput();
 		clearTargetMessage();
 		clearFinalTarget();
 	}
 }
 
-let timeoutObj;
+let fileDropZoneTimeout;
 
 window.addEventListener('dragover', (evt) => {
 	evt.preventDefault();
@@ -2967,18 +2994,18 @@ window.addEventListener('dragover', (evt) => {
 	fileDropZone.classList.add('active');
 	if (evt.target.classList.contains('fileDropZoneContent')){
 		document.querySelector('.fileDropZoneContent').style.color = themeAccent[THEME].secondary;
-		if (timeoutObj) {
-			clearTimeout(timeoutObj);
+		if (fileDropZoneTimeout) {
+			clearTimeout(fileDropZoneTimeout);
 		}
 	}else{
 		document.querySelector('.fileDropZoneContent').style.color = '#fff';
-		if (timeoutObj) {
-			clearTimeout(timeoutObj);
+		if (fileDropZoneTimeout) {
+			clearTimeout(fileDropZoneTimeout);
 		}
 	}
-	timeoutObj = setTimeout(() => {
+	fileDropZoneTimeout = setTimeout(() => {
 		fileDropZone.classList.remove('active');
-		timeoutObj = undefined;
+		fileDropZoneTimeout = undefined;
 	}, 200);
 });
 
@@ -3016,7 +3043,7 @@ window.addEventListener('paste', (e) => {
 	}
 });
 
-window.addEventListener('offline', function() { 
+window.addEventListener('offline', function() {
 	console.log('offline'); 
 	document.querySelector('.offline .icon i').classList.replace('fa-wifi', 'fa-circle-exclamation');
 	document.querySelector('.offline .text').textContent = 'You are offline!';
@@ -3043,7 +3070,7 @@ sendButton.addEventListener('click', () => {
 		return;
 	}
 	if (recorderElement.dataset.recordingstate === 'true'){
-		popupMessage('Please stop recording first');
+		showPopupMessage('Please stop recording first');
 		return;
 	}
 
@@ -3165,7 +3192,9 @@ async function sendImageStoreRequest(){
 				msg.querySelector('.circleProgressLoader').remove();
 				playOutgoingSound();
 			}else{
+
 				const elem = document.getElementById(tempId)?.querySelector('.messageMain');
+
 				if (elem == null){
 					return;
 				}
@@ -3210,7 +3239,7 @@ async function sendImageStoreRequest(){
 						if (xhr.status === 0) {
 							// Handle network errors or server unreachable errors
 							//console.log('Error: could not connect to server');
-							popupMessage('Upload failed..!');
+							showPopupMessage('Upload failed..!');
 							progresCircle.querySelector('.animated').style.visibility = 'hidden';
 							progressText.textContent = 'Upload failed\nNo internet..!';
 							fileSocket.emit('fileUploadError', myKey, tempId, 'image');
@@ -3322,7 +3351,7 @@ function sendFileStoreRequest(type = null){
 				}
 				else{
 					console.log('error uploading file');
-					popupMessage('Error uploading file');
+					showPopupMessage('Error uploading file');
 					elem.querySelector('.progress').textContent = 'Upload failed';
 					fileSocket.emit('fileUploadError', myKey, tempId, 'image');
 				}
@@ -3340,7 +3369,6 @@ function sendFileStoreRequest(type = null){
 }
 
 let newMsgTimeOut = undefined;
-
 /**
  * 
  * @param {string} message 
@@ -3482,17 +3510,17 @@ let locationTimeout = undefined;
 
 document.getElementById('send-location').addEventListener('click', () => {
 	if (!navigator.geolocation) {
-		popupMessage('Geolocation not supported by your browser.');
+		showPopupMessage('Geolocation not supported by your browser.');
 		return;
 	}
 	navigator.geolocation.getCurrentPosition( (position) => {
-		popupMessage('Tracing your location...');
+		showPopupMessage('Tracing your location...');
 		socket.emit('createLocationMessage', {
 			latitude: position.coords.latitude,
 			longitude: position.coords.longitude
 		});
 	}, (error) => {
-		popupMessage(error.message);
+		showPopupMessage(error.message);
 	});
 
 	if (locationTimeout){
@@ -3501,7 +3529,7 @@ document.getElementById('send-location').addEventListener('click', () => {
 	}
 
 	locationTimeout = setTimeout(() => {
-		popupMessage('Could not connect to the internet');
+		showPopupMessage('Could not connect to the internet');
 		locationTimeout = undefined;
 	}, 5000);
 });
@@ -3552,7 +3580,7 @@ cancelVoiceRecordButton.addEventListener('click', () => {
 	if(recorderElement.dataset.recordingstate === 'true'){
 		//stop recording
 		stopRecording();
-		popupMessage('Voice message cancelled');
+		showPopupMessage('Voice message cancelled');
 	}
 	//reset for new recording
 	recordCancel = true;
@@ -3615,15 +3643,12 @@ function startRecordingAudio(){
 		.then(function(s) {
 			stream = s;
 			//process the audio stream
-			//processAudioStream(stream);
-			//create a media recorder
-			//const mediaRecorder = new MediaRecorder(stream);
 			//use low quality audio and mono channel and 32kbps
 			const mediaRecorder = new MediaRecorder(stream, {type: 'audio/mp3;', audioBitsPerSecond: 32000, audioChannels: 1});
 			//start recording
 			mediaRecorder.start();
 			startTimer();
-			popupMessage('Recording...');
+			showPopupMessage('Recording...');
 
 			playStartRecordSound();
 
@@ -3667,7 +3692,7 @@ function startRecordingAudio(){
 					recordedAudio.load();
 					recordedAudio.dataset.duration = timePassed;
 					recordCancel = false;
-					popupMessage('Recorded!');
+					showPopupMessage('Recorded!');
 					//console.log('recorder state: ', mediaRecorder.state);
 					//console.log(`Duration: ${recordedAudio.dataset.duration} seconds`);
 				}
@@ -3679,7 +3704,7 @@ function startRecordingAudio(){
 		})
 		.catch(function(err) {
 			console.log('The following error occured: ' + err);
-			popupMessage(err);
+			showPopupMessage(err);
 		});
 }
 
@@ -3824,15 +3849,27 @@ export function clearDownload(element, fileURL, type){
 	element.closest('.message').dataset.downloaded = 'true';
 }
 
+export let loginTimeout = undefined;
+export let slowInternetTimeout = undefined;
 //on dom ready, show 'Slow internet' if 3 sec has been passed
 document.addEventListener('DOMContentLoaded', () => {
-	setTimeout(() => {
-		document.getElementById('preload').querySelector('.text').textContent = 'Logging in';
-	}, 1000);
-	//show slow internet if 3 sec has been passed
-	setTimeout(() => {
-		document.getElementById('preload').querySelector('.text').textContent = 'Slow internet';
-	}, 8000);
+	try{
+		loginTimeout = setTimeout(() => {
+			if (!loginTimeout) return;
+			const preload = document.getElementById('preload');
+			preload.querySelector('.text').textContent = 'Logging in';
+			clearTimeout(slowInternetTimeout);
+		}, 1000);
+		//show slow internet if 3 sec has been passed
+		slowInternetTimeout = setTimeout(() => {
+			if (!slowInternetTimeout) return;
+			const preload = document.getElementById('preload');
+			preload.querySelector('.text').textContent = 'Slow internet';
+			clearTimeout(loginTimeout);
+		}, 8000);
+	}catch(e){
+		console.log(e);
+	}
 });
 
 

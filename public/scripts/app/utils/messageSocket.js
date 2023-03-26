@@ -11,7 +11,7 @@ import {
 	myAvatar, 
 	maxUser, 
 	myKey, 
-	popupMessage, 
+	showPopupMessage, 
 	deleteMessage, 
 	setTypingUsers, 
 	loadStickerHeader, 
@@ -25,6 +25,8 @@ import {
 	insertNewMessage,
 	userTypingMap,
 	userInfoMap,
+	loginTimeout,
+	slowInternetTimeout
 } from './../app.js';
 
 //main socket to deliver messages
@@ -50,8 +52,15 @@ socket.on('connect', () => {
 		//if error, display error message and reload page
 		if (err) {
 			console.log(err);
-			document.getElementById('preload').innerHTML = `${err} <i class="fa-solid fa-ghost"></i>`;
-			popupMessage('Self destruction in 5 seconds!');
+			let preload = document.getElementById('preload');
+			if (!preload){
+				preload = document.createElement('div');
+				preload.id = 'preload';
+			}
+
+			preload.innerHTML = `${err} <i class="fa-solid fa-ghost"></i>`;
+
+			showPopupMessage('Self destruction in 5 seconds!');
 			setTimeout(() => {
 				document.body.remove();
 				window.location = '/';
@@ -62,17 +71,31 @@ socket.on('connect', () => {
 			if (userTypingMap.size > 0){
 				setTypingUsers();
 			}
-			document.getElementById('preload').style.display = 'none';
-			popupMessage('Connected to message relay server');
+			const preload = document.getElementById('preload');
+			if (preload){
+				preload.remove();
+			}
+			if (loginTimeout){
+				clearTimeout(loginTimeout);
+			}
+			if (slowInternetTimeout){
+				clearTimeout(slowInternetTimeout);
+			}
+			showPopupMessage('Connected to message relay server');
 
 			//after connection is established, load the stickers
 			loadStickerHeader();
 			loadStickers();
 			//ask for notification permission
 			if ('Notification' in window){
-				Notification.requestPermission();
+				//Notification.requestPermission();
+				//check if permission is not granted
+				if (Notification.permission !== 'granted'){
+					//ask for permission
+					Notification.requestPermission();
+				}
 			}else{
-				popupMessage('Notifications not supported by your browser');
+				showPopupMessage('Notifications not supported by your browser');
 			}
 		}
 	});
@@ -198,5 +221,5 @@ socket.on('disconnect', () => {
 	console.log('%cDisconnected from message relay server.', 'color: red;');
 	serverMessage({color: 'grey', text: 'Disconnected from server😔', id: id}, 'disconnect');
 	playLeaveSound();
-	popupMessage('Disconnected from server');
+	showPopupMessage('Disconnected from server');
 });
