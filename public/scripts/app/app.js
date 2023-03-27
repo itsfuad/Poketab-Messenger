@@ -595,7 +595,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 			popupmsg = 'File';
 			html = parseTemplate(fileTemplate, {
 				classList: classList,
-				avatarSrc: `/images/avatars/${avatar}(custom).png`,
+				avatarSrc: `/images/avatars/${avatar}(custom).webp`,
 				messageId: id,
 				uid: uid,
 				type: type,
@@ -614,7 +614,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 			popupmsg = 'Audio';
 			html = parseTemplate(audioTemplate, {
 				classList: classList,
-				avatarSrc: `/images/avatars/${avatar}(custom).png`,
+				avatarSrc: `/images/avatars/${avatar}(custom).webp`,
 				messageId: id,
 				uid: uid,
 				type: type,
@@ -632,7 +632,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 		}else{
 			html = parseTemplate(messageTemplate, {
 				classList: classList,
-				avatarSrc: `/images/avatars/${avatar}(custom).png`,
+				avatarSrc: `/images/avatars/${avatar}(custom).webp`,
 				messageId: id,
 				uid: uid,
 				type: type,
@@ -1603,7 +1603,7 @@ export function updateScroll(avatar = null, text = ''){
 			document.querySelector('.newmessagepopup img').style.display = 'block';
 			document.querySelector('.newmessagepopup .msg').style.display = 'inline-block';
 			document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
-			document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).png`;
+			document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).webp`;
 			document.querySelector('.newmessagepopup img').classList.add('newmessagepopupavatar');
 			document.querySelector('.newmessagepopup .msg').textContent = text;
 			document.querySelector('.newmessagepopup').classList.add('active');
@@ -2475,7 +2475,7 @@ messages.addEventListener('click', (evt) => {
 					if (name == myName){name = 'You';}
 					const listItem = document.createElement('li');
 					const avatarImage = document.createElement('img');
-					avatarImage.src = `/images/avatars/${avatar}(custom).png`;
+					avatarImage.src = `/images/avatars/${avatar}(custom).webp`;
 					avatarImage.height = 30;
 					avatarImage.width = 30;
 					const nameSpan = document.createElement('span');
@@ -3394,7 +3394,7 @@ export function notifyUser(message, username, avatar){
 
 			lastNotification = new Notification(username, {
 				body: message.type == 'Text' ? message.data : message.type,
-				icon: `/images/avatars/${avatar}(custom).png`,
+				icon: `/images/avatars/${avatar}(custom).webp`,
 				tag: username,
 			});
 		}
@@ -3413,7 +3413,7 @@ export function notifyUser(message, username, avatar){
 					}
 					lastNotification = new Notification(username, {
 						body: message.type == 'Text' ? message.data : message.type,
-						icon: `/images/avatars/${avatar}(custom).png`,
+						icon: `/images/avatars/${avatar}(custom).webp`,
 						tag: username,
 					});
 				}

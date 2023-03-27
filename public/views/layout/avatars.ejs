@@ -3,14 +3,14 @@
     <div class="avatar">
         <% if (takenAvlists) { %>
             <% if (takenAvlists.includes(avList[i])) { %>
-                <label for="<%=avList[i]%>" class="clickable"><img src="/images/avatars/<%=avList[i]%>(custom).png" class="taken" alt="<%=avList[i]%>"></label>
+                <label for="<%=avList[i]%>" class="clickable"><img src="/images/avatars/<%=avList[i]%>(custom).webp" class="taken" alt="<%=avList[i]%>"></label>
             <% } else { %>
                 <input type="radio" name="avatar" value="<%=avList[i]%>" id="<%=avList[i]%>">
-                <label for="<%=avList[i]%>" class="clickable"><img src="/images/avatars/<%=avList[i]%>(custom).png" alt="<%=avList[i]%>"></label>
+                <label for="<%=avList[i]%>" class="clickable"><img src="/images/avatars/<%=avList[i]%>(custom).webp" alt="<%=avList[i]%>"></label>
             <% } %>
         <% } else { %>
             <input type="radio" name="avatar" value="<%=avList[i]%>" id="<%=avList[i]%>">
-            <label for="<%=avList[i]%>" class="clickable"><img src="/images/avatars/<%=avList[i]%>(custom).png" alt="<%=avList[i]%>"></label>
+            <label for="<%=avList[i]%>" class="clickable"><img src="/images/avatars/<%=avList[i]%>(custom).webp" alt="<%=avList[i]%>"></label>
         <% } %>
     </div>
     <% } %>

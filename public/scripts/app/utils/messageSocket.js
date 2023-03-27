@@ -123,7 +123,7 @@ socket.on('updateUserList', (users) => {
 		const avt = document.createElement('div');
 		avt.classList.add('avt');
 		const img = document.createElement('img');
-		img.src = `/images/avatars/${user.avatar}(custom).png`;
+		img.src = `/images/avatars/${user.avatar}(custom).webp`;
 		img.height = 30;
 		img.width = 30;
 		const status = document.createElement('i');
@@ -185,7 +185,7 @@ socket.on('seen', meta => {
 
 		message.dataset.seen = message.dataset.seen ? message.dataset.seen + '|' + meta.userId : meta.userId;
 		const element = document.createElement('img');
-		element.src = `/images/avatars/${meta.avatar}(custom)-mini.png`;
+		element.src = `/images/avatars/${meta.avatar}(custom)-mini.webp`;
 		element.dataset.user = meta.userId;
 		message.querySelector('.seenBy').appendChild(element);
 		if (message.querySelector('.seenBy').childElementCount > 1){
