@@ -54,7 +54,7 @@ window.addEventListener('online', function() {
 if ('serviceWorker' in navigator){
 	window.addEventListener('load', () => {
 		navigator.serviceWorker
-			.register('./serviceWorkerPoketabS.min.js')
+			.register('./serviceWorkerPoketabS.js')
 			.then(() => {
 				console.log('%cService Worker Registered', 'color: orange;');
 			})

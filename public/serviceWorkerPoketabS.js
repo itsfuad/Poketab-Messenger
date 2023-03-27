@@ -1,4 +1,4 @@
-const OFFLINE_VERSION = 1212;
+const OFFLINE_VERSION = 2;
 const CACHE_NAME = 'offline';
 const OFFLINE_URL = '/offline';
 
@@ -16,7 +16,11 @@ self.addEventListener('install', (event) => {
 				);
 			});
 			const cache = await caches.open(CACHE_NAME+'-'+OFFLINE_VERSION);
-			await cache.add(new Request(OFFLINE_URL, { cache: 'reload' }));
+			await cache.addAll([
+				new Request(OFFLINE_URL, { cache: 'reload' }),
+				'/fonts/comic-webfont.woff2',
+				'/images/avatars/pikachu.webp'
+			]);
 		})()
 	);
 	self.skipWaiting();
@@ -45,16 +49,43 @@ self.addEventListener('fetch', (event) => {
 					const networkResponse = await fetch(event.request);
 					return networkResponse;
 				} catch (error) {
-
 					console.log('%cFetch failed; returning offline page instead.', 'color: orangered;');
-
 					const cache = await caches.open(CACHE_NAME+'-'+OFFLINE_VERSION);
 					const cachedResponse = await cache.match(OFFLINE_URL);
 					return cachedResponse;
 				}
 			})()
 		);
+	} else if (event.request.url.includes('/fonts/comic-webfont.woff2')) {
+		event.respondWith(
+			(async () => {
+				const cache = await caches.open(CACHE_NAME+'-'+OFFLINE_VERSION);
+				const cachedResponse = await cache.match(event.request);
+				if (cachedResponse) {
+					return cachedResponse;
+				} else {
+					const networkResponse = await fetch(event.request);
+					cache.put(event.request, networkResponse.clone());
+					return networkResponse;
+				}
+			})()
+		);
+	} else if (event.request.url.includes('/images/avatars/pikachu.webp')) {
+		event.respondWith(
+			(async () => {
+				const cache = await caches.open(CACHE_NAME+'-'+OFFLINE_VERSION);
+				const cachedResponse = await cache.match(event.request);
+				if (cachedResponse) {
+					return cachedResponse;
+				} else {
+					const networkResponse = await fetch(event.request);
+					cache.put(event.request, networkResponse.clone());
+					return networkResponse;
+				}
+			})()
+		);
 	}
 });
+  
 
 console.log('%cService Worker: Poketab Messenger is running', 'color: limegreen;');
