@@ -6,7 +6,7 @@
 <!-- Options container for reacts and other functionalities -->
 <div id="messageOptionsContainerWrapper">
     <div id="optionsContainer">
-        <div class="reactOptionsWrapper" data-closed="true">
+        <div class="reactOptionsWrapper" data-expanded="false">
             <ul id="reactOptions" class="options">
                 <!--Reacts-->
                 <div class="more option" title="More reactions" id="showMoreReactBtn"><i class="fa-solid fa-plus"></i></div>
@@ -70,8 +70,8 @@
 </div>
 
 
-<div class="moreReactsContainer">
-    <div class="horizontal-line"></div>
+<div class="moreReactsContainer" id="moreReactsContainer" data-expanded="false">
+    <div id="expandReactButton"><i class="expandReactsIcon fa-solid fa-chevron-up"></i></div>
     <div class="moreReacts">
         <!-- Add more emojis -->
     </div>

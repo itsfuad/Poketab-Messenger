@@ -1752,25 +1752,37 @@ i[class^=fa-]{
     background: var(--primary-dark);
     padding: 5px 20px;
     border-radius: 15px 15px 0 0;
-    transition: 100ms ease-in-out;
+    transition: 300ms ease-in-out;
     filter: drop-shadow(0 4px 5px black);
     &.active{
         visibility: visible;
         opacity: 1;
         bottom: 0;
+        &[data-expanded='true']{
+            height: 100%;
+            #expandReactButton{
+                transform: rotate(180deg);
+            }
+        }
     }
-    .horizontal-line{
-        width: 68px;
-        height: 10px;
-        background: var(--option-color);
-        margin: 5px 0;
+
+    #expandReactButton{
+        cursor: pointer;
+        padding: 5px;
+        transform: rotate(0deg);
+        transition: 300ms ease-in-out;
+        .expandReactsIcon{
+            color: var(--secondary-dark);
+            font-size: 1.5rem;
+            pointer-events: none;
+        }
     }
+    
     .moreReacts{
         display: flex;
         flex-direction: row;
         align-items: center;
         font-size: 1.6rem;
-        padding: 5px;
         flex-wrap: wrap;
         width: 100%;
         overflow-y: scroll;

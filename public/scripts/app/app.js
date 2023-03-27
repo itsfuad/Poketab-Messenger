@@ -57,6 +57,8 @@ const messageOptions = document.getElementById('messageOptionsContainerWrapper')
 const filePreviewContainer = document.getElementById('filePreviewContainer');
 const filePreviewOptions = document.getElementById('filePreviewOptions');
 const selectedFilesCount = document.getElementById('items-count');
+const expandReactButton = document.getElementById('expandReactButton');
+const moreReactsContainer = document.getElementById('moreReactsContainer');
 
 const lightbox = document.getElementById('lightbox');
 const lightboxImage = document.getElementById('lightboxImage');
@@ -984,8 +986,10 @@ function sendReact(react){
 let hideOptionsTimeout = undefined;
 function hideOptions(){
 	const container = document.querySelector('.reactOptionsWrapper');
-	container.dataset.closed = 'false';
-	updateReactsChooser();
+	container.dataset.expanded = 'false';
+	moreReactsContainer.dataset.expanded = 'false';
+	moreReactsContainer.classList.remove('active');
+
 	messageOptions.classList.remove('active');
 	sideBarPanel.classList.remove('active');
 	themePicker.classList.remove('active');
@@ -2229,13 +2233,13 @@ showMoreReactBtn.addEventListener('click', ()=>{
 //Opens more reacts when called
 function updateReactsChooser(){
 	const container = document.querySelector('.reactOptionsWrapper');
-	const closed = container.dataset.closed == 'true';
-	if (closed){
-		container.dataset.closed = 'false';
-		document.querySelector('.moreReactsContainer').classList.add('active');
+	const isExpanded = container.dataset.expanded == 'true';
+	if (isExpanded){
+		container.dataset.expanded = 'false';
+		moreReactsContainer.classList.remove('active');
 	}else{
-		container.dataset.closed = 'true';
-		document.querySelector('.moreReactsContainer').classList.remove('active');
+		container.dataset.expanded = 'true';
+		moreReactsContainer.classList.add('active');
 	}
 }
 
@@ -3545,6 +3549,14 @@ export function setTypingUsers(){
 	}
 }
 
+expandReactButton.addEventListener('click', () => {
+	const expanded = moreReactsContainer.dataset.expanded;
+	if (expanded == 'true'){
+		moreReactsContainer.dataset.expanded = 'false';
+	}else{
+		moreReactsContainer.dataset.expanded = 'true';
+	}
+});
 
 //record button onclick
 recordButton.addEventListener('click', () => {

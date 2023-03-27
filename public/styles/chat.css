@@ -1679,7 +1679,7 @@ i[class^=fa-] {
   background: var(--primary-dark);
   padding: 5px 20px;
   border-radius: 15px 15px 0 0;
-  transition: 100ms ease-in-out;
+  transition: 300ms ease-in-out;
   filter: drop-shadow(0 4px 5px black);
 }
 .moreReactsContainer.active {
@@ -1687,18 +1687,28 @@ i[class^=fa-] {
   opacity: 1;
   bottom: 0;
 }
-.moreReactsContainer .horizontal-line {
-  width: 68px;
-  height: 10px;
-  background: var(--option-color);
-  margin: 5px 0;
+.moreReactsContainer.active[data-expanded=true] {
+  height: 100%;
+}
+.moreReactsContainer.active[data-expanded=true] #expandReactButton {
+  transform: rotate(180deg);
+}
+.moreReactsContainer #expandReactButton {
+  cursor: pointer;
+  padding: 5px;
+  transform: rotate(0deg);
+  transition: 300ms ease-in-out;
+}
+.moreReactsContainer #expandReactButton .expandReactsIcon {
+  color: var(--secondary-dark);
+  font-size: 1.5rem;
+  pointer-events: none;
 }
 .moreReactsContainer .moreReacts {
   display: flex;
   flex-direction: row;
   align-items: center;
   font-size: 1.6rem;
-  padding: 5px;
   flex-wrap: wrap;
   width: 100%;
   overflow-y: scroll;
