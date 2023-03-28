@@ -26,7 +26,7 @@ class KeyStore {
 	}
 
 	isFull(key: string): boolean{
-		return Keys[key]?.userCount >= Keys[key]?.maxUser;
+		return Keys[key]?.activeUsers >= Keys[key]?.maxUser;
 	}
 
 	addUser(key: string, user: User, maxUser: number): void{

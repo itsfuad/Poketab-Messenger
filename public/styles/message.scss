@@ -238,7 +238,6 @@ code{
     }
     .msg{
         transition: 100ms ease-in-out;
-        border: 2px solid transparent;
     }
     .text{
         background: var(--msg-get);
@@ -451,7 +450,7 @@ pre{
     .replyIcon{
         right: 0;
         left: unset;
-        transform: translateX(45px);
+        transform: translateX(50px);
     }
     &.noreply{
         .messageTitle{
@@ -739,13 +738,13 @@ pre{
         display: none !important;
     }
     .text{
-        background: none !important;
-        border: 2px solid #7d858c !important;
+        background: var(--glass) !important;
         color: #7d858c !important;
         font-style: italic !important;
         cursor: not-allowed;
     }
 }
+
 
 .replyIcon{
     display: flex;
@@ -758,11 +757,18 @@ pre{
     position: absolute;
     left: 0;
     transform: translateX(-40px);
+    visibility: hidden;
+    opacity: 0;
     i{
         font-size: 1.2rem;
         padding: 5px;
         color:  #ffffff8a;
     }
+}
+
+.messageContainer[data-swipestarted="true"] .replyIcon{
+    visibility: visible;
+    opacity: 1;
 }
 
 .serverMessage{

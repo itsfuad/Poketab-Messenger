@@ -15,7 +15,7 @@ function keyCheck(key) {
         if (keyExists) {
             //check if key has space for more users
             const max_users = keyStore.getKey(key).maxUser;
-            const userCount = keyStore.getKey(key).userCount;
+            const userCount = keyStore.getKey(key).activeUsers;
             //console.log(`Key ${key} has ${userCount} users out of ${max_users} | ${Keys[key]}`);
             if (userCount >= max_users) {
                 return { success: false, message: 'Not Authorized. Key is full', icon: '<i class="fa-solid fa-triangle-exclamation"></i>', blocked: true };

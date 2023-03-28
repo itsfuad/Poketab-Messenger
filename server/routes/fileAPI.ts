@@ -18,12 +18,12 @@ export function deleteFileStore(filename: string){
 const storage = multer.diskStorage({
 	destination: (_, file, cb) => cb(null, 'uploads/'),
 	filename: (req, file, cb) => {
-		if (file.size >= 15 * 1024 * 1024){
+		if (file.size >= 20 * 1024 * 1024){
 			cb(new Error('File size more than 15mb'), '');
 		}else{
 			if (keyStore.hasKey(req.body.key)){
 				//console.log(Keys[req.body.key].userCount);
-				if (keyStore.getKey(req.body.key).userCount > 1){
+				if (keyStore.getKey(req.body.key).activeUsers > 1){
 					const filename = `poketab-${crypto.randomBytes(16).toString('hex')}`;
 					store(filename, { filename: filename, key: req.body.key, ext: req.body.ext, uids: new Set([req.body.uid]) });
 					cb(null, filename);
@@ -39,17 +39,21 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
 	storage: storage,
-	limits: { fileSize: 15 * 1024 * 1024 },
+	limits: { fileSize: 20 * 1024 * 1024 },
 }); //name field name
 
 const router = Router();
 export default router;
 
+//Handle the upload of a file
 router.post('/upload', upload.single('file'), (req, res) => {
+	//If the file is present
 	if (req.file){
+		//Send the file name as a response
 		res.status(200).send({ success: true, downlink: req.file.filename });
-		console.log('Temporary file stored.');
+		console.log(`${req.file.filename} recieved to be relayed`);
 	}else{
+		//Otherwise, send an error
 		res.status(401).send({ error: 'Cannot upload' });
 	}
 });

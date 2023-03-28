@@ -1,6 +1,6 @@
 export class Key {
     constructor(key) {
-        this.userCount = 0;
+        this.activeUsers = 0;
         this.maxUser = 2;
         this.created = Date.now();
         this.keyName = key;
@@ -9,22 +9,22 @@ export class Key {
     }
     __addUser(user) {
         if (!this.users[user.uid]) {
-            if (this.userCount === this.maxUser) {
+            if (this.activeUsers === this.maxUser) {
                 //console.log(`Key: ${this.key} is full`);
                 return;
             }
-            if (this.userCount === 0) {
+            if (this.activeUsers === 0) {
                 this.admin = user.uid;
             }
             this.users[user.uid] = user;
-            this.userCount++;
+            this.activeUsers++;
             //console.log(`User added to key: ${this.key}`);
         }
         //console.log(`User count: ${this.userCount} | Admin: ${this.admin} | Key: ${this.key} | Max User: ${this.maxUser}`);
     }
     removeUser(uid) {
         delete this.users[uid];
-        this.userCount > 0 ? this.userCount-- : this.userCount = 0;
+        this.activeUsers > 0 ? this.activeUsers-- : this.activeUsers = 0;
         //console.log(`User removed from key: ${this.key}`);
         //console.log(`User count: ${this.userCount}`);
     }
@@ -42,7 +42,7 @@ export class Key {
         return this.users[uid] !== null;
     }
     isEmpty() {
-        return this.userCount === 0;
+        return this.activeUsers === 0;
     }
     getAvatarList() {
         const users = this.getUserList();

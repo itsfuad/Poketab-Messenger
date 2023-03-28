@@ -18,7 +18,7 @@ class KeyStore {
         delete Keys[key];
     }
     isFull(key) {
-        return Keys[key]?.userCount >= Keys[key]?.maxUser;
+        return Keys[key]?.activeUsers >= Keys[key]?.maxUser;
     }
     addUser(key, user, maxUser) {
         if (!Keys[key]) {

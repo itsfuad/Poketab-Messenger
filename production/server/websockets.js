@@ -114,7 +114,7 @@ io.on('connection', (socket) => {
                 const srvID = crypto.randomUUID();
                 socket.broadcast.to(key).emit('server_message', { color: 'lightslategray', text: `${user.username} left the chat🐸`, who: user.uid, id: srvID }, 'leave');
                 //console.log(`User ${user.username} disconnected from key ${user.key}`);
-                const remainingUsers = keyStore.getKey(key).userCount;
+                const remainingUsers = keyStore.getKey(key).activeUsers;
                 console.log(`%c${remainingUsers == 0 ? 'No' : remainingUsers} ${remainingUsers > 1 ? 'users' : 'user'} left on ${key}`, 'color: orange');
                 if (remainingUsers == 0) {
                     keyStore.clearKey(key);

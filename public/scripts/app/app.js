@@ -851,7 +851,7 @@ export function deleteMessage(messageId, user){
 			});
 
 		const fragment = document.createDocumentFragment();
-		const p = document.createElement('p');
+		const p = document.createElement('div');
 		p.classList.add('text', 'msg');
 		p.textContent = 'Deleted message';
 		fragment.append(p);
@@ -862,8 +862,9 @@ export function deleteMessage(messageId, user){
 		showPopupMessage(`${user == myName ? 'You': user} deleted a message`);
         
 		if (maxUser == 2 || (message.dataset.uid == myId)) {
-			message.querySelector('.messageTitle').style.visibility = 'hidden';
+			message.classList.add('notitle');
 		}
+
 		if (message.querySelector('.messageReply') != null) {
 			message.querySelector('.messageReply').remove();
 			message.querySelector('.reactsOfMessage').remove();
@@ -882,7 +883,7 @@ export function deleteMessage(messageId, user){
 					reply.querySelector('img').remove();
 				}
 				reply.removeAttribute('data-replyfor');
-				reply.style.background = '#000000c4';
+				reply.style.background = 'var(--glass)';
 				reply.style.color = '#7d858c';
 				reply.style.fontStyle = 'italic';
 				reply.textContent = 'Deleted message';
@@ -1049,12 +1050,15 @@ messages.addEventListener('touchmove', (evt) => {
 			touchEnded = false;
 			//if horizontal
 			if (horizontalSwipe){
-				//console.log('horizontal');
+				console.log('horizontal');
 				const elem = msg.querySelector('.messageContainer');
 				const replyIcon = msg.querySelector('.replyIcon');
+
+				elem.dataset.swipestarted = 'true';
+
 				//if msg is self
 				if (msg.classList.contains('self') && msg.classList.contains('delevered') /*&& deg <= 20 && deg >= -20*/) {
-					if (xDiff >= 40){
+					if (xDiff >= 50){
 						elem.dataset.replyTrigger = 'true';
 						replyIcon.style.transform = `translateX(${xDiff}px)`;
 					}else{
@@ -1063,7 +1067,7 @@ messages.addEventListener('touchmove', (evt) => {
 					xDiff = xDiff < 0 ? 0 : xDiff;
 					elem.style.transform = `translateX(${-xDiff}px)`;
 				}else /*if(deg <= 160 && deg >= -160 && !msg.classList.contains('self'))*/{
-					if (xDiff <= -40){
+					if (xDiff <= -50){
 						elem.dataset.replyTrigger = 'true';
 						replyIcon.style.transform = `translateX(${xDiff}px)`;
 					}else{
@@ -1087,7 +1091,11 @@ messages.addEventListener('touchend', (evt) => {
 		if (evt.target.closest('.message')){
 
 			touchEnded = true;
-			//console.log('Swipe ended');
+
+			console.log('Swipe ended');
+			const elem = evt.target.closest('.message').querySelector('.messageContainer');
+			elem.dataset.swipestarted = 'false';
+
 			xDiff = 0;
 			yDiff = 0;
 
@@ -1100,14 +1108,13 @@ messages.addEventListener('touchend', (evt) => {
 				const elem = msg.querySelector('.messageContainer');
 				const replyIcon = msg.querySelector('.replyIcon');
 				if (elem.closest('.message').classList.contains('self')){
-					replyIcon.style.transform = 'translateX(45px)';
+					replyIcon.style.transform = 'translateX(50px)';
 				}else{
-					replyIcon.style.transform = 'translateX(-45px)';
+					replyIcon.style.transform = 'translateX(-50px)';
 				}
 				elem.style.transform = 'translateX(0px)';
 				if (elem.dataset.replyTrigger === 'true') {
 					elem.dataset.replyTrigger = 'false';
-					//console.log('Reply triggered');
 					//add data to finalTarget
 					OptionEventHandler(evt, false);
 					showReplyToast();
@@ -2758,8 +2765,8 @@ function clearFileFromInput(){
  * @returns boolean
  */
 function fileIsAcceptable(file, type){
-	if (file.size > 15 * 1024 * 1024){
-		showPopupMessage('File size must be less than 15 mb');
+	if (file.size > 20 * 1024 * 1024){
+		showPopupMessage('File size must be less than 20 mb');
 		return false;
 	}
 
@@ -2889,9 +2896,9 @@ function FilePreview(filesFromClipboard = null, audio = false){
 
 	const files = filesFromClipboard || (audio ? audioButton.files : fileButton.files);
 
-	//user can select multiple images upto 3
-	if (files.length > 5){
-		showPopupMessage('Select upto 5 files');
+	//user can select multiple files upto 10
+	if (files.length > 10){
+		showPopupMessage('Select upto 10 files');
 		return;
 	}
 

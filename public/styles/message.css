@@ -219,7 +219,6 @@ code {
 }
 .messageMain .msg {
   transition: 100ms ease-in-out;
-  border: 2px solid transparent;
 }
 .messageMain .text {
   background: var(--msg-get);
@@ -414,7 +413,7 @@ pre code {
 .message.self .replyIcon {
   right: 0;
   left: unset;
-  transform: translateX(45px);
+  transform: translateX(50px);
 }
 .message.self.noreply .messageTitle {
   display: none;
@@ -675,8 +674,7 @@ pre code {
   display: none !important;
 }
 .deleted .text {
-  background: none !important;
-  border: 2px solid #7d858c !important;
+  background: var(--glass) !important;
   color: #7d858c !important;
   font-style: italic !important;
   cursor: not-allowed;
@@ -693,11 +691,18 @@ pre code {
   position: absolute;
   left: 0;
   transform: translateX(-40px);
+  visibility: hidden;
+  opacity: 0;
 }
 .replyIcon i {
   font-size: 1.2rem;
   padding: 5px;
   color: rgba(255, 255, 255, 0.5411764706);
+}
+
+.messageContainer[data-swipestarted=true] .replyIcon {
+  visibility: visible;
+  opacity: 1;
 }
 
 .serverMessage {

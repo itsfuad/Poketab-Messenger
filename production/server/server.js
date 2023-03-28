@@ -52,10 +52,15 @@ app.use(express.urlencoded({
 app.use(cookieParser(HMAC_KEY));
 app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 // default route to serve the client
+// Home route
 app.get('/', (_, res) => {
+    // Generate a random nonce
     const nonce = crypto.randomBytes(16).toString('hex');
+    // Set the Content-Security-Policy header
     res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}' ; img-src 'self' data:;`);
+    // Set the Developer header
     res.setHeader('Developer', 'Fuad Hasan');
+    // Render the home page
     res.render('home/home', { title: 'Get Started', hash: nonce, version: `v.${version}` });
 });
 import adminRouter from './routes/admin.js';
@@ -182,7 +187,7 @@ app.post('/chat', (req, res) => {
         //Key exists, so the request is a join request
         //console.log(`Existing Key found: ${key}!\nChecking permissions...`);
         //Check if the key has reached the maximum user limit
-        if (keyStore.getKey(key).userCount >= keyStore.getKey(key).maxUser) {
+        if (keyStore.getKey(key).activeUsers >= keyStore.getKey(key).maxUser) {
             //console.log(`Maximum user reached. User is blocked from key: ${key}`);
             blockNewChatRequest(res, { title: 'Fuck off!', errorCode: '401', errorMessage: 'Unauthorized access', buttonText: 'Suicide' });
         }

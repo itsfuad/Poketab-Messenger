@@ -2,7 +2,7 @@ import { User } from "./User.js";
 
 export class Key{
 	users: {[key: string]: User};
-	userCount: number = 0;
+	activeUsers: number = 0;
 	maxUser: number = 2;
 	admin: string | null;
 	created: number = Date.now();
@@ -15,15 +15,15 @@ export class Key{
 
 	__addUser(user: User){
 		if (!this.users[user.uid]){
-			if (this.userCount === this.maxUser){
+			if (this.activeUsers === this.maxUser){
 				//console.log(`Key: ${this.key} is full`);
 				return;
 			}
-			if (this.userCount === 0){
+			if (this.activeUsers === 0){
 				this.admin = user.uid;
 			}
 			this.users[user.uid] = user;
-			this.userCount++;
+			this.activeUsers++;
 			//console.log(`User added to key: ${this.key}`);
 		}
 		//console.log(`User count: ${this.userCount} | Admin: ${this.admin} | Key: ${this.key} | Max User: ${this.maxUser}`);
@@ -31,7 +31,7 @@ export class Key{
 
 	removeUser(uid: string){
 		delete this.users[uid];
-		this.userCount > 0 ? this.userCount-- : this.userCount = 0;
+		this.activeUsers > 0 ? this.activeUsers-- : this.activeUsers = 0;
 		//console.log(`User removed from key: ${this.key}`);
 		//console.log(`User count: ${this.userCount}`);
 	}
@@ -54,7 +54,7 @@ export class Key{
 	}
 
 	isEmpty(): boolean{
-		return this.userCount === 0;
+		return this.activeUsers === 0;
 	}
 
 	getAvatarList(): string[]{
