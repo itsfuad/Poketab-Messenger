@@ -11,6 +11,7 @@ import crypto from 'crypto';
 //utility functions for the server
 import { validateUserName, validateAvatar, avList, validateKey } from './utils/validation.js';
 import { generateUniqueId, makeUsernameandPasswordForDevelopment } from './utils/functions.js';
+import { blockedMessage } from './utils/blockedMessage.js';
 import { keyStore } from './database/db.js';
 
 import cookieParser from 'cookie-parser';
@@ -34,10 +35,7 @@ const developer = 'Fuad Hasan';
 const apiRequestLimiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minute
 	max: 100, // limit each IP to 100 requests per windowMs
-	message: `<div style="display: flex; align-items: center; justify-content: center; flex-direction: row; gap: 10px; height: 100%; width: 100%">
-					<div style="border-right: 3px solid black; font-size: 4rem;">401</div>
-					<div style="white-space: break-spaces;">Temporary blocked from Poketab.\nGrab a cup of coffee and try again later</div>
-			</div>`,
+	message: blockedMessage,
 	standardHeaders: false, // Return rate limit info in the `RateLimit-*` headers
 	legacyHeaders: false // Disable the `X-RateLimit-*` headers
 });
