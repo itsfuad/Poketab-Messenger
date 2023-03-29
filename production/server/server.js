@@ -19,11 +19,14 @@ config();
 //versioning and developer name
 const version = process.env.npm_package_version || 'Development';
 const developer = 'Fuad Hasan';
-//this blocks the client if they request 1000 requests in 15 minutes
+//this blocks the client if they request 100 requests in 15 minutes
 const apiRequestLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
-    message: 'Too many requests. Temporarily blocked from PokeTab server. Grab a cup of coffee and try again later.',
+    message: `<div style="display: flex; align-items: center; justify-content: center; flex-direction: row; gap: 10px; height: 100%; width: 100%">
+					<div style="border-right: 3px solid black; font-size: 4rem;">401</div>
+					<div style="white-space: break-spaces;">Temporary blocked from Poketab.\nGrab a cup of coffee and try again later</div>
+			</div>`,
     standardHeaders: false,
     legacyHeaders: false // Disable the `X-RateLimit-*` headers
 });

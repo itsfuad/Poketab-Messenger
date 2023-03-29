@@ -1,6 +1,6 @@
 import { test, expect } from '@jest/globals';
-import { generateUniqueId } from './../functions.js';
-import { validateUserName } from './../validation.js';
+import { generateUniqueId } from '../utils/functions.js';
+import { validateUserName } from '../utils/validation.js';
 //using jest
 
 //makeid should return a string in xx-xxx-xx format
