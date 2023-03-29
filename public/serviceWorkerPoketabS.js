@@ -1,4 +1,4 @@
-const OFFLINE_VERSION = 2;
+const OFFLINE_VERSION = 3;
 const CACHE_NAME = 'offline';
 const OFFLINE_URL = '/offline';
 
@@ -70,7 +70,7 @@ self.addEventListener('fetch', (event) => {
 				}
 			})()
 		);
-	} else if (event.request.url.includes('/images/avatars/pikachu.webp')) {
+	} else if (event.request.url.includes('/images/offline.png')) {
 		event.respondWith(
 			(async () => {
 				const cache = await caches.open(CACHE_NAME+'-'+OFFLINE_VERSION);
