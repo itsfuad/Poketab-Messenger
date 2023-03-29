@@ -1654,15 +1654,6 @@ function typingStatus(){
 }
 
 /**
- * Resizes the textbox to fit the content after sending a message
- */
-function resizeTextbox(){
-	textbox.style.height = 'auto';
-	textbox.style.height = textbox.scrollHeight + 'px';
-	updateScroll();
-}
-
-/**
  * 
  * @param {HTMLImageElement} img Image to resize
  * @param {string} mimetype Mimetype of the image
@@ -2324,8 +2315,13 @@ lightboxCloseButton.addEventListener('click', () => {
 	}
 });
 
-textbox.addEventListener('input', () => {
-	resizeTextbox();
+textbox.addEventListener('keydown', (evt) => {
+	if (evt.key == 'Backspace'){
+		if (textbox.innerHTML.trim() == '<br>'){
+			textbox.innerText = '';
+		}
+	}
+	updateScroll();
 	typingStatus();
 });
 
@@ -3085,10 +3081,9 @@ sendButton.addEventListener('click', () => {
 		return;
 	}
 
-	let message = textbox.value?.trim();
+	let message = textbox.innerText.trim();
 
-	textbox.value = '';
-	resizeTextbox();
+	textbox.innerText = '';
     
 	if (message != null && message.length) {
 		const tempId = crypto.randomUUID();

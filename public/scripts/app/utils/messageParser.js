@@ -119,12 +119,12 @@ export class TextParser {
 	parseCode(text) {
 		const regex = /```(\w*)([^`]+?)```/gs;
 		return text.replace(regex, (match, lang, code) => {
-			console.log(`Language found: ${lang} lang=='' ${lang == ''} lang==undefined ${lang == undefined} isSupportedLanguage ${this.isSupportedLanguage(lang)}`);
+			//console.log(`Language found: ${lang} lang=='' ${lang == ''} lang==undefined ${lang == undefined} isSupportedLanguage ${this.isSupportedLanguage(lang)}`);
 			if (lang == '' || lang == undefined || !this.isSupportedLanguage(lang)) {
-				console.log(`Unsupported language: ${lang}`);
+				//console.log(`Unsupported language: ${lang}`);
 				lang = 'txt';
 			}
-			console.log(`Language found: ${lang}`);
+			//console.log(`Language found: ${lang}`);
 			lang = `class="language-${lang} line-numbers" data-lang="${lang}" data-clip="Copy"`;
 			return `<pre ${lang}><code>${code.trim()}</code></pre>`;
 		});

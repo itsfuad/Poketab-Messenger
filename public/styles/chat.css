@@ -1275,18 +1275,39 @@ i[class^=fa-] {
 }
 
 #textbox {
-  padding: 10px 38px 10px 23px;
+  padding: 10px 38px 10px 25px;
   width: 100%;
   max-height: 100px;
   min-height: 40px;
-  overflow-x: auto;
-  overflow-y: scroll;
+  outline: none;
   border: none;
-  outline-color: transparent;
-  border-color: transparent;
   border-radius: inherit;
   background: var(--glass);
-  scrollbar-width: none;
+  transition: 100ms ease-in-out;
+  font-size: 0.9rem;
+  overflow-y: scroll;
+}
+#textbox * {
+  position: relative;
+  white-space: break-spaces;
+}
+#textbox:not(:empty)::before {
+  left: 50px;
+  opacity: 0;
+  visibility: hidden;
+}
+#textbox::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  color: rgba(255, 255, 255, 0.3529411765);
+  font-size: 0.9rem;
+  top: 50%;
+  left: 25px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+  transition: 150ms ease-in-out;
+  transform: translateY(-50%);
 }
 
 .inputBtn {
