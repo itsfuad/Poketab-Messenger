@@ -34,10 +34,15 @@ function angle(cx, cy, ex, ey){
 
 if ('serviceWorker' in navigator){
 	window.addEventListener('load', () => {
+		//if service worker is already registered, skip
+		if (navigator.serviceWorker.controller){
+			console.log('%cService Worker already registered', 'color: orange;');
+			return;
+		}
 		navigator.serviceWorker
-			.register('./serviceWorkerPoketabS.js')
+			.register('./serviceWorkerPoketabS.js', {scope: './'})
 			.then(() => {
-				console.log('%cService Worker Registered', 'color: limegreen');
+				console.log('%cService Worker Registered', 'color: deepskyblue;');
 			})
 			.catch(err => console.log(`Service Worker: Error ${err}`));
 	});

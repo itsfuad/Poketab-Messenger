@@ -51,17 +51,6 @@ window.addEventListener('online', function() {
 	}, 1500);
 });
 
-if ('serviceWorker' in navigator){
-	window.addEventListener('load', () => {
-		navigator.serviceWorker
-			.register('./serviceWorkerPoketabS.js')
-			.then(() => {
-				console.log('%cService Worker Registered', 'color: orange;');
-			})
-			.catch(err => console.log(`Service Worker: Error ${err}`));
-	});
-}
-
 document.getElementById('redirect').onclick = wait;
 const help = document.getElementById('help');
 help.addEventListener('click', () => {
@@ -85,5 +74,21 @@ document.querySelectorAll('.clickable').forEach(elem => {
 const enter = document.getElementById('enter');
 enter.removeAttribute('disabled');
 enter.style.cursor = 'pointer';
+
+if ('serviceWorker' in navigator){
+	window.addEventListener('load', () => {
+		//if service worker is already registered, skip
+		if (navigator.serviceWorker.controller){
+			console.log('%cService Worker already registered', 'color: orange;');
+			return;
+		}
+		navigator.serviceWorker
+			.register('./serviceWorkerPoketabS.js', {scope: './'})
+			.then(() => {
+				console.log('%cService Worker Registered', 'color: deepskyblue;');
+			})
+			.catch(err => console.log(`Service Worker: Error ${err}`));
+	});
+}
 
 console.log('%ccommon.js loaded', 'color: limegreen;');

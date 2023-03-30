@@ -1,3 +1,4 @@
+@import url("message.css");
 * {
   padding: 0;
   margin: 0;
@@ -1939,4 +1940,4 @@ i[class^=fa-] {
   #messageOptionsContainerWrapper .normalOptionWrapper {
     width: 100%;
   }
-}/*# sourceMappingURL=chat.css.map */
+}

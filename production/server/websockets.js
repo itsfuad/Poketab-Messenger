@@ -1,5 +1,5 @@
 //socketio server which can handle multiple connections and reconnects from the client
-import { server } from './expressApp.js';
+import { httpServer } from './expressApp.js';
 import { Server } from 'socket.io';
 //utility functions for the server
 import { avList, isRealString, reactArray, validateKey } from './utils/validation.js';
@@ -7,7 +7,7 @@ import { keyStore, SocketIds } from './database/db.js';
 import { User } from './database/schema/User.js';
 import crypto from 'crypto';
 import { cleanJunks } from './cleaner.js';
-export const io = new Server(server);
+export const io = new Server(httpServer);
 //socket.io connection
 io.on('connection', (socket) => {
     try {

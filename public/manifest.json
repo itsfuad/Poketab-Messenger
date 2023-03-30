@@ -6,7 +6,7 @@
     "background_color": "#111d2a",
     "theme_color": "#111d2a",
     "scope": "/",
-    "description": "Temporary Group Chatting App",
+    "description": "A Secure and User-Friendly Chatting WebApp",
     "icons": [
       {
         "src": "icons/manifest-icon-192.maskable.png",
@@ -22,7 +22,7 @@
       "shortcuts": [
         {
            "name": "Create Chat",
-           "description": "Creates a new chat",
+           "description": "Create a new chat",
            "url": "/create",
            "icons": [
             {
@@ -39,7 +39,7 @@
         },
         {
            "name": "Join Chat",
-           "description": "Joins an existing chat",
+           "description": "Join an existing chat",
            "url": "/login",
            "icons": [
             {

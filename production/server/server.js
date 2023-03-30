@@ -1,18 +1,12 @@
 console.log('Initializing Server');
-import path from 'path';
-import compression from 'compression';
-import rateLimit from 'express-rate-limit';
-import cors from 'cors';
 import crypto from 'crypto';
 //utility functions for the server
 import { validateUserName, validateAvatar, avList, validateKey } from './utils/validation.js';
 import { generateUniqueId, makeUsernameandPasswordForDevelopment } from './utils/functions.js';
-import { blockedMessage } from './utils/blockedMessage.js';
 import { keyStore } from './database/db.js';
-import cookieParser from 'cookie-parser';
 //import .env variables
 import { config } from 'dotenv';
-import express, { app, HMAC_KEY, server } from './expressApp.js';
+import { app, httpServer } from './expressApp.js';
 import './websockets.js';
 import './fileSocket.js';
 import './preAuthSocket.js';
@@ -20,39 +14,11 @@ config();
 //versioning and developer name
 const version = process.env.npm_package_version || 'Development';
 const developer = 'Fuad Hasan';
-//this blocks the client if they request 100 requests in 15 minutes
-const apiRequestLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: blockedMessage,
-    standardHeaders: false,
-    legacyHeaders: false // Disable the `X-RateLimit-*` headers
-});
-const __dirname = process.cwd();
 //console.log(__dirname);
-//public path to serve static files
-const publicPath = path.join(__dirname, '/public');
 //console.log(publicPath);
 const port = process.env.PORT || 3000;
 const ENVIRONMENT = process.env.BUILD_MODE == 'DEVELOPMENT' ? 'DEVELOPMENT' : 'PRODUCTION';
 const Icon = ENVIRONMENT == 'DEVELOPMENT' ? 'dev.png' : 'icon.png';
-//disable x-powered-by header showing express in the response
-app.disable('x-powered-by');
-//view engine setup
-app.set('views', path.join(publicPath, '/views'));
-app.set('view engine', 'ejs'); //set the view engine to ejs [embedded javascript] to allow for dynamic html
-app.set('trust proxy', 1);
-//allow cross origin requests only from the client on poketab.live
-app.use(cors());
-app.use(compression()); //compress all responses
-app.use(express.static(publicPath)); //serve static files from the public folder
-app.use(express.json()); //parse json data
-//parse url encoded data in the body of the request
-app.use(express.urlencoded({
-    extended: false
-}));
-app.use(cookieParser(HMAC_KEY));
-app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 // default route to serve the client
 // Home route
 app.get('/', (_, res) => {
@@ -79,13 +45,6 @@ app.get('/create', (req, res) => {
     res.cookie('key', key, { maxAge: 120000, httpOnly: true, signed: true, sameSite: 'strict' });
     res.render('login/newUser', { title: 'Create', avList: avList, key: null, version: `v.${version}`, hash: nonce, takenAvlists: null, cookieCreated: Date.now(), icon: Icon });
 });
-app.get('/join', (_, res) => {
-    const nonce = crypto.randomBytes(16).toString('hex');
-    res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);
-    res.setHeader('Developer', 'Fuad Hasan');
-    res.clearCookie('key');
-    res.render('login/newUser', { title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce, takenAvlists: null, icon: Icon });
-});
 app.get('/join/:key', (req, res) => {
     if (validateKey(req.params.key)) {
         if (keyStore.hasKey(req.params.key)) {
@@ -110,6 +69,13 @@ app.get('/join/:key', (req, res) => {
         blockNewChatRequest(res, { title: 'Invalid', errorCode: '400', errorMessage: 'Key is not Valid', buttonText: 'Back', icon: 'error.png' });
         return;
     }
+});
+app.get('/join', (_, res) => {
+    const nonce = crypto.randomBytes(16).toString('hex');
+    res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);
+    res.setHeader('Developer', 'Fuad Hasan');
+    res.clearCookie('key');
+    res.render('login/newUser', { title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce, takenAvlists: null, icon: Icon });
 });
 app.get('/chat', (_, res) => {
     if (ENVIRONMENT != 'DEVELOPMENT') {
@@ -233,7 +199,7 @@ app.get('*', (_, res) => {
     res.render('errors/errorRes', { title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home', icon: '404.png' });
 });
 //fire up the server
-server.listen(port, () => {
+httpServer.listen(port, () => {
     console.log('%cBooting up the server...', 'color: yellow;');
     console.log(`Server is up on port ${port} | Process ID: ${process.pid} in ${ENVIRONMENT} mode`);
     const HOOK_API_KEY = process.env.HOOK_API_KEY;
