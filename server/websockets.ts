@@ -33,7 +33,7 @@ io.on('connection', (socket) => {
 			if (params.key == null || validateKey(params.key) === false) {
 				return callback('Invalid Key');
 			}
-			if (keyStore.isFull(params.key)){
+			if (keyStore.hasKey(params.key) && keyStore.getKey(params.key).isFull()){
 				return callback('Key is full.');
 			}
 			//if the key is not new

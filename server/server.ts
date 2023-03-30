@@ -119,8 +119,8 @@ app.get('/join/:key', (req, res)=>{
 		if (keyStore.hasKey(req.params.key)){
 
 			//if key is full, redirect to join page
-			if (keyStore.isFull(req.params.key)){
-				blockNewChatRequest(res, {title: 'Chat full', errorCode: '772', errorMessage: 'Maximum user reached', buttonText: 'Back', icon: 'block.png'});
+			if (keyStore.getKey(req.params.key).isFull()){
+				blockNewChatRequest(res, {title: 'Unauthorized', errorCode: '401', errorMessage: 'Access denied', buttonText: 'Back', icon: 'block.png'});
 				return;
 			}
 			const takenAvlists = keyStore.getUserList(req.params.key).map((user) => user.avatar);
@@ -218,9 +218,9 @@ app.post('/chat', (req, res) => {
 		//Key exists, so the request is a join request
 		//console.log(`Existing Key found: ${key}!\nChecking permissions...`);
 		//Check if the key has reached the maximum user limit
-		if (keyStore.getKey(key).activeUsers >= keyStore.getKey(key).maxUser){
+		if (keyStore.getKey(key).isFull()){
 			//console.log(`Maximum user reached. User is blocked from key: ${key}`);
-			blockNewChatRequest(res, {title: 'Unauthorized', errorCode: '401', errorMessage: 'Access denied', buttonText: 'Suicide', icon: 'block.png'});
+			blockNewChatRequest(res, {title: 'Unauthorized', errorCode: '401', errorMessage: 'Access denied', buttonText: 'Back', icon: 'block.png'});
 			return;
 		}else{
 			//if user have room to enter the chat

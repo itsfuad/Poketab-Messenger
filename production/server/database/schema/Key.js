@@ -44,6 +44,9 @@ export class Key {
     isEmpty() {
         return this.activeUsers === 0;
     }
+    isFull() {
+        return this.activeUsers >= this.maxUser;
+    }
     getAvatarList() {
         const users = this.getUserList();
         const avatarArray = users.map((user) => user.avatar);

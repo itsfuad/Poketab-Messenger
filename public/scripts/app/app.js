@@ -3515,11 +3515,13 @@ document.addEventListener('keydown', (evt) => {
 let locationTimeout = undefined;
 
 document.getElementById('send-location').addEventListener('click', () => {
+	let show = true;
 	if (!navigator.geolocation) {
 		showPopupMessage('Geolocation not supported by your browser.');
 		return;
 	}
 	navigator.geolocation.getCurrentPosition( (position) => {
+		if (!show) return;
 		showPopupMessage('Tracing your location...');
 		socket.emit('createLocationMessage', {
 			latitude: position.coords.latitude,
@@ -3537,6 +3539,7 @@ document.getElementById('send-location').addEventListener('click', () => {
 	locationTimeout = setTimeout(() => {
 		showPopupMessage('Could not connect to the internet');
 		locationTimeout = undefined;
+		show = false;
 	}, 5000);
 });
 

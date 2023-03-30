@@ -92,8 +92,8 @@
 
   <link rel="icon" href="/images/<%=icon_%>">
 
-  <% if (ENV === 'PRODUCTION') { %>
-    <script type="module" defer src="/scripts/app/bundle/bundle.js"></script>
-  <% } else { %>
+  <% if (ENV === 'DEVELOPMENT') { %>
     <script defer type="module" src="/scripts/app/app.js"></script>
+  <% } else { %>
+    <script defer type="module" src="/scripts/app/bundle/bundle.js"></script>
   <% } %>

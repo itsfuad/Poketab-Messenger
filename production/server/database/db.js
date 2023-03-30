@@ -17,9 +17,6 @@ class KeyStore {
     clearKey(key) {
         delete Keys[key];
     }
-    isFull(key) {
-        return Keys[key]?.activeUsers >= Keys[key]?.maxUser;
-    }
     addUser(key, user, maxUser) {
         if (!Keys[key]) {
             console.log("Created new key");
