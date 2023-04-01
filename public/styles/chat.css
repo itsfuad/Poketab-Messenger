@@ -1371,6 +1371,7 @@ i[class^=fa-] {
   color: grey;
 }
 #replyToast .replyData .image, #replyToast .replyData .sticker {
+  height: 55px;
   max-height: 55px;
   width: auto;
   padding: 3px;
