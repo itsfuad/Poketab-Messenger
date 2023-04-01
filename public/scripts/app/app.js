@@ -27,6 +27,8 @@ import {
 import { emojiParser, isEmoji, TextParser, parseTemplate } from './utils/messageParser.js';
 import { themePicker, themeArray, themeAccent } from './utils/themes.js';
 
+import { ClickAndHold } from './utils/clickAndHoldDetector.js';
+
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
 //main message Element where all messages araree inserted
@@ -97,7 +99,7 @@ const fileButton = document.getElementById('fileChooser');
 const audioButton = document.getElementById('audioChooser');
 
 export let isTyping = false;
-let messageTimeStampUpdater;
+let messageTimeStampUpdater = undefined;
 
 //all the variables that are fetched from the server
 export const myId = document.getElementById('myId').textContent;
@@ -131,6 +133,10 @@ export const userTypingMap = new Map();
 export const userInfoMap = new Map();
 //all file meta data is stored in this map which may arrive later
 export const fileBuffer = new Map();
+//map of all the modals close functions
+const modalCloseMap = new Map();
+//list of active modals
+const activeModals = [];
 
 /**
  * This array stores the selected files to be sent
@@ -175,79 +181,11 @@ let lastNotification = undefined;
 
 //current theme
 let THEME = '';
-let sendBy = 'Ctrl+Enter'; //send message by default by pressing ctrl+enter
+let messageSendShortCut = 'Ctrl+Enter'; //send message by default by pressing ctrl+enter
 
 //first load functions 
 //if user device is mobile
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  
-
-/**
- * This class is used to detect the long press on messages and fire the callback function
- */
-class ClickAndHold{
-	constructor(target, timeOut, callback){
-		this.target = target; //the target element
-		this.callback = callback; //the callback function
-		this.isHeld = false; //is the hold active
-		this.activeHoldTimeoutId = null;  //the timeout id
-		this.timeOut = timeOut; //the time out for the hold [in ms] eg: if timeOut = 1000 then the hold will be active for 1 second
-		//start event listeners
-		['touchstart', 'mousedown'].forEach(eventName => {
-			try{
-				this.target.addEventListener(eventName, this._onHoldStart.bind(this));
-			}
-			catch(e){
-				console.log(e);
-			}
-		});
-		//event added to detect if the user is moving the finger or mouse
-		['touchmove', 'mousemove'].forEach(eventName => {
-			try{
-				this.target.addEventListener(eventName, this._onHoldMove.bind(this));
-			}
-			catch(e){
-				console.log(e);
-			}
-		});
-		// event added to detect if the user is releasing the finger or mouse
-		['mouseup', 'touchend', 'mouseleave', 'mouseout', 'touchcancel'].forEach(eventName => {
-			try{
-				this.target.addEventListener(eventName, this._onHoldEnd.bind(this));
-			}
-			catch(e){
-				console.log(e);
-			}
-		});
-	}
-	//this function is called when the user starts to hold the finger or mouse
-	_onHoldStart(evt){
-		this.isHeld = true;
-		this.activeHoldTimeoutId = setTimeout(() => {
-			if (this.isHeld) {
-				this.callback(evt);
-			}
-		}, this.timeOut);
-	}
-	//this function is called when the user is moving the finger or mouse
-	_onHoldMove(){
-		this.isHeld = false;
-	}
-	//this function is called when the user releases the finger or mouse
-	_onHoldEnd(){
-		this.isHeld = false;
-		clearTimeout(this.activeHoldTimeoutId);
-	}
-	//a static function to use the class utility without creating an instance
-	static applyTo(target, timeOut, callback){
-		try{
-			new ClickAndHold(target, timeOut, callback);
-		}
-		catch(e){
-			console.log(e);
-		}
-	}
-}
 
 //detect if user is using a mobile device, if yes then use the click and hold class
 if (isMobile){
@@ -273,12 +211,6 @@ if(!isMobile){
 		}
 	});
 }
-
-//list of active modals
-const activeModals = [];
-
-//map of all the modals close functions
-const modalCloseMap = new Map();
 
 //! functions
 /**
@@ -361,28 +293,28 @@ function loadTheme(){
  */
 function loadSendShortcut(){
 	try{		
-		if (sendBy === 'Ctrl+Enter'){
-			sendBy = 'Ctrl+Enter';
+		if (messageSendShortCut === 'Ctrl+Enter'){
+			messageSendShortCut = 'Ctrl+Enter';
 			document.getElementById('Ctrl+Enter').checked = true;
 			textbox.setAttribute('enterkeyhint', 'enter');
-		}else if (sendBy === 'Enter'){
+		}else if (messageSendShortCut === 'Enter'){
 			document.getElementById('Enter').checked = true;
-			sendBy = 'Enter';
-			localStorage.setItem('sendBy', sendBy);
+			messageSendShortCut = 'Enter';
+			localStorage.setItem('sendBy', messageSendShortCut);
 			textbox.setAttribute('enterkeyhint', 'send');
 		}else{
 			if (isMobile){
-				sendBy = 'Ctrl+Enter';
+				messageSendShortCut = 'Ctrl+Enter';
 				document.getElementById('Ctrl+Enter').checked = true;
 				textbox.setAttribute('enterkeyhint', 'enter');
 			}else{
-				sendBy = 'Enter';
+				messageSendShortCut = 'Enter';
 				document.getElementById('Enter').checked = true;
-				localStorage.setItem('sendBy', sendBy);
+				localStorage.setItem('sendBy', messageSendShortCut);
 				textbox.setAttribute('enterkeyhint', 'send');
 			}
 		}
-		document.getElementById('send').title = sendBy;
+		document.getElementById('send').title = messageSendShortCut;
 	}catch(e){
 		console.log(`Error: ${e}`);
 	}
@@ -419,7 +351,7 @@ function loadMessageSoundPreference(){
  * Loads default settings
  */
 function bootLoad(){
-	sendBy = localStorage.getItem('sendBy');
+	messageSendShortCut = localStorage.getItem('sendBy');
 	loadReacts();
 	loadTheme();
 	appHeight();
@@ -449,7 +381,7 @@ function appHeight () {
  * @param {string} reply.type 
  * @param {string} reply.data 
  * @param {string} replyId 
- * @param {Object} options Options for message
+ * @param {Object} replyOptions Options for message
  * @param {boolean} options.reply If the message contains a reply
  * @param {boolean} options.title If the message contains a title to show 
  * @param {Object} metadata File metadata
@@ -461,11 +393,11 @@ function appHeight () {
  * @param {number} metadata.duration number of seconds the audio file is
  * 
  */
-export function insertNewMessage(message, type, id, uid, reply, replyId, options, metadata){
+export function insertNewMessage(message, type, id, uid, reply, replyId, replyOptions, metadata){
 	//detect if the message has a reply or not
 	try{
-		if (!options){
-			options = {
+		if (!replyOptions){
+			replyOptions = {
 				reply: false,
 				title: false
 			};
@@ -518,7 +450,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 			classList += ' newGroup'; //then add the new group class
 			classList += ' start end';
 		}else  if (lastMsg?.dataset?.uid == uid){ //if the last message is from the same user
-			if (!options.reply && !lastMsg?.classList.contains('emoji') && !lastMsg?.classList.contains('sticker')){ //and the message is not a reply
+			if (!replyOptions.reply && !lastMsg?.classList.contains('emoji') && !lastMsg?.classList.contains('sticker')){ //and the message is not a reply
 				lastMsg?.classList.remove('end'); //then remove the bottom corner rounded from the last message
 			}else{
 				classList += ' start';
@@ -533,10 +465,10 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 			lastMsg?.classList.add('end');
 			classList += ' sticker';
 		}
-		if(!options.reply){
+		if(!replyOptions.reply){
 			classList += ' noreply';
 		}
-		if ((!options.title || !classList.includes('start'))){
+		if ((!replyOptions.title || !classList.includes('start'))){
 			classList += ' notitle';
 		}
 		else if (classList.includes('self') && classList.includes('noreply')){
@@ -549,7 +481,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 		let html;
 		let replyMsg, replyFor;
 		let repliedTo;
-		if (options.reply){
+		if (replyOptions.reply){
 			//check if the replyid is available in the message list
 			repliedTo = userInfoMap.get(document.getElementById(replyId || '')?.dataset?.uid)?.username;
 			if (repliedTo == myName){repliedTo = 'You';}
@@ -600,7 +532,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 				uid: uid,
 				type: type,
 				repId: replyId,
-				title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+				title: replyOptions.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
 				source: message,
 				fileName: metadata.name,
 				fileSize: metadata.size,
@@ -619,7 +551,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 				uid: uid,
 				type: type,
 				repId: replyId,
-				title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+				title: replyOptions.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
 				source: message,
 				length: 'Play',
 				ext: metadata.ext,
@@ -637,7 +569,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 				uid: uid,
 				type: type,
 				repId: replyId,
-				title: options.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+				title: replyOptions.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
 				message: message,
 				replyMsg: replyIconMap[reply.type] ? `<i class="fa-solid ${replyIconMap[reply.type]}"></i> ${replyMsg}` : replyMsg,
 				replyFor: replyFor,
@@ -695,15 +627,6 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, options
 		showPopupMessage(err);
 	}
 }
-
-window.addEventListener('focus', () => {
-	if (lastNotification != undefined){
-		lastNotification.close();
-	}
-	socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
-});
-
-
 
 /**
  * Shows Reply, Copy, Download, remove, Reacts options
@@ -1050,7 +973,7 @@ messages.addEventListener('touchmove', (evt) => {
 			touchEnded = false;
 			//if horizontal
 			if (horizontalSwipe){
-				console.log('horizontal');
+				//console.log('horizontal');
 				const elem = msg.querySelector('.messageContainer');
 				const replyIcon = msg.querySelector('.replyIcon');
 
@@ -1092,7 +1015,7 @@ messages.addEventListener('touchend', (evt) => {
 
 			touchEnded = true;
 
-			console.log('Swipe ended');
+			//console.log('Swipe ended');
 			const elem = evt.target.closest('.message').querySelector('.messageContainer');
 			elem.dataset.swipestarted = 'false';
 
@@ -1987,15 +1910,15 @@ document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => 
 
 	//value can be 'Enter' or 'Ctrl+Enter'
 	//if clicked on the same option, then deselect it and set sendBy to 'Enter' if it was 'Ctrl+Enter' or 'Ctrl+Enter' if it was 'Enter'
-	if (sendBy == value){
-		sendBy = sendBy == 'Enter' ? 'Ctrl+Enter' : 'Enter';
+	if (messageSendShortCut == value){
+		messageSendShortCut = messageSendShortCut == 'Enter' ? 'Ctrl+Enter' : 'Enter';
 	}else{
-		sendBy = value;
+		messageSendShortCut = value;
 	}
 
 	loadSendShortcut();
 	//hideQuickSettings();
-	localStorage.setItem('sendBy', sendBy);
+	localStorage.setItem('sendBy', messageSendShortCut);
 	showPopupMessage('Settings applied');
 });
 
@@ -3135,6 +3058,13 @@ sendButton.addEventListener('click', () => {
 	socket.emit('stoptyping');
 });
 
+window.addEventListener('focus', () => {
+	if (lastNotification != undefined){
+		lastNotification.close();
+	}
+	socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+});
+
 function closeFilePreview(){
 
 	filePreviewContainer.classList.remove('active');
@@ -3238,7 +3168,7 @@ async function sendImageStoreRequest(){
 				xhr.onreadystatechange = function() {
 					if (xhr.readyState === XMLHttpRequest.OPENED) {
 						// Remove 'inactive' class from element with class 'animated'
-						console.log('Request sent');
+						//console.log('Request sent');
 						progressText.textContent = 'Uploading...';
 						progresCircle.querySelector('.animated').classList.remove('inactive');
 					} else if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -3498,14 +3428,14 @@ document.addEventListener('keydown', (evt) => {
 		return;
 	}
 
-	if (evt.key === 'Enter' && sendBy === 'Enter' && !evt.ctrlKey ) { // if Enter key is pressed
+	if (evt.key === 'Enter' && messageSendShortCut === 'Enter' && !evt.ctrlKey ) { // if Enter key is pressed
 		//if shift+enter is pressed, then add a new line
 		if (evt.shiftKey){
 			return;
 		}
 		evt.preventDefault(); // prevent default behavior of Enter key
 		sendButton.click();
-	} else if(evt.key === 'Enter' && sendBy === 'Ctrl+Enter' && evt.ctrlKey ){ // if Ctrl+Enter key is pressed
+	} else if(evt.key === 'Enter' && messageSendShortCut === 'Ctrl+Enter' && evt.ctrlKey ){ // if Ctrl+Enter key is pressed
 		sendButton.click();
 	}
 	return;
