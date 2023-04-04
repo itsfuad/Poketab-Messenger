@@ -1,3 +1,10 @@
+/**
+ * This file contains the routes for the admin page
+ * This is not used to get any sensitive data of the users. 
+ * This is used to get a list of all the chat keys and the number of users in each chat
+ * This helps us to make analytics about our system.
+ */
+
 import { Router } from 'express';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
@@ -88,7 +95,7 @@ router.post('/data', cookieParser(), (req, res) => {
 
 	if (req.signedCookies.auth == signature) {
 		if (sessionId == AdminSessionSecret.get('Admin')){
-			console.log('Admin access granted');
+			console.log('Sending chat keys');
 			res.status(200).send(Keys);
 		}else{
 			res.status(403).send('Unauthorized');
@@ -136,9 +143,4 @@ router.post('/changePassword', cookieParser(), (req, res) => {
 router.delete('/', (_, res) => {
 	res.clearCookie('auth');
 	res.status(200).send('Cookie cleared');
-});
-
-router.get('*', (req, res) => {
-	//unknown route
-	res.status(404).send({ error: 'Unknown route' });
 });

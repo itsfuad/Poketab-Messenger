@@ -119,8 +119,4 @@ router.delete('/', (_, res) => {
     res.clearCookie('auth');
     res.status(200).send('Cookie cleared');
 });
-router.get('*', (req, res) => {
-    //unknown route
-    res.status(404).send({ error: 'Unknown route' });
-});
 //# sourceMappingURL=admin.js.map
