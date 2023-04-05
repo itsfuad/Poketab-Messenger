@@ -621,7 +621,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 		}
 
 		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
-
+		
 	}catch(err){
 		console.error(err);
 		showPopupMessage(err);
