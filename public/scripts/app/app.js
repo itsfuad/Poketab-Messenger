@@ -133,6 +133,8 @@ export const userTypingMap = new Map();
 export const userInfoMap = new Map();
 //all file meta data is stored in this map which may arrive later
 export const fileBuffer = new Map();
+
+const messageparser = new TextParser();
 //map of all the modals close functions
 const modalCloseMap = new Map();
 //list of active modals
@@ -408,7 +410,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 		let popupmsg = ''; //the message to be displayed in the popup if user scrolled up
 		const messageIsEmoji = isEmoji(message); //if the message is an emoji
 		if (type === 'text'){ //if the message is a text message
-			message = `<div class="msg text">${new TextParser().parse(message)}</div>`;
+			message = `<div class="msg text">${messageparser.parse(message)}</div>`;
 			const fragment = document.createDocumentFragment();
 			const el = document.createElement('div');
 			el.innerHTML = message;
