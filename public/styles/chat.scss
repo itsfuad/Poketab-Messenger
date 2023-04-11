@@ -1320,7 +1320,7 @@ i[class^=fa-]{
             animation: bouncing 1s infinite;
             @for $i from 0 through 2 {
                 &:nth-child(#{$i + 1}){
-                    animation-delay: 0.2 * $i;
+                    animation-delay: 0.2 * $i + s;
                 }
             }
         }
@@ -1964,6 +1964,7 @@ i[class^=fa-]{
     }
     50%{
         transform: translateY(-5px);
+        opacity: 0.4;
     }
     100%{
         transform: translateY(0);

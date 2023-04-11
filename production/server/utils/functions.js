@@ -30,21 +30,21 @@ class idGenerator {
 }
 //make random username
 const usernameList = [
-    'Jay Parker',
-    'John Doe',
-    'Levi Ackerman',
-    'Cristine Fox',
-    'Alex Grey',
-    'Ruby Knox',
-    'Silva Gunbard',
-    'Daniel Dani',
-    'Lena Paul',
-    'Gabbie Carter',
-    'Ella Knox',
-    'Kendra Spade',
-    'Kayla Kayden',
-    'Jenna Sativa',
-    'Mia Malkova',
+    'Jay_Parker',
+    'John_Doe',
+    'Levi_Ackerman',
+    'Cristine_Fox',
+    'Alex_Grey',
+    'Ruby_Knox',
+    'Silva-Gunbard',
+    'Daniel_Dani',
+    'Lena_Paul',
+    'Gabbie_Carter',
+    'Ella_Knox',
+    'Kendra_Spade',
+    'Kayla_Kayden',
+    'Jenna_Sativa',
+    'Mia_Malkova',
 ];
 export function makeUsernameandPasswordForDevelopment(key) {
     const username = usernameList[Math.floor(Math.random() * usernameList.length)];

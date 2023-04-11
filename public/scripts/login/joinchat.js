@@ -56,10 +56,6 @@ async function validateUser(){
 		errlog('usernameErr', 'Cannot contain special charecters or space <i class="fa-solid fa-triangle-exclamation"></i>');
 		return false;
 	}
-	if (!avatarsChecked){
-		errlog('avatarErr', 'Avatar is required <i class="fa-solid fa-triangle-exclamation"></i>');
-		return false;
-	}
 
 	const hashes = usersData.map(userData => userData.hash);
 	const avatarsTaken = usersData.map(userData => userData.avatar);
@@ -78,6 +74,12 @@ async function validateUser(){
 	}else{
 		return false;
 	}
+
+	if (!avatarsChecked){
+		errlog('avatarErr', 'Avatar is required <i class="fa-solid fa-triangle-exclamation"></i>');
+		return false;
+	}
+
 
 	if (avatarsTaken){
 		const selectedAvatar = document.querySelector('.avatar input[type=radio]:checked');
