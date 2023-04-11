@@ -1350,22 +1350,12 @@ i[class^=fa-]{
     outline: none;
     border: none;
     border-radius: inherit;
-    background: var(--glass);
     transition: 100ms ease-in-out;
     font-size: 0.9rem;
     overflow-y: scroll;
-
-    *{
-        position: relative;
-        white-space: break-spaces;
-    }
-
-    &:not(:empty)::before{
-        left: 50px;
-        opacity: 0;
-        visibility: hidden;
-    }
-
+    white-space: break-spaces;
+    caret-color: var(--secondary-dark);
+    background: var(--glass);
     &::before{
         content: attr(data-placeholder);
         position: absolute;
@@ -1379,8 +1369,27 @@ i[class^=fa-]{
         transition: 150ms ease-in-out;
         transform: translateY(-50%);
     }
+
+    &:not(:empty)::before{
+        left: 50px;
+        opacity: 0;
+        visibility: hidden;
+    }
 }
 
+
+
+@keyframes caret{
+    0%{
+        transform: translateY(-50%) scaleY(1);
+    }
+    50%{
+        transform: translateY(-50%) scaleY(0.5);
+    }
+    100%{
+        transform: translateY(-50%) scaleY(1);
+    }
+}
 
 .inputBtn{
     padding-bottom: 2px;

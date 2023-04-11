@@ -138,6 +138,8 @@ const modalCloseMap = new Map();
 //list of active modals
 const activeModals = [];
 
+const messageParser = new TextParser();
+
 /**
  * This array stores the selected files to be sent
  */
@@ -408,7 +410,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 		let popupmsg = ''; //the message to be displayed in the popup if user scrolled up
 		const messageIsEmoji = isEmoji(message); //if the message is an emoji
 		if (type === 'text'){ //if the message is a text message
-			message = `<div class="msg text">${new TextParser().parse(message)}</div>`;
+			message = `<div class="msg text">${messageParser.parse(message)}</div>`;
 			const fragment = document.createDocumentFragment();
 			const el = document.createElement('div');
 			el.innerHTML = message;
@@ -2244,8 +2246,72 @@ textbox.addEventListener('keydown', (evt) => {
 			textbox.innerText = '';
 		}
 	}
+	
+	//console.log('Keydown');
 	updateScroll();
 	typingStatus();
+});
+
+function clearSelectedText(){
+	//get the selected text
+	const selectedText = window.getSelection().toString();
+	console.log(`Selected text: ${selectedText}`);
+	console.log(`Raw data: ${textbox.dataset.rawData}`);
+	//remove the selected text in the textbox
+	textbox.dataset.rawData = textbox.dataset.rawData.replace(selectedText, '');
+	//remove the selected text in the textbox
+	
+}
+
+// Helper function to get the current selection range
+function getSelectionRange(editableDiv) {
+	const selection = window.getSelection();
+	let range = null;
+
+	if (selection.rangeCount > 0) {
+		range = selection.getRangeAt(0);
+
+		// Ensure that the range is within the editable div
+		if (!editableDiv.contains(range.commonAncestorContainer)) {
+			range = null;
+		}
+	}
+
+	return range;
+}
+
+// Helper function to restore the selection range
+function restoreSelectionRange(editableDiv, range) {
+	if (range) {
+		const selection = window.getSelection();
+		selection.removeAllRanges();
+		// Ensure that the range is within the editable div
+		if (editableDiv.contains(range.commonAncestorContainer)) {
+			selection.addRange(range);
+		} else {
+			const lastChild = editableDiv.lastChild;
+			const newRange = document.createRange();
+			newRange.setStart(lastChild, lastChild.length);
+			newRange.collapse(true);
+			selection.addRange(newRange);
+		}
+	}
+}
+
+textbox.addEventListener('input', (evt) => {
+
+	evt.preventDefault();
+	
+	console.log(textbox.innerText);
+
+	const parsed = messageParser.parseKeepDelimiters(textbox.innerText);
+	
+	textbox.innerHTML = parsed;
+	//caret reposition
+
+	console.log(parsed);
+
+	textbox.focus();
 });
 
 textbox.addEventListener('focus', () => {
@@ -3007,6 +3073,7 @@ sendButton.addEventListener('click', () => {
 	let message = textbox.innerText.trim();
 
 	textbox.innerText = '';
+	textbox.dataset.rawData = '';
     
 	if (message != null && message.length) {
 		const tempId = crypto.randomUUID();

@@ -70,10 +70,33 @@ export class TextParser {
 	
 		return text;
 	}
+
+	parseKeepDelimiters(text) {
+		// Escape special characters
+		text = escapeXSS(text);
+
+		text = this.escapeBackTicks(text);
+		text = this.escapeItalic(text);
+		text = this.escapeStrike(text);
+		text = this.escapeBold(text);
+		text = this.escapeHeading(text);
+
+		text = this.parseBoldKeepDelimiters(text);
+		text = this.parseItalicKeepDelimiters(text);
+		text = this.parseStrikeKeepDelimiters(text);
+		text = this.parseHeadingKeepDelimiters(text);
+		text = this.parseEmoji(text);
+
+		return text;
+	}
   
 	// Function to parse bold text
 	parseBold(text) {
 		return text.replace(this.boldRegex, '<strong>$1</strong>');
+	}
+
+	parseBoldKeepDelimiters(text) {
+		return text.replace(this.boldRegex, '<strong>**$1**</strong>');
 	}
 
 	escapeBackTicks(text){
@@ -100,10 +123,18 @@ export class TextParser {
 	parseItalic(text) {
 		return text.replace(this.italicRegex, '<em>$1</em>');
 	}
+
+	parseItalicKeepDelimiters(text) {
+		return text.replace(this.italicRegex, '<em>__$1__</em>');
+	}
   
 	// Function to parse strike-through text
 	parseStrike(text) {
 		return text.replace(this.strikeRegex, '<del>$1</del>');
+	}
+
+	parseStrikeKeepDelimiters(text) {
+		return text.replace(this.strikeRegex, '<del>~~$1~~</del>');
 	}
   
 	// Function to parse headings
@@ -111,6 +142,14 @@ export class TextParser {
 		text = text.replace(/^(#{1,6})\s(.*)$/gm, function(match, p1, p2) {
 			const level = p1.length;
 			return `<h${level}>${p2}</h${level}>`;
+		});
+		return text;
+	}
+
+	parseHeadingKeepDelimiters(text) {
+		text = text.replace(/^(#{1,6})\s(.*)$/gm, function(match, p1, p2) {
+			const level = p1.length;
+			return `<h${level}>${p1} ${p2}</h${level}>`;
 		});
 		return text;
 	}
