@@ -86,3 +86,4 @@ const Stickers = [
 
 ## Credits
 Lead Developer [Fuad Hasan](https://github.com/itsfuad).
+Email: support@poketab.live
