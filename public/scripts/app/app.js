@@ -481,7 +481,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 		if (username == myName){username = 'You';}
 	
 		let html;
-		let replyMsg, replyFor;
+		let replyMsg;
 		let repliedTo;
 		if (replyOptions.reply){
 			//check if the replyid is available in the message list
@@ -491,17 +491,8 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 			if (!document.getElementById(replyId)){
 				reply = {data: 'Message is not available on this device', type: 'text'};
 			}
-			const replyMap = {
-				'text': 'message',
-				'file': 'message',
-				'audio': 'message',
-				'image': 'image',
-				'sticker': 'image'
-			};
 
-			replyFor = replyMap[reply.type] || 'message';
-
-			if (replyFor === 'message') {
+			if (['text', 'file', 'audio'].includes(reply.type)) {
 				replyMsg = sanitize(reply.data);
 			} else {
 				//replyMsg = document.getElementById(replyId)?.querySelector(`.messageMain .${reply.type}`).outerHTML.replace(`class="${reply.type}"`, `class="${reply.type} imageReply"`);
@@ -518,11 +509,6 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 
 		}
 
-		const replyIconMap = {
-			'file': 'fa-paperclip',
-			'audio': 'fa-music',
-		};
-
 		const timeStamp = Date.now();
 	
 		if (type === 'file'){
@@ -534,13 +520,13 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 				uid: uid,
 				type: type,
 				repId: replyId,
-				title: replyOptions.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+				title: replyOptions.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
 				source: message,
 				fileName: metadata.name,
 				fileSize: metadata.size,
 				ext: metadata.ext,
-				replyMsg: replyIconMap[reply.type] ? `<i class="fa-solid ${replyIconMap[reply.type]}"></i> ${replyMsg}` : replyMsg,
-				replyFor: replyFor,
+				replyMsg: replyMsg,
+				replyFor: reply.type,
 				time: getFormattedDate(timeStamp),
 				timeStamp: timeStamp,
 			});
@@ -553,12 +539,12 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 				uid: uid,
 				type: type,
 				repId: replyId,
-				title: replyOptions.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+				title: replyOptions.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
 				source: message,
 				length: 'Play',
 				ext: metadata.ext,
-				replyMsg: replyIconMap[reply.type] ? `<i class="fa-solid ${replyIconMap[reply.type]}"></i> ${replyMsg}` : replyMsg,
-				replyFor: replyFor,
+				replyMsg: replyMsg,
+				replyFor: reply.type,
 				time: getFormattedDate(timeStamp),
 				timeStamp: timeStamp,
 				duration: metadata.duration,
@@ -571,10 +557,10 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 				uid: uid,
 				type: type,
 				repId: replyId,
-				title: replyOptions.reply? `<i class="fa-solid fa-reply"></i>${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+				title: replyOptions.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
 				message: message,
-				replyMsg: replyIconMap[reply.type] ? `<i class="fa-solid ${replyIconMap[reply.type]}"></i> ${replyMsg}` : replyMsg,
-				replyFor: replyFor,
+				replyMsg: replyMsg,
+				replyFor: reply.type,
 				time: getFormattedDate(timeStamp),
 				timeStamp: timeStamp,
 			});
@@ -803,7 +789,7 @@ export function deleteMessage(messageId, user){
 		if (replyMessages != null) {
 			replyMessages.forEach(reply => {
 				//console.log('%cMessage reply removed', 'color: red;');
-				if (reply.dataset.replyfor === 'image'){
+				if (reply.classList.contains('imageReply')){
 					reply.classList.remove('imageReply');
 					reply.querySelector('img').remove();
 				}
@@ -1064,21 +1050,17 @@ function showReplyToast(){
 	let replyToast;
 	let content;
 	let title;
-	let replyIcon;
 	let username;
 	let replyData;
 	let close;
-	let closeIcon;
 
 	if (exists){
 		replyToast = document.getElementById('replyToast');
 		content = replyToast.querySelector('.content');
 		title = replyToast.querySelector('.title');
-		replyIcon = replyToast.querySelector('.replyIcon');
 		username = replyToast.querySelector('.username');
 		replyData = replyToast.querySelector('.replyData');
 		close = replyToast.querySelector('.close');
-		closeIcon = replyToast.querySelector('.closeIcon');
 	}else{
 		//create reply toast manually
 		replyToast = document.createElement('div');
@@ -1091,10 +1073,6 @@ function showReplyToast(){
 		title = document.createElement('div');
 		title.classList.add('title');
 
-		replyIcon = document.createElement('i');
-		replyIcon.classList.add('fa-solid');
-		replyIcon.classList.add('fa-reply');
-
 		username = document.createElement('span');
 		username.classList.add('username');
 
@@ -1102,11 +1080,7 @@ function showReplyToast(){
 		replyData.classList.add('replyData');
 
 		close = document.createElement('div');
-		close.classList.add('close');
-
-		closeIcon = document.createElement('i');
-		closeIcon.classList.add('fa-solid');
-		closeIcon.classList.add('fa-xmark');
+		close.classList.add('close', 'fa-solid', 'fa-xmark');
 	}
 
 	//add data to reply toast
@@ -1144,14 +1118,11 @@ function showReplyToast(){
 	username.textContent = finalTarget.sender;
 
 	if (!document.getElementById('replyToast')){
-		title.appendChild(replyIcon);
 		title.appendChild(document.createTextNode(' Replying to '));
 		title.appendChild(username);
 	
 		content.appendChild(title);
 		content.appendChild(replyData);
-	
-		close.appendChild(closeIcon);
 	
 		replyToast.appendChild(content);
 		replyToast.appendChild(close);

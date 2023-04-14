@@ -1426,8 +1426,15 @@ i[class^=fa-]{
         top: 0;
         pointer-events: all;
     }
-    .title, .title *{
+    .title{
         color: var(--secondary-dark);
+        & .username{
+            color: var(--secondary-dark); 
+        }
+        &::before{
+            content: "\f3e5";
+            font-family: "FontAwesome";
+        }
     }
     .replyData{
         font-size: 0.7rem;
@@ -1449,11 +1456,12 @@ i[class^=fa-]{
             border-radius: 8px;
         }
     }
-    .close i{
+    .close{
         color: var(--red) !important;
         cursor: pointer;
     }
 }
+
 
 
 .newmessagepopup{

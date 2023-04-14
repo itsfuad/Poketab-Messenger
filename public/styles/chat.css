@@ -1357,8 +1357,15 @@ i[class^=fa-] {
   top: 0;
   pointer-events: all;
 }
-#replyToast .title, #replyToast .title * {
+#replyToast .title {
   color: var(--secondary-dark);
+}
+#replyToast .title .username {
+  color: var(--secondary-dark);
+}
+#replyToast .title::before {
+  content: "\f3e5";
+  font-family: "FontAwesome";
 }
 #replyToast .replyData {
   font-size: 0.7rem;
@@ -1380,7 +1387,7 @@ i[class^=fa-] {
   padding: 3px;
   border-radius: 8px;
 }
-#replyToast .close i {
+#replyToast .close {
   color: var(--red) !important;
   cursor: pointer;
 }

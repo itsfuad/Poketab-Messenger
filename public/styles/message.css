@@ -208,6 +208,26 @@ code {
   transform: none !important;
 }
 
+:not(.noreply) .messageTitle::before {
+  content: "\f3e5";
+  font-family: "FontAwesome";
+  font-size: 1rem;
+}
+
+.messageReply[data-replyfor=audio]::before {
+  content: "\f001";
+  font-size: 1rem;
+  font-family: "FontAwesome";
+  padding: 2px;
+}
+
+.messageReply[data-replyfor=file]::before {
+  content: "\f0c6";
+  font-size: 1rem;
+  font-family: "FontAwesome";
+  padding: 2px;
+}
+
 .messageMain {
   display: flex;
   color: white;
@@ -698,6 +718,23 @@ pre code {
   font-size: 1.2rem;
   padding: 5px;
   color: rgba(255, 255, 255, 0.5411764706);
+}
+
+a:hover {
+  filter: brightness(0.95);
+}
+
+a::before, a::after {
+  font-family: "FontAwesome";
+  padding: 0 2px;
+}
+
+a::before {
+  content: "\f0c1";
+}
+
+a::after {
+  content: "\f08e";
 }
 
 .messageContainer[data-swipestarted=true] .replyIcon {
