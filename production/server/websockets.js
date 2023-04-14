@@ -7,6 +7,7 @@ import { keyStore, SocketIds } from './database/db.js';
 import { User } from './database/schema/User.js';
 import crypto from 'crypto';
 import { cleanJunks } from './cleaner.js';
+import { Worker } from 'worker_threads';
 export const io = new Server(httpServer);
 //socket.io connection
 io.on('connection', (socket) => {
@@ -97,6 +98,18 @@ io.on('connection', (socket) => {
                 const key = SocketIds[socket.id].key;
                 const { uid } = keyStore.getKey(key).getUser(SocketIds[socket.id].uid);
                 socket.broadcast.to(key).emit('stoptyping', uid);
+            }
+        });
+        socket.on('getLinkMetadata', (url) => {
+            if (SocketIds[socket.id]) {
+                const key = SocketIds[socket.id].key;
+                const { uid } = keyStore.getKey(key).getUser(SocketIds[socket.id].uid);
+                //worker thread
+                const worker = new Worker('server/workers/socialMediaPreview.js');
+                worker.postMessage(url);
+                worker.on('message', (data) => {
+                    socket.emit('linkMetadata', data, uid);
+                });
             }
         });
         socket.on('disconnect', () => {

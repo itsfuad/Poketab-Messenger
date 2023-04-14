@@ -19,7 +19,8 @@ self.addEventListener('install', (event) => {
 			await cache.addAll([
 				new Request(OFFLINE_URL, { cache: 'reload' }),
 				'/fonts/comic-webfont.woff2',
-				'/images/avatars/pikachu.webp'
+				'/images/avatars/pikachu.webp',
+				'/images/offline.png',
 			]);
 		})()
 	);
