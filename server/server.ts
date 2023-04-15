@@ -97,7 +97,7 @@ app.get('/join', (_, res) => {
 	res.render('login/newUser', {title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce, takenAvlists: null, icon: Icon});
 });
 
-app.get('/chat', (_, res) => {
+app.get('/~', (_, res) => {
 	if (ENVIRONMENT != 'DEVELOPMENT'){
 		res.redirect('/join');
 	}else{
@@ -106,7 +106,7 @@ app.get('/chat', (_, res) => {
 	}
 });
 
-app.post('/chat', (req, res) => {
+app.post('/~', (req, res) => {
 
 	//get the Username and avatar from the pre-request
 	const username = req.body.username;

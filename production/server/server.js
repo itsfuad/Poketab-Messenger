@@ -77,7 +77,7 @@ app.get('/join', (_, res) => {
     res.clearCookie('key');
     res.render('login/newUser', { title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce, takenAvlists: null, icon: Icon });
 });
-app.get('/chat', (_, res) => {
+app.get('/~', (_, res) => {
     if (ENVIRONMENT != 'DEVELOPMENT') {
         res.redirect('/join');
     }
@@ -86,7 +86,7 @@ app.get('/chat', (_, res) => {
         approveNewChatRequest(res, { username: username, key: '00-000-00', avatar: avatar, max_users: 10, icon: Icon });
     }
 });
-app.post('/chat', (req, res) => {
+app.post('/~', (req, res) => {
     //get the Username and avatar from the pre-request
     const username = req.body.username;
     const avatar = req.body.avatar;
