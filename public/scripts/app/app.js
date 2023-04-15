@@ -2836,7 +2836,7 @@ function FilePreview(filesFromClipboard = null, audio = false){
 			}
 		
 			const data = files[i];
-			name = sanitize(shortFileName(name));
+			name = shortFileName(name);
 			selectedObject = audio ? 'audio' : 'file';
 
 			const fileID = crypto.randomUUID();
