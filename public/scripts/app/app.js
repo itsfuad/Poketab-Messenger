@@ -486,7 +486,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 		if (replyOptions.reply){
 			//check if the replyid is available in the message list
 			repliedTo = userInfoMap.get(document.getElementById(replyId || '')?.dataset?.uid)?.username;
-			if (repliedTo == myName){repliedTo = 'You';}
+			if (repliedTo == myName){repliedTo = 'you';}
 			if (repliedTo == username){repliedTo = 'self';}
 			if (!document.getElementById(replyId)){
 				reply = {data: 'Message is not available on this device', type: 'text'};
