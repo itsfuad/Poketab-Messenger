@@ -101,6 +101,7 @@ code {
   background: var(--msg-get-reply);
   color: hsla(0, 0%, 100%, 0.5);
   border-radius: 18px 18px 18px 8px;
+  width: -moz-max-content;
   width: max-content;
   max-width: 250px;
   white-space: pre;
@@ -126,7 +127,8 @@ code {
   max-width: 150px;
   min-width: 100px;
   min-height: 100px;
-  object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
   vertical-align: bottom;
   border-radius: 18px 18px 18px 8px !important;
 }
@@ -135,7 +137,8 @@ code {
   max-height: inherit;
   min-height: inherit;
   min-width: inherit;
-  object-fit: inherit;
+  -o-object-fit: inherit;
+     object-fit: inherit;
   border-radius: inherit;
 }
 
@@ -282,14 +285,18 @@ pre {
   padding: 5px;
   position: relative;
   padding-top: 25px;
-  tab-size: 2;
+  -moz-tab-size: 2;
+    -o-tab-size: 2;
+       tab-size: 2;
 }
 pre::after {
   position: absolute;
   content: attr(data-clip);
   top: 0;
   right: 0;
+  width: -moz-max-content;
   width: max-content;
+  height: -moz-max-content;
   height: max-content;
   padding: 3px 4px;
   background: rgba(255, 255, 255, 0.168627451);
@@ -303,7 +310,9 @@ pre::before {
   content: attr(data-lang);
   top: 0;
   left: 0;
+  width: -moz-max-content;
   width: max-content;
+  height: -moz-max-content;
   height: max-content;
   padding: 3px 4px;
   border-radius: 4px;
@@ -363,6 +372,7 @@ pre code {
   border-radius: 10px;
   max-height: 18px;
   display: none;
+  width: -moz-max-content;
   width: max-content;
 }
 .reactsOfMessage .reactsCount {
@@ -497,6 +507,7 @@ pre code {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: -moz-fit-content;
   width: fit-content;
   max-width: 80%;
 }
@@ -509,7 +520,8 @@ pre code {
   border-radius: inherit;
 }
 .messageMain .imageContainer .image {
-  object-fit: contain;
+  -o-object-fit: contain;
+     object-fit: contain;
   border-radius: inherit;
   pointer-events: none;
 }
@@ -520,6 +532,7 @@ pre code {
   width: 100%;
   height: 100%;
   transform: translate(-50%, -50%);
+  width: -moz-max-content;
   width: max-content;
   color: white;
   font-size: 0.8rem;
@@ -677,6 +690,7 @@ pre code {
   font-size: 0.7rem;
   pointer-events: none;
   min-width: 45px;
+  width: -moz-max-content;
   width: max-content;
   display: flex;
   align-items: center;
@@ -724,13 +738,9 @@ a:hover {
   filter: brightness(0.95);
 }
 
-a::before, a::after {
+a::after {
   font-family: "FontAwesome";
   padding: 0 2px;
-}
-
-a::before {
-  content: "\f0c1";
 }
 
 a::after {
@@ -754,4 +764,4 @@ a::after {
 }
 .serverMessage + .serverMessage {
   margin-top: 0;
-}
+}/*# sourceMappingURL=message.css.map */

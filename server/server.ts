@@ -212,7 +212,7 @@ function approveNewChatRequest(res: any, data: {username: string, key: string, a
 	res.setHeader('Developer', 'Fuad Hasan');
 	res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
 	res.setHeader('Cluster', `ID: ${process.pid}`);
-	res.render('chat/chat', {myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, version: `${version}`, developer: developer, ENV: ENVIRONMENT, hash: nonce, welcomeSticker: welcomeSticker, icon: data.icon});
+	res.render('chat/chat', {myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, ENV: ENVIRONMENT, hash: nonce, welcomeSticker: welcomeSticker, icon: data.icon});
 }
 
 app.get('/offline', (_, res) => {

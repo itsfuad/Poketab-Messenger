@@ -29,9 +29,7 @@ html {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  -khtml-user-select: none;
   -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -39,9 +37,7 @@ html {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-  -khtml-user-select: none;
   -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -49,9 +45,7 @@ html {
   -webkit-tap-highlight-color: initial;
   -webkit-touch-callout: initial;
   -webkit-user-select: initial;
-  -khtml-user-select: initial;
   -moz-user-select: initial;
-  -ms-user-select: initial;
   user-select: initial;
 }
 
@@ -77,7 +71,8 @@ body {
   border-radius: 15px;
   font-size: 0.6rem;
   transform: translateX(-50%);
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
   z-index: 110;
   visibility: hidden;
   opacity: 0;
@@ -99,7 +94,8 @@ body {
   z-index: 60;
   visibility: hidden;
   opacity: 0;
-  backdrop-filter: brightness(0.8);
+  -webkit-backdrop-filter: brightness(0.8);
+          backdrop-filter: brightness(0.8);
 }
 #sidebarWrapper #sidebar, #sidebarWrapper #closeSideBar {
   position: relative;
@@ -137,7 +133,8 @@ body {
   align-items: flex-end;
   z-index: 40;
   pointer-events: none;
-  backdrop-filter: brightness(0.8);
+  -webkit-backdrop-filter: brightness(0.8);
+          backdrop-filter: brightness(0.8);
   visibility: hidden;
   opacity: 0;
 }
@@ -271,7 +268,8 @@ img:is(.sticker) {
   padding: 10px 10px 0 10px;
   border-radius: 0 5px 5px 0;
   background: var(--primary-dark);
-  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
   z-index: 90;
   display: flex;
   width: 75%;
@@ -337,6 +335,7 @@ img:is(.sticker) {
   display: flex;
   flex-direction: row;
   width: 100%;
+  padding: 10px 0;
   align-items: center;
   justify-content: space-between;
 }
@@ -361,7 +360,8 @@ img:is(.sticker) {
   z-index: 100;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+          backdrop-filter: blur(5px);
   visibility: hidden;
   opacity: 0;
   transition: 100ms;
@@ -636,7 +636,8 @@ img {
   z-index: 20;
   transition: 100ms ease-in-out;
   pointer-events: none;
-  backdrop-filter: brightness(0.8);
+  -webkit-backdrop-filter: brightness(0.8);
+          backdrop-filter: brightness(0.8);
 }
 .attachmentChooser .attachmentContainer {
   position: absolute;
@@ -648,6 +649,7 @@ img {
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
+  width: -moz-max-content;
   width: max-content;
   visibility: visible;
   opacity: 1;
@@ -718,7 +720,8 @@ img {
   border-radius: 15px;
   width: 260px;
   background: rgba(255, 255, 255, 0.1294117647);
-  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
   border: 3px solid var(--glass);
   align-items: center;
   position: relative;
@@ -909,7 +912,8 @@ input[type=file] {
   width: 100%;
   height: 100%;
   border-radius: inherit;
-  object-fit: contain;
+  -o-object-fit: contain;
+     object-fit: contain;
   height: inherit;
 }
 #filePreviewContainer #selectedFiles .file-item .close {
@@ -964,7 +968,9 @@ input[type=file] {
   display: flex;
   position: relative;
   cursor: pointer;
-  user-select: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
   flex-direction: row;
   justify-content: center;
   align-items: center;
@@ -985,6 +991,7 @@ input[type=file] {
   width: 0;
 }
 .field-checkers label {
+  width: -moz-max-content;
   width: max-content;
   display: flex;
   flex-direction: row;
@@ -1408,6 +1415,7 @@ i[class^=fa-] {
   transform: translateX(-50%);
   z-index: 10;
   gap: 5px;
+  width: -moz-max-content;
   width: max-content;
   display: flex;
   visibility: hidden;
@@ -1451,7 +1459,8 @@ i[class^=fa-] {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
   z-index: 100;
   visibility: hidden;
   opacity: 0;
@@ -1537,7 +1546,8 @@ i[class^=fa-] {
   bottom: 0;
   right: 0;
   display: flex;
-  backdrop-filter: brightness(0.8);
+  -webkit-backdrop-filter: brightness(0.8);
+          backdrop-filter: brightness(0.8);
   transition: 200ms ease-in-out;
   z-index: 25;
   pointer-events: none;
@@ -1571,6 +1581,7 @@ i[class^=fa-] {
 }
 #messageOptionsContainerWrapper .reactOptionsWrapper {
   position: relative;
+  width: -moz-min-content;
   width: min-content;
   max-height: 35px;
   place-content: center;
@@ -1756,6 +1767,7 @@ i[class^=fa-] {
   flex-direction: row;
   justify-content: space-between;
   gap: 20px;
+  width: -moz-max-content;
   width: max-content;
   align-items: center;
   border-radius: 10px;
@@ -1817,7 +1829,8 @@ i[class^=fa-] {
   z-index: 90;
   visibility: hidden;
   opacity: 0;
-  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+          backdrop-filter: blur(2px);
 }
 .reactorContainerWrapper.active {
   visibility: visible;
@@ -1838,7 +1851,8 @@ i[class^=fa-] {
   align-items: flex-start;
   justify-content: flex-start;
   z-index: 10;
-  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+          backdrop-filter: blur(5px);
   scrollbar-width: none;
   transition: 100ms ease-in-out;
   filter: drop-shadow(0 4px 5px black);
@@ -1952,4 +1966,4 @@ i[class^=fa-] {
   #messageOptionsContainerWrapper .normalOptionWrapper {
     width: 100%;
   }
-}
+}/*# sourceMappingURL=chat.css.map */
