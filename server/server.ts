@@ -20,7 +20,8 @@ config();
 
 //versioning and developer name
 const version = process.env.npm_package_version || 'Development';
-const developer = 'Fuad Hasan';
+
+const DEVELOPER = 'Fuad Hasan';
 
 //console.log(__dirname);
 
@@ -40,7 +41,7 @@ app.get('/', (_, res) => {
 	// Set the Content-Security-Policy header
 	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}' ; img-src 'self' data:;`);
 	// Set the Developer header
-	res.setHeader('Developer', 'Fuad Hasan');
+	res.setHeader('Developer', DEVELOPER);
 	// Render the home page
 	res.render('home/home', {title: 'Get Started', hash: nonce, version: `v.${version}`,  icon: Icon});
 });
@@ -55,7 +56,7 @@ app.use('/api/files', fileRouter); //route for file uploads
 app.get('/create', (req, res) => {
 	const nonce = crypto.randomBytes(16).toString('hex');
 	res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);
-	res.setHeader('Developer', 'Fuad Hasan');
+	res.setHeader('Developer', DEVELOPER);
 	//create a key and send it to the client as cookie
 	const key = generateUniqueId();
 	//st cookie for 2 minutes
@@ -75,7 +76,7 @@ app.get('/join/:key', (req, res)=>{
 			const takenAvlists = keyStore.getUserList(req.params.key).map((user) => user.avatar);
 			const nonce = crypto.randomBytes(16).toString('hex');
 			res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'unsafe-inline' 'self'; script-src 'self' 'nonce-${nonce}';`);
-			res.setHeader('Developer', 'Fuad Hasan');
+			res.setHeader('Developer', DEVELOPER);
 			res.render('login/newUser', {title: 'Join', avList: avList, version: `v.${version}`, key: req.params.key, hash: nonce, takenAvlists: takenAvlists, icon: Icon});
 			return;
 		}else{
@@ -92,7 +93,7 @@ app.get('/join/:key', (req, res)=>{
 app.get('/join', (_, res) => {
 	const nonce = crypto.randomBytes(16).toString('hex');
 	res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);
-	res.setHeader('Developer', 'Fuad Hasan');
+	res.setHeader('Developer', DEVELOPER);
 	res.clearCookie('key');
 	res.render('login/newUser', {title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce, takenAvlists: null, icon: Icon});
 });
@@ -115,7 +116,7 @@ app.post('/~', (req, res) => {
 	const isValidUsername = validateUserName(username);
 	//if username and avatars are not valid
 	if (!isValidUsername || !validateAvatar(avatar)) {
-		res.setHeader('Developer', 'Fuad Hasan');
+		res.setHeader('Developer', DEVELOPER);
 		res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 		res.status(400).send({
 			error: 
@@ -153,14 +154,14 @@ app.post('/~', (req, res) => {
 				}else{
 					//clash of keys
 					//console.log(`Key clash found: ${key}!`);
-					res.setHeader('Developer', 'Fuad Hasan');
+					res.setHeader('Developer', DEVELOPER);
 					res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 					res.status(400).send({error: 'Key clased!'});
 					return;
 				}
 			}else{
 				//console.log('Invalid key found in cookie');
-				res.setHeader('Developer', 'Fuad Hasan');
+				res.setHeader('Developer', DEVELOPER);
 				res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 				res.status(400).send({error: 'Invalid key'});
 				return;
@@ -197,7 +198,7 @@ app.post('/~', (req, res) => {
 });
 
 function blockNewChatRequest(res: any, data: {title: string, errorCode: string, errorMessage: string, buttonText: string, icon: string}){
-	res.setHeader('Developer', 'Fuad Hasan');
+	res.setHeader('Developer', DEVELOPER);
 	res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 	res.clearCookie('key');
 	res.render('errors/errorRes', {title: data.title, errorCode: data.errorCode, errorMessage: data.errorMessage, buttonText: data.buttonText, icon: data.icon});
@@ -209,20 +210,20 @@ function approveNewChatRequest(res: any, data: {username: string, key: string, a
 	const nonce = crypto.randomBytes(16).toString('hex');
 	const welcomeSticker = Math.floor(Math.random() * 9) + 1;
 
-	res.setHeader('Developer', 'Fuad Hasan');
-	res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
+	res.setHeader('Developer', DEVELOPER);
+	res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; script-src \'self\' \'unsafe-inline\'; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
 	res.setHeader('Cluster', `ID: ${process.pid}`);
 	res.render('chat/chat', {myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, ENV: ENVIRONMENT, hash: nonce, welcomeSticker: welcomeSticker, icon: data.icon});
 }
 
 app.get('/offline', (_, res) => {
-	res.setHeader('Developer', 'Fuad Hasan');
+	res.setHeader('Developer', DEVELOPER);
 	res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 	res.render('errors/errorRes', {title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline :(', buttonText: 'Refresh', icon: 'offline.png'});
 });
 
 app.get('*', (_, res) => {
-	res.setHeader('Developer', 'Fuad Hasan');
+	res.setHeader('Developer', DEVELOPER);
 	res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 	res.render('errors/errorRes', {title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home', icon: '404.png'});
 });

@@ -7,27 +7,20 @@ import { Stickers } from '../../stickers/stickersConfig.js';
 import { Prism } from '../../libs/prism/prism.min.js';
 import { PanZoom } from '../../libs/panzoom.min.js';
 import { sanitizeImagePath, sanitize } from './utils/sanitizer.js';
-import { 
-	getFormattedDate, 
-	reactArray, 
-	shortFileName, 
-	getTypingString,
-	remainingTime
+import {
+	getFormattedDate, reactArray, shortFileName, getTypingString, remainingTime
 } from './utils/helperFunctions.js';
 
-import { 
-	playReactSound, 
-	playStickerSound, 
-	playOutgoingSound, 
-	playClickSound,
-	playStartRecordSound,
-	playExpandSound,
+import {
+	playReactSound, playStickerSound, playOutgoingSound, playClickSound, playStartRecordSound, playExpandSound,
 } from './utils/media.js';
 
 import { emojiParser, isEmoji, TextParser, parseTemplate } from './utils/messageParser.js';
 import { themePicker, themeArray, themeAccent } from './utils/themes.js';
 
 import { ClickAndHold } from './utils/clickAndHoldDetector.js';
+
+import { fragmentBuilder } from './utils/fragmentBuilder.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
@@ -64,7 +57,7 @@ const moreReactsContainer = document.getElementById('moreReactsContainer');
 
 const lightbox = document.getElementById('lightbox');
 const lightboxImage = document.getElementById('lightboxImage');
-const lightboxSaveButton = document.getElementById('lightboxSaveButton'); 
+const lightboxSaveButton = document.getElementById('lightboxSaveButton');
 const lightboxCloseButton = document.getElementById('lightboxCloseButton');
 
 //popups closearea
@@ -174,7 +167,7 @@ const targetFile = {
 let finalTarget = {
 	sender: '',
 	message: '',
-	type: '', 
+	type: '',
 	id: '',
 };
 
@@ -190,82 +183,100 @@ let messageSendShortCut = 'Ctrl+Enter'; //send message by default by pressing ct
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 //detect if user is using a mobile device, if yes then use the click and hold class
-if (isMobile){
-	ClickAndHold.applyTo(messages, 300, (evt)=>{
+if (isMobile) {
+	ClickAndHold.applyTo(messages, 300, (evt) => {
 		const isDeleted = evt.target.closest('.message').dataset.deleted == 'true' ? true : false;
-		if (!isDeleted){
+		if (!isDeleted) {
 			OptionEventHandler(evt);
 		}
 	});
 }
 
 //is user is not using a mobile device then we use the mouse click event
-if(!isMobile){
+if (!isMobile) {
 	messages.addEventListener('contextmenu', (evt) => {
 		evt.preventDefault();
 		evt.stopPropagation();
-		if (evt.which == 3){
+		if (evt.which == 3) {
 			const isMessage = evt.target.closest('.message') ?? false;
 			const isDeleted = evt.target.closest('.message')?.dataset.deleted == 'true' ? true : false;
-			if (isMessage && !isDeleted){
+			if (isMessage && !isDeleted) {
 				OptionEventHandler(evt);
 			}
 		}
 	});
 }
 
+
 //! functions
 /**
  * Loads the reacts from the Defined array of reacts and inserts on the DOM
  */
-function loadReacts(){
+function loadReacts() {
 	//load all the reacts from the react object
 	const reactOptions = document.getElementById('reactOptions');
+	for (let i = 0; i < reactArray.primary.length - 1; i++) {
 
-	for (let i = 0; i < reactArray.primary.length - 1; i++){
+		const reactWrapperFragment = fragmentBuilder({
+			tag: 'div',
+			attr: {
+				class: 'reactWrapper',
+				'data-react': reactArray.primary[i],
+			},
+			child: {
+				tag: 'div',
+				attr: {
+					class: 'react-emoji',
+				},
+				text: reactArray.primary[i],
+			}
+		});
 
-		const reactWrapper = document.createElement('div');
-		reactWrapper.classList.add('reactWrapper');
-
-		const react = document.createElement('div');
-		react.classList.add('react-emoji');
-		react.textContent = reactArray.primary[i];
-		reactWrapper.dataset.react = reactArray.primary[i];
-
-		reactWrapper.appendChild(react);
-     
-		reactOptions.insertBefore(reactWrapper, reactOptions.lastElementChild);
+		reactOptions.insertBefore(reactWrapperFragment, reactOptions.lastElementChild);
 	}
 
 	let lastReact = localStorage.getItem('lastReact') || reactArray.last;
 
-	if (!reactArray.expanded.includes(lastReact) || reactArray.primary.includes(lastReact)){
+	if (!reactArray.expanded.includes(lastReact) || reactArray.primary.includes(lastReact)) {
 		lastReact = '🌻';
 	}
 
-	const lastWrapper = document.createElement('div');
-	lastWrapper.classList.add('reactWrapper', 'last');
+	const lastWrapperFragment = fragmentBuilder({
+		tag: 'div',
+		attr: {
+			class: 'reactWrapper last',
+			'data-react': lastReact,
+		},
+		child: {
+			tag: 'div',
+			attr: {
+				class: 'react-emoji',
+			},
+			text: lastReact,
+		}
+	});
 
-	const last = document.createElement('div');
-	last.classList.add('react-emoji');
-	last.textContent = lastReact;
-	lastWrapper.dataset.react = lastReact;
-
-	lastWrapper.appendChild(last);
-
-	reactOptions.insertBefore(lastWrapper, reactOptions.lastElementChild);
+	reactOptions.insertBefore(lastWrapperFragment, reactOptions.lastElementChild);
 
 	const moreReacts = document.querySelector('.moreReacts');
 
-	for (let i = 0; i < reactArray.expanded.length; i++){
-		const moreReactWrapper = document.createElement('div');
-		moreReactWrapper.classList.add('reactWrapper');
+	for (let i = 0; i < reactArray.expanded.length; i++) {
 
-		const moreReact = document.createElement('div');
-		moreReact.classList.add('react-emoji');
-		moreReact.textContent = reactArray.expanded[i];
-		moreReactWrapper.dataset.react = reactArray.expanded[i];
-		moreReactWrapper.appendChild(moreReact);
+		const moreReactWrapper = fragmentBuilder({
+			tag: 'div',
+			attr: {
+				class: 'reactWrapper',
+				'data-react': reactArray.expanded[i],
+			},
+			child: {
+				tag: 'div',
+				attr: {
+					class: 'react-emoji',
+				},
+				text: reactArray.expanded[i],
+			}
+		});
+		
 		moreReacts.appendChild(moreReactWrapper);
 	}
 }
@@ -273,12 +284,12 @@ function loadReacts(){
 /**
  * Loads theme
  */
-function loadTheme(){
+function loadTheme() {
 	//append the theme to the DOM
 	document.body.appendChild(themePicker);
 
 	THEME = localStorage.getItem('theme');
-	if(THEME == null || themeArray.includes(THEME) == false){
+	if (THEME == null || themeArray.includes(THEME) == false) {
 		THEME = 'ocean';
 		localStorage.setItem('theme', THEME);
 	}
@@ -293,23 +304,23 @@ function loadTheme(){
 /**
  * Loads the send shortcut
  */
-function loadSendShortcut(){
-	try{		
-		if (messageSendShortCut === 'Ctrl+Enter'){
+function loadSendShortcut() {
+	try {
+		if (messageSendShortCut === 'Ctrl+Enter') {
 			messageSendShortCut = 'Ctrl+Enter';
 			document.getElementById('Ctrl+Enter').checked = true;
 			textbox.setAttribute('enterkeyhint', 'enter');
-		}else if (messageSendShortCut === 'Enter'){
+		} else if (messageSendShortCut === 'Enter') {
 			document.getElementById('Enter').checked = true;
 			messageSendShortCut = 'Enter';
 			localStorage.setItem('sendBy', messageSendShortCut);
 			textbox.setAttribute('enterkeyhint', 'send');
-		}else{
-			if (isMobile){
+		} else {
+			if (isMobile) {
 				messageSendShortCut = 'Ctrl+Enter';
 				document.getElementById('Ctrl+Enter').checked = true;
 				textbox.setAttribute('enterkeyhint', 'enter');
-			}else{
+			} else {
 				messageSendShortCut = 'Enter';
 				document.getElementById('Enter').checked = true;
 				localStorage.setItem('sendBy', messageSendShortCut);
@@ -317,19 +328,19 @@ function loadSendShortcut(){
 			}
 		}
 		document.getElementById('send').title = messageSendShortCut;
-	}catch(e){
+	} catch (e) {
 		console.log(`Error: ${e}`);
 	}
 }
 /**
  * Loads the button sound preference
  */
-function loadButtonSoundPreference(){
+function loadButtonSoundPreference() {
 	const sound = localStorage.getItem('buttonSoundEnabled');
-	if (sound === 'false'){
+	if (sound === 'false') {
 		buttonSoundEnabled = false;
 		document.getElementById('buttonSound').removeAttribute('checked');
-	}else{
+	} else {
 		buttonSoundEnabled = true;
 		localStorage.setItem('buttonSoundEnabled', true);
 		document.getElementById('buttonSound').setAttribute('checked', 'checked');
@@ -338,12 +349,12 @@ function loadButtonSoundPreference(){
 /**
  * Loads the message sound preference
  */
-function loadMessageSoundPreference(){
+function loadMessageSoundPreference() {
 	const sound = localStorage.getItem('messageSoundEnabled');
-	if(sound === 'false'){
+	if (sound === 'false') {
 		messageSoundEnabled = false;
 		document.getElementById('messageSound').removeAttribute('checked');
-	}else{
+	} else {
 		messageSoundEnabled = true;
 		localStorage.setItem('messageSoundEnabled', true);
 		document.getElementById('messageSound').setAttribute('checked', 'checked');
@@ -352,7 +363,7 @@ function loadMessageSoundPreference(){
 /**
  * Loads default settings
  */
-function bootLoad(){
+function bootLoad() {
 	messageSendShortCut = localStorage.getItem('sendBy');
 	loadReacts();
 	loadTheme();
@@ -367,7 +378,7 @@ bootLoad();
 
 
 //sets the app height to the max height of the window
-function appHeight () {
+function appHeight() {
 	const doc = document.documentElement;
 	doc.style.setProperty('--app-height', `${window.innerHeight}px`);
 }
@@ -395,28 +406,28 @@ function appHeight () {
  * @param {number} metadata.duration number of seconds the audio file is
  * 
  */
-export function insertNewMessage(message, type, id, uid, reply, replyId, replyOptions, metadata){
+export function insertNewMessage(message, type, id, uid, reply, replyId, replyOptions, metadata) {
 	//detect if the message has a reply or not
-	try{
-		if (!replyOptions){
+	try {
+		if (!replyOptions) {
 			replyOptions = {
 				reply: false,
 				title: false
 			};
 		}
-	
+
 		let classList = ''; //the class list for the message. Initially empty. 
 		const lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
 		let popupmsg = ''; //the message to be displayed in the popup if user scrolled up
 		const messageIsEmoji = isEmoji(message); //if the message is an emoji
-		if (type === 'text'){ //if the message is a text message
+		if (type === 'text') { //if the message is a text message
 			message = `<div class="msg text">${messageparser.parse(message)}</div>`;
 			const fragment = document.createDocumentFragment();
 			const el = document.createElement('div');
 			el.innerHTML = message;
 			fragment.appendChild(el);
 			popupmsg = fragment.textContent.length > 10 ? fragment.textContent.substring(0, 7) + '...' : fragment.textContent;//the message to be displayed in the popup if user scrolled up
-		}else if(type === 'image'){ //if the message is an image
+		} else if (type === 'image') { //if the message is an image
 			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
 			message = sanitizeImagePath(message); //sanitize the image path
 			message = `
@@ -435,61 +446,61 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 				</div>
 			</div>
 			`; //insert the image
-		}else if (type === 'sticker'){
+		} else if (type === 'sticker') {
 			popupmsg = 'Sticker';
 			message = sanitizeImagePath(message);
 			message = `
 			<img class='sticker msg' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
 			`;
-		}else if(type != 'text' && type != 'image' && type != 'file' && type != 'sticker' && type != 'audio'){ //if the message is not a text or image message
+		} else if (type != 'text' && type != 'image' && type != 'file' && type != 'sticker' && type != 'audio') { //if the message is not a text or image message
 			throw new Error('Invalid message type');
 		}
-		if(uid == myId){ //if the message is sent by the user is me
-			classList += ' self'; 
+		if (uid == myId) { //if the message is sent by the user is me
+			classList += ' self';
 		}
-	
-		if (lastMsg?.dataset?.uid != uid || messageIsEmoji || type === 'sticker'){ // if the last message is not from the same user
+
+		if (lastMsg?.dataset?.uid != uid || messageIsEmoji || type === 'sticker') { // if the last message is not from the same user
 			classList += ' newGroup'; //then add the new group class
 			classList += ' start end';
-		}else  if (lastMsg?.dataset?.uid == uid){ //if the last message is from the same user
-			if (!replyOptions.reply && !lastMsg?.classList.contains('emoji') && !lastMsg?.classList.contains('sticker')){ //and the message is not a reply
+		} else if (lastMsg?.dataset?.uid == uid) { //if the last message is from the same user
+			if (!replyOptions.reply && !lastMsg?.classList.contains('emoji') && !lastMsg?.classList.contains('sticker')) { //and the message is not a reply
 				lastMsg?.classList.remove('end'); //then remove the bottom corner rounded from the last message
-			}else{
+			} else {
 				classList += ' start';
 			}
 			classList += ' end';
 		}
-		if(messageIsEmoji){ //if the message is an emoji or sticker
+		if (messageIsEmoji) { //if the message is an emoji or sticker
 			lastMsg?.classList.add('end');
 			classList += ' emoji';
 		}
-		if (type === 'sticker'){
+		if (type === 'sticker') {
 			lastMsg?.classList.add('end');
 			classList += ' sticker';
 		}
-		if(!replyOptions.reply){
+		if (!replyOptions.reply) {
 			classList += ' noreply';
 		}
-		if ((!replyOptions.title || !classList.includes('start'))){
+		if ((!replyOptions.title || !classList.includes('start'))) {
 			classList += ' notitle';
 		}
-		else if (classList.includes('self') && classList.includes('noreply')){
+		else if (classList.includes('self') && classList.includes('noreply')) {
 			classList += ' notitle';
 		}
 		let username = userInfoMap.get(uid)?.username;
 		const avatar = userInfoMap.get(uid)?.avatar;
-		if (username == myName){username = 'You';}
-	
+		if (username == myName) { username = 'You'; }
+
 		let html;
 		let replyMsg;
 		let repliedTo;
-		if (replyOptions.reply){
+		if (replyOptions.reply) {
 			//check if the replyid is available in the message list
 			repliedTo = userInfoMap.get(document.getElementById(replyId || '')?.dataset?.uid)?.username;
-			if (repliedTo == myName){repliedTo = 'you';}
-			if (repliedTo == username){repliedTo = 'self';}
-			if (!document.getElementById(replyId)){
-				reply = {data: 'Message is not available on this device', type: 'text'};
+			if (repliedTo == myName) { repliedTo = 'you'; }
+			if (repliedTo == username) { repliedTo = 'self'; }
+			if (!document.getElementById(replyId)) {
+				reply = { data: 'Message is not available on this device', type: 'text' };
 			}
 
 			if (['text', 'file', 'audio'].includes(reply.type)) {
@@ -510,8 +521,8 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 		}
 
 		const timeStamp = Date.now();
-	
-		if (type === 'file'){
+
+		if (type === 'file') {
 			popupmsg = 'File';
 			html = parseTemplate(fileTemplate, {
 				classList: classList,
@@ -520,7 +531,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 				uid: uid,
 				type: type,
 				repId: replyId,
-				title: replyOptions.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+				title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
 				source: message,
 				fileName: metadata.name,
 				fileSize: metadata.size,
@@ -530,7 +541,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 				time: getFormattedDate(timeStamp),
 				timeStamp: timeStamp,
 			});
-		}else if (type == 'audio'){
+		} else if (type == 'audio') {
 			popupmsg = 'Audio';
 			html = parseTemplate(audioTemplate, {
 				classList: classList,
@@ -539,7 +550,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 				uid: uid,
 				type: type,
 				repId: replyId,
-				title: replyOptions.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+				title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
 				source: message,
 				length: 'Play',
 				ext: metadata.ext,
@@ -549,7 +560,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 				timeStamp: timeStamp,
 				duration: metadata.duration,
 			});
-		}else{
+		} else {
 			html = parseTemplate(messageTemplate, {
 				classList: classList,
 				avatarSrc: `/images/avatars/${avatar}(custom).webp`,
@@ -557,7 +568,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 				uid: uid,
 				type: type,
 				repId: replyId,
-				title: replyOptions.reply? `${username} replied to ${repliedTo? repliedTo: 'a message'}` : username,
+				title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
 				message: message,
 				replyMsg: replyMsg,
 				replyFor: reply.type,
@@ -565,21 +576,21 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 				timeStamp: timeStamp,
 			});
 		}
-	
+
 		lastSeenMessage = id;
-	
-		if (document.hasFocus()){
-			socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+
+		if (document.hasFocus()) {
+			socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 		}
-	
+
 		const fragment = document.createRange().createContextualFragment(html);
 
 		messages.appendChild(fragment);
-		
-		if (reply.type == 'image' || reply.type == 'sticker'){
+
+		if (reply.type == 'image' || reply.type == 'sticker') {
 			document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
 		}
-		
+
 		if (messageTimeStampUpdater) {
 			clearInterval(messageTimeStampUpdater);
 		}
@@ -587,7 +598,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 		messageTimeStampUpdater = setInterval(() => {
 			//get the last message
 			const lastMsg = messages.querySelector('.msg-item:last-child');
-			if (lastMsg?.classList?.contains('message')){
+			if (lastMsg?.classList?.contains('message')) {
 				const time = lastMsg.querySelector('.messageTime');
 				time.textContent = getFormattedDate(time.dataset.timestamp);
 			}
@@ -595,11 +606,11 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 
 		lastPageLength = messages.scrollTop;
 		checkgaps(lastMsg?.id);
-		
+
 		//highlight code
 		const codes = document.getElementById(id).querySelector('.messageMain')?.querySelectorAll('pre');
 
-		if (type == 'text' && codes){
+		if (type == 'text' && codes) {
 			//Prism.highlightAll();
 			codes.forEach(code => {
 				code.querySelectorAll('code').forEach(c => {
@@ -609,8 +620,8 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 		}
 
 		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
-		
-	}catch(err){
+
+	} catch (err) {
 		console.error(err);
 		showPopupMessage(err);
 	}
@@ -622,47 +633,47 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
  * @param {boolean} sender True if Sender is me, else false 
  * @param {HTMLElement} target The message that fired the event 
  */
-function showOptions(type, sender, target){
-	try{
-		if (target == null){
+function showOptions(type, sender, target) {
+	try {
+		if (target == null) {
 			return;
 		}
 
-		if (hideOptionsTimeout != null){
+		if (hideOptionsTimeout != null) {
 			clearTimeout(hideOptionsTimeout);
 		}
-	
+
 		//removes all showing options first if any
 		document.querySelector('.reactorContainerWrapper').classList.remove('active');
-	
+
 		document.getElementById('reactOptions').querySelectorAll('.reactWrapper').forEach(
 			emoji => emoji.style.background = 'none'
 		);
-	
+
 		document.querySelectorAll('.moreReacts .reactWrapper').forEach(
 			option => option.style.background = 'none'
 		);
-		
+
 		const downloadable = {
 			'image': true,
 			'file': true,
 			'audio': true,
 		};
-	
+
 		//if the message is a text message
-		if (type === 'text'){
+		if (type === 'text') {
 			copyOption.style.display = 'flex';
 			//console.log('Copy Option Shown');
-		}else if (downloadable[type]){ //if the message is an image
-			if (target.closest('.message')?.dataset.downloaded == 'true'){
+		} else if (downloadable[type]) { //if the message is an image
+			if (target.closest('.message')?.dataset.downloaded == 'true') {
 				downloadOption.style.display = 'flex';
 				//console.log('Download Option Shown');
 			}
 		}
-		if (sender === true){ //if the message is sent by me
+		if (sender === true) { //if the message is sent by me
 			deleteOption.style.display = 'flex'; //then show the delete option
 			//console.log('Delete Option Shown');
-		}else{ //else dont show the delete option
+		} else { //else dont show the delete option
 			deleteOption.style.display = 'none';
 			//console.log('Delete Option Hidden');
 		}
@@ -670,17 +681,17 @@ function showOptions(type, sender, target){
 		const clicked = Array.from(target.closest('.message').querySelectorAll('.reactedUsers .list')).reduce((acc, curr) => {
 			return acc || curr.dataset.uid == myId;
 		}, false);
-		if (clicked){ //if the message has my reaction
+		if (clicked) { //if the message has my reaction
 			//get how many reactions the message has
 			const clickedElement = target.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
-			if (reactArray.primary.includes(clickedElement)){ //if the message has my primary reaction
+			if (reactArray.primary.includes(clickedElement)) { //if the message has my primary reaction
 				//selected react color
 				document.querySelector(`#reactOptions [data-react="${clickedElement}"]`).style.background = 'var(--secondary-dark)';
 			}
-			if (reactArray.expanded.includes(clickedElement)){
+			if (reactArray.expanded.includes(clickedElement)) {
 				document.querySelector(`.moreReacts [data-react="${clickedElement}"]`).style.background = 'var(--secondary-dark)';
 			}
-			if (reactArray.expanded.includes(clickedElement) && !reactArray.primary.includes(clickedElement)){
+			if (reactArray.expanded.includes(clickedElement) && !reactArray.primary.includes(clickedElement)) {
 				//2nd last element
 				const elm = document.querySelector('#reactOptions');
 				const lastElm = elm.lastElementChild.previousElementSibling;
@@ -695,7 +706,7 @@ function showOptions(type, sender, target){
 		messageOptions.classList.add('active');
 		addFocusGlass(false);
 		messageOptions.addEventListener('click', optionsMainEvent);
-	}catch(err){
+	} catch (err) {
 		console.error(err);
 	}
 }
@@ -704,16 +715,16 @@ function showOptions(type, sender, target){
  * Adds a backdrop to the options
  * @param {boolean} backdrop Show the backdrop or not 
  */
-function addFocusGlass(backdrop = true){
+function addFocusGlass(backdrop = true) {
 	const focusGlass = document.getElementById('focus_glass');
 	focusGlass.classList.remove('backdrop');
 	focusGlass.classList.add('active');
-	if (backdrop == true){
+	if (backdrop == true) {
 		focusGlass.classList.add('backdrop');
 	}
 }
 
-function removeFocusGlass(){
+function removeFocusGlass() {
 	const focusGlass = document.getElementById('focus_glass');
 	focusGlass.classList.remove('active');
 	focusGlass.classList.remove('backdrop');
@@ -723,10 +734,10 @@ function removeFocusGlass(){
  * 
  * @param {Event} e 
  */
-function optionsMainEvent(e){
+function optionsMainEvent(e) {
 	const target = e.target;
 	//console.log(target);
-	if (target.classList.contains('close_area') || target.id == 'optionsContainer'){
+	if (target.classList.contains('close_area') || target.id == 'optionsContainer') {
 		hideOptions();
 	}
 	//passes the event to the react event handler, Which handles the reactions if the target is a react
@@ -738,15 +749,15 @@ function optionsMainEvent(e){
  * @param {string} messageId 
  * @param {string} user 
  */
-export function deleteMessage(messageId, user){
+export function deleteMessage(messageId, user) {
 	const message = document.getElementById(messageId);
-	if (message){ //if the message exists
+	if (message) { //if the message exists
 
-		if (message.dataset.type == 'image'){
+		if (message.dataset.type == 'image') {
 			//delete the image from the source
 			URL.revokeObjectURL(message.querySelector('.image').src);
 			//console.log(message.querySelector('.image').src, 'deleted');
-		}else if (message.dataset.type == 'file'){
+		} else if (message.dataset.type == 'file') {
 			//delete the file from the source
 			URL.revokeObjectURL(message.querySelector('.msg').dataset.src);
 			//console.log(message.querySelector('a').href, 'deleted');
@@ -761,17 +772,19 @@ export function deleteMessage(messageId, user){
 				elem.remove();
 			});
 
-		const fragment = document.createDocumentFragment();
-		const p = document.createElement('div');
-		p.classList.add('text', 'msg');
-		p.textContent = 'Deleted message';
-		fragment.append(p);
+		const fragment = fragmentBuilder({
+			tag: 'div',
+			attr: {
+				class: 'text msg',
+			},
+			text: 'Deleted message',
+		});
 		message.querySelector('.msg').replaceWith(fragment);
 		message.classList.add('deleted');
 		message.dataset.deleted = true;
 		message.querySelector('.messageTitle').textContent = user;
-		showPopupMessage(`${user == myName ? 'You': user} deleted a message`);
-        
+		showPopupMessage(`${user == myName ? 'You' : user} deleted a message`);
+
 		if (maxUser == 2 || (message.dataset.uid == myId)) {
 			message.classList.add('notitle');
 		}
@@ -789,7 +802,7 @@ export function deleteMessage(messageId, user){
 		if (replyMessages != null) {
 			replyMessages.forEach(reply => {
 				//console.log('%cMessage reply removed', 'color: red;');
-				if (reply.classList.contains('imageReply')){
+				if (reply.classList.contains('imageReply')) {
 					reply.classList.remove('imageReply');
 					reply.querySelector('img').remove();
 				}
@@ -806,21 +819,21 @@ export function deleteMessage(messageId, user){
 /**
  * Handles the download of the file
  */
-function downloadHandler(){
-	if (document.getElementById(targetMessage.id).dataset.downloaded != 'true'){
+function downloadHandler() {
+	if (document.getElementById(targetMessage.id).dataset.downloaded != 'true') {
 		//if sender is me
-		if (targetMessage.sender == 'You'){
+		if (targetMessage.sender == 'You') {
 			showPopupMessage('Not uploaded yet');
-		}else{
+		} else {
 			showPopupMessage('Not downloaded yet');
 		}
 		return;
 	}
-	if (targetMessage.type === 'image'){
+	if (targetMessage.type === 'image') {
 		lightboxImage.querySelector('img').src = targetMessage.message.src;
 		hideOptions();
 		saveImage();
-	}else{
+	} else {
 		hideOptions();
 		downloadFile();
 	}
@@ -828,8 +841,8 @@ function downloadHandler(){
 /**
  * Saves the image to the device
  */
-function saveImage(){
-	try{
+function saveImage() {
+	try {
 		//console.log('Saving image');
 		showPopupMessage('Preparing image...');
 		const a = document.createElement('a');
@@ -838,14 +851,14 @@ function saveImage(){
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
-	}catch(e){
+	} catch (e) {
 		console.log(e);
 	}
 }
 /**
  * Downloads the file
  */
-function downloadFile(){
+function downloadFile() {
 	showPopupMessage('Preparing download...');
 
 	const downloadName = {
@@ -869,10 +882,10 @@ function downloadFile(){
  * This function is called when the user clicks on a react
  * @param {Event} e 
  */
-function optionsReactEvent(e){
+function optionsReactEvent(e) {
 	//get the react
 	const isReact = e.target?.classList.contains('reactWrapper');
-	if (isReact){
+	if (isReact) {
 		const target = e.target.dataset.react;
 		sendReact(target);
 	}
@@ -882,13 +895,13 @@ function optionsReactEvent(e){
  * Reacts to the message
  * @param {string} react 
  */
-function sendReact(react){
-	if (reactArray.primary.includes(react) || reactArray.expanded.includes(react)){
+function sendReact(react) {
+	if (reactArray.primary.includes(react) || reactArray.expanded.includes(react)) {
 		const messageId = targetMessage.id;
 		localStorage.setItem('lastReact', react);
-		if (Array.from(userInfoMap.keys()).length < 2){
+		if (Array.from(userInfoMap.keys()).length < 2) {
 			getReact(react, messageId, myId);
-		}else{
+		} else {
 			socket.emit('react', react, messageId, myId);
 		}
 		hideOptions();
@@ -896,7 +909,7 @@ function sendReact(react){
 }
 
 let hideOptionsTimeout = undefined;
-function hideOptions(){
+function hideOptions() {
 	const container = document.querySelector('.reactOptionsWrapper');
 	container.dataset.expanded = 'false';
 	moreReactsContainer.dataset.expanded = 'false';
@@ -910,7 +923,7 @@ function hideOptions(){
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
 	messageOptions.removeEventListener('click', optionsMainEvent);
 
-	if (hideOptionsTimeout){
+	if (hideOptionsTimeout) {
 		clearTimeout(hideOptionsTimeout);
 	}
 
@@ -933,34 +946,34 @@ let touchEnded = true;
 
 // Listen for a swipe on left
 messages.addEventListener('touchstart', (evt) => {
-	if (evt.target.closest('.message')){
-		xStart = (evt.touches[0].clientX/3);
-		yStart = (evt.touches[0].clientY/3);
+	if (evt.target.closest('.message')) {
+		xStart = (evt.touches[0].clientX / 3);
+		yStart = (evt.touches[0].clientY / 3);
 		//console.log('Swipe started');
 	}
 });
 
 messages.addEventListener('touchmove', (evt) => {
-	try{
+	try {
 		const msg = evt.target.closest('.message');
-		
-		if (evt.target.classList.contains('msg') || evt.target.closest('.msg') && msg.dataset.deleted != 'true'){            
+
+		if (evt.target.classList.contains('msg') || evt.target.closest('.msg') && msg.dataset.deleted != 'true') {
 			//console.log(xDiff);
 
-			xDiff = xStart - (evt.touches[0].clientX/3);
-			yDiff = yStart - (evt.touches[0].clientY/3);
-			
+			xDiff = xStart - (evt.touches[0].clientX / 3);
+			yDiff = yStart - (evt.touches[0].clientY / 3);
+
 			//which direction is swipe was made first time
-			if (horizontalSwipe == false){
-				if (Math.abs(xDiff) > Math.abs(yDiff) && touchEnded){
+			if (horizontalSwipe == false) {
+				if (Math.abs(xDiff) > Math.abs(yDiff) && touchEnded) {
 					horizontalSwipe = true;
-				}else{
+				} else {
 					horizontalSwipe = false;
 				}
 			}
 			touchEnded = false;
 			//if horizontal
-			if (horizontalSwipe){
+			if (horizontalSwipe) {
 				//console.log('horizontal');
 				const elem = msg.querySelector('.messageContainer');
 				const replyIcon = msg.querySelector('.replyIcon');
@@ -969,19 +982,19 @@ messages.addEventListener('touchmove', (evt) => {
 
 				//if msg is self
 				if (msg.classList.contains('self') && msg.classList.contains('delevered') /*&& deg <= 20 && deg >= -20*/) {
-					if (xDiff >= 50){
+					if (xDiff >= 50) {
 						elem.dataset.replyTrigger = 'true';
 						replyIcon.style.transform = `translateX(${xDiff}px)`;
-					}else{
+					} else {
 						elem.dataset.replyTrigger = 'false';
 					}
 					xDiff = xDiff < 0 ? 0 : xDiff;
 					elem.style.transform = `translateX(${-xDiff}px)`;
-				}else /*if(deg <= 160 && deg >= -160 && !msg.classList.contains('self'))*/{
-					if (xDiff <= -50){
+				} else /*if(deg <= 160 && deg >= -160 && !msg.classList.contains('self'))*/ {
+					if (xDiff <= -50) {
 						elem.dataset.replyTrigger = 'true';
 						replyIcon.style.transform = `translateX(${xDiff}px)`;
-					}else{
+					} else {
 						elem.dataset.replyTrigger = 'false';
 					}
 					xDiff = xDiff > 0 ? 0 : xDiff;
@@ -990,7 +1003,7 @@ messages.addEventListener('touchmove', (evt) => {
 			}
 		}
 		//console.log('Swipe moved');
-	}catch(e){
+	} catch (e) {
 		console.log(e);
 		showPopupMessage(e);
 	}
@@ -998,8 +1011,8 @@ messages.addEventListener('touchmove', (evt) => {
 
 // Listen for a swipe on right
 messages.addEventListener('touchend', (evt) => {
-	try{
-		if (evt.target.closest('.message')){
+	try {
+		if (evt.target.closest('.message')) {
 
 			touchEnded = true;
 
@@ -1013,14 +1026,14 @@ messages.addEventListener('touchend', (evt) => {
 			horizontalSwipe = false;
 
 			const msg = evt.target.closest('.message');
-			if (!msg){
+			if (!msg) {
 				return;
-			}else{
+			} else {
 				const elem = msg.querySelector('.messageContainer');
 				const replyIcon = msg.querySelector('.replyIcon');
-				if (elem.closest('.message').classList.contains('self')){
+				if (elem.closest('.message').classList.contains('self')) {
 					replyIcon.style.transform = 'translateX(50px)';
-				}else{
+				} else {
 					replyIcon.style.transform = 'translateX(-50px)';
 				}
 				elem.style.transform = 'translateX(0px)';
@@ -1032,14 +1045,14 @@ messages.addEventListener('touchend', (evt) => {
 				}
 			}
 		}
-	}catch(e){
+	} catch (e) {
 		console.log(e);
 		showPopupMessage(e);
 	}
 });
 
 
-function showReplyToast(){
+function showReplyToast() {
 	hideOptions();
 	updateScroll();
 	textbox.focus();
@@ -1054,14 +1067,14 @@ function showReplyToast(){
 	let replyData;
 	let close;
 
-	if (exists){
+	if (exists) {
 		replyToast = document.getElementById('replyToast');
 		content = replyToast.querySelector('.content');
 		title = replyToast.querySelector('.title');
 		username = replyToast.querySelector('.username');
 		replyData = replyToast.querySelector('.replyData');
 		close = replyToast.querySelector('.close');
-	}else{
+	} else {
 		//create reply toast manually
 		replyToast = document.createElement('div');
 		replyToast.id = 'replyToast';
@@ -1084,17 +1097,17 @@ function showReplyToast(){
 	}
 
 	//add data to reply toast
-	if (finalTarget.type == 'image' || finalTarget.type == 'sticker'){
+	if (finalTarget.type == 'image' || finalTarget.type == 'sticker') {
 
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
 		document.querySelector('.newmessagepopup').classList.add('toastActiveImage');
-		if (finalTarget.message.src !== replyData.firstChild?.src){
+		if (finalTarget.message.src !== replyData.firstChild?.src) {
 			while (replyData.firstChild) {
 				replyData.removeChild(replyData.firstChild);
 			}
 			replyData.appendChild(finalTarget.message);
 		}
-	}else if (finalTarget.type == 'file' || finalTarget.type == 'audio'){
+	} else if (finalTarget.type == 'file' || finalTarget.type == 'audio') {
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
 		document.querySelector('.newmessagepopup').classList.add('toastActiveFile');
 		while (replyData.firstChild) {
@@ -1108,29 +1121,29 @@ function showReplyToast(){
 		fileIcon.classList.add('fa-solid', iconSet[finalTarget.type]);
 		replyData.appendChild(fileIcon);
 		replyData.appendChild(document.createTextNode(finalTarget.message?.substring(0, 50)));
-	}else{
+	} else {
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
 		document.querySelector('.newmessagepopup').classList.add('toastActive');
 		replyData.textContent = finalTarget.message?.length > 30 ? finalTarget.message.substring(0, 27) + '...' : finalTarget.message;
 	}
-	
+
 	username.textContent = finalTarget.sender;
 
-	if (!document.getElementById('replyToast')){
+	if (!document.getElementById('replyToast')) {
 		title.appendChild(document.createTextNode(' Replying to '));
 		title.appendChild(username);
-	
+
 		content.appendChild(title);
 		content.appendChild(replyData);
-	
+
 		replyToast.appendChild(content);
 		replyToast.appendChild(close);
 		document.querySelector('.footer').insertAdjacentElement('beforebegin', replyToast);
 	}
-	
+
 	setTimeout(() => {
-		if (!scrolling){
+		if (!scrolling) {
 			//console.log('scrolled to bottom');
 			messages.scrollTo(0, messages.scrollHeight);
 		}
@@ -1144,9 +1157,9 @@ function showReplyToast(){
 	};
 }
 
-function hideReplyToast(){
+function hideReplyToast() {
 	const replyToast = document.getElementById('replyToast');
-	if (replyToast){
+	if (replyToast) {
 		replyToast.classList.remove('active');
 		lastPageLength = messages.scrollTop;
 		document.querySelector('.newmessagepopup').classList.remove('toastActive');
@@ -1155,7 +1168,7 @@ function hideReplyToast(){
 		clearTargetMessage();
 		setTimeout(() => {
 			setTimeout(() => {
-				if (!scrolling){
+				if (!scrolling) {
 					//recalculate scroll length
 					messages.scrollTop = lastPageLength;
 					messages.scrollTo(0, messages.scrollHeight);
@@ -1172,7 +1185,7 @@ function hideReplyToast(){
  * @param {string} uid 
  * @param {string} reactEmoji 
  */
-function appendReactToMessage(target, uid, reactEmoji){
+function appendReactToMessage(target, uid, reactEmoji) {
 	playReactSound();
 	const div = document.createElement('div');
 	div.classList.add('list');
@@ -1187,29 +1200,29 @@ function appendReactToMessage(target, uid, reactEmoji){
  * @param {string} messageId Id of the message
  * @param {string} uid Id of the user who reacted
  */
-export function getReact(reactEmoji, messageId, uid){
-	try{
+export function getReact(reactEmoji, messageId, uid) {
+	try {
 		const targetMessage = document.getElementById(messageId);
 		const target = targetMessage.querySelector('.reactedUsers');
 		const exists = target.querySelector('.list') ? true : false;
-		if (exists){
-			const list = target.querySelector('.list[data-uid="'+uid+'"]');
-			if (list){
-				if (list.textContent == reactEmoji){
+		if (exists) {
+			const list = target.querySelector('.list[data-uid="' + uid + '"]');
+			if (list) {
+				if (list.textContent == reactEmoji) {
 					list.remove();
-				}else{
+				} else {
 					list.textContent = reactEmoji;
 				}
-			}else{
+			} else {
 				appendReactToMessage(target, uid, reactEmoji);
 			}
 		}
-		else{
+		else {
 			appendReactToMessage(target, uid, reactEmoji);
 		}
-    
+
 		const list = Array.from(target.querySelectorAll('.list'));
-    
+
 		//main react container
 		const reactsOfMessage = targetMessage.querySelector('.reactsOfMessage');
 
@@ -1218,23 +1231,23 @@ export function getReact(reactEmoji, messageId, uid){
 
 		//if other react has the uid
 		const currentReact = reactsContainer.querySelector(`.react[data-emoji="${reactEmoji}"]`);
-		if (currentReact){
+		if (currentReact) {
 			//console.log('Same react found: ', currentReact);
 			//if the sender is same, then remove uid
-			if ( currentReact.dataset.uids.includes(uid) ){
+			if (currentReact.dataset.uids.includes(uid)) {
 				currentReact.dataset.uids = currentReact.dataset.uids.replace(`${uid};`, '');
 				//console.log('uid removed from : ', currentReact.dataset.emoji);
-				if (currentReact.dataset.uids == ''){
+				if (currentReact.dataset.uids == '') {
 					currentReact.remove();
 				}
-			}else{
+			} else {
 				//if user has other reacts on the same target
 				const previousReact = reactsContainer.querySelector(`.react[data-uids*="${uid}"]`);
-				if (previousReact){
+				if (previousReact) {
 					//remove uid
 					previousReact.dataset.uids = previousReact.dataset.uids.replace(`${uid};`, '');
 					//console.log('uid removed from previous : ', previousReact.dataset.emoji);
-					if (previousReact.dataset.uids == ''){
+					if (previousReact.dataset.uids == '') {
 						previousReact.remove();
 					}
 				}
@@ -1255,65 +1268,72 @@ export function getReact(reactEmoji, messageId, uid){
 				}, 10);
 
 			}
-		}else{
+		} else {
 
 			//if user has other reacts on the same target
 			const previousReact = reactsContainer.querySelector(`.react[data-uids*="${uid}"]`);
-			if (previousReact){
+			if (previousReact) {
 				//remove uid
 				previousReact.dataset.uids = previousReact.dataset.uids.replace(`${uid};`, '');
 				//console.log('uid removed from previous : ', previousReact.dataset.emoji);
-				if (previousReact.dataset.uids == ''){
+				if (previousReact.dataset.uids == '') {
 					previousReact.remove();
 				}
 			}
+
 			//react does not exists, so make it.
 			//console.log('Creating new react : ', reactEmoji);
-			const react = document.createElement('span');
-			react.classList.add('react');
-			react.dataset.uids = `${uid};`;
-			react.dataset.emoji = reactEmoji;
 
-			const emoji = document.createElement('span');
-			emoji.classList.add('emoji');
-			emoji.textContent = reactEmoji;
+			const fragment = fragmentBuilder({
+				tag: 'span',
+				attr: {
+					class: 'react',
+					'data-uids': `${uid};`,	
+					'data-emoji': reactEmoji
+				},
+				childs: [
+					{
+						tag: 'span',
+						text: reactEmoji,
+						attr: {
+							class: 'emoji',
+						}
+					},
+					{
+						tag: 'span',
+						text: reactEmoji,
+						attr: {
+							class: 'react-popup active',
+						}
+					}
+				]
+			});
 
-			const animation = document.createElement('span');
-			animation.classList.add('react-popup');
-			animation.textContent = reactEmoji;
-			animation.classList.add('active');
-			setTimeout(() => {
-				animation.classList.remove('active');
-			}, 1000);
-			
-			react.appendChild(emoji);
-			react.appendChild(animation);
-			
-			reactsContainer.appendChild(react);
+			reactsContainer.appendChild(fragment);
 		}
 
 		const reactsCount = reactsOfMessage.querySelector('.reactsCount');
 
 		reactsCount.textContent = list.length;
-		
-		if (list.length > 0){
+
+		if (list.length > 0) {
 			targetMessage.classList.add('react');
 			//console.log('Reacted');
-		}else{
+		} else {
 			targetMessage.classList.remove('react');
 			//console.log('No react');
 		}
 
-		if (list.length > 1){
+		if (list.length > 1) {
 			reactsOfMessage.classList.add('pad');
-		}else{
+		} else {
 			reactsOfMessage.classList.remove('pad');
 		}
 
 		checkgaps(messageId);
 
 		updateScroll();
-	}catch(e){
+	} catch (e) {
 		console.log(e);
 	}
 }
@@ -1323,42 +1343,42 @@ export function getReact(reactEmoji, messageId, uid){
  * @param {string} targetId Id of the message
  * @returns 
  */
-export function checkgaps(targetId){
-	try{
-		if (targetId){
+export function checkgaps(targetId) {
+	try {
+		if (targetId) {
 
 			const target = document.getElementById(targetId);
 
-			if (target == null){
+			if (target == null) {
 				return;
 			}
 
 			const after = target.nextElementSibling;
 
-			if (after == null){
+			if (after == null) {
 				return;
 			}
-    
-			if (target.dataset.uid === after.dataset.uid){
+
+			if (target.dataset.uid === after.dataset.uid) {
 
 				const gap = Math.abs(target.querySelector('.messageContainer').getBoundingClientRect().bottom - after.querySelector('.messageContainer').getBoundingClientRect().top);
 
-				if (target.dataset.uid == myId){
-					if (gap > 5){
+				if (target.dataset.uid == myId) {
+					if (gap > 5) {
 						target.querySelector('.messageMain .msg').style.borderBottomRightRadius = '18px';
 						after.querySelector('.messageMain .msg').style.borderTopRightRadius = '18px';
-					}else{
-						if (!target.classList.contains('end') && !after.classList.contains('start')){
+					} else {
+						if (!target.classList.contains('end') && !after.classList.contains('start')) {
 							target.querySelector('.messageMain .msg').style.borderBottomRightRadius = '5px';
 							after.querySelector('.messageMain .msg').style.borderTopRightRadius = '5px';
 						}
 					}
-				}else{
-					if (gap > 5){
+				} else {
+					if (gap > 5) {
 						target.querySelector('.messageMain .msg').style.borderBottomLeftRadius = '18px';
 						after.querySelector('.messageMain .msg').style.borderTopLeftRadius = '18px';
-					}else{
-						if (!target.classList.contains('end') && !after.classList.contains('start')){
+					} else {
+						if (!target.classList.contains('end') && !after.classList.contains('start')) {
 							target.querySelector('.messageMain .msg').style.borderBottomLeftRadius = '5px';
 							after.querySelector('.messageMain .msg').style.borderTopLeftRadius = '5px';
 						}
@@ -1366,18 +1386,18 @@ export function checkgaps(targetId){
 				}
 			}
 		}
-	}catch(e){console.log(e);}
+	} catch (e) { console.log(e); }
 }
 
 //* util functions
-function clearTargetMessage(){
+function clearTargetMessage() {
 	targetMessage.sender = '';
 	targetMessage.message = '';
 	targetMessage.type = '';
 	targetMessage.id = '';
 }
 
-function clearFinalTarget(){
+function clearFinalTarget() {
 	finalTarget.sender = '';
 	finalTarget.message = '';
 	finalTarget.type = '';
@@ -1385,12 +1405,12 @@ function clearFinalTarget(){
 }
 
 /**
- * 
+ * Gets fired when user clicks on a message. It prepares the config for the option menu.
  * @param {Event} evt 
  * @param {boolean} popup 
  * @returns 
  */
-function OptionEventHandler(evt, popup = true){
+function OptionEventHandler(evt, popup = true) {
 
 	const typeList = {
 		'text': true,
@@ -1405,43 +1425,47 @@ function OptionEventHandler(evt, popup = true){
 	//console.log(evt.target);
 
 	const message = evt.target.closest('.message');
-	if (message == null){
+	if (message == null) {
 		return;
 	}
 
 	const type = message.dataset.type;
 
-	if (!typeList[type] || !evt.target.closest('.msg')){
+	if (!typeList[type] || !evt.target.closest('.msg')) {
 		return;
 	}
 
-	const sender = evt.target.closest('.message').classList.contains('self')? true : false;
-	if (type == 'text'){
+	const sender = evt.target.closest('.message').classList.contains('self') ? true : false;
+	if (type == 'text') {
 		//text
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
-		if (targetMessage.sender == myName){
+		if (targetMessage.sender == myName) {
 			targetMessage.sender = 'You';
 		}
 		targetMessage.message = evt.target.closest('.messageMain').querySelector('.text').textContent;
 		targetMessage.type = type;
 		targetMessage.id = evt.target.closest('.message').id;
 	}
-	else if (type == 'image'){
+	else if (type == 'image') {
 		//image
 		while (lightboxImage.firstChild) {
 			lightboxImage.removeChild(lightboxImage.firstChild);
 		}
-		const fragment = document.createDocumentFragment();
-		const img = document.createElement('img');
-		img.src = evt.target.closest('.messageMain')?.querySelector('.image').src;
-		img.alt = 'Image';
-		fragment.append(img);
-		lightboxImage.append(fragment);
+
+		const imageFragment = fragmentBuilder({
+			tag: 'img',
+			attributes: {
+				src: evt.target.closest('.messageMain')?.querySelector('.image').src,
+				alt: 'Image',
+			},
+		});
+
+		lightboxImage.append(imageFragment);
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
-		if (targetMessage.sender == myName){
+		if (targetMessage.sender == myName) {
 			targetMessage.sender = 'You';
 		}
-        
+
 		const targetNode = evt.target.closest('.messageMain').querySelector('.image').cloneNode(true);
 		//remove all attributes
 		targetNode.removeAttribute('alt');
@@ -1450,10 +1474,10 @@ function OptionEventHandler(evt, popup = true){
 		targetMessage.message = targetNode;
 		targetMessage.type = type;
 		targetMessage.id = evt.target.closest('.message').id;
-	}else if (type == 'audio'){
+	} else if (type == 'audio') {
 		// audio
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
-		if (targetMessage.sender == myName){
+		if (targetMessage.sender == myName) {
 			targetMessage.sender = 'You';
 		}
 		targetFile.fileName = targetMessage.message = 'Audio message';
@@ -1461,10 +1485,10 @@ function OptionEventHandler(evt, popup = true){
 		targetFile.ext = evt.target.closest('.messageMain').querySelector('.msg').dataset.ext;
 		targetMessage.type = type;
 		targetMessage.id = evt.target.closest('.message').id;
-	}else if (type == 'file'){
+	} else if (type == 'file') {
 		//file
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
-		if (targetMessage.sender == myName){
+		if (targetMessage.sender == myName) {
 			targetMessage.sender = 'You';
 		}
 		targetFile.fileName = evt.target.closest('.messageMain').querySelector('.fileName').textContent;
@@ -1473,10 +1497,10 @@ function OptionEventHandler(evt, popup = true){
 		targetMessage.message = targetFile.fileName;
 		targetMessage.type = type;
 		targetMessage.id = evt.target.closest('.message').id;
-	}else if (type == 'sticker'){
+	} else if (type == 'sticker') {
 		//sticker
 		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
-		if (targetMessage.sender == myName){
+		if (targetMessage.sender == myName) {
 			targetMessage.sender = 'You';
 		}
 		const targetNode = evt.target.closest('.messageMain').querySelector('.sticker').cloneNode(true);
@@ -1488,7 +1512,7 @@ function OptionEventHandler(evt, popup = true){
 		targetMessage.type = type;
 		targetMessage.id = evt.target.closest('.message').id;
 	}
-	if ((typeList[type]) && popup){
+	if ((typeList[type]) && popup) {
 		showOptions(type, sender, evt.target);
 	}
 	vibrate();
@@ -1500,9 +1524,9 @@ function OptionEventHandler(evt, popup = true){
  * @param {string} text 
  * @returns 
  */
-export function updateScroll(avatar = null, text = ''){
+export function updateScroll(avatar = null, text = '') {
 	if (scrolling) {
-		if (text.length > 0 && avatar != null) {   
+		if (text.length > 0 && avatar != null) {
 			document.querySelector('.newmessagepopup img').style.display = 'block';
 			document.querySelector('.newmessagepopup .msg').style.display = 'inline-block';
 			document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
@@ -1513,7 +1537,7 @@ export function updateScroll(avatar = null, text = ''){
 		}
 		return;
 	}
-	
+
 	setTimeout(() => {
 		const messages = document.getElementById('messages');
 		messages.scrollTo(0, messages.scrollHeight);
@@ -1533,7 +1557,7 @@ let typingStatusTimeout = undefined;
 /**
  * Emits typing status of the current user to everyone
  */
-function typingStatus(){
+function typingStatus() {
 	if (typingStatusTimeout) {
 		clearTimeout(typingStatusTimeout);
 		typingStatusTimeout = undefined;
@@ -1579,22 +1603,22 @@ function resizeImage(img, mimetype, q = 1080) {
 	canvas.height = height;
 	const ctx = canvas.getContext('2d');
 	ctx.drawImage(img, 0, 0, width, height);
-	return {data: canvas.toDataURL(mimetype, 1), height: height, width: width}; 
+	return { data: canvas.toDataURL(mimetype, 1), height: height, width: width };
 }
-  
+
 
 /**
  * Copies text to clipboard
  * @param {string} text 
  * @returns 
  */
-function copyText(text){
+function copyText(text) {
 	//return if the text is empty
-	if (text == null){
+	if (text == null) {
 		text = targetMessage.message;
 	}
 	//return if the device doesn't support clipboard access
-	if (!navigator.clipboard){
+	if (!navigator.clipboard) {
 		showPopupMessage('This browser doesn\'t support clipboard access');
 		return;
 	}
@@ -1609,17 +1633,17 @@ let popupTimeout = undefined;
  * Shows a popup message for 1 second
  * @param {string} text Text to show in the popup
  */
-export function showPopupMessage(text){
+export function showPopupMessage(text) {
 
 	let popup = document.querySelector('.popup-message');
-	if (!popup){
+	if (!popup) {
 		popup = document.createElement('div');
 		popup.classList.add('popup-message');
 		document.body.appendChild(popup);
 	}
 	popup.textContent = text;
 	popup.classList.add('active');
-	if (popupTimeout){
+	if (popupTimeout) {
 		clearTimeout(popupTimeout);
 	}
 	popupTimeout = setTimeout(function () {
@@ -1638,57 +1662,86 @@ export function showPopupMessage(text){
  */
 export function serverMessage(message, type = null) {
 	//create a new message element manually and append it to the messages list
-	const serverMessageElement = document.createElement('li');
-	serverMessageElement.classList.add('serverMessage', 'msg-item');
-	serverMessageElement.id = message.id;
-	const seenBy = document.createElement('div');
-	seenBy.classList.add('seenBy');
-	const messageContainer = document.createElement('div');
-	messageContainer.classList.add('messageContainer');
-	messageContainer.style.color = message.color;
-	if (type == 'location'){
+
+	let messageObj;
+
+	if (type == 'location') {
 		locationTimeout ? clearTimeout(locationTimeout) : null;
-		const locationLink = document.createElement('a');
-		locationLink.href = `https://www.google.com/maps?q=${message.coordinate.latitude},${message.coordinate.longitude}`;
-		locationLink.target = '_blank';
-		locationLink.textContent = `${message.user}'s location`;
-		const locationIcon = document.createElement('i');
-		locationIcon.classList.add('fa-solid', 'fa-location-dot', 'fa-flip');
-		locationIcon.style.padding = '18px 5px';
-		locationIcon.style['--fa-animation-duration'] = '2s';
-		locationIcon.style.fontSize = '2rem';
-		locationLink.prepend(locationIcon);
-		messageContainer.append(locationLink);
-		serverMessageElement.append(messageContainer, seenBy);
-		messages.appendChild(serverMessageElement);
-		updateScroll('location', `${message.user}'s location`);
-	}else if(type == 'leave'){
-		messageContainer.textContent = message.text;
-		serverMessageElement.append(messageContainer, seenBy);
-		messages.appendChild(serverMessageElement);
+		messageObj ={
+			tag: 'a',
+			attr: {
+				href: `https://www.google.com/maps?q=${message.coordinate.latitude},${message.coordinate.longitude}`,
+				target: '_blank',
+				class: 'locationLink'
+			},
+			child: {
+				tag: 'i',
+				attr: {
+					class: 'fa-solid fa-location-dot fa-flip',
+					style: 'padding: 18px 5px; --fa-animation-duration: 2s; font-size: 2rem;'
+				}
+			},
+
+			text: `${message.user}'s location`,
+		};
+	}else if (type == 'leave') {
+		messageObj = {
+			text: message.text
+		};
 		userTypingMap.delete(message.who);
 		document.querySelectorAll(`.msg-item[data-seen*="${message.who}"]`)
 			.forEach(elem => {
 				elem.querySelector(`.seenBy img[data-user="${message.who}"]`)?.remove();
 			});
 		setTypingUsers();
-		updateScroll();
-	}else{
-		messageContainer.textContent = message.text;
-		serverMessageElement.append(messageContainer, seenBy);
-		messages.appendChild(serverMessageElement);
-		updateScroll();
+	} else {
+		messageObj = {
+			text: message.text
+		};
 	}
+
+	const serverMessage = fragmentBuilder(
+		{
+			tag: 'li',
+			attr: {
+				class: 'serverMessage msg-item',
+				id: message.id
+			},
+			childs: [
+				{
+					tag: 'div',
+					attr: {
+						class: 'messageContainer',
+						style: `color: ${message.color}`,
+					},
+					child:{
+						...messageObj
+					}
+				},
+				{
+					tag: 'div',
+					attr: {
+						class: 'seenBy'
+					},
+				},
+			]
+		}
+	);
+
+	messages.appendChild(serverMessage);
+
+	updateScroll('location', `${message.user}'s location`);
+
 	lastSeenMessage = message.id;
-	if (document.hasFocus()){
-		socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+	if (document.hasFocus()) {
+		socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 	}
 }
 
 /**
  * Vibrate the device for 50ms
  */
-function vibrate(){
+function vibrate() {
 	if (navigator.vibrate) {
 		navigator.vibrate(50);
 	}
@@ -1705,30 +1758,30 @@ let stickerHeaderIsLoaded = false;
 /**
  * Loads the sticker header
  */
-export function loadStickerHeader(){
+export function loadStickerHeader() {
 
-	try{
+	try {
 		//if the header is already loaded, return
-		if (stickerHeaderIsLoaded){
+		if (stickerHeaderIsLoaded) {
 			return;
 		}
-	
+
 		stickerHeaderIsLoaded = true;
-	
-		while (stickersGrp.firstChild){
+
+		while (stickersGrp.firstChild) {
 			stickersGrp.removeChild(stickersGrp.firstChild);
 		}
-	
-		for (const sticker of Stickers){
+
+		for (const sticker of Stickers) {
 			const img = document.createElement('img');
 			img.src = `/stickers/${sticker.name}/animated/${sticker.icon}.webp`;
-			img.onerror = function(){retryImageLoad(this);};
+			img.onerror = () => { retryImageLoad(this); };
 			img.alt = sticker.name;
 			img.dataset.name = sticker.name;
 			img.classList.add('stickerName', 'clickable', 'playable');
 			stickersGrp.append(img);
 		}
-	}catch(e){
+	} catch (e) {
 		console.log(`Error: ${e}`);
 	}
 }
@@ -1737,7 +1790,7 @@ export function loadStickerHeader(){
  * Retries to load an image
  * @param {HTMLImageElement} img 
  */
-function retryImageLoad(img){
+function retryImageLoad(img) {
 	const src = img.src;
 	img.src = '';
 	img.src = src;
@@ -1746,9 +1799,9 @@ function retryImageLoad(img){
 /**
  * Loads the stickers
  */
-export function loadStickers(){
+export function loadStickers() {
 	//if selectedStickerGroup is not contained in Stickers, then set it to the first sticker group
-	if (!Stickers.some(sticker => sticker.name == selectedStickerGroup)){
+	if (!Stickers.some(sticker => sticker.name == selectedStickerGroup)) {
 		selectedStickerGroup = Stickers[0].name;
 		localStorage.setItem('selectedStickerGroup', selectedStickerGroup);
 	}
@@ -1756,19 +1809,22 @@ export function loadStickers(){
 	selectedStickerGroupCount = Stickers.find(sticker => sticker.name == selectedStickerGroup).count;
 	const stickersContainer = document.getElementById('stickers');
 	//use other method to clear stickersContainer
-	while (stickersContainer.firstChild){
+	while (stickersContainer.firstChild) {
 		stickersContainer.removeChild(stickersContainer.firstChild);
 	}
 	for (let i = 1; i <= selectedStickerGroupCount; i++) {
+
 		const img = document.createElement('img');
 		img.src = `/stickers/${selectedStickerGroup}/static/${i}-mini.webp`;
-		img.onerror = function(){retryImageLoad(this);};
+		img.onerror = ()=>{ retryImageLoad(this);};
+		img.onclick = ()=>{console.log('hi');};
 		img.alt = `${selectedStickerGroup}-${i}`;
 		img.dataset.name = `${selectedStickerGroup}/animated/${i}`;
 		img.classList.add('stickerpack', 'clickable');
+		
 		stickersContainer.append(img);
 	}
-    
+
 	const selectedSticker = document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]');
 	selectedSticker.dataset.selected = 'true';
 }
@@ -1776,29 +1832,29 @@ export function loadStickers(){
 /**
  * Shows the stickers panel
  */
-function showStickersPanel(){
-	if (!stickersPanel.classList.contains('active')){
+function showStickersPanel() {
+	if (!stickersPanel.classList.contains('active')) {
 		//console.log('showing stickers panel');
 		activeModals.push('stickersPanel');
 		modalCloseMap.set('stickersPanel', hideStickersPanel);
 		stickersPanel.classList.add('active');
 		const grp = document.getElementById('selectStickerGroup');
-		grp.querySelector(`img[data-name="${selectedStickerGroup}"]`).scrollIntoView({behavior: 'smooth', block: 'center', inline: 'center'});
+		grp.querySelector(`img[data-name="${selectedStickerGroup}"]`).scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
 	}
 }
 
 /**
  * Shows the theme picker
  */
-function showThemes(){
-	
-	if (!themePicker.classList.contains('active')){
+function showThemes() {
+
+	if (!themePicker.classList.contains('active')) {
 		//console.log('showing themes');
 		activeModals.push('themes');
 		modalCloseMap.set('themes', hideThemes);
 		hideOptions();
-		if(THEME){
-			if (themeArray.includes(THEME) == false){
+		if (THEME) {
+			if (themeArray.includes(THEME) == false) {
 				THEME = 'ocean';
 				localStorage.setItem('theme', THEME);
 			}
@@ -1815,8 +1871,8 @@ function showThemes(){
 /**
  * Hides the theme picker
  */
-function hideThemes(){
-	if (activeModals.includes('themes')){
+function hideThemes() {
+	if (activeModals.includes('themes')) {
 		themePicker.classList.remove('active');
 		//removeFocusGlass();
 		activeModals.splice(activeModals.indexOf('themes'), 1);
@@ -1826,8 +1882,8 @@ function hideThemes(){
 /**
  * Shows sidebar panel
  */
-function showSidePanel(){
-	if (!activeModals.includes('sidePanel')){
+function showSidePanel() {
+	if (!activeModals.includes('sidePanel')) {
 		//console.log('showing side panel');
 		sideBarPanel.classList.add('active');
 		activeModals.push('sidePanel');
@@ -1843,9 +1899,9 @@ document.querySelector('.footer_options .settings').addEventListener('click', ()
 /**
  * Shows the quick settings panel
  */
-function showQuickSettings(){
+function showQuickSettings() {
 	//show setting panel
-	if(!quickSettings.classList.contains('active')){
+	if (!quickSettings.classList.contains('active')) {
 		//console.log('showing quick settings');
 		activeModals.push('quickSettings');
 		modalCloseMap.set('quickSettings', hideQuickSettings);
@@ -1855,8 +1911,8 @@ function showQuickSettings(){
 /**
  * Hides the quick settings panel
  */
-function hideQuickSettings(){
-	if (activeModals.includes('quickSettings')){
+function hideQuickSettings() {
+	if (activeModals.includes('quickSettings')) {
 		quickSettings.classList.remove('active');
 		activeModals.splice(activeModals.indexOf('quickSettings'), 1);
 	}
@@ -1864,8 +1920,8 @@ function hideQuickSettings(){
 
 quickSettings.addEventListener('click', (e) => {
 	//if click on quickSettings, then hide quickSettings
-	if (e.target == quickSettings){
-		if (activeModals.includes('quickSettings')){
+	if (e.target == quickSettings) {
+		if (activeModals.includes('quickSettings')) {
 			hideQuickSettings();
 			activeModals.splice(activeModals.indexOf('quickSettings'), 1);
 		}
@@ -1875,17 +1931,17 @@ quickSettings.addEventListener('click', (e) => {
 
 document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => {
 	const option = evt.target?.closest('.keyboardMode');
-	if (!option){
+	if (!option) {
 		return;
 	}
-	
+
 	const value = option.querySelector('input').value;
 
 	//value can be 'Enter' or 'Ctrl+Enter'
 	//if clicked on the same option, then deselect it and set sendBy to 'Enter' if it was 'Ctrl+Enter' or 'Ctrl+Enter' if it was 'Enter'
-	if (messageSendShortCut == value){
+	if (messageSendShortCut == value) {
 		messageSendShortCut = messageSendShortCut == 'Enter' ? 'Ctrl+Enter' : 'Enter';
-	}else{
+	} else {
 		messageSendShortCut = value;
 	}
 
@@ -1897,15 +1953,15 @@ document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => 
 
 document.addEventListener('click', (evt) => {
 	//if target is .clickable
-	if (evt.target.closest('.playable')){
+	if (evt.target.closest('.playable')) {
 		playClickSound();
 	}
 });
 
 document.getElementById('messageSound').addEventListener('click', () => {
-	if (document.getElementById('messageSound').checked){
+	if (document.getElementById('messageSound').checked) {
 		messageSoundEnabled = true;
-	}else{
+	} else {
 		messageSoundEnabled = false;
 		document.getElementById('messageSound').removeAttribute('checked');
 	}
@@ -1915,9 +1971,9 @@ document.getElementById('messageSound').addEventListener('click', () => {
 });
 
 document.getElementById('buttonSound').addEventListener('click', () => {
-	if (document.getElementById('buttonSound').checked){
+	if (document.getElementById('buttonSound').checked) {
 		buttonSoundEnabled = true;
-	}else{
+	} else {
 		buttonSoundEnabled = false;
 		document.getElementById('buttonSound').removeAttribute('checked');
 	}
@@ -1927,31 +1983,31 @@ document.getElementById('buttonSound').addEventListener('click', () => {
 });
 
 stickersPanel.addEventListener('click', (evt) => {
-	if (evt.target == stickersPanel){
+	if (evt.target == stickersPanel) {
 		//console.log('clicked on stickers panel');
-		if (activeModals.includes('stickersPanel')){
+		if (activeModals.includes('stickersPanel')) {
 			hideStickersPanel();
 			activeModals.splice(activeModals.indexOf('stickersPanel'), 1);
 		}
 	}
 });
 
-function stickerMoveLeft(){
+function stickerMoveLeft() {
 	stickersGrp.scrollTo({
 		left: stickersGrp.scrollLeft - 60,
 		behavior: 'smooth'
 	});
 }
 
-function stickerMoveRight(){
+function stickerMoveRight() {
 	stickersGrp.scrollTo({
 		left: stickersGrp.scrollLeft + 60,
 		behavior: 'smooth'
 	});
 }
 
-function hideStickersPanel(){
-	if (activeModals.includes('stickersPanel')){
+function hideStickersPanel() {
+	if (activeModals.includes('stickersPanel')) {
 		removeFocusGlass();
 		stickersPanel.classList.remove('active');
 		activeModals.splice(activeModals.indexOf('stickersPanel'), 1);
@@ -1962,9 +2018,9 @@ function hideStickersPanel(){
 /**
  * Show attachment picker panel
  */
-function addAttachment(){
-	
-	if(!activeModals.includes('attachments')){
+function addAttachment() {
+
+	if (!activeModals.includes('attachments')) {
 		//console.log('showing attachment');
 		activeModals.push('attachments');
 		modalCloseMap.set('attachments', removeAttachment);
@@ -1975,8 +2031,8 @@ function addAttachment(){
 /**
  * Hide attachment picker panel
  */
-function removeAttachment(){
-	if (activeModals.includes('attachments')){
+function removeAttachment() {
+	if (activeModals.includes('attachments')) {
 		attachmentCloseArea.classList.remove('active');
 		//console.log('removing attachment');
 		activeModals.splice(activeModals.indexOf('attachments'), 1);
@@ -2000,12 +2056,22 @@ document.getElementById('stickerMoveRight').addEventListener('click', () => {
 
 document.getElementById('selectStickerGroup').addEventListener('click', e => {
 	if (e.target.tagName === 'IMG') {
-		const preload = document.createElement('div');
-		preload.classList.add('preload');
-		const icon = document.createElement('i');
-		icon.classList.add('fa-solid', 'fa-circle-notch', 'fa-spin');
-		icon.style.color = 'var(--secondary-dark)';
-		preload.append(icon);
+
+		const preload = fragmentBuilder({
+			tag: 'div',
+			attr: {
+				class: 'preload'
+			},
+			child: {
+				tag: 'i',
+				attr: {
+					class: 'fa-solid fa-circle-notch fa-spin',
+					style: 'color: var(--secondary-dark)'
+				}
+			}
+		});
+
+
 		document.getElementById('stickers').append(preload);
 		document.getElementById('selectStickerGroup').querySelectorAll('.stickerName')
 			.forEach(sticker => {
@@ -2026,21 +2092,21 @@ document.getElementById('stickers').addEventListener('click', e => {
 		playStickerSound();
 		scrolling = false;
 		updateScroll();
-		insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {});
-		
-		if (Array.from(userInfoMap.keys()).length < 2){
+		insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, {});
+
+		if (Array.from(userInfoMap.keys()).length < 2) {
 			//console.log('Server replay skipped');
 			const msg = document.getElementById(tempId);
 			msg?.classList.add('delevered');
 			//playOutgoingSound();
-		}else{
-			socket.emit('message', e.target.dataset.name, 'sticker', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, function(id){
+		} else {
+			socket.emit('message', e.target.dataset.name, 'sticker', myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id) {
 				playOutgoingSound();
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
 				lastSeenMessage = id;
-				if (document.hasFocus()){
-					socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+				if (document.hasFocus()) {
+					socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 				}
 			});
 		}
@@ -2052,7 +2118,7 @@ document.getElementById('stickers').addEventListener('click', e => {
 	}
 });
 
-document.getElementById('more').addEventListener('click', ()=>{
+document.getElementById('more').addEventListener('click', () => {
 	showSidePanel();
 });
 
@@ -2064,7 +2130,7 @@ keyname.addEventListener('click', () => {
 	keyname.classList.replace('fa-clone', 'fa-check');
 	keyname.classList.replace('fa-regular', 'fa-solid');
 	keyname.style.color = 'var(--secondary-dark)';
-	if (copyKeyTimeOut) {clearTimeout(copyKeyTimeOut);}
+	if (copyKeyTimeOut) { clearTimeout(copyKeyTimeOut); }
 	copyKeyTimeOut = setTimeout(() => {
 		keyname.classList.replace('fa-check', 'fa-clone');
 		keyname.classList.replace('fa-solid', 'fa-regular');
@@ -2074,10 +2140,10 @@ keyname.addEventListener('click', () => {
 	copyText(myKey);
 });
 
-document.getElementById('invite').addEventListener('click', async () =>{
+document.getElementById('invite').addEventListener('click', async () => {
 	//copy inner link
 	try {
-		if (!navigator.share){
+		if (!navigator.share) {
 			showPopupMessage('Sharing in not supported by this browser');
 			return;
 		}
@@ -2092,13 +2158,13 @@ document.getElementById('invite').addEventListener('click', async () =>{
 	}
 });
 
-document.getElementById('themeButton').addEventListener('click', ()=>{
+document.getElementById('themeButton').addEventListener('click', () => {
 	//hideQuickSettings();
 	showThemes();
 });
 
 //remove the theme optons from the screen when clicked outside
-themePicker.addEventListener('click', ()=>{
+themePicker.addEventListener('click', () => {
 	hideThemes();
 });
 
@@ -2120,41 +2186,41 @@ document.querySelectorAll('.theme').forEach(theme => {
 	});
 });
 
-showMoreReactBtn.addEventListener('click', ()=>{
+showMoreReactBtn.addEventListener('click', () => {
 	updateReactsChooser();
 });
 
 //Opens more reacts when called
-function updateReactsChooser(){
+function updateReactsChooser() {
 	const container = document.querySelector('.reactOptionsWrapper');
 	const isExpanded = container.dataset.expanded == 'true';
-	if (isExpanded){
+	if (isExpanded) {
 		container.dataset.expanded = 'false';
 		moreReactsContainer.classList.remove('active');
-	}else{
+	} else {
 		container.dataset.expanded = 'true';
 		moreReactsContainer.classList.add('active');
 	}
 }
 
-document.querySelector('.moreReacts').addEventListener('click', (evt)=>{
+document.querySelector('.moreReacts').addEventListener('click', (evt) => {
 	const target = evt.target;
 	//if target is not self
-	if (target.classList.contains('reactWrapper')){
+	if (target.classList.contains('reactWrapper')) {
 		const react = target.dataset.react;
 		sendReact(react);
 		hideOptions();
 	}
-}); 
+});
 
 messages.addEventListener('scroll', () => {
 	scroll = messages.scrollTop;
-	const scrolled = lastPageLength-scroll;
+	const scrolled = lastPageLength - scroll;
 	if (scroll <= lastPageLength) {
-		if (scrolled >= 50){   
+		if (scrolled >= 50) {
 			scrolling = true;
 		}
-		if (scrolled <= 10 && scrolled >= 0){
+		if (scrolled <= 10 && scrolled >= 0) {
 			document.querySelector('.newmessagepopup').classList.remove('active');
 			scrolling = false;
 		}
@@ -2164,7 +2230,7 @@ messages.addEventListener('scroll', () => {
 		removeNewMessagePopup();
 		scrolling = false;
 	}
-	if (scrolled >= 300){
+	if (scrolled >= 300) {
 		document.querySelector('.newmessagepopup img').style.display = 'none';
 		document.querySelector('.newmessagepopup .msg').style.display = 'none';
 		document.querySelector('.newmessagepopup .downarrow').style.display = 'block';
@@ -2181,16 +2247,29 @@ document.querySelector('.newmessagepopup').addEventListener('click', () => {
 
 document.getElementById('logoutButton').addEventListener('click', () => {
 	//show logout screen
-	const preload = document.createElement('div');
-	preload.id = 'preload';
-	const text = document.createElement('div');
-	text.classList.add('text');
-	text.textContent = 'Logging out';
-	const icon = document.createElement('i');
-	icon.classList.add('fa-solid', 'fa-circle-notch', 'fa-spin');
-	preload.appendChild(text);
-	preload.appendChild(icon);
-	
+
+	const preload = fragmentBuilder({
+		tag: 'div',
+		attr: {
+			id: 'preload',
+		},
+		childs: [
+			{
+				tag: 'div',
+				text: 'Logging out',
+				attr: {
+					class: 'text',
+				},
+			},
+			{
+				tag: 'i',
+				attr: {
+					class: 'fa-solid fa-circle-notch fa-spin',
+				},
+			}
+		]
+	});
+
 	//clear body
 	while (document.body.firstChild) {
 		document.body.removeChild(document.body.firstChild);
@@ -2212,8 +2291,8 @@ lightboxCloseButton.addEventListener('click', () => {
 });
 
 textbox.addEventListener('keydown', (evt) => {
-	if (evt.key == 'Backspace'){
-		if (textbox.innerHTML.trim() == '<br>'){
+	if (evt.key == 'Backspace') {
+		if (textbox.innerHTML.trim() == '<br>') {
 			textbox.innerText = '';
 		}
 	}
@@ -2229,16 +2308,16 @@ textbox.addEventListener('blur', () => {
 	focusInput();
 });
 
-function focusInput(){
-	if (softKeyIsUp){
+function focusInput() {
+	if (softKeyIsUp) {
 		textbox.focus();
 	}
 }
 /**
  * Closes the side panel
  */
-function hideSidePanel(){
-	if (sideBarPanel.classList.contains('active')){
+function hideSidePanel() {
+	if (sideBarPanel.classList.contains('active')) {
 		sideBarPanel.classList.remove('active');
 		activeModals.splice(activeModals.indexOf('sidePanel'), 1);
 	}
@@ -2258,7 +2337,7 @@ document.getElementById('attachment').addEventListener('click', () => {
 
 document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) => {
 	//stop parent event
-	if (evt.target.classList.contains('reactOptionsWrapper')){
+	if (evt.target.classList.contains('reactOptionsWrapper')) {
 		hideOptions();
 	}
 });
@@ -2270,74 +2349,79 @@ messages.addEventListener('click', (evt) => {
 	try {
 		//console.log(evt.target);
 		//if the target is a message
-		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')){
+		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')) {
 			//get the message sent time and show it
 			const messageTime = evt.target.closest('.message').querySelector('.messageTime');
 			messageTime.textContent = getFormattedDate(messageTime.dataset.timestamp);
 			messageTime.classList?.add('active');
-			
+
 			//if target is a pre or code
-			if (evt.target.tagName == 'PRE' || evt.target.tagName == 'CODE'){
+			if (evt.target.tagName == 'PRE' || evt.target.tagName == 'CODE') {
 				//copy textContent
 				navigator.clipboard.writeText(evt.target.textContent);
 				showPopupMessage('Copied to clipboard');
 			}
 
-			if (messageTime.timeOut){
+			if (messageTime.timeOut) {
 				clearTimeout(messageTime.timeOut);
 			}
 
-			messageTime.timeOut = setTimeout(()=>{
+			messageTime.timeOut = setTimeout(() => {
 				messageTime.classList?.remove('active');
 				messageTime.timeOut = undefined;
 			}, 1500);
 		}
-		if (evt.target?.classList?.contains('imageContainer')){
+		if (evt.target?.classList?.contains('imageContainer')) {
 			evt.preventDefault();
 			evt.stopPropagation();
-			if (evt.target.closest('.message')?.dataset.downloaded != 'true'){  
-				if (evt.target.closest('.message')?.dataset.uid == myId){
+			if (evt.target.closest('.message')?.dataset.downloaded != 'true') {
+				if (evt.target.closest('.message')?.dataset.uid == myId) {
 					showPopupMessage('Not sent yet');
-				}else{
+				} else {
 					showPopupMessage('Not downloaded yet');
 				}
 				console.log('%cNot availabe yet', 'color: blue');
 				return;
 			}
-			
+
 			while (lightboxImage.firstChild) {
 				lightboxImage.removeChild(lightboxImage.firstChild);
 			}
 
-			const imageElement = document.createElement('img');
-			imageElement.src = evt.target.closest('.messageMain')?.querySelector('.image')?.src;
-			imageElement.classList.add('lb');
-			imageElement.alt = 'Image';
+			const imageElement = fragmentBuilder({
+				tag: 'img',
+				attr: {
+					src: evt.target.closest('.messageMain')?.querySelector('.image')?.src,
+					class: 'lb',
+					alt: 'Image',
+				},
+			});
+
 			lightboxImage.appendChild(imageElement);
 
 			// eslint-disable-next-line no-undef
 			PanZoom(lightboxImage.querySelector('img'));
 
 			lightbox.classList.add('active');
-		}else if (evt.target?.closest('.message')?.dataset?.type == 'audio' && evt.target.closest('.main-element')){
-			
+		} else if (evt.target?.closest('.message')?.dataset?.type == 'audio' && evt.target.closest('.main-element')) {
+
 			evt.preventDefault();
 
 			const target = evt.target;
 			const audioContainer = target.closest('.audioMessage');
-			if (audioContainer == null){
+			if (audioContainer == null) {
 				return;
 			}
 
 			const audio = audioContainer.querySelector('audio');
 			//console.log(evt.target);
-			if (evt.target.classList.contains('main-element')){
+			if (evt.target.classList.contains('main-element')) {
 				//if target audio is not paused, then seek to where is was clicked
-				if (!audio.paused){
+				if (!audio.paused) {
 					//if audio seek was within the area
-					if (evt.offsetX < audioContainer.offsetWidth && evt.offsetX > 0){
+					if (evt.offsetX < audioContainer.offsetWidth && evt.offsetX > 0) {
 						//if duration is not finite, then set it to 0 and wait for it to be updated
-						if (!isFinite(audio.duration)){
+						if (!isFinite(audio.duration)) {
 							showPopupMessage('Please wait for the audio to load');
 							return;
 						}
@@ -2348,45 +2432,63 @@ messages.addEventListener('click', (evt) => {
 					}
 				}
 			}
-			
+
 			//if play button was clicked
-			if (target.classList.contains('fa-play')){	
+			if (target.classList.contains('fa-play')) {
 				//console.log('%cPlaying audio', 'color: green');	
 				playAudio(audioContainer);
-			} else if (target.classList.contains('fa-pause')){
+			} else if (target.classList.contains('fa-pause')) {
 				//console.log('%cPausing audio', 'color: blue');
 				audio.pause();
-			} else if (target.classList.contains('fa-stop')){
+			} else if (target.classList.contains('fa-stop')) {
 				//console.log('%cStopped audio', 'color: red');
 				stopAudio(audio);
 			}
-		}else if (evt.target?.classList?.contains('reactsOfMessage')){
+		} else if (evt.target?.classList?.contains('reactsOfMessage')) {
 			const target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
 			const container = document.querySelector('.reactorContainer ul');
 
 			while (container.firstChild) {
 				container.removeChild(container.firstChild);
 			}
-			if (target.length > 0){
+			if (target.length > 0) {
 				target.forEach(element => {
+
 					const avatar = userInfoMap.get(element.dataset.uid).avatar;
 					let name = userInfoMap.get(element.dataset.uid).username;
-					if (name == myName){name = 'You';}
-					const listItem = document.createElement('li');
-					const avatarImage = document.createElement('img');
-					avatarImage.src = `/images/avatars/${avatar}(custom).webp`;
-					avatarImage.height = 30;
-					avatarImage.width = 30;
-					const nameSpan = document.createElement('span');
-					nameSpan.classList.add('uname');
-					nameSpan.textContent = name;
-					const reactSpan = document.createElement('span');
-					reactSpan.classList.add('r');
-					reactSpan.textContent = element.textContent;
-					listItem.append(avatarImage, nameSpan, reactSpan);
-					if (element.dataset.uid == myId){
+					name = name == myName ? 'You' : name;
+
+					const listItem = fragmentBuilder({
+						tag: 'li',
+						childs:[
+							{
+								tag: 'img',
+								attr: {
+									src: `/images/avatars/${avatar}(custom).webp`,
+									height: 30,
+									width: 30
+								}
+							},
+							{
+								tag: 'span',
+								text: name,
+								attr: {
+									class: 'uname'
+								}
+							},
+							{
+								tag: 'span',
+								text: element.textContent,
+								attr: {
+									class: 'r'
+								}
+							}
+						]
+					});
+
+					if (element.dataset.uid == myId) {
 						container.prepend(listItem);
-					}else{
+					} else {
 						container.appendChild(listItem);
 					}
 				});
@@ -2394,16 +2496,16 @@ messages.addEventListener('click', (evt) => {
 			hideOptions();
 			document.querySelector('.reactorContainerWrapper').classList.add('active');
 			addFocusGlass(false);
-		}else if (evt.target?.closest('.messageReply')){
+		} else if (evt.target?.closest('.messageReply')) {
 			const target = evt.target.closest('.messageReply')?.dataset.repid;
 			const targetElement = document.getElementById(target);
 
-			if (target && targetElement){
-				try{
+			if (target && targetElement) {
+				try {
 
 					targetElement.classList.add('focused');
 
-					if (backToNormalTimeout){
+					if (backToNormalTimeout) {
 						clearTimeout(backToNormalTimeout);
 					}
 
@@ -2412,24 +2514,24 @@ messages.addEventListener('click', (evt) => {
 						backToNormalTimeout = undefined;
 					}, 1000);
 
-					if (scrollIntoViewTimeout){
+					if (scrollIntoViewTimeout) {
 						clearTimeout(scrollIntoViewTimeout);
 					}
 
 					scrollIntoViewTimeout = setTimeout(() => {
-						document.getElementById(target).scrollIntoView({behavior: 'smooth', block: 'start'});
+						document.getElementById(target).scrollIntoView({ behavior: 'smooth', block: 'start' });
 						scrollIntoViewTimeout = undefined;
 					}, 120);
-				}catch(e){
+				} catch (e) {
 					showPopupMessage('Deleted message');
 				}
-			}else{
+			} else {
 				showPopupMessage('Deleted message');
 			}
-		}else{
+		} else {
 			hideOptions();
 		}
-	}catch(e){
+	} catch (e) {
 		console.log('Error: ', e);
 	}
 });
@@ -2441,21 +2543,21 @@ messages.addEventListener('click', (evt) => {
  */
 
 document.getElementById('selectedFiles').addEventListener('click', (evt) => {
-	try{
+	try {
 		//grab the file item element from the target
 		const target = evt.target.closest('.file-item');
 		//if the target is a valid file item
-		if (target){
+		if (target) {
 			//if the close button was clicked inside the file item
-			if (evt.target.classList.contains('close')){
+			if (evt.target.classList.contains('close')) {
 				//get the file type
 				const type = target.dataset?.type;
 				//get the image element id
 				const id = target.dataset?.id;
 				//if the id is valid
-				if (id){
+				if (id) {
 					//if the file type is image, revoke the object url of the image to free up memory
-					if (type === 'image'){
+					if (type === 'image') {
 						const imageToRemove = target.querySelector('img');
 						URL.revokeObjectURL(imageToRemove?.src);
 						//console.log(`Image src: ${imageToRemove.src} removed`);
@@ -2468,7 +2570,7 @@ document.getElementById('selectedFiles').addEventListener('click', (evt) => {
 					//update the items count
 					selectedFilesCount.textContent = `${selectedFileArray.length} item${selectedFileArray.length > 1 ? 's' : ''} selected`;
 					//if there are no images left, hide the preview
-					if (selectedFileArray.length == 0){
+					if (selectedFileArray.length == 0) {
 						//close the preview
 						//console.log('Closing preview');
 						filePreviewContainer.querySelector('.close').click();
@@ -2476,7 +2578,7 @@ document.getElementById('selectedFiles').addEventListener('click', (evt) => {
 				}
 			}
 		}
-	}catch(e){
+	} catch (e) {
 		console.log(e);
 	}
 });
@@ -2490,26 +2592,26 @@ let lastPlayedAudioMessage = null;
 @param {HTMLAudioElement} audioContainer - The container element for the audio file
 @returns
 */
-function playAudio(audioContainer){
+function playAudio(audioContainer) {
 
-	try{
+	try {
 		// Get the audio element from the container
 		const audio = audioContainer.querySelector('audio');
 
 		// Check if the audio file is ready to be played
-		if (!audioContainer.dataset?.src){
+		if (!audioContainer.dataset?.src) {
 			showPopupMessage('Audio is not ready to play');
 			return;
 		}
 
 		// If the audio file source is not set, set it to the container's data source
-		if (!audio.src){
+		if (!audio.src) {
 			audio.src = audioContainer.dataset?.src;
 		}
 
 		// Check if the audio duration is a finite number
 		//console.log(`Audio duration is ${audio.duration}`);
-		if (!isFinite(audio.duration)){
+		if (!isFinite(audio.duration)) {
 			audio.dataset.duration = audioContainer.dataset?.duration || 0;
 			//console.log(`Audio duration is infinity and is set to ${audio.dataset.duration}`);
 		}
@@ -2518,7 +2620,7 @@ function playAudio(audioContainer){
 		const timeElement = audioContainer.querySelector('.time');
 
 		// If there was a previous audio message playing and the current message is different, stop the previous message
-		if (!!lastPlayedAudioMessage && lastPlayedAudioMessage.src != audio.src){
+		if (!!lastPlayedAudioMessage && lastPlayedAudioMessage.src != audio.src) {
 			//console.log('Calling stop audio to stop last audio');
 			stopAudio(lastPlayedAudioMessage);
 		}
@@ -2558,7 +2660,7 @@ function playAudio(audioContainer){
 
 		// Play the audio message
 		lastPlayedAudioMessage.play();
-	}catch(err){
+	} catch (err) {
 		console.log(err);
 	}
 }
@@ -2568,7 +2670,7 @@ function playAudio(audioContainer){
  *
  * @param {HTMLAudioElement} audio - The audio element to stop
  */
-function stopAudio(audio){
+function stopAudio(audio) {
 	// Reset the current time of the audio to 0
 	audio.currentTime = 0;
 	// Pause the audio playback
@@ -2582,11 +2684,11 @@ function stopAudio(audio){
  * @param {HTMLAudioElement} audio - the HTML audio element to seek
  * @param {number} time - the time in seconds to seek to
  */
-function seekAudioMessage(audio, time){
-	try{
+function seekAudioMessage(audio, time) {
+	try {
 		// Set the current time of the audio element to the specified time, or 0 if time is not a valid number
 		audio.currentTime = isNaN(time) ? 0 : time;
-	}catch(e){
+	} catch (e) {
 		// Log any errors that occur while setting the current time
 		console.log(e);
 		console.log('seekAudioMessage error - Time: ', time, 'Audio: ', audio);
@@ -2595,17 +2697,17 @@ function seekAudioMessage(audio, time){
 
 
 document.querySelector('.reactorContainerWrapper').addEventListener('click', (evt) => {
-	if (evt.target.classList.contains('reactorContainerWrapper')){
+	if (evt.target.classList.contains('reactorContainerWrapper')) {
 		hideOptions();
 	}
 });
 
-window.addEventListener('resize',()=>{
+window.addEventListener('resize', () => {
 	appHeight();
 	const temp = scrolling;
 	//last added
 	lastPageLength = messages.scrollTop;
-	setTimeout(()=>{
+	setTimeout(() => {
 		scrolling = false;
 		updateScroll();
 	}, 10);
@@ -2622,28 +2724,28 @@ copyOption.addEventListener('click', () => {
 
 downloadOption.addEventListener('click', downloadHandler);
 
-deleteOption.addEventListener('click', ()=>{
+deleteOption.addEventListener('click', () => {
 	const uid = document.getElementById(targetMessage.id)?.dataset?.uid;
-	if (uid){
+	if (uid) {
 		hideOptions();
 		socket.emit('deletemessage', targetMessage.id, uid, myName, myId);
 	}
 });
 
-photoButton.addEventListener('change', ()=>{
+photoButton.addEventListener('change', () => {
 	ImagePreview();
 });
 
-fileButton.addEventListener('change', ()=>{
+fileButton.addEventListener('change', () => {
 	FilePreview(null, false);
 });
 
-audioButton.addEventListener('change', ()=>{
+audioButton.addEventListener('change', () => {
 	FilePreview(null, true);
 });
 
 
-function clearFileFromInput(){
+function clearFileFromInput() {
 	//clear all file inputs
 	photoButton.value = '';
 	fileButton.value = '';
@@ -2656,21 +2758,21 @@ function clearFileFromInput(){
  * @param {string} type 
  * @returns boolean
  */
-function fileIsAcceptable(file, type){
-	if (file.size > 20 * 1024 * 1024){
+function fileIsAcceptable(file, type) {
+	if (file.size > 20 * 1024 * 1024) {
 		showPopupMessage('File size must be less than 20 mb');
 		return false;
 	}
 
-	if (type == 'audio'){
+	if (type == 'audio') {
 		const supportedAudioFormats = ['audio/mp3', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/x-m4a'];
-		if (!supportedAudioFormats.includes(file.type)){
+		if (!supportedAudioFormats.includes(file.type)) {
 			showPopupMessage('Audio format not supported. Try as file.');
 			return false;
 		}
-	}else if(type == 'image'){
+	} else if (type == 'image') {
 		const supportedImageFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-		if (!supportedImageFormats.includes(file.type)){
+		if (!supportedImageFormats.includes(file.type)) {
 			showPopupMessage('Image format not supported. Try as file.');
 			return false;
 		}
@@ -2683,77 +2785,100 @@ function fileIsAcceptable(file, type){
  * @param {FileList} filesFromClipboard 
  * @returns 
  */
-function ImagePreview(filesFromClipboard = null){
+function ImagePreview(filesFromClipboard = null) {
 
 	const files = filesFromClipboard || photoButton.files;
 
 	//user can select multiple images upto 3
-	if (files.length > 10){
+	if (files.length > 10) {
 		showPopupMessage('Maximum 10 images can be sent at a time');
 		return;
 	}
 
 	//check if all files are acceptable
-	for (let i = 0; i < files.length; i++){
-		if (!fileIsAcceptable(files[i], 'image')){
+	for (let i = 0; i < files.length; i++) {
+		if (!fileIsAcceptable(files[i], 'image')) {
 			return;
 		}
 	}
 
-	const loadingElement = document.createElement('span');
-	loadingElement.classList.add('load');
-	loadingElement.style.color = themeAccent[THEME].secondary;
-    
-	const loadingIcon = document.createElement('i');
-	loadingIcon.classList.add('fa-solid', 'fa-gear', 'fa-spin');
+	const loadingElementFragment = fragmentBuilder({
+		tag: 'span',
+		text: 'Reading binary data',
+		attr: {
+			class: 'load',
+			style: `color: ${themeAccent[THEME].secondary}`
+		},
+		child: {
+			tag: 'i',
+			attr: {
+				class: 'fa-solid fa-gear fa-spin'
+			}
+		}
+	});
+	
+	const loadingElement = document.createElement('div');
+	loadingElement.append(loadingElementFragment);
 
-	loadingElement.textContent = 'Reading binary data';
-	loadingElement.append(loadingIcon);
 	document.getElementById('selectedFiles').append(loadingElement);
 
 	filePreviewContainer.style.display = 'flex';
 
-	try{
-		for (let i = 0; i < files.length; i++){
+	try {
+		for (let i = 0; i < files.length; i++) {
 
 			const fileURL = URL.createObjectURL(files[i]);
-
-			const fileContainer = document.createElement('div');
-			fileContainer.classList.add('container', 'file-item');
-			fileContainer.dataset.type = 'image';
 			const fileID = crypto.randomUUID();
-			fileContainer.dataset.id = fileID;
 
-			const close = document.createElement('i');
-			close.classList.add('close', 'fa-solid', 'fa-xmark', 'button', 'clickable');
+			const imageFragment = fragmentBuilder({
+				tag: 'img',
+				attr: {
+					src: fileURL,
+					alt: 'image',
+					class: 'image-message'
+				}
+			});
 
-			const imageElement = document.createElement('img');
+			const fileContainerFragment = fragmentBuilder({
+				tag: 'div',
+				attr: {
+					class: 'container file-item',
+					'data-type': 'image',
+					'data-id': fileID
+				},
+				childs: [
+					{
+						tag: 'i',
+						attr: {
+							class: 'close fa-solid fa-xmark button clickable'
+						}
+					},
+					{
+						Node: imageFragment
+					}
+				]
+			});
 
-			imageElement.src = fileURL;
-			imageElement.alt = 'image';
-			imageElement.classList.add('image-message');
-			fileContainer.append(imageElement, close);
-
-			if (i == 0){
+			if (i == 0) {
 				loadingElement.remove();
 			}
 
-			document.getElementById('selectedFiles').append(fileContainer);
-			
+			document.getElementById('selectedFiles').append(fileContainerFragment);
+
 			const data = fileURL;
 			const ext = files[i].type.split('/')[1];
 			const name = files[i].name;
 			const size = files[i].size;
-			
-			selectedFileArray.push({data: data, name: name, size: size, ext: ext, id: fileID});
-			
-			if (i == files.length - 1){
+
+			selectedFileArray.push({ data: data, name: name, size: size, ext: ext, id: fileID });
+
+			if (i == files.length - 1) {
 				fileSendButton.style.display = 'flex';
 				selectedObject = 'image';
 				clearFileFromInput();
 			}
 
-			imageElement.onerror = () => {
+			imageFragment.onerror = () => {
 				URL.revokeObjectURL(fileURL);
 				selectedFileArray.length = 0;
 				showPopupMessage('Error reading file');
@@ -2769,7 +2894,7 @@ function ImagePreview(filesFromClipboard = null){
 		}, 50);
 
 		selectedFilesCount.textContent = `${selectedFileArray.length} item${selectedFileArray.length > 1 ? 's' : ''} selected`;
-	}catch(e){
+	} catch (e) {
 		console.log(e);
 		showPopupMessage('Error reading Image');
 		clearFileFromInput();
@@ -2784,93 +2909,120 @@ function ImagePreview(filesFromClipboard = null){
  * @param {boolean} audio 
  * @returns 
  */
-function FilePreview(filesFromClipboard = null, audio = false){
+function FilePreview(filesFromClipboard = null, audio = false) {
 
 	const files = filesFromClipboard || (audio ? audioButton.files : fileButton.files);
 
 	//user can select multiple files upto 10
-	if (files.length > 10){
+	if (files.length > 10) {
 		showPopupMessage('Select upto 10 files');
 		return;
 	}
 
 	//check if all files are acceptable
-	for (let i = 0; i < files.length; i++){
-		if (!fileIsAcceptable(files[i], audio ? 'audio' : 'file')){
+	for (let i = 0; i < files.length; i++) {
+		if (!fileIsAcceptable(files[i], audio ? 'audio' : 'file')) {
 			clearFileFromInput();
 			return;
 		}
 	}
 
-	const loadingElement = document.createElement('span');
-	loadingElement.classList.add('load');
-	loadingElement.style.color = themeAccent[THEME].secondary;
-    
-	const loadingIcon = document.createElement('i');
-	loadingIcon.classList.add('fa-solid', 'fa-gear', 'fa-spin');
+	const loadingElementFragment = fragmentBuilder({
+		tag: 'span',
+		text: 'Reading binary data',
+		attr: {
+			class: 'load',
+			style: `color: ${themeAccent[THEME].secondary}`
+		},
+		child: {
+			tag: 'i',
+			attr: {
+				class: 'fa-solid fa-gear fa-spin'
+			}
+		}
+	});
 
-	loadingElement.textContent = 'Reading binary data';
-	loadingElement.append(loadingIcon);
-	document.getElementById('selectedFiles').append(loadingElement);
+	const loadingElement = document.createElement('div');
+	loadingElement.append(loadingElementFragment);
 
 	filePreviewContainer.style.display = 'flex';
 
-	try{
-		for (let i = 0; i < files.length; i++){
+	try {
+		for (let i = 0; i < files.length; i++) {
 
-			if (i == 0){
+			if (i == 0) {
 				loadingElement.remove();
 			}
-	
+
 			let name = files[i].name;
 			let size = files[i].size;
 			const ext = files[i].type.split('/')[1];
-		
+
 			//convert to B, KB, MB
-			if (size < 1024){
+			if (size < 1024) {
 				size = size + 'b';
-			}else if (size < 1048576){
-				size = (size/1024).toFixed(1) + 'kb';
-			}else{
-				size = (size/1048576).toFixed(1) + 'mb';
+			} else if (size < 1048576) {
+				size = (size / 1024).toFixed(1) + 'kb';
+			} else {
+				size = (size / 1048576).toFixed(1) + 'mb';
 			}
-		
+
 			const data = files[i];
 			name = shortFileName(name);
 			selectedObject = audio ? 'audio' : 'file';
 
 			const fileID = crypto.randomUUID();
 
-			const fileElement = document.createElement('div');
-			fileElement.classList.add('file_preview', 'file-item');
-			fileElement.dataset.type = 'file';
-			fileElement.dataset.id = fileID;
+			const fileElementFragment = fragmentBuilder({
+				tag: 'div',
+				attr: {
+					class: 'file_preview file-item',
+					'data-type': 'file',
+					'data-id': fileID
+				},
+				childs: [
+					{
+						tag: 'i',
+						attr: {
+							class: 'close fa-solid fa-xmark'
+						}
+					},
+					{
+						tag: 'i',
+						attr: {
+							class: `fa-regular icon ${audio ? 'fa-file-audio' : 'fa-file-lines'}`
+						}
+					},
+					{
+						tag: 'div',
+						attr: {
+							class: 'meta'
+						},
+						childs: [
+							{
+								tag: 'div',
+								attr: {
+									class: 'name'
+								},
+								text: `File: ${name}`
+							},
+							{
+								tag: 'div',
+								attr: {
+									class: 'size'
+								},
+								text: `Size: ${size}`
+							}
+						]
+					}
+				]
+			});
 
-			const close = document.createElement('i');
-			close.classList.add('close', 'fa-solid', 'fa-xmark');
+			document.getElementById('selectedFiles').appendChild(fileElementFragment);
 
-			const fileIcon = document.createElement('i');
-			fileIcon.classList.add('fa-regular', 'icon', audio ? 'fa-file-audio' : 'fa-file-lines');
+			selectedFileArray.push({ data: data, name: name, size: size, ext: ext, id: fileID });
 
-			const meta = document.createElement('div');
-			meta.classList.add('meta');
-
-			const fileName = document.createElement('div');
-			fileName.classList.add('name');
-			fileName.textContent = `File: ${name}`;
-
-			const fileSize = document.createElement('div');
-			fileSize.classList.add('size');
-			fileSize.textContent = `Size: ${size}`;
-
-			meta.append(fileName, fileSize);
-			fileElement.append(fileIcon, meta, close);
-
-			document.getElementById('selectedFiles').appendChild(fileElement);
-
-			selectedFileArray.push({data: data, name: name, size: size, ext: ext, id: fileID});
-	
-			if (i == files.length - 1){
+			if (i == files.length - 1) {
 				fileSendButton.style.display = 'flex';
 				clearFileFromInput();
 			}
@@ -2880,7 +3032,7 @@ function FilePreview(filesFromClipboard = null, audio = false){
 			filePreviewOptions.classList.add('active');
 		}, 50);
 		selectedFilesCount.textContent = `${selectedFileArray.length} item${selectedFileArray.length > 1 ? 's' : ''} selected`;
-	}catch(e){
+	} catch (e) {
 		console.log(e);
 		showPopupMessage('Error reading File');
 		clearFileFromInput();
@@ -2895,12 +3047,12 @@ window.addEventListener('dragover', (evt) => {
 	evt.preventDefault();
 	evt.stopPropagation();
 	fileDropZone.classList.add('active');
-	if (evt.target.classList.contains('fileDropZoneContent')){
+	if (evt.target.classList.contains('fileDropZoneContent')) {
 		document.querySelector('.fileDropZoneContent').style.color = themeAccent[THEME].secondary;
 		if (fileDropZoneTimeout) {
 			clearTimeout(fileDropZoneTimeout);
 		}
-	}else{
+	} else {
 		document.querySelector('.fileDropZoneContent').style.color = '#fff';
 		if (fileDropZoneTimeout) {
 			clearTimeout(fileDropZoneTimeout);
@@ -2934,11 +3086,11 @@ window.addEventListener('drop', (evt) => {
 window.addEventListener('paste', (e) => {
 	if (e.clipboardData.files?.length > 0) {
 		//if all files are images
-		if (Array.from(e.clipboardData.files).every(file => file.type.startsWith('image/'))){
+		if (Array.from(e.clipboardData.files).every(file => file.type.startsWith('image/'))) {
 			//set it to photobutton
 			photoButton.files = e.clipboardData.files;
 			photoButton.dispatchEvent(new Event('change'));
-		}else{
+		} else {
 			//set it to filebutton
 			fileButton.files = e.clipboardData.files;
 			fileButton.dispatchEvent(new Event('change'));
@@ -2946,8 +3098,8 @@ window.addEventListener('paste', (e) => {
 	}
 });
 
-window.addEventListener('offline', function() {
-	console.log('offline'); 
+window.addEventListener('offline', function () {
+	console.log('offline');
 	document.querySelector('.offline .icon i').classList.replace('fa-wifi', 'fa-circle-exclamation');
 	document.querySelector('.offline .text').textContent = 'You are offline!';
 	document.querySelector('.offline').classList.add('active');
@@ -2955,9 +3107,9 @@ window.addEventListener('offline', function() {
 	document.querySelector('.offline').style.background = 'var(--primary-dark)';
 });
 
-window.addEventListener('online', function() {
+window.addEventListener('online', function () {
 	console.log('Back to online');
-	document.querySelector('.offline .icon i').classList.replace( 'fa-circle-exclamation', 'fa-wifi');
+	document.querySelector('.offline .icon i').classList.replace('fa-circle-exclamation', 'fa-wifi');
 	document.querySelector('.offline .text').textContent = 'Back to online!';
 	document.querySelector('.offline').style.background = 'limegreen';
 	setTimeout(() => {
@@ -2968,11 +3120,11 @@ window.addEventListener('online', function() {
 
 sendButton.addEventListener('click', () => {
 
-	if (recordedAudio){
+	if (recordedAudio) {
 		sendAudioRecord();
 		return;
 	}
-	if (recorderElement.dataset.recordingstate === 'true'){
+	if (recorderElement.dataset.recordingstate === 'true') {
 		showPopupMessage('Please stop recording first');
 		return;
 	}
@@ -2980,7 +3132,7 @@ sendButton.addEventListener('click', () => {
 	let message = textbox.innerText.trim();
 
 	textbox.innerText = '';
-    
+
 	if (message != null && message.length) {
 		const tempId = crypto.randomUUID();
 		scrolling = false;
@@ -2991,28 +3143,28 @@ sendButton.addEventListener('click', () => {
 
 		message = emojiParser(message);
 
-		if (isEmoji(message)){
+		if (isEmoji(message)) {
 			//replace whitespace with empty string
 			message = message.replace(/\s/g, '');
 		}
 
 		const replyData = finalTarget?.type === 'text' ? finalTarget?.message.substring(0, 100) : finalTarget?.message;
 
-		insertNewMessage(message, 'text', tempId, myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {});
-		
-		if (Array.from(userInfoMap.keys()).length < 2){
+		insertNewMessage(message, 'text', tempId, myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, {});
+
+		if (Array.from(userInfoMap.keys()).length < 2) {
 			//console.log('Server replay skipped');
 			const msg = document.getElementById(tempId);
 			msg?.classList.add('delevered');
 			playOutgoingSound();
-		}else{
-			socket.emit('message', message, 'text', myId, {data: replyData, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, function (id) {
+		} else {
+			socket.emit('message', message, 'text', myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id) {
 				playOutgoingSound();
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
 				lastSeenMessage = id;
-				if (document.hasFocus()){
-					socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+				if (document.hasFocus()) {
+					socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 				}
 			});
 		}
@@ -3022,9 +3174,9 @@ sendButton.addEventListener('click', () => {
 	textbox.focus();
 	hideOptions();
 	hideReplyToast();
-	try{
+	try {
 		clearTimeout(typingStatusTimeout);
-	}catch(e){
+	} catch (e) {
 		console.log('timeout not set');
 	}
 	isTyping = false;
@@ -3032,13 +3184,13 @@ sendButton.addEventListener('click', () => {
 });
 
 window.addEventListener('focus', () => {
-	if (lastNotification != undefined){
+	if (lastNotification != undefined) {
 		lastNotification.close();
 	}
-	socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+	socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 });
 
-function closeFilePreview(){
+function closeFilePreview() {
 
 	filePreviewContainer.classList.remove('active');
 	filePreviewOptions.classList.remove('active');
@@ -3052,93 +3204,93 @@ function closeFilePreview(){
 	}, 100);
 }
 
-filePreviewContainer.querySelector('.close')?.addEventListener('click', ()=>{
+filePreviewContainer.querySelector('.close')?.addEventListener('click', () => {
 	clearFileFromInput();
 	selectedFileArray.length = 0;
 	closeFilePreview();
 });
 
-fileSendButton.addEventListener('click', ()=>{
-	
+fileSendButton.addEventListener('click', () => {
+
 	closeFilePreview();
-	
+
 	//check if image or file is selected
-	if (selectedObject === 'image'){
+	if (selectedObject === 'image') {
 		sendImageStoreRequest();
-	}else if (selectedObject === 'file'){
+	} else if (selectedObject === 'file') {
 		sendFileStoreRequest(null);
-	}else if (selectedObject === 'audio'){
+	} else if (selectedObject === 'audio') {
 		sendFileStoreRequest('audio');
 	}
 
 	hideReplyToast();
 });
 
-async function sendImageStoreRequest(){
+async function sendImageStoreRequest() {
 
-	for (let i = 0; i < selectedFileArray.length; i++){
+	for (let i = 0; i < selectedFileArray.length; i++) {
 		const image = new Image();
 		image.src = selectedFileArray[i].data;
 		image.dataset.name = selectedFileArray[i].name;
 		image.mimetype = selectedFileArray[i].ext;
-		image.onload = async function() {
+		image.onload = async function () {
 			//console.log('Inside onload');
 			const thumbnail = resizeImage(image, image.mimetype, 50);
 			let tempId = crypto.randomUUID();
 			scrolling = false;
 
-			insertNewMessage(image.src, 'image', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: '', height: image.height, width: image.width, name: image.dataset.name});
-			
-			if (Array.from(userInfoMap.keys()).length < 2){
+			insertNewMessage(image.src, 'image', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: '', height: image.height, width: image.width, name: image.dataset.name });
+
+			if (Array.from(userInfoMap.keys()).length < 2) {
 				//console.log('Server upload skipped');
-		
+
 				const msg = document.getElementById(tempId);
-				if (msg == null){
+				if (msg == null) {
 					return;
 				}
 				msg.classList.add('delevered');
 				msg.dataset.downloaded = 'true';
 				msg.querySelector('.circleProgressLoader').remove();
 				playOutgoingSound();
-			}else{
+			} else {
 
 				const elem = document.getElementById(tempId)?.querySelector('.messageMain');
 
-				if (elem == null){
+				if (elem == null) {
 					return;
 				}
 
 				elem.querySelector('.image').style.filter = 'brightness(0.4)';
-		
+
 				let progress = 0;
-				fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: image.dataset.name}, myKey, (id) => {
+				fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: image.dataset.name }, myKey, (id) => {
 					playOutgoingSound();
 					document.getElementById(tempId).classList.add('delevered');
 					document.getElementById(tempId).id = id;
 					tempId = id;
 					lastSeenMessage = id;
-					if (document.hasFocus()){
-						socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+					if (document.hasFocus()) {
+						socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 					}
 				});
-				
+
 				//make xhr request
-		
+
 				//image to file
-				const file = await fetch(image.src).then(r => r.blob()).then(blobFile => new File([blobFile], 'image', {type: image.mimetype}));
-		
+				const file = await fetch(image.src).then(r => r.blob()).then(blobFile => new File([blobFile], 'image', { type: image.mimetype }));
+
 				const formData = new FormData();
 				formData.append('key', myKey);
 				formData.append('ext', image.mimetype);
 				formData.append('file', file);
-		
+
 				//upload image via xhr request
 				const xhr = new XMLHttpRequest();
-		
+
 				const progresCircle = elem.querySelector('.circleProgressLoader');
 				const progressText = elem.querySelector('.circleProgressLoader .progressPercent');
 
-				xhr.onreadystatechange = function() {
+				xhr.onreadystatechange = function () {
 					if (xhr.readyState === XMLHttpRequest.OPENED) {
 						// Remove 'inactive' class from element with class 'animated'
 						//console.log('Request sent');
@@ -3154,7 +3306,7 @@ async function sendImageStoreRequest(){
 							fileSocket.emit('fileUploadError', myKey, tempId, 'image');
 						} else {
 							// Handle successful response from server
-							if (elem){
+							if (elem) {
 								progresCircle.remove();
 								progressText.textContent = 'Finishing...';
 								elem.querySelector('.image').style.filter = 'none';
@@ -3167,7 +3319,7 @@ async function sendImageStoreRequest(){
 
 				//send file via xhr post request
 				xhr.open('POST', `${location.origin}/api/files/upload`, true);
-				xhr.upload.onprogress = function(e) {
+				xhr.upload.onprogress = function (e) {
 					if (e.lengthComputable) {
 						progresCircle.querySelector('.animated').classList.remove('inactive');
 						progress = (e.loaded / e.total) * 100;
@@ -3175,14 +3327,14 @@ async function sendImageStoreRequest(){
 						progressText.textContent = `${Math.round(progress)}%`;
 					}
 				};
-				
+
 				xhr.send(formData);
-				
-				if (i == 0){
+
+				if (i == 0) {
 					clearFinalTarget();
 				}
 			}
-			
+
 		};
 	}
 	selectedFileArray.length = 0;
@@ -3193,72 +3345,72 @@ async function sendImageStoreRequest(){
  * @param {string} type Type of file to be sent
  * @returns 
  */
-function sendFileStoreRequest(type = null){
+function sendFileStoreRequest(type = null) {
 
-	for (let i = 0; i < selectedFileArray.length; i++){
+	for (let i = 0; i < selectedFileArray.length; i++) {
 
 		let tempId = crypto.randomUUID();
 		scrolling = false;
 
 		const fileUrl = URL.createObjectURL(selectedFileArray[i].data);
-		
-		if (type && type == 'audio'){
-			insertNewMessage(fileUrl, 'audio', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name, duration: selectedFileArray[i].duration});
-		}else{
-			insertNewMessage(fileUrl, 'file', tempId, myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name});
+
+		if (type && type == 'audio') {
+			insertNewMessage(fileUrl, 'audio', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name, duration: selectedFileArray[i].duration });
+		} else {
+			insertNewMessage(fileUrl, 'file', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name });
 		}
 
-		if (Array.from(userInfoMap.keys()).length < 2){
-	
+		if (Array.from(userInfoMap.keys()).length < 2) {
+
 			const msg = document.getElementById(tempId);
-			if (msg == null){
+			if (msg == null) {
 				return;
 			}
 			msg.classList.add('delevered');
 			msg.dataset.downloaded = 'true';
 			msg.querySelector('.progress').style.visibility = 'hidden';
 			playOutgoingSound();
-		}else{
+		} else {
 			let progress = 0;
 			const elem = document.getElementById(tempId)?.querySelector('.messageMain');
-	
-			fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, {data: finalTarget?.message, type: finalTarget?.type}, finalTarget?.id, {reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false)}, {ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name}, myKey, (id) => {
+
+			fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name }, myKey, (id) => {
 				playOutgoingSound();
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
 				tempId = id;
 				lastSeenMessage = id;
-				if (document.hasFocus()){
-					socket.emit('seen', ({userId: myId, messageId: lastSeenMessage, avatar: myAvatar}));
+				if (document.hasFocus()) {
+					socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 				}
 			});
-	
+
 			const formData = new FormData();
 			formData.append('key', myKey);
 			formData.append('file', selectedFileArray[i].data);
-	
+
 			//upload image via xhr request
 			const xhr = new XMLHttpRequest();
 			//send file via xhr post request
 			xhr.open('POST', location.origin + '/api/files/upload', true);
-			xhr.upload.onprogress = function(e) {
+			xhr.upload.onprogress = function (e) {
 				if (e.lengthComputable) {
 					progress = (e.loaded / e.total) * 100;
 					elem.querySelector('.progress').textContent = `${Math.round(progress)}%`;
-					if (progress === 100){
+					if (progress === 100) {
 						elem.querySelector('.progress').textContent = 'Finishing...';
 					}
 				}
 			};
-	
-			xhr.onload = function(e) {
-	
+
+			xhr.onload = function (e) {
+
 				if (this.status == 200) {
 					document.getElementById(tempId).dataset.downloaded = 'true';
 					elem.querySelector('.progress').style.visibility = 'hidden';
 					fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
 				}
-				else{
+				else {
 					console.log('error uploading file');
 					showPopupMessage('Error uploading file');
 					elem.querySelector('.progress').textContent = 'Upload failed';
@@ -3268,7 +3420,7 @@ function sendFileStoreRequest(type = null){
 
 			xhr.send(formData);
 
-			if (i == 0){
+			if (i == 0) {
 				clearFinalTarget();
 			}
 		}
@@ -3284,13 +3436,13 @@ let newMsgTimeOut = undefined;
  * @param {string} username 
  * @param {string} avatar 
  */
-export function notifyUser(message, username, avatar){
-	if ( ('Notification' in window) && Notification.permission === 'granted') {
+export function notifyUser(message, username, avatar) {
+	if (('Notification' in window) && Notification.permission === 'granted') {
 		// Check whether notification permissions have already been granted;
 		// if so, create a notification
-		if (!document.hasFocus()){
+		if (!document.hasFocus()) {
 			document.querySelector('title').text = `${username} messaged`;
-			if (newMsgTimeOut == undefined){
+			if (newMsgTimeOut == undefined) {
 				newMsgTimeOut = setTimeout(() => {
 					document.querySelector('title').text = 'Inbox';
 					newMsgTimeOut = undefined;
@@ -3308,9 +3460,9 @@ export function notifyUser(message, username, avatar){
 		Notification.requestPermission().then((permission) => {
 			// If the user accepts, let's create a notification
 			if (permission === 'granted') {
-				if (!document.hasFocus()){
+				if (!document.hasFocus()) {
 					document.querySelector('title').text = `${username} messaged`;
-					if (newMsgTimeOut == undefined){
+					if (newMsgTimeOut == undefined) {
 						newMsgTimeOut = setTimeout(() => {
 							document.querySelector('title').text = 'Inbox';
 							newMsgTimeOut = undefined;
@@ -3324,14 +3476,14 @@ export function notifyUser(message, username, avatar){
 				}
 			}
 		});
-	}   
+	}
 }
 
-lightboxSaveButton.addEventListener('click', ()=>{
+lightboxSaveButton.addEventListener('click', () => {
 	saveImage();
 });
 
-function closeAllModals(){
+function closeAllModals() {
 	//console.log('closing all modals');
 	activeModals.forEach((modal) => {
 		//console.log(`Closing ${modal}`);
@@ -3344,14 +3496,14 @@ function closeAllModals(){
  */
 document.addEventListener('keydown', (evt) => {
 
-	if (lightbox.classList.contains('active') || filePreviewContainer.classList.contains('active')){
+	if (lightbox.classList.contains('active') || filePreviewContainer.classList.contains('active')) {
 		//console.log('Skipping keyboard shortcuts because lightbox or file preview is active');
 		return;
 	}
 
 	const altKeys = ['o', 's', 't', 'i', 'a', 'f', 'p', 'm', 'r'];
 
-	if (altKeys.includes(evt.key) && evt.altKey){
+	if (altKeys.includes(evt.key) && evt.altKey) {
 		//evt.preventDefault();
 		closeAllModals();
 		switch (evt.key) {
@@ -3390,9 +3542,9 @@ document.addEventListener('keydown', (evt) => {
 	}
 
 	//if escape key is pressed, close last opened modal
-	if (evt.key === 'Escape'){
+	if (evt.key === 'Escape') {
 		//!Remove all modals
-		if (activeModals.length > 0){
+		if (activeModals.length > 0) {
 			evt.preventDefault();
 			const close = activeModals[activeModals.length - 1];
 			//console.log(`closing ${close}`);
@@ -3401,14 +3553,14 @@ document.addEventListener('keydown', (evt) => {
 		return;
 	}
 
-	if (evt.key === 'Enter' && messageSendShortCut === 'Enter' && !evt.ctrlKey ) { // if Enter key is pressed
+	if (evt.key === 'Enter' && messageSendShortCut === 'Enter' && !evt.ctrlKey) { // if Enter key is pressed
 		//if shift+enter is pressed, then add a new line
-		if (evt.shiftKey){
+		if (evt.shiftKey) {
 			return;
 		}
 		evt.preventDefault(); // prevent default behavior of Enter key
 		sendButton.click();
-	} else if(evt.key === 'Enter' && messageSendShortCut === 'Ctrl+Enter' && evt.ctrlKey ){ // if Ctrl+Enter key is pressed
+	} else if (evt.key === 'Enter' && messageSendShortCut === 'Ctrl+Enter' && evt.ctrlKey) { // if Ctrl+Enter key is pressed
 		sendButton.click();
 	}
 	return;
@@ -3423,7 +3575,7 @@ document.getElementById('send-location').addEventListener('click', () => {
 		showPopupMessage('Geolocation not supported by your browser.');
 		return;
 	}
-	navigator.geolocation.getCurrentPosition( (position) => {
+	navigator.geolocation.getCurrentPosition((position) => {
 		if (!show) return;
 		showPopupMessage('Tracing your location...');
 		socket.emit('createLocationMessage', {
@@ -3434,7 +3586,7 @@ document.getElementById('send-location').addEventListener('click', () => {
 		showPopupMessage(error.message);
 	});
 
-	if (locationTimeout){
+	if (locationTimeout) {
 		clearTimeout(locationTimeout);
 		locationTimeout = undefined;
 	}
@@ -3447,11 +3599,11 @@ document.getElementById('send-location').addEventListener('click', () => {
 });
 
 
-export function setTypingUsers(){
+export function setTypingUsers() {
 	const typingString = getTypingString(userTypingMap);
-	if (typingString == ''){
+	if (typingString == '') {
 		document.getElementById('typingIndicator').classList.remove('active');
-	}else{
+	} else {
 		document.getElementById('typingIndicator').querySelector('.text').textContent = typingString;
 		document.getElementById('typingIndicator').classList.add('active');
 	}
@@ -3459,9 +3611,9 @@ export function setTypingUsers(){
 
 expandReactButton.addEventListener('click', () => {
 	const expanded = moreReactsContainer.dataset.expanded;
-	if (expanded == 'true'){
+	if (expanded == 'true') {
 		moreReactsContainer.dataset.expanded = 'false';
-	}else{
+	} else {
 		moreReactsContainer.dataset.expanded = 'true';
 	}
 });
@@ -3470,24 +3622,24 @@ expandReactButton.addEventListener('click', () => {
 recordButton.addEventListener('click', () => {
 	//recorderElement.classList.add('active');
 	//if the recorder is not recording
-	if(recorderElement.dataset.recordingstate === 'false'){
-		if (recordedAudio && audioChunks.length > 0){
+	if (recorderElement.dataset.recordingstate === 'false') {
+		if (recordedAudio && audioChunks.length > 0) {
 			//stateDisplay.textContent = 'Stopped';
-			if (recordButton.dataset.playstate == 'stop'){
+			if (recordButton.dataset.playstate == 'stop') {
 				//console.log('%cAudio stop', 'color: red');
 				//stop playing recorded audio
 				stopPlayingRecordedAudio();
-			}else{
+			} else {
 				//play recorded audio
 				playRecordedAudio();
 				//stateDisplay.textContent = 'Playing';
 			}
-		}else{
+		} else {
 			//start recording
 			startRecording();
 			//stateDisplay.textContent = 'Recording';
 		}
-	}else{
+	} else {
 		//stop recording
 		stopRecording();
 		//stateDisplay.textContent = 'Idle';
@@ -3497,7 +3649,7 @@ recordButton.addEventListener('click', () => {
 //cancel button onclick
 cancelVoiceRecordButton.addEventListener('click', () => {
 	//if the recorder is not recording
-	if(recorderElement.dataset.recordingstate === 'true'){
+	if (recorderElement.dataset.recordingstate === 'true') {
 		//stop recording
 		stopRecording();
 		showPopupMessage('Voice message cancelled');
@@ -3516,10 +3668,10 @@ cancelVoiceRecordButton.addEventListener('click', () => {
 });
 
 //reset for new recording
-function resetForNewRecording(){
+function resetForNewRecording() {
 	//clear the recorded audio
 	//delete from URL
-	if (recordedAudio){
+	if (recordedAudio) {
 		URL.revokeObjectURL(recordedAudio.src);
 	}
 	recordedAudio = '';
@@ -3530,7 +3682,7 @@ function resetForNewRecording(){
 }
 
 //start recording
-function startRecording(){
+function startRecording() {
 	//reset for new recording
 	resetForNewRecording();
 	//start recording
@@ -3538,16 +3690,16 @@ function startRecording(){
 }
 
 //stop recording
-function stopRecording(){
+function stopRecording() {
 	//change the recording state to false
 	recorderElement.dataset.recordingstate = 'false';
-	if (recordButton.dataset.playstate === 'stop'){
+	if (recordButton.dataset.playstate === 'stop') {
 		//recordButton.textContent = 'play';
 		micIcon.classList.replace('fa-stop', 'fa-play');
 		micIcon.classList.replace('fa-microphone', 'fa-play');
 		recordButton.dataset.playstate = 'play';
 	}
-	if (autoStopRecordtimeout){
+	if (autoStopRecordtimeout) {
 		clearTimeout(autoStopRecordtimeout);
 	}
 	//stop the timer
@@ -3557,14 +3709,14 @@ function stopRecording(){
 }
 
 //start recording audio
-function startRecordingAudio(){
+function startRecordingAudio() {
 	//get the audio stream
 	navigator.mediaDevices.getUserMedia({ audio: true })
-		.then(function(s) {
+		.then(function (s) {
 			stream = s;
 			//process the audio stream
 			//use low quality audio and mono channel and 32kbps
-			const mediaRecorder = new MediaRecorder(stream, {type: 'audio/mp3;', audioBitsPerSecond: 32000, audioChannels: 1});
+			const mediaRecorder = new MediaRecorder(stream, { type: 'audio/mp3;', audioBitsPerSecond: 32000, audioChannels: 1 });
 			//start recording
 			mediaRecorder.start();
 			startTimer();
@@ -3584,13 +3736,13 @@ function startRecordingAudio(){
 
 			let timerInterval = setInterval(() => {
 				timePassed += 1;
-				if (timePassed >= maxRecordTime){
+				if (timePassed >= maxRecordTime) {
 					clearInterval(timerInterval);
 				}
 			}, 1000);
 
 
-			if (autoStopRecordtimeout){
+			if (autoStopRecordtimeout) {
 				clearTimeout(autoStopRecordtimeout);
 			}
 
@@ -3604,9 +3756,9 @@ function startRecordingAudio(){
 			}, 1 * maxRecordTime * 1000);
 
 			//when the media recorder stops recording
-			mediaRecorder.onstop = function() {
-				if (!recordCancel){
-					const audioBlob = new Blob(audioChunks, {type: 'audio/mp3;', audioBitsPerSecond: 32000, audioChannels: 1});
+			mediaRecorder.onstop = function () {
+				if (!recordCancel) {
+					const audioBlob = new Blob(audioChunks, { type: 'audio/mp3;', audioBitsPerSecond: 32000, audioChannels: 1 });
 					recordedAudio = new Audio();
 					recordedAudio.src = URL.createObjectURL(audioBlob);
 					recordedAudio.load();
@@ -3618,18 +3770,18 @@ function startRecordingAudio(){
 				}
 			};
 			//when the media recorder gets data
-			mediaRecorder.ondataavailable = function(e) {
+			mediaRecorder.ondataavailable = function (e) {
 				audioChunks.push(e.data);
 			};
 		})
-		.catch(function(err) {
+		.catch(function (err) {
 			console.log('The following error occured: ' + err);
 			showPopupMessage(err);
 		});
 }
 
 //stop recording audio
-function stopRecordingAudio(){
+function stopRecordingAudio() {
 	//stop the audio stream
 	stream?.getTracks().forEach(track => track.stop());
 }
@@ -3640,7 +3792,7 @@ function stopRecordingAudio(){
  * @param {HTMLElement} timerDisplay
  * @returns 
  */
-function updateAudioMessageTimer(audio, timerDisplay){
+function updateAudioMessageTimer(audio, timerDisplay) {
 	const currentTime = audio.currentTime;
 	const duration = isFinite(audio.duration) ? audio.duration : audio.dataset?.duration;
 	const percentage = (currentTime / duration) * 100;
@@ -3650,14 +3802,14 @@ function updateAudioMessageTimer(audio, timerDisplay){
 }
 
 //play recorded audio
-function playRecordedAudio(){
+function playRecordedAudio() {
 
 	micIcon.classList.replace('fa-play', 'fa-stop');
 	micIcon.classList.replace('fa-microphone', 'fa-stop');
 	recorderElement.dataset.recordingstate = 'false';
 	recordButton.dataset.playstate = 'stop';
 
-	if (recordedAudio){
+	if (recordedAudio) {
 		//recordedAudio.currentTime = 0;
 		recordedAudio.play();
 
@@ -3669,7 +3821,7 @@ function playRecordedAudio(){
 		});
 
 		//after recorded audio is done playing.
-		recordedAudio.onended = function(){
+		recordedAudio.onended = function () {
 			micIcon.classList.replace('fa-stop', 'fa-play');
 			micIcon.classList.replace('fa-microphone', 'fa-play');
 			recordButton.dataset.playstate = 'play';
@@ -3681,8 +3833,8 @@ function playRecordedAudio(){
 }
 
 //stop playing recorded audio
-function stopPlayingRecordedAudio(){
-	if (recordedAudio){
+function stopPlayingRecordedAudio() {
+	if (recordedAudio) {
 		recordedAudio.pause();
 		recorderElement.style.setProperty('--recordedAudioPlaybackProgress', '0%');
 	}
@@ -3692,7 +3844,7 @@ function stopPlayingRecordedAudio(){
 	recorderTimer.textContent = '00:00';
 }
 
-function sendAudioRecord(){
+function sendAudioRecord() {
 	//convert Audio to File
 	fetch(recordedAudio.src)
 		.then(response => response.blob())
@@ -3710,17 +3862,17 @@ function sendAudioRecord(){
 			const fileID = crypto.randomUUID();
 
 			selectedFileArray.length = 0;
-			selectedFileArray.push({data, name, size, ext, id: fileID, duration: duration});
-		
+			selectedFileArray.push({ data, name, size, ext, id: fileID, duration: duration });
+
 			selectedObject = 'audio';
-		
+
 			sendFileStoreRequest('audio');
 			cancelVoiceRecordButton.click();
 		});
 }
 
 //start timer
-function startTimer(){
+function startTimer() {
 	//set the timer to 00:00
 	recorderTimer.textContent = '00:00';
 	stopTimer();
@@ -3730,7 +3882,7 @@ function startTimer(){
 	let min = 0;
 	timerInterval = setInterval(() => {
 		sec++;
-		if (sec === 60){
+		if (sec === 60) {
 			sec = 0;
 			min++;
 		}
@@ -3740,8 +3892,8 @@ function startTimer(){
 }
 
 //stop timer
-function stopTimer(){
-	if (timerInterval){                
+function stopTimer() {
+	if (timerInterval) {
 		//clear the timer interval
 		clearInterval(timerInterval);
 		timerInterval = null;
@@ -3751,16 +3903,16 @@ function stopTimer(){
 }
 
 //clear the previous thumbnail when user gets the file completely
-export function clearDownload(element, fileURL, type){
+export function clearDownload(element, fileURL, type) {
 	playOutgoingSound();
-	if (type === 'image'){
+	if (type === 'image') {
 		setTimeout(() => {
 			element.querySelector('.circleProgressLoader').remove();
 			element.querySelector('.image').src = fileURL;
 			element.querySelector('.image').alt = 'image';
 			element.querySelector('.image').style.filter = 'none';
 		}, 50);
-	}else if (type === 'file' || type === 'audio'){
+	} else if (type === 'file' || type === 'audio') {
 		setTimeout(() => {
 			element.querySelector('.msg').dataset.src = fileURL;
 			element.querySelector('.progress').style.visibility = 'hidden';
@@ -3773,7 +3925,7 @@ export let loginTimeout = undefined;
 export let slowInternetTimeout = undefined;
 //on dom ready, show 'Slow internet' if 3 sec has been passed
 document.addEventListener('DOMContentLoaded', () => {
-	try{
+	try {
 		loginTimeout = setTimeout(() => {
 			if (!loginTimeout) return;
 			const preload = document.getElementById('preload');
@@ -3787,7 +3939,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			preload.querySelector('.text').textContent = 'Slow internet';
 			clearTimeout(loginTimeout);
 		}, 8000);
-	}catch(e){
+	} catch (e) {
 		console.log(e);
 	}
 });
@@ -3795,7 +3947,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 //This code blocks the back button to go back on the login page.
 //This action is needed because if the user goes back, he/she has to login again. 
-(()=>{
+(() => {
 	history.pushState({}, '', '');
 	history.pushState({}, '', '');
 	history.pushState({}, '', '');
@@ -3803,7 +3955,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	history.pushState({}, '', '');
 	history.pushState({}, '', '');
 	//console.log('Pushed state');
-	window.onpopstate = ()=>{
+	window.onpopstate = () => {
 		history.forward();
 	};
 })();
