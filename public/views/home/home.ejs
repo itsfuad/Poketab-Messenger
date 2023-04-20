@@ -111,25 +111,26 @@
             align-items: center;
             justify-content: center;
             gap: 30px;
-            padding: 10px 50px;
         }
 
         .why-item{
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            align-items: center;
+            gap: 30px;
+            align-items: flex-start;
             justify-content: center;
-            background: #ffffff1f;
+            background: #22283b;
             backdrop-filter: blur(2px);
-            padding: 10px;
+            padding: 35px;
             border-radius: 10px;
             position: relative;
-            width: clamp(320px,90vw,360px);
-            max-width: 90vw;
-            height: 200px;
+            max-width: 400px;
             transition: 200ms ease-in-out;
             cursor: pointer;
+        }
+
+        .why-item i{
+            font-size: 4rem;
         }
 
         .why-item:hover{
@@ -137,7 +138,7 @@
         }
 
         .why-item-title{
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             text-align: center;
         }
 
@@ -166,7 +167,7 @@
         }
 
         .detail{
-            color: #cfcfcf;
+            color: #cfcfcf9a;
         }
         .footer{
             font-size: 0.7rem;
@@ -203,8 +204,8 @@
         <div class="titleText">What does it offer?</div>
         <div class="why">
             <div class="why-item">
+                <i class="fas fa-user-friends"></i>
                 <div class="why-item-title">
-                    <i class="fas fa-user-friends"></i>
                     Group chat.
                 </div>
                 <div class="detail">
@@ -212,8 +213,8 @@
                 </div>
             </div>
             <div class="why-item">
+                <i class="fas fa-lock"></i>
                 <div class="why-item-title">
-                    <i class="fas fa-lock"></i>
                     Encrypted message.
                 </div>
                 <div class="detail">
@@ -221,8 +222,8 @@
                 </div>
             </div>
             <div class="why-item">
+                <i class="fas fa-mobile-alt"></i>
                 <div class="why-item-title">
-                    <i class="fas fa-mobile-alt"></i>
                     Works on all devices.
                 </div>
                 <div class="detail">
@@ -230,8 +231,8 @@
                 </div>
             </div>
             <div class="why-item">
+                <i class="fas fa-bolt"></i>
                 <div class="why-item-title">
-                    <i class="fas fa-bolt"></i>
                     Fast and lightweight.
                 </div>
                 <div class="detail">
@@ -240,8 +241,8 @@
             </div>
             <!--Easy file sharing-->
             <div class="why-item">
+                <i class="fa-solid fa-share-nodes"></i>
                 <div class="why-item-title">
-                    <i class="fa-solid fa-share-nodes"></i>
                     Easy file sharing.
                 </div>
                 <div class="detail">
@@ -250,8 +251,8 @@
             </div>
             <!--chat replies and reactions-->
             <div class="why-item">
+                <i class="fas fa-comment"></i>
                 <div class="why-item-title">
-                    <i class="fas fa-comment"></i>
                     Chat replies and reactions.
                 </div>
                 <div class="detail">

@@ -1,4 +1,5 @@
 /**
+ * @author Fuad Hasan
  * Builds a document fragment from a JSON object representing HTML.
  * @param {Object} jsonObj - The JSON object to be converted to HTML.
  * @param {String} jsonObj.tag - The HTML tag name.
