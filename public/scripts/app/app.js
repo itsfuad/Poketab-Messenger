@@ -2,7 +2,7 @@
 'use strict';
 
 import { socket } from './utils/messageSocket.js';
-import { fileSocket } from './utils/fileSocket.js';
+import { fileSocket, incommingXHR } from './utils/fileSocket.js';
 import { Stickers } from '../../stickers/stickersConfig.js';
 import { Prism } from '../../libs/prism/prism.min.js';
 import { PanZoom } from '../../libs/panzoom.min.js';
@@ -132,6 +132,8 @@ const messageparser = new TextParser();
 const modalCloseMap = new Map();
 //list of active modals
 const activeModals = [];
+
+const ongoingXHR = new Map();
 
 /**
  * This array stores the selected files to be sent
@@ -276,7 +278,7 @@ function loadReacts() {
 				text: reactArray.expanded[i],
 			}
 		});
-		
+
 		moreReacts.appendChild(moreReactWrapper);
 	}
 }
@@ -752,15 +754,29 @@ function optionsMainEvent(e) {
 export function deleteMessage(messageId, user) {
 	const message = document.getElementById(messageId);
 	if (message) { //if the message exists
+		const type = message.dataset.type;
+		if (['image', 'file'].includes(type)) { //if the message is an image or file
+			//console.log(`Deleting message id: ${messageId}`);
+			//if any xhr is running, abort it
+			if (ongoingXHR.has(messageId)) {
+				//console.log('Aborted ongoing XHR');
+				ongoingXHR.get(messageId).abort();
+				ongoingXHR.delete(messageId);
+			} else if (incommingXHR.has(messageId)) {
+				//console.log('Aborted incomming XHR');
+				incommingXHR.get(messageId).abort();
+				incommingXHR.delete(messageId);
+			}
 
-		if (message.dataset.type == 'image') {
-			//delete the image from the source
-			URL.revokeObjectURL(message.querySelector('.image').src);
-			//console.log(message.querySelector('.image').src, 'deleted');
-		} else if (message.dataset.type == 'file') {
-			//delete the file from the source
-			URL.revokeObjectURL(message.querySelector('.msg').dataset.src);
-			//console.log(message.querySelector('a').href, 'deleted');
+			if (type == 'image') {
+				//delete the image from the source
+				URL.revokeObjectURL(message.querySelector('.image').src);
+				//console.log(message.querySelector('.image').src, 'deleted');
+			} else if (type == 'file') {
+				//delete the file from the source
+				URL.revokeObjectURL(message.querySelector('.msg').dataset.src);
+				//console.log(message.querySelector('a').href, 'deleted');
+			}
 		}
 
 		//if message is image or file
@@ -1288,7 +1304,7 @@ export function getReact(reactEmoji, messageId, uid) {
 				tag: 'span',
 				attr: {
 					class: 'react',
-					'data-uids': `${uid};`,	
+					'data-uids': `${uid};`,
 					'data-emoji': reactEmoji
 				},
 				childs: [
@@ -1667,7 +1683,7 @@ export function serverMessage(message, type = null) {
 
 	if (type == 'location') {
 		locationTimeout ? clearTimeout(locationTimeout) : null;
-		messageObj ={
+		messageObj = {
 			tag: 'a',
 			attr: {
 				href: `https://www.google.com/maps?q=${message.coordinate.latitude},${message.coordinate.longitude}`,
@@ -1684,7 +1700,7 @@ export function serverMessage(message, type = null) {
 
 			text: `${message.user}'s location`,
 		};
-	}else if (type == 'leave') {
+	} else if (type == 'leave') {
 		messageObj = {
 			text: message.text
 		};
@@ -1714,7 +1730,7 @@ export function serverMessage(message, type = null) {
 						class: 'messageContainer',
 						style: `color: ${message.color}`,
 					},
-					child:{
+					child: {
 						...messageObj
 					}
 				},
@@ -1816,12 +1832,12 @@ export function loadStickers() {
 
 		const img = document.createElement('img');
 		img.src = `/stickers/${selectedStickerGroup}/static/${i}-mini.webp`;
-		img.onerror = ()=>{ retryImageLoad(this);};
-		img.onclick = ()=>{console.log('hi');};
+		img.onerror = () => { retryImageLoad(this); };
+		img.onclick = () => { console.log('hi'); };
 		img.alt = `${selectedStickerGroup}-${i}`;
 		img.dataset.name = `${selectedStickerGroup}/animated/${i}`;
 		img.classList.add('stickerpack', 'clickable');
-		
+
 		stickersContainer.append(img);
 	}
 
@@ -2460,7 +2476,7 @@ messages.addEventListener('click', (evt) => {
 
 					const listItem = fragmentBuilder({
 						tag: 'li',
-						childs:[
+						childs: [
 							{
 								tag: 'img',
 								attr: {
@@ -2728,7 +2744,8 @@ deleteOption.addEventListener('click', () => {
 	const uid = document.getElementById(targetMessage.id)?.dataset?.uid;
 	if (uid) {
 		hideOptions();
-		socket.emit('deletemessage', targetMessage.id, uid, myName, myId);
+		const _downlink = document.getElementById(targetMessage.id)?.dataset?.downlink;
+		socket.emit('deletemessage', targetMessage.id, uid, myName, myId, _downlink);
 	}
 });
 
@@ -2816,7 +2833,7 @@ function ImagePreview(filesFromClipboard = null) {
 			}
 		}
 	});
-	
+
 	const loadingElement = document.createElement('div');
 	loadingElement.append(loadingElementFragment);
 
@@ -3236,15 +3253,15 @@ async function sendImageStoreRequest() {
 		image.onload = async function () {
 			//console.log('Inside onload');
 			const thumbnail = resizeImage(image, image.mimetype, 50);
-			let tempId = crypto.randomUUID();
+			let messageId = crypto.randomUUID();
 			scrolling = false;
 
-			insertNewMessage(image.src, 'image', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: '', height: image.height, width: image.width, name: image.dataset.name });
+			insertNewMessage(image.src, 'image', messageId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: '', height: image.height, width: image.width, name: image.dataset.name });
 
 			if (Array.from(userInfoMap.keys()).length < 2) {
 				//console.log('Server upload skipped');
 
-				const msg = document.getElementById(tempId);
+				const msg = document.getElementById(messageId);
 				if (msg == null) {
 					return;
 				}
@@ -3254,26 +3271,14 @@ async function sendImageStoreRequest() {
 				playOutgoingSound();
 			} else {
 
-				const elem = document.getElementById(tempId)?.querySelector('.messageMain');
+				const elem = document.getElementById(messageId)?.querySelector('.messageMain');
 
 				if (elem == null) {
 					return;
 				}
 
 				elem.querySelector('.image').style.filter = 'brightness(0.4)';
-
 				let progress = 0;
-				fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: image.dataset.name }, myKey, (id) => {
-					playOutgoingSound();
-					document.getElementById(tempId).classList.add('delevered');
-					document.getElementById(tempId).id = id;
-					tempId = id;
-					lastSeenMessage = id;
-					if (document.hasFocus()) {
-						socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
-					}
-				});
-
 				//make xhr request
 
 				//image to file
@@ -3294,25 +3299,34 @@ async function sendImageStoreRequest() {
 					if (xhr.readyState === XMLHttpRequest.OPENED) {
 						// Remove 'inactive' class from element with class 'animated'
 						//console.log('Request sent');
+						//console.log(`setting ongoing xhr for ${messageId}`);
+						ongoingXHR.set(messageId, xhr);
 						progressText.textContent = 'Uploading...';
 						progresCircle.querySelector('.animated').classList.remove('inactive');
 					} else if (xhr.readyState === XMLHttpRequest.DONE) {
-						if (xhr.status === 0) {
-							// Handle network errors or server unreachable errors
-							//console.log('Error: could not connect to server');
-							showPopupMessage('Upload failed..!');
-							progresCircle.querySelector('.animated').style.visibility = 'hidden';
-							progressText.textContent = 'Upload failed\nNo internet..!';
-							fileSocket.emit('fileUploadError', myKey, tempId, 'image');
-						} else {
+						//console.log(`Upload finished with status ${xhr.status}`);
+						ongoingXHR.delete(messageId);
+						if(xhr.status === 200){
 							// Handle successful response from server
 							if (elem) {
 								progresCircle.remove();
 								progressText.textContent = 'Finishing...';
 								elem.querySelector('.image').style.filter = 'none';
 							}
-							document.getElementById(tempId).dataset.downloaded = 'true';
-							fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(xhr.response).downlink);
+
+							const downloadLink = JSON.parse(xhr.response).downlink;
+
+							const _msg = document.getElementById(messageId);
+							_msg.dataset.downloaded = 'true';
+							_msg.dataset.downlink = downloadLink;
+							fileSocket.emit('fileUploadEnd', messageId, myKey, downloadLink);
+						}else{
+							// Handle network errors or server unreachable errors
+							//console.log('Error: could not connect to server');
+							showPopupMessage('Upload failed..!');
+							progresCircle.querySelector('.animated').style.visibility = 'hidden';
+							progressText.textContent = 'Upload failed';
+							fileSocket.emit('fileUploadError', myKey, messageId, 'image');
 						}
 					}
 				};
@@ -3328,11 +3342,29 @@ async function sendImageStoreRequest() {
 					}
 				};
 
-				xhr.send(formData);
-
 				if (i == 0) {
 					clearFinalTarget();
 				}
+
+
+				fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: image.dataset.name }, myKey, (newId) => {
+					playOutgoingSound();
+					document.getElementById(messageId).classList.add('delevered');
+					document.getElementById(messageId).id = newId;
+					if (ongoingXHR.has(messageId)) {
+						//replace the old key with the new key
+						ongoingXHR.set(newId, ongoingXHR.get(messageId));
+						ongoingXHR.delete(messageId);
+					}
+					messageId = newId;
+					lastSeenMessage = newId;
+					if (document.hasFocus()) {
+						socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
+					}
+
+					xhr.send(formData);
+				});
+
 			}
 
 		};
@@ -3349,20 +3381,20 @@ function sendFileStoreRequest(type = null) {
 
 	for (let i = 0; i < selectedFileArray.length; i++) {
 
-		let tempId = crypto.randomUUID();
+		let messageId = crypto.randomUUID();
 		scrolling = false;
 
 		const fileUrl = URL.createObjectURL(selectedFileArray[i].data);
 
 		if (type && type == 'audio') {
-			insertNewMessage(fileUrl, 'audio', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name, duration: selectedFileArray[i].duration });
+			insertNewMessage(fileUrl, 'audio', messageId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name, duration: selectedFileArray[i].duration });
 		} else {
-			insertNewMessage(fileUrl, 'file', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name });
+			insertNewMessage(fileUrl, 'file', messageId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name });
 		}
 
 		if (Array.from(userInfoMap.keys()).length < 2) {
 
-			const msg = document.getElementById(tempId);
+			const msg = document.getElementById(messageId);
 			if (msg == null) {
 				return;
 			}
@@ -3372,18 +3404,8 @@ function sendFileStoreRequest(type = null) {
 			playOutgoingSound();
 		} else {
 			let progress = 0;
-			const elem = document.getElementById(tempId)?.querySelector('.messageMain');
+			const elem = document.getElementById(messageId)?.querySelector('.messageMain');
 
-			fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name }, myKey, (id) => {
-				playOutgoingSound();
-				document.getElementById(tempId).classList.add('delevered');
-				document.getElementById(tempId).id = id;
-				tempId = id;
-				lastSeenMessage = id;
-				if (document.hasFocus()) {
-					socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
-				}
-			});
 
 			const formData = new FormData();
 			formData.append('key', myKey);
@@ -3391,6 +3413,35 @@ function sendFileStoreRequest(type = null) {
 
 			//upload image via xhr request
 			const xhr = new XMLHttpRequest();
+
+
+			xhr.onreadystatechange = function () {
+				if (this.readyState === XMLHttpRequest.OPENED) {
+					//console.log(`Connection opened for message id ${messageId}`);
+					ongoingXHR.set(messageId, xhr);
+				}
+				else if (this.readyState === XMLHttpRequest.DONE) {
+					//console.log(`Connection closed for message id ${messageId}`);
+					ongoingXHR.delete(messageId);
+					if (this.status == 200) {
+						const _msg = document.getElementById(messageId);
+
+						if (_msg) {
+							_msg.dataset.downloaded = 'true';
+							_msg.dataset.downlink = JSON.parse(this.response).downlink;
+							elem.querySelector('.progress').style.visibility = 'hidden';
+							fileSocket.emit('fileUploadEnd', messageId, myKey, JSON.parse(this.response).downlink);
+						}
+					}
+					else {
+						console.log('error uploading file');
+						showPopupMessage('Error uploading file');
+						elem.querySelector('.progress').textContent = 'Upload failed';
+						fileSocket.emit('fileUploadError', myKey, messageId, 'image');
+					}
+				}
+			};
+
 			//send file via xhr post request
 			xhr.open('POST', location.origin + '/api/files/upload', true);
 			xhr.upload.onprogress = function (e) {
@@ -3403,26 +3454,27 @@ function sendFileStoreRequest(type = null) {
 				}
 			};
 
-			xhr.onload = function (e) {
-
-				if (this.status == 200) {
-					document.getElementById(tempId).dataset.downloaded = 'true';
-					elem.querySelector('.progress').style.visibility = 'hidden';
-					fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(e.target.response).downlink);
-				}
-				else {
-					console.log('error uploading file');
-					showPopupMessage('Error uploading file');
-					elem.querySelector('.progress').textContent = 'Upload failed';
-					fileSocket.emit('fileUploadError', myKey, tempId, 'image');
-				}
-			};
-
-			xhr.send(formData);
 
 			if (i == 0) {
 				clearFinalTarget();
 			}
+
+			fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name }, myKey, (newId) => {
+				playOutgoingSound();
+				document.getElementById(messageId).classList.add('delevered');
+				document.getElementById(messageId).id = newId;
+				if (ongoingXHR.has(messageId)) {
+					//replace the old key with the new key
+					ongoingXHR.set(newId, ongoingXHR.get(messageId));
+					ongoingXHR.delete(messageId);
+				}
+				messageId = newId;
+				lastSeenMessage = newId;
+				if (document.hasFocus()) {
+					socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
+				}
+				xhr.send(formData);
+			});
 		}
 
 	}
@@ -3507,36 +3559,36 @@ document.addEventListener('keydown', (evt) => {
 		//evt.preventDefault();
 		closeAllModals();
 		switch (evt.key) {
-		case 'o':
-			showSidePanel();
-			break;
-		case 's':
-			showQuickSettings();
-			break;
-		case 't':
-			showThemes();
-			break;
-		case 'i':
-			showStickersPanel();
-			break;
-		case 'a':
-			addAttachment();
-			break;
-		case 'f':
-			//choose file
-			fileButton.click();
-			break;
-		case 'p':
-			//choose photo
-			photoButton.click();
-			break;
-		case 'm':
-			//choose audio
-			audioButton.click();
-			break;
-		case 'r':
-			//record voice
-			recordButton.click();
+			case 'o':
+				showSidePanel();
+				break;
+			case 's':
+				showQuickSettings();
+				break;
+			case 't':
+				showThemes();
+				break;
+			case 'i':
+				showStickersPanel();
+				break;
+			case 'a':
+				addAttachment();
+				break;
+			case 'f':
+				//choose file
+				fileButton.click();
+				break;
+			case 'p':
+				//choose photo
+				photoButton.click();
+				break;
+			case 'm':
+				//choose audio
+				audioButton.click();
+				break;
+			case 'r':
+				//record voice
+				recordButton.click();
 		}
 		return;
 	}
@@ -3905,6 +3957,7 @@ function stopTimer() {
 //clear the previous thumbnail when user gets the file completely
 export function clearDownload(element, fileURL, type) {
 	playOutgoingSound();
+	if (element.closest('.message').dataset.deleted === 'true') return;
 	if (type === 'image') {
 		setTimeout(() => {
 			element.querySelector('.circleProgressLoader').remove();
