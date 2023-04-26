@@ -39,11 +39,7 @@ app.get('/create', (req, res) => {
     const nonce = crypto.randomBytes(16).toString('hex');
     res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);
     res.setHeader('Developer', DEVELOPER);
-    //create a key and send it to the client as cookie
-    const key = generateUniqueId();
-    //st cookie for 2 minutes
-    res.cookie('key', key, { maxAge: 120000, httpOnly: true, signed: true, sameSite: 'strict' });
-    res.render('login/newUser', { title: 'Create', avList: avList, key: null, version: `v.${version}`, hash: nonce, takenAvlists: null, cookieCreated: Date.now(), icon: Icon });
+    res.render('login/newUser', { title: 'Create', avList: avList, key: null, version: `v.${version}`, hash: nonce, takenAvlists: null, icon: Icon });
 });
 app.get('/join/:key', (req, res) => {
     if (validateKey(req.params.key)) {
@@ -74,8 +70,12 @@ app.get('/join', (_, res) => {
     const nonce = crypto.randomBytes(16).toString('hex');
     res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);
     res.setHeader('Developer', DEVELOPER);
-    res.clearCookie('key');
     res.render('login/newUser', { title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce, takenAvlists: null, icon: Icon });
+});
+app.get('/connect', (_, res) => {
+    const uid = crypto.randomBytes(16).toString('hex');
+    const key = generateUniqueId();
+    res.send({ uid: uid, key: key });
 });
 app.get('/~', (_, res) => {
     if (ENVIRONMENT != 'DEVELOPMENT') {
@@ -108,46 +108,10 @@ app.post('/~', (req, res) => {
     //if key was not supplied that means the request was a create request.
     if (!key) {
         //Create request
-        //get the key from the cookie which was delivered when the /create page was requested. 
-        // NOTE: The cookie will be there for 2 minutes
-        const cookie = req.signedCookies.key;
-        //console.log(req.signedCookies.key);
-        //if the cookie is present
-        if (cookie) {
-            const regex = /[a-zA-Z0-9]{2}-[a-zA-Z0-9]{3}-[a-zA-Z0-9]{2}/;
-            const match = cookie.match(regex);
-            key = match ? match[0] : undefined;
-            //if a key found and it is valid
-            if (key && validateKey(key)) {
-                //if key does not exist in the keyStore
-                if (!keyStore.hasKey(key)) {
-                    //console.log(`Valid Key found: ${key}! Creating new chat`);
-                    approveNewChatRequest(res, { username: username, key: key, avatar: avatar, max_users: req.body.maxuser, icon: Icon });
-                    return;
-                }
-                else {
-                    //clash of keys
-                    //console.log(`Key clash found: ${key}!`);
-                    res.setHeader('Developer', DEVELOPER);
-                    res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-                    res.status(400).send({ error: 'Key clased!' });
-                    return;
-                }
-            }
-            else {
-                //console.log('Invalid key found in cookie');
-                res.setHeader('Developer', DEVELOPER);
-                res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-                res.status(400).send({ error: 'Invalid key' });
-                return;
-            }
-        }
-        else {
-            //console.log('No Key or Cookie found in cookie');
-            //console.log('No session found for this request.');
-            blockNewChatRequest(res, { title: 'Not found', errorCode: '498', errorMessage: 'Session Key not found', buttonText: 'Home', icon: 'session.png' });
-            return;
-        }
+        console.log('No key found. Creating new key...');
+        //generate a new key
+        const newKey = generateUniqueId();
+        approveNewChatRequest(res, { username: username, key: newKey, avatar: avatar, max_users: 10, icon: Icon });
     }
     else if (key && keyStore.hasKey(key)) {
         //Key exists, so the request is a join request
@@ -176,13 +140,12 @@ app.post('/~', (req, res) => {
 function blockNewChatRequest(res, data) {
     res.setHeader('Developer', DEVELOPER);
     res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-    res.clearCookie('key');
     res.render('errors/errorRes', { title: data.title, errorCode: data.errorCode, errorMessage: data.errorMessage, buttonText: data.buttonText, icon: data.icon });
 }
 function approveNewChatRequest(res, data) {
-    const uid = crypto.randomUUID();
     const nonce = crypto.randomBytes(16).toString('hex');
     const welcomeSticker = Math.floor(Math.random() * 9) + 1;
+    const uid = crypto.randomBytes(16).toString('hex');
     res.setHeader('Developer', DEVELOPER);
     res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; script-src \'self\' \'unsafe-inline\'; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
     res.setHeader('Cluster', `ID: ${process.pid}`);

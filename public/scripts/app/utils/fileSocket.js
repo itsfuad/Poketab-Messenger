@@ -11,6 +11,8 @@ import { playIncomingSound } from './media.js';
  */
 export const fileSocket = io('/file');
 
+export const incommingXHR = new Map();
+
 //files metadata will be sent on different socket
 fileSocket.on('connect', () => {
 	console.log('%cConnection established to file relay server', 'color: deepskyblue;');
@@ -37,14 +39,26 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
 
 //if any error occurrs, the show the error
 fileSocket.on('fileUploadError', (id, type) => {
-	const element = document.getElementById(id).querySelector('.messageMain');
-	let progressContainer;
-	if (type === 'image'){
-		progressContainer = element.querySelector('.circleProgressLoader .progressPercent');
-	}else{
-		progressContainer = element.querySelector('.progress');
+	try{
+		const element = document.getElementById(id).querySelector('.messageMain');
+		let progressContainer;
+		if (type === 'image'){
+			progressContainer = element.querySelector('.circleProgressLoader .progressPercent');
+		}else{
+			progressContainer = element.querySelector('.progress');
+		}
+		if (progressContainer){
+			progressContainer.textContent = 'Upload Error';
+		}
+
+		if (fileBuffer.has(id)){
+			console.log('deleting file buffer for error');
+			fileBuffer.delete(id);
+		}
+
+	}catch(e){
+		console.log(e);
 	}
-	progressContainer.textContent = 'Upload Error';
 });
 
 //if the file has been uploded to the server by other users, then start downloading
@@ -57,6 +71,7 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 	const element = document.getElementById(id).querySelector('.messageMain');
 	let progressContainer;
 	let progressText;
+	//console.log(type);
 	if (type === 'image'){
 		progressContainer = element.querySelector('.circleProgressLoader');
 		progressText = progressContainer.querySelector('.progressPercent');
@@ -64,16 +79,52 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 		progressContainer = element.querySelector('.progress');
 		progressText = progressContainer;
 	}
+
+	//console.log(progressContainer);
 	
 	fileBuffer.delete(id);
 
 	const xhr = new XMLHttpRequest();
 
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState === XMLHttpRequest.OPENED){
+			//console.log('opened connection to download file');
+			incommingXHR.set(id, xhr);
+		}
+		if (xhr.readyState === XMLHttpRequest.DONE) {
+			if(xhr.status === 200){
+				//console.log('file download complete');
+				incommingXHR.delete(id);
+				const file = this.response;
+				const url = URL.createObjectURL(file);
+
+				if (element){
+
+					clearDownload(element, url, type);
+					fileSocket.emit('fileDownloaded', myId, myKey, downlink);
+					if (type === 'image'){
+						//update the reply thumbnails with the detailed image if exists
+						document.querySelectorAll(`.messageReply[data-repid="${id}"]`)
+							.forEach(elem => {
+								elem.querySelector('.image').src = url;
+								elem.querySelector('.image').style.filter = 'brightness(0.4) !important';
+							});
+					}
+				}
+			}
+		}
+	};
+
+
 	xhr.open('GET', `${location.origin}/api/files/download/${downlink}/${myKey}`, true);
 	xhr.responseType = 'blob';
-	xhr.onprogress = async function(e) {
+
+
+
+	xhr.onprogress = function(e) {
 		if (e.lengthComputable && progressContainer) {
 			const progress = Math.round((e.loaded / e.total) * 100);
+			//console.log(progress);
 			if (type == 'image'){
 				progressContainer.querySelector('.animated')?.classList?.remove('inactive');
 				progressContainer.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
@@ -86,31 +137,6 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 		}
 	};
 
-	xhr.onload = function() {
-		if (this.status == 200) {
-			
-			const file = this.response;
-			const url = URL.createObjectURL(file);
-
-			if (element){
-				
-				clearDownload(element, url, type);
-
-				fileSocket.emit('fileDownloaded', myId, myKey, downlink);
-				if (type === 'image'){
-					//update the reply thumbnails with the detailed image if exists
-					document.querySelectorAll(`.messageReply[data-repid="${id}"]`)
-						.forEach(elem => {
-							elem.querySelector('.image').src = url;
-							elem.querySelector('.image').style.filter = 'brightness(0.4) !important';
-						});
-				}
-			}
-		}else if (this.status == 404){
-			console.log('404');
-			progressContainer.textContent = 'File deleted';
-		}
-	};
 	xhr.send();
 	updateScroll();
 });

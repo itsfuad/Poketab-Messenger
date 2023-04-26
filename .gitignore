@@ -8,3 +8,6 @@ message.css.map
 bundle.js.LICENSE.txt
 .env
 *.html
+
+uploads/!dummy.txt
+uploads/*

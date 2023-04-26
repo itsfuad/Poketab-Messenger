@@ -228,7 +228,7 @@ code{
     }
 }
 
-:not(.noreply) .messageTitle::before {
+.message:not(.noreply) .messageTitle::before {
     content: '\f3e5';
     font-family: 'FontAwesome';
     font-size: 1rem;

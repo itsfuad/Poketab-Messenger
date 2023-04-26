@@ -10,9 +10,10 @@ import { User } from './database/schema/User.js';
 
 import crypto from 'crypto';
 
-import { cleanJunks } from './cleaner.js';
+import { cleanJunks, deleteFile } from './cleaner.js';
 
 import { Worker } from 'worker_threads';
+
 
 export const io = new Server(httpServer);
 
@@ -93,9 +94,15 @@ io.on('connection', (socket) => {
 			}
 		});
 	
-		socket.on('deletemessage', (messageId, msgUid, userName, userId) => {
+		socket.on('deletemessage', (messageId, msgUid, userName, userId, _downlink) => {
 			if (SocketIds[socket.id]){
 				if (msgUid == userId){
+
+					if (_downlink){
+						console.log(`Delete file request ${_downlink}`);
+						deleteFile(_downlink);
+					}
+
 					io.to(SocketIds[socket.id].key).emit('deleteMessage', messageId, userName);
 				}
 			}
