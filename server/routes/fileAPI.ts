@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { access } from 'fs/promises';
-import fs from 'fs';
 import crypto from 'crypto';
 
 import { keyStore } from '../database/db.js';
