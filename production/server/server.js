@@ -111,7 +111,8 @@ app.post('/~', (req, res) => {
         console.log('No key found. Creating new key...');
         //generate a new key
         const newKey = generateUniqueId();
-        approveNewChatRequest(res, { username: username, key: newKey, avatar: avatar, max_users: 10, icon: Icon });
+        const maxuser = req.body.maxuser;
+        approveNewChatRequest(res, { username: username, key: newKey, avatar: avatar, max_users: maxuser, icon: Icon });
     }
     else if (key && keyStore.hasKey(key)) {
         //Key exists, so the request is a join request
