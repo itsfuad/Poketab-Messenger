@@ -46,8 +46,7 @@ To build the production version:
 2. Type `tsc` to compile all `typescript` code into `javascript`
 3. Commit
 4. Deploy
-
-Use cannot use the link outside your local network. To access from outside your local network you may use `ssl tunneling` or `port forwarding`. But that is very complex to setup. You can use `ngrok` instead or other similar solutions. 
+You cannot use the link outside your local network. To access from outside your local network you may use `ssl tunneling` or `port forwarding`. But that is very complex to setup. You can use `ngrok` instead or other similar solutions. 
 
 ## Contribute
 
