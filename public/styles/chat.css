@@ -1295,6 +1295,10 @@ i[class^=fa-] {
 #textbox * {
   position: relative;
   white-space: break-spaces;
+  color: inherit !important;
+  background: transparent !important;
+  font-size: inherit !important;
+  font-family: inherit !important;
 }
 #textbox:not(:empty)::before {
   left: 50px;

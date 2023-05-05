@@ -3,7 +3,7 @@
     <!-- Text input -->
     <div class="attachments clickable playable inputBtn" id="attachment" title="Send attactments [Alt+a]"><i class="fa-solid fa-paperclip"></i></div>
     <div class="inputField">
-        <div id="textbox" contenteditable="true" class="select" data-placeholder="Message..."></div>
+        <div id="textbox" contenteditable="true" class="select" data-placeholder="Message..." tabindex="-1"></div>
         <!-- Microphone -->
         <div class="voiceRecorder" id="recorderOverlay" data-recordingstate="false">
             <div class="recordBtn btn" id="recordVoiceButton" data-playstate="" title="Record voice [Alt+r]">
@@ -21,5 +21,5 @@
     </div>
       
     <!-- Send Button-->
-    <button id="send" class=" inputBtn" title="Ctrl+Enter"><i class="fa-solid fa-paper-plane"></i></button>
+    <button id="send" class=" inputBtn" title="Ctrl+Enter" tabindex="-1"><i class="fa-solid fa-paper-plane"></i></button>
 </div>
