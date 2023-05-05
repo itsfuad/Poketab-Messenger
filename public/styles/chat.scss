@@ -1361,6 +1361,10 @@ i[class^=fa-]{
     *{
         position: relative;
         white-space: break-spaces;
+        color: inherit !important;
+        background: transparent !important;
+        font-size: inherit !important;
+        font-family: inherit !important;
     }
 
     &:not(:empty)::before{

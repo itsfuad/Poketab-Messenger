@@ -199,7 +199,7 @@ if (!isMobile) {
 	messages.addEventListener('contextmenu', (evt) => {
 		evt.preventDefault();
 		evt.stopPropagation();
-		if (evt.which == 3) {
+		if (evt.button == 2) {
 			const isMessage = evt.target.closest('.message') ?? false;
 			const isDeleted = evt.target.closest('.message')?.dataset.deleted == 'true' ? true : false;
 			if (isMessage && !isDeleted) {
@@ -932,8 +932,9 @@ function hideOptions() {
 	moreReactsContainer.classList.remove('active');
 
 	messageOptions.classList.remove('active');
-	sideBarPanel.classList.remove('active');
-	themePicker.classList.remove('active');
+	//console.log('Hiding options');
+	hideSidePanel();
+	hideThemes();
 	//document.getElementById('focus_glass').classList.remove('active');
 	removeFocusGlass();
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
@@ -1865,10 +1866,11 @@ function showStickersPanel() {
 function showThemes() {
 
 	if (!themePicker.classList.contains('active')) {
+		hideOptions();
 		//console.log('showing themes');
 		activeModals.push('themes');
+		console.log(activeModals);
 		modalCloseMap.set('themes', hideThemes);
-		hideOptions();
 		if (THEME) {
 			if (themeArray.includes(THEME) == false) {
 				THEME = 'ocean';
@@ -1888,10 +1890,12 @@ function showThemes() {
  * Hides the theme picker
  */
 function hideThemes() {
+	//console.log('hiding themes', activeModals);
 	if (activeModals.includes('themes')) {
 		themePicker.classList.remove('active');
 		//removeFocusGlass();
 		activeModals.splice(activeModals.indexOf('themes'), 1);
+		modalCloseMap.delete('themes');
 	}
 }
 
@@ -1931,6 +1935,7 @@ function hideQuickSettings() {
 	if (activeModals.includes('quickSettings')) {
 		quickSettings.classList.remove('active');
 		activeModals.splice(activeModals.indexOf('quickSettings'), 1);
+		modalCloseMap.delete('quickSettings');
 	}
 }
 
@@ -2003,7 +2008,6 @@ stickersPanel.addEventListener('click', (evt) => {
 		//console.log('clicked on stickers panel');
 		if (activeModals.includes('stickersPanel')) {
 			hideStickersPanel();
-			activeModals.splice(activeModals.indexOf('stickersPanel'), 1);
 		}
 	}
 });
@@ -2027,6 +2031,7 @@ function hideStickersPanel() {
 		removeFocusGlass();
 		stickersPanel.classList.remove('active');
 		activeModals.splice(activeModals.indexOf('stickersPanel'), 1);
+		modalCloseMap.delete('stickersPanel');
 	}
 }
 
@@ -2052,6 +2057,7 @@ function removeAttachment() {
 		attachmentCloseArea.classList.remove('active');
 		//console.log('removing attachment');
 		activeModals.splice(activeModals.indexOf('attachments'), 1);
+		modalCloseMap.delete('attachments');
 		//console.log(activeModals);
 	}
 }
@@ -2336,6 +2342,7 @@ function hideSidePanel() {
 	if (sideBarPanel.classList.contains('active')) {
 		sideBarPanel.classList.remove('active');
 		activeModals.splice(activeModals.indexOf('sidePanel'), 1);
+		modalCloseMap.delete('sidePanel');
 	}
 }
 
@@ -3102,6 +3109,7 @@ window.addEventListener('drop', (evt) => {
 //listen for file paste
 window.addEventListener('paste', (e) => {
 	if (e.clipboardData.files?.length > 0) {
+		e.preventDefault();
 		//if all files are images
 		if (Array.from(e.clipboardData.files).every(file => file.type.startsWith('image/'))) {
 			//set it to photobutton
@@ -3306,7 +3314,7 @@ async function sendImageStoreRequest() {
 					} else if (xhr.readyState === XMLHttpRequest.DONE) {
 						//console.log(`Upload finished with status ${xhr.status}`);
 						ongoingXHR.delete(messageId);
-						if(xhr.status === 200){
+						if (xhr.status === 200) {
 							// Handle successful response from server
 							if (elem) {
 								progresCircle.remove();
@@ -3320,7 +3328,7 @@ async function sendImageStoreRequest() {
 							_msg.dataset.downloaded = 'true';
 							_msg.dataset.downlink = downloadLink;
 							fileSocket.emit('fileUploadEnd', messageId, myKey, downloadLink);
-						}else{
+						} else {
 							// Handle network errors or server unreachable errors
 							//console.log('Error: could not connect to server');
 							showPopupMessage('Upload failed..!');
@@ -3556,6 +3564,7 @@ document.addEventListener('keydown', (evt) => {
 	const altKeys = ['o', 's', 't', 'i', 'a', 'f', 'p', 'm', 'r'];
 
 	if (altKeys.includes(evt.key) && evt.altKey) {
+		console.log(modalCloseMap);
 		//evt.preventDefault();
 		closeAllModals();
 		switch (evt.key) {
