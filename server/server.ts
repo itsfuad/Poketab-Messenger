@@ -202,7 +202,7 @@ app.get('*', (_, res) => {
 //fire up the server
 httpServer.listen(port, () => {
 	console.log('%cBooting up the server...', 'color: yellow;');
-	console.log(`Server is up on port ${port} | Process ID: ${process.pid} in ${ENVIRONMENT} mode`);
+	console.log(`Server is up on port ${port} | Process ID: ${process.pid} in ${ENVIRONMENT} mode [${process.platform}]`);
 	const HOOK_API_KEY = process.env.HOOK_API_KEY;
 	const CHAT_ID = process.env.CHAT_ID;
 	if (ENVIRONMENT === 'PRODUCTION' && HOOK_API_KEY && CHAT_ID){
