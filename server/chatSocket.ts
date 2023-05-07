@@ -1,6 +1,3 @@
-//socketio server which can handle multiple connections and reconnects from the client
-import { httpServer } from './expressApp.js';
-import { Server } from 'socket.io';
 //utility functions for the server
 import { avList, isRealString, reactArray, validateKey } from './utils/validation.js';
 
@@ -14,11 +11,11 @@ import { cleanJunks, deleteFile } from './cleaner.js';
 
 import { Worker } from 'worker_threads';
 
-
-export const io = new Server(httpServer);
+import { chatSocket } from './sockets.js';
+import { fileStore } from './routes/fileAPI.js';
 
 //socket.io connection
-io.on('connection', (socket) => {
+chatSocket.on('connection', (socket) => {
 	try{
 		socket.on('join', (params, callback) => {
 			if (!isRealString(params.name) || !isRealString(params.key)) {
@@ -62,7 +59,7 @@ io.on('connection', (socket) => {
 	
 			SocketIds[socket.id] = {uid: params.id, key: params.key};
 			
-			io.to(params.key).emit('updateUserList', userList);
+			chatSocket.to(params.key).emit('updateUserList', userList);
 			const srvID = crypto.randomUUID();
 			socket.emit('server_message', {color: 'var(--secondary-dark)', text: 'You joined the chat🔥', id: srvID}, 'join');
 			socket.broadcast.to(params.key).emit('server_message', {color: 'var(--secondary-dark)', text: `${params.name} joined the chat🔥`, id: srvID}, 'join');
@@ -89,7 +86,7 @@ io.on('connection', (socket) => {
 		socket.on('react', (target, messageId, myId) => {
 			if (SocketIds[socket.id]){
 				if (reactArray.primary.includes(target) || reactArray.expanded.includes(target)) {
-					io.to(SocketIds[socket.id].key).emit('getReact', target, messageId, myId);
+					chatSocket.to(SocketIds[socket.id].key).emit('getReact', target, messageId, myId);
 				}
 			}
 		});
@@ -98,12 +95,12 @@ io.on('connection', (socket) => {
 			if (SocketIds[socket.id]){
 				if (msgUid == userId){
 
-					if (_downlink){
-						console.log(`Delete file request ${_downlink}`);
-						deleteFile(_downlink);
+					if (fileStore.has(messageId)){
+						console.log(`Delete file request ${fileStore.get(messageId)?.filename}`);
+						deleteFile(messageId);
 					}
 
-					io.to(SocketIds[socket.id].key).emit('deleteMessage', messageId, userName);
+					chatSocket.to(SocketIds[socket.id].key).emit('deleteMessage', messageId, userName);
 				}
 			}
 		});
@@ -111,7 +108,7 @@ io.on('connection', (socket) => {
 		socket.on('createLocationMessage', (coord) => {
 			if (SocketIds[socket.id]){
 				const srvID = crypto.randomUUID();
-				io.to(SocketIds[socket.id].key).emit('server_message', {color: 'var(--secondary-dark);', coordinate: {longitude: coord.longitude, latitude: coord.latitude}, user: keyStore.getKey(SocketIds[socket.id].key).getUser(SocketIds[socket.id].uid).username, id: srvID}, 'location');
+				chatSocket.to(SocketIds[socket.id].key).emit('server_message', {color: 'var(--secondary-dark);', coordinate: {longitude: coord.longitude, latitude: coord.latitude}, user: keyStore.getKey(SocketIds[socket.id].key).getUser(SocketIds[socket.id].uid).username, id: srvID}, 'location');
 			}
 		});
 	

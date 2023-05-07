@@ -1,16 +1,17 @@
-import { existsSync, rm, readdir } from 'fs';
+import { rm, readdir, existsSync } from 'fs';
 
-import { fileStore, deleteFileStore } from './routes/fileAPI.js';
+import { fileStore, deleteFileStore, filePaths } from './routes/fileAPI.js';
 import { keyStore } from './database/db.js';
 
-export function markForDelete(userId: string, key: string, filename: string){
-	const file = fileStore.get(filename);
+export function markForDelete(userId: string, key: string, messageId: string){
+	const file = fileStore.get(messageId);
+	const filename = fileStore.get(messageId)?.filename;
 	if (file){
 		file.uids = file.uids != null ? file.uids.add(userId) : new Set();
 		console.log(`${filename} recieved by ${userId} | ${file.uids.size} of ${keyStore.getKey(key).activeUsers} recieved`);
 		if (keyStore.getKey(key).activeUsers == file.uids.size) {
 			rm(`uploads/${filename}`, () =>{
-				deleteFileStore(filename);
+				deleteFileStore(messageId);
 				console.log(`${filename} deleted after relaying`);
 			});
 		}
@@ -21,11 +22,13 @@ export function markForDelete(userId: string, key: string, filename: string){
 	}
 }
 
-export function deleteFile(filename: string){
-	if (fileStore.get(filename)){
-		rm(`uploads/${filename}`, () => {
-			deleteFileStore(filename);
-			console.log(`${filename} deleted as requested by user`);
+export function deleteFile(messageId: string){
+	if (fileStore.get(messageId)){
+		const fileName = fileStore.get(messageId)?.filename;
+
+		rm(`uploads/${fileName}`, () => {
+			deleteFileStore(messageId);
+			console.log(`${fileName} deleted`);
 		});
 	}
 }
@@ -35,7 +38,7 @@ export function cleanJunks(){
 		readdir('uploads', (err, files) => {
 			if (err) throw err;
 			files.forEach(file => {
-				if (!fileStore.has(file) && file != 'dummy.txt'){
+				if (!filePaths.get(file) && file != 'dummy.txt'){
 					rm(`uploads/${file}`, () => {
 						console.log(`${file} deleted as garbage file`);
 					});

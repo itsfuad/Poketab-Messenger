@@ -2,6 +2,8 @@ console.log('Initializing Server');
 
 import crypto from 'crypto';
 
+
+
 //utility functions for the server
 import { validateUserName, validateAvatar, avList, validateKey } from './utils/validation.js';
 import { generateUniqueId, makeUsernameandPasswordForDevelopment } from './utils/functions.js';
@@ -12,7 +14,8 @@ import { config } from 'dotenv';
 
 import { app, httpServer } from './expressApp.js';
 
-import './websockets.js';
+
+import './chatSocket.js';
 import './fileSocket.js';
 import './preAuthSocket.js';
 
@@ -33,6 +36,17 @@ const ENVIRONMENT = process.env.BUILD_MODE == 'DEVELOPMENT' ? 'DEVELOPMENT' : 'P
 
 const Icon = ENVIRONMENT == 'DEVELOPMENT' ? 'dev.png' : 'icon.png';
 
+
+
+import adminRouter from './routes/admin.js';
+import fileRouter from './routes/fileAPI.js';
+
+app.use('/admin', adminRouter); //route for admin panel
+
+app.use('/api/files', fileRouter); //route for file uploads
+
+
+
 // default route to serve the client
 // Home route
 app.get('/', (_, res) => {
@@ -45,13 +59,6 @@ app.get('/', (_, res) => {
 	// Render the home page
 	res.render('home/home', {title: 'Get Started', hash: nonce, version: `v.${version}`,  icon: Icon});
 });
-
-import adminRouter from './routes/admin.js';
-import fileRouter from './routes/fileAPI.js';
-
-app.use('/admin', adminRouter); //route for admin panel
-
-app.use('/api/files', fileRouter); //route for file uploads
 
 app.get('/create', (req, res) => {
 	const nonce = crypto.randomBytes(16).toString('hex');
@@ -198,6 +205,7 @@ app.get('*', (_, res) => {
 	res.setHeader('Content-Security-Policy', 'script-src \'none\'');
 	res.render('errors/errorRes', {title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home', icon: '404.png'});
 });
+
 
 //fire up the server
 httpServer.listen(port, () => {

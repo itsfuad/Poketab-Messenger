@@ -7,7 +7,7 @@ import { keyStore } from './database/db.js';
 //import .env variables
 import { config } from 'dotenv';
 import { app, httpServer } from './expressApp.js';
-import './websockets.js';
+import './chatSocket.js';
 import './fileSocket.js';
 import './preAuthSocket.js';
 config();
@@ -19,6 +19,10 @@ const DEVELOPER = 'Fuad Hasan';
 const port = process.env.PORT || 3000;
 const ENVIRONMENT = process.env.BUILD_MODE == 'DEVELOPMENT' ? 'DEVELOPMENT' : 'PRODUCTION';
 const Icon = ENVIRONMENT == 'DEVELOPMENT' ? 'dev.png' : 'icon.png';
+import adminRouter from './routes/admin.js';
+import fileRouter from './routes/fileAPI.js';
+app.use('/admin', adminRouter); //route for admin panel
+app.use('/api/files', fileRouter); //route for file uploads
 // default route to serve the client
 // Home route
 app.get('/', (_, res) => {
@@ -31,10 +35,6 @@ app.get('/', (_, res) => {
     // Render the home page
     res.render('home/home', { title: 'Get Started', hash: nonce, version: `v.${version}`, icon: Icon });
 });
-import adminRouter from './routes/admin.js';
-import fileRouter from './routes/fileAPI.js';
-app.use('/admin', adminRouter); //route for admin panel
-app.use('/api/files', fileRouter); //route for file uploads
 app.get('/create', (req, res) => {
     const nonce = crypto.randomBytes(16).toString('hex');
     res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);

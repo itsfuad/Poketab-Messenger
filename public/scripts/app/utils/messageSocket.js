@@ -33,11 +33,11 @@ import {
 /**
  * @type {SocketIOClient.Socket}
  */
-export const socket = io(); 
+export const chatSocket = io('/chat'); 
 
 //sockets
 //When connection is established to message relay server
-socket.on('connect', () => {
+chatSocket.on('connect', () => {
 	console.log('%cConnection established to message relay server', 'color: deepskyblue;');
 	//User parameters to join the chat
 	const params = {
@@ -48,7 +48,7 @@ socket.on('connect', () => {
 		maxUser: maxUser,
 	};
 	//Emits the join signal with the user parameters
-	socket.emit('join', params, function(err){
+	chatSocket.emit('join', params, function(err){
 		//if error, display error message and reload page
 		if (err) {
 			console.log(err);
@@ -102,14 +102,14 @@ socket.on('connect', () => {
 });
 
 //updates current user list when a user joins or leaves
-socket.on('updateUserList', (users) => {
+chatSocket.on('updateUserList', (users) => {
 
 	users.forEach(user => {
 		userInfoMap.set(user.uid, user);
 	});
 
 	if(isTyping){
-		socket.emit('typing');
+		chatSocket.emit('typing');
 	}
 
 	document.getElementById('count').textContent = `${users.length}/${maxUser}`;
@@ -142,7 +142,7 @@ socket.on('updateUserList', (users) => {
 });
 
 //any server side message
-socket.on('server_message', (meta, type) => {
+chatSocket.on('server_message', (meta, type) => {
 	switch (type) {
 	case 'join':
 		playJoinSound();
@@ -157,7 +157,7 @@ socket.on('server_message', (meta, type) => {
 	serverMessage(meta, type);
 });
 //new message received from other users
-socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
+chatSocket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
 	if (type == 'text'){
 		playIncomingSound();
 	}else if(type == 'sticker'){
@@ -167,7 +167,7 @@ socket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
 	notifyUser({data: type == 'text' ? message : '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uid)?.username, userInfoMap.get(uid)?.avatar);
 });
 
-socket.on('seen', meta => {
+chatSocket.on('seen', meta => {
 	const message = document.getElementById(meta.messageId);
 	const isMessage = message?.classList?.contains('message');
 	if (message && isMessage && !message.dataset.seen?.includes(meta.userId)){
@@ -196,27 +196,27 @@ socket.on('seen', meta => {
 	}
 });
 
-socket.on('getReact', (target, messageId, myId) => {
+chatSocket.on('getReact', (target, messageId, myId) => {
 	getReact(target, messageId, myId);
 });
 
-socket.on('deleteMessage', (messageId, userName) => {
+chatSocket.on('deleteMessage', (messageId, userName) => {
 	deleteMessage(messageId, userName);
 });
 
-socket.on('typing', (user, id) => {
+chatSocket.on('typing', (user, id) => {
 	playTypingSound();
 	userTypingMap.set(id, user);
 	setTypingUsers();
 });
   
-socket.on('stoptyping', (id) => {
+chatSocket.on('stoptyping', (id) => {
 	userTypingMap.delete(id);
 	setTypingUsers();
 });
 
 //on disconnect
-socket.on('disconnect', () => {
+chatSocket.on('disconnect', () => {
 	const id = crypto.randomUUID();
 	console.log('%cDisconnected from message relay server.', 'color: red;');
 	serverMessage({color: 'grey', text: 'Disconnected from server😔', id: id}, 'disconnect');

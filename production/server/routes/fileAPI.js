@@ -3,40 +3,50 @@ import multer from 'multer';
 import { access } from 'fs/promises';
 import crypto from 'crypto';
 import { keyStore } from '../database/db.js';
+import { deleteFile } from '../cleaner.js';
+import { fileSocket } from '../sockets.js';
 export const fileStore = new Map();
-export function store(filename, data) {
-    fileStore.set(filename, data);
+export const filePaths = new Map();
+export function store(messageId, data) {
+    fileStore.set(messageId, data);
+    filePaths.set(data.filename, true);
+    console.log(`${data.filename} stored`);
 }
-export function deleteFileStore(filename) {
-    fileStore.delete(filename);
+export function deleteFileStore(messageId) {
+    const filename = fileStore.get(messageId)?.filename;
+    if (filename) {
+        filePaths.delete(filename);
+    }
+    fileStore.delete(messageId);
 }
 const storage = multer.diskStorage({
     destination: (_, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => {
         if (file.size >= 20 * 1024 * 1024) {
-            cb(new Error('File size more than 15mb'), '');
+            cb(new Error('File size more than 20mb'), '');
+            return;
         }
-        else {
-            if (keyStore.hasKey(req.body.key)) {
-                //console.log(Keys[req.body.key].userCount);
-                if (keyStore.getKey(req.body.key).activeUsers > 1) {
-                    const filename = `poketab-${crypto.randomBytes(16).toString('hex')}`;
-                    store(filename, { filename: filename, key: req.body.key, ext: req.body.ext, uids: new Set([req.body.uid]) });
-                    cb(null, filename);
-                }
-                else {
-                    cb(new Error('File upload blocked for single user'), '');
-                }
-            }
-            else {
-                cb(new Error('Unauthorized'), '');
-            }
+        if (!keyStore.hasKey(req.body.key)) {
+            cb(new Error('Unauthorized'), '');
         }
+        //console.log(Keys[req.body.key].userCount);
+        if (keyStore.getKey(req.body.key).activeUsers <= 1) {
+            cb(new Error('File upload blocked for single user'), '');
+        }
+        const filename = `poketab-${crypto.randomBytes(16).toString('hex')}`;
+        req.on('aborted', () => {
+            //close the connection
+            console.log(`${file.mimetype} upload aborted`);
+            fileSocket.to(req.body.key).emit('fileUploadError', req.body.messageId, file.mimetype.includes('image') ? 'image' : 'file');
+            deleteFile(filename);
+        });
+        store(req.body.messageId, { filename: filename, key: req.body.key, ext: req.body.ext, uids: new Set([req.body.uid]) });
+        cb(null, filename);
     },
 });
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 20 * 1024 * 1024 },
+    limits: { fileSize: 20 * 1024 * 1024 }
 }); //name field name
 const router = Router();
 export default router;

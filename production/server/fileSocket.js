@@ -1,8 +1,6 @@
-import { io } from './websockets.js';
-//file socket handler is used to handle file transfers metadata but not the actual file transfer
-export const fileSocket = io.of('/file');
 import crypto from 'crypto';
 import { markForDelete } from './cleaner.js';
+import { fileSocket } from './sockets.js';
 //file upload
 fileSocket.on('connection', (socket) => {
     try {
@@ -18,8 +16,8 @@ fileSocket.on('connection', (socket) => {
             socket.broadcast.to(key).emit('fileDownloadReady', id, downlink);
             //socket.emit('fileSent', tempId, id, type, size);
         });
-        socket.on('fileDownloaded', (userId, key, filename) => {
-            markForDelete(userId, key, filename);
+        socket.on('fileDownloaded', (userId, key, messageId) => {
+            markForDelete(userId, key, messageId);
         });
         socket.on('fileUploadError', (key, id, type) => {
             socket.broadcast.to(key).emit('fileUploadError', id, type);

@@ -40,6 +40,9 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
 //if any error occurrs, the show the error
 fileSocket.on('fileUploadError', (id, type) => {
 	try{
+
+		console.log(id);
+		
 		const element = document.getElementById(id).querySelector('.messageMain');
 		let progressContainer;
 		if (type === 'image'){
@@ -47,6 +50,9 @@ fileSocket.on('fileUploadError', (id, type) => {
 		}else{
 			progressContainer = element.querySelector('.progress');
 		}
+
+		console.log(progressContainer);
+
 		if (progressContainer){
 			progressContainer.textContent = 'Upload Error';
 		}
@@ -101,7 +107,7 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 				if (element){
 
 					clearDownload(element, url, type);
-					fileSocket.emit('fileDownloaded', myId, myKey, downlink);
+					fileSocket.emit('fileDownloaded', myId, myKey, id);
 					if (type === 'image'){
 						//update the reply thumbnails with the detailed image if exists
 						document.querySelectorAll(`.messageReply[data-repid="${id}"]`)

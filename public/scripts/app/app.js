@@ -1,7 +1,7 @@
 //enable strict mode
 'use strict';
 
-import { socket } from './utils/messageSocket.js';
+import { chatSocket } from './utils/messageSocket.js';
 import { fileSocket, incommingXHR } from './utils/fileSocket.js';
 import { Stickers } from '../../stickers/stickersConfig.js';
 import { Prism } from '../../libs/prism/prism.min.js';
@@ -582,7 +582,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 		lastSeenMessage = id;
 
 		if (document.hasFocus()) {
-			socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
+			chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 		}
 
 		const fragment = document.createRange().createContextualFragment(html);
@@ -918,7 +918,7 @@ function sendReact(react) {
 		if (Array.from(userInfoMap.keys()).length < 2) {
 			getReact(react, messageId, myId);
 		} else {
-			socket.emit('react', react, messageId, myId);
+			chatSocket.emit('react', react, messageId, myId);
 		}
 		hideOptions();
 	}
@@ -1581,11 +1581,11 @@ function typingStatus() {
 	}
 	if (!isTyping) {
 		isTyping = true;
-		socket.emit('typing');
+		chatSocket.emit('typing');
 	}
 	typingStatusTimeout = setTimeout(function () {
 		isTyping = false;
-		socket.emit('stoptyping');
+		chatSocket.emit('stoptyping');
 		typingStatusTimeout = undefined;
 	}, 1000);
 }
@@ -1701,6 +1701,8 @@ export function serverMessage(message, type = null) {
 
 			text: `${message.user}'s location`,
 		};
+		
+		updateScroll('location', `${message.user}'s location`);
 	} else if (type == 'leave') {
 		messageObj = {
 			text: message.text
@@ -1747,11 +1749,9 @@ export function serverMessage(message, type = null) {
 
 	messages.appendChild(serverMessage);
 
-	updateScroll('location', `${message.user}'s location`);
-
 	lastSeenMessage = message.id;
 	if (document.hasFocus()) {
-		socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
+		chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 	}
 }
 
@@ -2122,13 +2122,13 @@ document.getElementById('stickers').addEventListener('click', e => {
 			msg?.classList.add('delevered');
 			//playOutgoingSound();
 		} else {
-			socket.emit('message', e.target.dataset.name, 'sticker', myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id) {
+			chatSocket.emit('message', e.target.dataset.name, 'sticker', myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id) {
 				playOutgoingSound();
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
 				lastSeenMessage = id;
 				if (document.hasFocus()) {
-					socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
+					chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 				}
 			});
 		}
@@ -2751,8 +2751,8 @@ deleteOption.addEventListener('click', () => {
 	const uid = document.getElementById(targetMessage.id)?.dataset?.uid;
 	if (uid) {
 		hideOptions();
-		const _downlink = document.getElementById(targetMessage.id)?.dataset?.downlink;
-		socket.emit('deletemessage', targetMessage.id, uid, myName, myId, _downlink);
+		console.log(document.getElementById(targetMessage.id));
+		chatSocket.emit('deletemessage', targetMessage.id, uid, myName, myId);
 	}
 });
 
@@ -3183,13 +3183,13 @@ sendButton.addEventListener('click', () => {
 			msg?.classList.add('delevered');
 			playOutgoingSound();
 		} else {
-			socket.emit('message', message, 'text', myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id) {
+			chatSocket.emit('message', message, 'text', myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id) {
 				playOutgoingSound();
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
 				lastSeenMessage = id;
 				if (document.hasFocus()) {
-					socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
+					chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 				}
 			});
 		}
@@ -3205,14 +3205,14 @@ sendButton.addEventListener('click', () => {
 		console.log('timeout not set');
 	}
 	isTyping = false;
-	socket.emit('stoptyping');
+	chatSocket.emit('stoptyping');
 });
 
 window.addEventListener('focus', () => {
 	if (lastNotification != undefined) {
 		lastNotification.close();
 	}
-	socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
+	chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 });
 
 function closeFilePreview() {
@@ -3292,11 +3292,6 @@ async function sendImageStoreRequest() {
 				//image to file
 				const file = await fetch(image.src).then(r => r.blob()).then(blobFile => new File([blobFile], 'image', { type: image.mimetype }));
 
-				const formData = new FormData();
-				formData.append('key', myKey);
-				formData.append('ext', image.mimetype);
-				formData.append('file', file);
-
 				//upload image via xhr request
 				const xhr = new XMLHttpRequest();
 
@@ -3362,13 +3357,20 @@ async function sendImageStoreRequest() {
 					if (ongoingXHR.has(messageId)) {
 						//replace the old key with the new key
 						ongoingXHR.set(newId, ongoingXHR.get(messageId));
-						ongoingXHR.delete(messageId);
+						//ongoingXHR.delete(messageId);
 					}
 					messageId = newId;
 					lastSeenMessage = newId;
 					if (document.hasFocus()) {
-						socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
+						chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 					}
+
+					const formData = new FormData();
+
+					formData.append('key', myKey);
+					formData.append('ext', image.mimetype);
+					formData.append('messageId', messageId);
+					formData.append('file', file);
 
 					xhr.send(formData);
 				});
@@ -3392,7 +3394,8 @@ function sendFileStoreRequest(type = null) {
 		let messageId = crypto.randomUUID();
 		scrolling = false;
 
-		const fileUrl = URL.createObjectURL(selectedFileArray[i].data);
+		const fileData = selectedFileArray[i].data;
+		const fileUrl = URL.createObjectURL(fileData);
 
 		if (type && type == 'audio') {
 			insertNewMessage(fileUrl, 'audio', messageId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name, duration: selectedFileArray[i].duration });
@@ -3413,11 +3416,6 @@ function sendFileStoreRequest(type = null) {
 		} else {
 			let progress = 0;
 			const elem = document.getElementById(messageId)?.querySelector('.messageMain');
-
-
-			const formData = new FormData();
-			formData.append('key', myKey);
-			formData.append('file', selectedFileArray[i].data);
 
 			//upload image via xhr request
 			const xhr = new XMLHttpRequest();
@@ -3474,13 +3472,19 @@ function sendFileStoreRequest(type = null) {
 				if (ongoingXHR.has(messageId)) {
 					//replace the old key with the new key
 					ongoingXHR.set(newId, ongoingXHR.get(messageId));
-					ongoingXHR.delete(messageId);
+					//ongoingXHR.delete(messageId);
 				}
 				messageId = newId;
 				lastSeenMessage = newId;
 				if (document.hasFocus()) {
-					socket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
+					chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 				}
+
+				const formData = new FormData();
+				formData.append('key', myKey);
+				formData.append('messageId', messageId);
+				formData.append('file', fileData);
+
 				xhr.send(formData);
 			});
 		}
@@ -3639,7 +3643,7 @@ document.getElementById('send-location').addEventListener('click', () => {
 	navigator.geolocation.getCurrentPosition((position) => {
 		if (!show) return;
 		showPopupMessage('Tracing your location...');
-		socket.emit('createLocationMessage', {
+		chatSocket.emit('createLocationMessage', {
 			latitude: position.coords.latitude,
 			longitude: position.coords.longitude
 		});

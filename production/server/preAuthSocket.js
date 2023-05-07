@@ -1,11 +1,8 @@
 //buit in modules
 import crypto from 'crypto';
-import { io } from './websockets.js';
 import { keyStore } from './database/db.js';
 import { validateKey } from './utils/validation.js';
-//importing worker threads
-//The worker threads module provides a way to create multiple environments running on separate threads that can communicate with each other via inter-thread messaging or sharing memory.
-export const auth = io.of('/auth');
+import { auth } from './sockets.js';
 function keyCheck(key) {
     try {
         if (!validateKey(key)) {
