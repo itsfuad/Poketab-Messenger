@@ -683,9 +683,15 @@ function showOptions(type, sender, target) {
 		const clicked = Array.from(target.closest('.message').querySelectorAll('.reactedUsers .list')).reduce((acc, curr) => {
 			return acc || curr.dataset.uid == myId;
 		}, false);
+
+		//2nd last element
+		const elm = document.getElementById('reactOptions');
+		const lastElm = elm.lastElementChild.previousElementSibling;
+
 		if (clicked) { //if the message has my reaction
 			//get how many reactions the message has
 			const clickedElement = target.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
+
 			if (reactArray.primary.includes(clickedElement)) { //if the message has my primary reaction
 				//selected react color
 				document.querySelector(`#reactOptions [data-react="${clickedElement}"]`).style.background = 'var(--secondary-dark)';
@@ -694,13 +700,23 @@ function showOptions(type, sender, target) {
 				document.querySelector(`.moreReacts [data-react="${clickedElement}"]`).style.background = 'var(--secondary-dark)';
 			}
 			if (reactArray.expanded.includes(clickedElement) && !reactArray.primary.includes(clickedElement)) {
-				//2nd last element
-				const elm = document.querySelector('#reactOptions');
-				const lastElm = elm.lastElementChild.previousElementSibling;
 				lastElm.style.background = 'var(--secondary-dark)';
 				lastElm.dataset.react = clickedElement;
 				lastElm.querySelector('.react-emoji').textContent = clickedElement;
-				reactArray.last = clickedElement;
+			}
+		}else{
+			//console.log('No self previous reaction. loading from last react');
+			const last = localStorage.getItem('lastReact');
+			if (!reactArray.primary.includes(last) && !reactArray.expanded.includes(last)) {
+				//console.log('Setting default last react: 🌻');
+				reactArray.last = '🌻';
+				lastElm.dataset.react = '🌻';
+				lastElm.querySelector('.react-emoji').textContent = '🌻';
+				localStorage.setItem('lastReact', '🌻');
+			}else{
+				//console.log('Setting Last react:', last);
+				lastElm.dataset.react = last;
+				lastElm.querySelector('.react-emoji').textContent = last;
 			}
 		}
 		//show the options
