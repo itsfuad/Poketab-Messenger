@@ -2472,16 +2472,22 @@ messages.addEventListener('click', (evt) => {
 				}
 			}
 
-			//if play button was clicked
-			if (target.classList.contains('fa-play')) {
-				//console.log('%cPlaying audio', 'color: green');	
-				playAudio(audioContainer);
-			} else if (target.classList.contains('fa-pause')) {
-				//console.log('%cPausing audio', 'color: blue');
-				audio.pause();
-			} else if (target.classList.contains('fa-stop')) {
-				//console.log('%cStopped audio', 'color: red');
-				stopAudio(audio);
+			if (target.classList.contains('controls') || target.closest('.controls')){
+
+				console.log('clicked');
+				
+				//if play button was clicked
+				if (target.classList.contains('fa-play')) {
+					//console.log('%cPlaying audio', 'color: green');	
+					playAudio(audioContainer);
+				} else if (target.classList.contains('fa-pause')) {
+					//console.log('%cPausing audio', 'color: blue');
+					audio.pause();
+				} else if (target.classList.contains('fa-stop')) {
+					//console.log('%cStopped audio', 'color: red');
+					stopAudio(audio);
+				}
+
 			}
 		} else if (evt.target?.classList?.contains('reactsOfMessage')) {
 			const target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
@@ -3588,36 +3594,36 @@ document.addEventListener('keydown', (evt) => {
 		//evt.preventDefault();
 		closeAllModals();
 		switch (evt.key) {
-			case 'o':
-				showSidePanel();
-				break;
-			case 's':
-				showQuickSettings();
-				break;
-			case 't':
-				showThemes();
-				break;
-			case 'i':
-				showStickersPanel();
-				break;
-			case 'a':
-				addAttachment();
-				break;
-			case 'f':
-				//choose file
-				fileButton.click();
-				break;
-			case 'p':
-				//choose photo
-				photoButton.click();
-				break;
-			case 'm':
-				//choose audio
-				audioButton.click();
-				break;
-			case 'r':
-				//record voice
-				recordButton.click();
+		case 'o':
+			showSidePanel();
+			break;
+		case 's':
+			showQuickSettings();
+			break;
+		case 't':
+			showThemes();
+			break;
+		case 'i':
+			showStickersPanel();
+			break;
+		case 'a':
+			addAttachment();
+			break;
+		case 'f':
+			//choose file
+			fileButton.click();
+			break;
+		case 'p':
+			//choose photo
+			photoButton.click();
+			break;
+		case 'm':
+			//choose audio
+			audioButton.click();
+			break;
+		case 'r':
+			//record voice
+			recordButton.click();
 		}
 		return;
 	}

@@ -652,11 +652,19 @@ pre code {
   /* if .controls has the fa-play element then style the .stop class */
 }
 .audioMessage .main-element .controls .control {
-  width: 20px;
+  width: 30px;
+  aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: 150ms ease-in-out;
+}
+.audioMessage .main-element .controls .control i {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .audioMessage .main-element .controls .stop {
   visibility: visible;
