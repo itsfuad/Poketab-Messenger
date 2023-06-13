@@ -186,7 +186,7 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 
 //detect if user is using a mobile device, if yes then use the click and hold class
 if (isMobile) {
-	ClickAndHold.applyTo(messages, 300, (evt) => {
+	ClickAndHold.applyTo(messages, 240, (evt) => {
 		const isDeleted = evt.target.closest('.message').dataset.deleted == 'true' ? true : false;
 		if (!isDeleted) {
 			OptionEventHandler(evt);
@@ -723,7 +723,11 @@ function showOptions(type, sender, target) {
 		playExpandSound();
 		messageOptions.classList.add('active');
 		addFocusGlass(false);
-		messageOptions.addEventListener('click', optionsMainEvent);
+		if (isMobile){
+			messageOptions.addEventListener('touchstart', optionsMainEvent);
+		}else{
+			messageOptions.addEventListener('click', optionsMainEvent);
+		}
 	} catch (err) {
 		console.error(err);
 	}
@@ -754,7 +758,7 @@ function removeFocusGlass() {
  */
 function optionsMainEvent(e) {
 	const target = e.target;
-	//console.log(target);
+	console.log(target);
 	if (target.classList.contains('close_area') || target.id == 'optionsContainer') {
 		hideOptions();
 	}

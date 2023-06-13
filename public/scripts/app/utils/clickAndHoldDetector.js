@@ -39,6 +39,7 @@ export class ClickAndHold{
 	//this function is called when the user starts to hold the finger or mouse
 	_onHoldStart(evt){
 		this.isHeld = true;
+		//console.log('hold started for target: ', this.target, ' with timeout: ', this.timeOut, ' and callback: ', this.callback);
 		this.activeHoldTimeoutId = setTimeout(() => {
 			if (this.isHeld) {
 				this.callback(evt);
@@ -52,6 +53,7 @@ export class ClickAndHold{
 	//this function is called when the user releases the finger or mouse
 	_onHoldEnd(){
 		this.isHeld = false;
+		//console.log('hold ended for target: ', this.target, ' with timeout: ', this.timeOut, ' and callback: ', this.callback);
 		clearTimeout(this.activeHoldTimeoutId);
 	}
 	//a static function to use the class utility without creating an instance
