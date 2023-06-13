@@ -713,7 +713,7 @@ function showOptions(type, sender, target) {
 				lastElm.dataset.react = '🌻';
 				lastElm.querySelector('.react-emoji').textContent = '🌻';
 				localStorage.setItem('lastReact', '🌻');
-			}else{
+			}else if(!reactArray.primary.includes(last) && reactArray.expanded.includes(last)){
 				//console.log('Setting Last react:', last);
 				lastElm.dataset.react = last;
 				lastElm.querySelector('.react-emoji').textContent = last;
