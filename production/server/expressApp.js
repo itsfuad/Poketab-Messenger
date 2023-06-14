@@ -2,8 +2,6 @@ import http from 'http';
 import express from 'express';
 import { randomBytes } from 'crypto';
 import compression from 'compression';
-import rateLimit from 'express-rate-limit';
-import { blockedMessage } from './utils/blockedMessage.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 export const HMAC_KEY = randomBytes(64).toString('hex');
@@ -20,15 +18,6 @@ app.use(express.urlencoded({
     extended: false
 }));
 app.use(cookieParser(HMAC_KEY));
-//this blocks the client if they request 100 requests in 15 minutes
-const apiRequestLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: blockedMessage,
-    standardHeaders: false,
-    legacyHeaders: false // Disable the `X-RateLimit-*` headers
-});
-app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 //disable x-powered-by header showing express in the response
 app.disable('x-powered-by');
 //view engine setup

@@ -757,11 +757,16 @@ function removeFocusGlass() {
  * @param {Event} e 
  */
 function optionsMainEvent(e) {
+
 	const target = e.target;
-	console.log(target);
+	//clear the event e
+	e.preventDefault();
+	e.stopPropagation();
+	console.log(e.target);
 	if (target.classList.contains('close_area') || target.id == 'optionsContainer') {
 		hideOptions();
 	}
+	
 	//passes the event to the react event handler, Which handles the reactions if the target is a react
 	optionsReactEvent(e);
 }
@@ -919,6 +924,8 @@ function downloadFile() {
  * @param {Event} e 
  */
 function optionsReactEvent(e) {
+	e.preventDefault();
+	e.stopPropagation();
 	//get the react
 	const isReact = e.target?.classList.contains('reactWrapper');
 	if (isReact) {
@@ -958,7 +965,13 @@ function hideOptions() {
 	//document.getElementById('focus_glass').classList.remove('active');
 	removeFocusGlass();
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
-	messageOptions.removeEventListener('click', optionsMainEvent);
+
+	if (isMobile){
+		messageOptions.removeEventListener('touchstart', optionsMainEvent);
+	}else{
+		messageOptions.removeEventListener('click', optionsMainEvent);
+	}
+
 
 	if (hideOptionsTimeout) {
 		clearTimeout(hideOptionsTimeout);
@@ -3700,6 +3713,9 @@ export function setTypingUsers() {
 	}
 }
 
+/**
+ * Expands the reaction keyboard to the full view.
+ */
 expandReactButton.addEventListener('click', () => {
 	const expanded = moreReactsContainer.dataset.expanded;
 	if (expanded == 'true') {

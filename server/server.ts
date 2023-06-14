@@ -1,7 +1,8 @@
 console.log('Initializing Server');
 
 import crypto from 'crypto';
-
+import rateLimit from 'express-rate-limit';
+import { blockedMessage } from './utils/blockedMessage.js';
 
 
 //utility functions for the server
@@ -40,6 +41,19 @@ const Icon = ENVIRONMENT == 'DEVELOPMENT' ? 'dev.png' : 'icon.png';
 
 import adminRouter from './routes/admin.js';
 import fileRouter from './routes/fileAPI.js';
+
+
+//this blocks the client if they request 100 requests in 5 minutes
+const apiRequestLimiter = rateLimit({
+	windowMs: 5 * 60 * 1000, // 5 minute
+	max: 100, // limit each IP to 100 requests per windowMs
+	message: blockedMessage,
+	standardHeaders: false, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false // Disable the `X-RateLimit-*` headers
+});
+
+
+app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 
 app.use('/admin', adminRouter); //route for admin panel
 

@@ -1,5 +1,7 @@
 console.log('Initializing Server');
 import crypto from 'crypto';
+import rateLimit from 'express-rate-limit';
+import { blockedMessage } from './utils/blockedMessage.js';
 //utility functions for the server
 import { validateUserName, validateAvatar, avList, validateKey } from './utils/validation.js';
 import { generateUniqueId, makeUsernameandPasswordForDevelopment } from './utils/functions.js';
@@ -21,6 +23,15 @@ const ENVIRONMENT = process.env.BUILD_MODE == 'DEVELOPMENT' ? 'DEVELOPMENT' : 'P
 const Icon = ENVIRONMENT == 'DEVELOPMENT' ? 'dev.png' : 'icon.png';
 import adminRouter from './routes/admin.js';
 import fileRouter from './routes/fileAPI.js';
+//this blocks the client if they request 100 requests in 5 minutes
+const apiRequestLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000,
+    max: 100,
+    message: blockedMessage,
+    standardHeaders: false,
+    legacyHeaders: false // Disable the `X-RateLimit-*` headers
+});
+app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 app.use('/admin', adminRouter); //route for admin panel
 app.use('/api/files', fileRouter); //route for file uploads
 // default route to serve the client
