@@ -6,6 +6,9 @@ import { keyStore } from './database/db.js';
 export function markForDelete(userId: string, key: string, messageId: string){
 	const file = fileStore.get(messageId);
 	const filename = fileStore.get(messageId)?.filename;
+
+	console.log(`markForDelete called for ${file?.filename} by ${userId} | messageID: ${messageId}`);
+
 	if (file){
 		file.uids = file.uids != null ? file.uids.add(userId) : new Set();
 		console.log(`${filename} recieved by ${userId} | ${file.uids.size} of ${keyStore.getKey(key).activeUsers} recieved`);

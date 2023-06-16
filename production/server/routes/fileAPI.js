@@ -1,6 +1,7 @@
+import { __dirname } from '../expressApp.js';
 import { Router } from 'express';
-import multer from 'multer';
 import { access } from 'fs/promises';
+import { createWriteStream, unlink } from 'fs';
 import crypto from 'crypto';
 import { keyStore } from '../database/db.js';
 import { deleteFile } from '../cleaner.js';
@@ -10,7 +11,7 @@ export const filePaths = new Map();
 export function store(messageId, data) {
     fileStore.set(messageId, data);
     filePaths.set(data.filename, true);
-    console.log(`${data.filename} stored`);
+    console.log(`${data.filename} stored. messageID: ${messageId}`);
 }
 export function deleteFileStore(messageId) {
     const filename = fileStore.get(messageId)?.filename;
@@ -19,44 +20,81 @@ export function deleteFileStore(messageId) {
     }
     fileStore.delete(messageId);
 }
-const storage = multer.diskStorage({
-    destination: (_, file, cb) => cb(null, 'uploads/'),
-    filename: (req, file, cb) => {
-        if (file.size >= 20 * 1024 * 1024) {
-            cb(new Error('File size more than 20mb'), '');
-            return;
+const fileSizeLimit = 1024 * 1024 * 20; // 10 MB
+function handleFileUpload(req, res, next) {
+    // Check if the request is multipart/form-data
+    if (!req.is('multipart/form-data')) {
+        return res.status(400).json({ error: 'Invalid file upload request.' });
+    }
+    // Check if the file field exists
+    if (!req.headers['content-type'].includes('multipart/form-data')) {
+        return res.status(400).json({ error: 'No file uploaded.' });
+    }
+    // Validate other fields as needed
+    if (!keyStore.hasKey(req.params.key)) {
+        return res.status(403).json({ error: 'Unauthorized to upload files' });
+    }
+    //console.log(Keys[req.body.key].userCount);
+    if (keyStore.getKey(req.params.key).activeUsers <= 1) {
+        return res.status(403).json({ error: 'File upload blocked for single user' });
+    }
+    // Create a temporary file stream
+    const filename = `poketab-${crypto.randomBytes(16).toString('hex')}`;
+    const tempFilePath = `${__dirname}/uploads/${filename}`;
+    const tempFileStream = createWriteStream(tempFilePath);
+    // Store the size of uploaded data
+    let uploadedDataSize = 0;
+    // Handle data chunks
+    req.on('data', (chunk) => {
+        uploadedDataSize += chunk.length;
+        // Check if the file size exceeds the limit
+        if (uploadedDataSize > fileSizeLimit) {
+            req.removeAllListeners('data'); // Stop receiving data
+            console.log('File size exceeds the limit.');
+            // Delete the temporary file
+            unlink(tempFilePath, (err) => {
+                if (err) {
+                    console.error('Error deleting temporary file:', err);
+                }
+                else {
+                    console.log('Temporary file deleted.');
+                }
+            });
+            return res.status(413).json({ error: 'File size exceeds the limit.' });
         }
-        if (!keyStore.hasKey(req.body.key)) {
-            cb(new Error('Unauthorized'), '');
-        }
-        //console.log(Keys[req.body.key].userCount);
-        if (keyStore.getKey(req.body.key).activeUsers <= 1) {
-            cb(new Error('File upload blocked for single user'), '');
-        }
-        const filename = `poketab-${crypto.randomBytes(16).toString('hex')}`;
-        req.on('aborted', () => {
-            //close the connection
-            console.log(`${file.mimetype} upload aborted`);
-            fileSocket.to(req.body.key).emit('fileUploadError', req.body.messageId, file.mimetype.includes('image') ? 'image' : 'file');
-            deleteFile(filename);
-        });
-        store(req.body.messageId, { filename: filename, key: req.body.key, ext: req.body.ext, uids: new Set([req.body.uid]) });
-        cb(null, filename);
-    },
-});
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 20 * 1024 * 1024 }
-}); //name field name
+        // Write the chunk to the temporary file
+        tempFileStream.write(chunk);
+    });
+    // Handle the end of the request
+    req.on('end', () => {
+        // Close the temporary file stream
+        tempFileStream.end();
+        console.log('File saved to temporary location.');
+        // Store the new file name in the request object for further processing
+        req.file = filename;
+        // Continue to the next middleware or route handler
+        next();
+    });
+    // Handle request abortion
+    req.on('aborted', () => {
+        tempFileStream.end();
+        req.removeAllListeners('data'); // Stop receiving data
+        console.log(`${filename} upload aborted`);
+        fileSocket.to(req.params.key).emit('fileUploadError', req.params.messageId);
+        // Delete the temporary file
+        deleteFile(filename);
+    });
+    store(req.params.messageId, { filename: filename, key: req.params.key, uids: new Set([req.params.uid]) });
+}
 const router = Router();
 export default router;
 //Handle the upload of a file
-router.post('/upload', upload.single('file'), (req, res) => {
+router.post('/upload/:key/:messageId', handleFileUpload, (req, res) => {
     //If the file is present
     if (req.file) {
         //Send the file name as a response
-        res.status(200).send({ success: true, downlink: req.file.filename });
-        console.log(`${req.file.filename} recieved to be relayed`);
+        res.status(200).send({ success: true, downlink: req.file });
+        console.log(`${req.file} recieved to be relayed`);
     }
     else {
         //Otherwise, send an error
@@ -64,6 +102,7 @@ router.post('/upload', upload.single('file'), (req, res) => {
     }
 });
 router.get('/download/:id/:key', (req, res) => {
+    console.log(`Download request for ${req.params.id} from ${req.params.key}`);
     if (keyStore.hasKey(req.params.key)) {
         access(`uploads/${req.params.id}`)
             .then(() => {

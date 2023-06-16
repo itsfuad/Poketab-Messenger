@@ -3373,8 +3373,6 @@ async function sendImageStoreRequest() {
 					}
 				};
 
-				//send file via xhr post request
-				xhr.open('POST', `${location.origin}/api/files/upload`, true);
 				xhr.upload.onprogress = function (e) {
 					if (e.lengthComputable) {
 						progresCircle.querySelector('.animated').classList.remove('inactive');
@@ -3406,10 +3404,10 @@ async function sendImageStoreRequest() {
 
 					const formData = new FormData();
 
-					formData.append('key', myKey);
-					formData.append('ext', image.mimetype);
-					formData.append('messageId', messageId);
 					formData.append('file', file);
+
+					//send file via xhr post request
+					xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${messageId}`, true);
 
 					xhr.send(formData);
 				});
@@ -3482,13 +3480,12 @@ function sendFileStoreRequest(type = null) {
 						console.log('error uploading file');
 						showPopupMessage('Error uploading file');
 						elem.querySelector('.progress').textContent = 'Upload failed';
-						fileSocket.emit('fileUploadError', myKey, messageId, 'image');
+						fileSocket.emit('fileUploadError', myKey, messageId, 'file');
 					}
 				}
 			};
 
-			//send file via xhr post request
-			xhr.open('POST', location.origin + '/api/files/upload', true);
+			
 			xhr.upload.onprogress = function (e) {
 				if (e.lengthComputable) {
 					progress = (e.loaded / e.total) * 100;
@@ -3520,9 +3517,12 @@ function sendFileStoreRequest(type = null) {
 				}
 
 				const formData = new FormData();
-				formData.append('key', myKey);
-				formData.append('messageId', messageId);
+
+
 				formData.append('file', fileData);
+
+				//send file via xhr post request
+				xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${messageId}`, true);
 
 				xhr.send(formData);
 			});
@@ -4019,11 +4019,13 @@ export function clearDownload(element, fileURL, type) {
 			element.querySelector('.image').src = fileURL;
 			element.querySelector('.image').alt = 'image';
 			element.querySelector('.image').style.filter = 'none';
+			console.log('Image src set to ' + element.querySelector('.image').src);
 		}, 50);
 	} else if (type === 'file' || type === 'audio') {
 		setTimeout(() => {
 			element.querySelector('.msg').dataset.src = fileURL;
 			element.querySelector('.progress').style.visibility = 'hidden';
+			console.log('File src set to ' + element.querySelector('.msg').dataset.src);
 		}, 50);
 	}
 	element.closest('.message').dataset.downloaded = 'true';

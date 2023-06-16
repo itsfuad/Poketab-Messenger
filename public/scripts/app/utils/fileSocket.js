@@ -38,10 +38,16 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
 });
 
 //if any error occurrs, the show the error
-fileSocket.on('fileUploadError', (id, type) => {
+fileSocket.on('fileUploadError', (id) => {
 	try{
 
 		console.log(id);
+
+		if (!fileBuffer.has(id)){
+			return;
+		}
+		const data = fileBuffer.get(id);
+		const type = data.type;
 		
 		const element = document.getElementById(id).querySelector('.messageMain');
 		let progressContainer;
@@ -69,7 +75,11 @@ fileSocket.on('fileUploadError', (id, type) => {
 
 //if the file has been uploded to the server by other users, then start downloading
 fileSocket.on('fileDownloadReady', (id, downlink) => {
+
+	console.log('file download ready to start');
+
 	if (!fileBuffer.has(id)){
+		console.log('file buffer not found');
 		return;
 	}
 	const data = fileBuffer.get(id);
@@ -77,7 +87,7 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 	const element = document.getElementById(id).querySelector('.messageMain');
 	let progressContainer;
 	let progressText;
-	//console.log(type);
+	console.log(type);
 	if (type === 'image'){
 		progressContainer = element.querySelector('.circleProgressLoader');
 		progressText = progressContainer.querySelector('.progressPercent');
@@ -85,8 +95,6 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 		progressContainer = element.querySelector('.progress');
 		progressText = progressContainer;
 	}
-
-	//console.log(progressContainer);
 	
 	fileBuffer.delete(id);
 
@@ -94,15 +102,18 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState === XMLHttpRequest.OPENED){
-			//console.log('opened connection to download file');
+			console.log('opened connection to download file');
 			incommingXHR.set(id, xhr);
 		}
 		if (xhr.readyState === XMLHttpRequest.DONE) {
 			if(xhr.status === 200){
-				//console.log('file download complete');
+				console.log('file download complete');
 				incommingXHR.delete(id);
+
 				const file = this.response;
 				const url = URL.createObjectURL(file);
+
+				console.log(file, url);
 
 				if (element){
 
@@ -123,6 +134,7 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 
 
 	xhr.open('GET', `${location.origin}/api/files/download/${downlink}/${myKey}`, true);
+
 	xhr.responseType = 'blob';
 
 
@@ -130,7 +142,7 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 	xhr.onprogress = function(e) {
 		if (e.lengthComputable && progressContainer) {
 			const progress = Math.round((e.loaded / e.total) * 100);
-			//console.log(progress);
+			console.log(progress);
 			if (type == 'image'){
 				progressContainer.querySelector('.animated')?.classList?.remove('inactive');
 				progressContainer.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;

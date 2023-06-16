@@ -7,7 +7,7 @@ import path from 'path';
 
 export const HMAC_KEY = randomBytes(64).toString('hex');
 
-const __dirname = process.cwd();
+export const __dirname = process.cwd();
 
 //public path to serve static files
 export const publicPath = path.join(__dirname, '/public');

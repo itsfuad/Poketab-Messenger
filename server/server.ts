@@ -74,7 +74,7 @@ app.get('/', (_, res) => {
 	res.render('home/home', {title: 'Get Started', hash: nonce, version: `v.${version}`,  icon: Icon});
 });
 
-app.get('/create', (req, res) => {
+app.get('/create', (_, res) => {
 	const nonce = crypto.randomBytes(16).toString('hex');
 	res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-${nonce}';`);
 	res.setHeader('Developer', DEVELOPER);
