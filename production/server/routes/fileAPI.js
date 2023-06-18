@@ -3,6 +3,7 @@ import { access } from 'fs/promises';
 import fs from 'fs';
 import crypto from 'crypto';
 import { keyStore } from '../database/db.js';
+import { fileSocket } from '../sockets.js';
 import { parse } from './../utils/formParser.js';
 export const fileStore = new Map();
 export function store(messageId, data) {
@@ -24,7 +25,7 @@ router.post('/upload/:key/:messageId/:userId', (req, res) => {
         res.status(404).send({ error: 'User not found' });
         return;
     }
-    const boundary = req.headers['content-type']?.split('; ')[1].split('=')[1];
+    const boundary = req.headers['content-type']?.split('; boundary=')[1];
     if (!boundary) {
         res.status(400).send({ error: 'Invalid form' });
         return;
@@ -34,10 +35,11 @@ router.post('/upload/:key/:messageId/:userId', (req, res) => {
         chunks.push(chunk);
     });
     req.on('aborted', () => {
+        req.destroy();
         //console.log(`Upload aborted`);
         //console.log(chunks);
         chunks.length = 0;
-        req.destroy();
+        fileSocket.to(req.body.key).emit('fileUploadError', req.body.messageId);
     });
     req.on('end', () => {
         const data = Buffer.concat(chunks);

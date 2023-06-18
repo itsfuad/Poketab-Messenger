@@ -3607,43 +3607,42 @@ document.addEventListener('keydown', (evt) => {
 		//evt.preventDefault();
 		closeAllModals();
 		switch (evt.key) {
-			case 'o':
-				showSidePanel();
-				break;
-			case 's':
-				showQuickSettings();
-				break;
-			case 't':
-				showThemes();
-				break;
-			case 'i':
-				showStickersPanel();
-				break;
-			case 'a':
-				addAttachment();
-				break;
-			case 'f':
-				//choose file
-				fileButton.click();
-				break;
-			case 'p':
-				//choose photo
-				photoButton.click();
-				break;
-			case 'm':
-				//choose audio
-				audioButton.click();
-				break;
-			case 'r':
-				//record voice
-				recordButton.click();
+		case 'o':
+			showSidePanel();
+			break;
+		case 's':
+			showQuickSettings();
+			break;
+		case 't':
+			showThemes();
+			break;
+		case 'i':
+			showStickersPanel();
+			break;
+		case 'a':
+			addAttachment();
+			break;
+		case 'f':
+			//choose file
+			fileButton.click();
+			break;
+		case 'p':
+			//choose photo
+			photoButton.click();
+			break;
+		case 'm':
+			//choose audio
+			audioButton.click();
+			break;
+		case 'r':
+			//record voice
+			recordButton.click();
 		}
 		return;
 	}
 
 	//if escape key is pressed, close last opened modal
 	if (evt.key === 'Escape') {
-		//!Remove all modals
 		if (activeModals.length > 0) {
 			evt.preventDefault();
 			const close = activeModals[activeModals.length - 1];

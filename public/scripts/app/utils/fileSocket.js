@@ -38,12 +38,13 @@ fileSocket.on('fileDownloadStart', (type, thumbnail, id, uId, reply, replyId, op
 });
 
 //if any error occurrs, the show the error
-fileSocket.on('fileUploadError', (id, type) => {
+fileSocket.on('fileUploadError', (id) => {
 	try{
 
 		console.log(id);
 		
 		const element = document.getElementById(id).querySelector('.messageMain');
+		const type = element.closest('.message').dataset.type; 
 		let progressContainer;
 		if (type === 'image'){
 			progressContainer = element.querySelector('.circleProgressLoader .progressPercent');

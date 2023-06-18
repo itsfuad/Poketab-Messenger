@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import multer from 'multer';
 import { access } from 'fs/promises';
 import fs from 'fs';
 import crypto from 'crypto';
@@ -40,7 +39,7 @@ router.post('/upload/:key/:messageId/:userId', (req, res) => {
     return;
   }
 
-  const boundary = req.headers['content-type']?.split('; ')[1].split('=')[1];
+  const boundary = req.headers['content-type']?.split('; boundary=')[1];
 
   if (!boundary) {
     res.status(400).send({ error: 'Invalid form' });
@@ -53,10 +52,11 @@ router.post('/upload/:key/:messageId/:userId', (req, res) => {
   });
 
   req.on('aborted', () => {
+    req.destroy();
     //console.log(`Upload aborted`);
     //console.log(chunks);
     chunks.length = 0;
-    req.destroy();
+    fileSocket.to(req.body.key).emit('fileUploadError', req.body.messageId);
   })
 
   req.on('end', () => {
