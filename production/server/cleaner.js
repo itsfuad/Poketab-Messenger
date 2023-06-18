@@ -43,28 +43,28 @@ export function cleanJunks(key) {
                 console.log('Uploads folder not found');
                 return;
             }
-        });
-        readdir('uploads', (err, files) => {
-            if (err)
-                throw err;
-            for (const file of files) {
-                if (key) {
-                    if (file.startsWith(key)) {
-                        console.log(`Deleting ${file} as key ${key} expired`);
+            readdir('uploads', (err, files) => {
+                if (err)
+                    throw err;
+                for (const file of files) {
+                    if (key) {
+                        if (file.startsWith(key)) {
+                            console.log(`Deleting ${file} as key ${key} expired`);
+                            unlink(`uploads/${file}`, err => {
+                                if (err)
+                                    throw err;
+                            });
+                        }
+                    }
+                    else {
+                        console.log(`Deleting ${file} from uploads as Junk`);
                         unlink(`uploads/${file}`, err => {
                             if (err)
                                 throw err;
                         });
                     }
                 }
-                else {
-                    console.log(`Deleting ${file} from uploads as Junk`);
-                    unlink(`uploads/${file}`, err => {
-                        if (err)
-                            throw err;
-                    });
-                }
-            }
+            });
         });
     }
     catch (err) {

@@ -2,6 +2,8 @@ console.log('Initializing Server');
 
 import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
+import fs from 'fs';
+
 import { blockedMessage } from './utils/blockedMessage.js';
 
 
@@ -225,6 +227,11 @@ app.get('*', (_, res) => {
 httpServer.listen(port, () => {
 	console.log('%cBooting up the server...', 'color: yellow;');
 	console.log(`Server is up on port ${port} | Process ID: ${process.pid} in ${ENVIRONMENT} mode [${process.platform}]`);
+
+	if (!fs.existsSync('uploads')){
+		fs.mkdirSync('uploads');
+	}
+
 	const HOOK_API_KEY = process.env.HOOK_API_KEY;
 	const CHAT_ID = process.env.CHAT_ID;
 	if (ENVIRONMENT === 'PRODUCTION' && HOOK_API_KEY && CHAT_ID){

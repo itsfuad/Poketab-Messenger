@@ -1,4 +1,4 @@
-import { stat, rm, readdir, unlink } from 'fs';
+import { stat, rm, readdir, unlink, mkdir } from 'fs';
 
 import { fileStore, deleteFileStore } from './routes/fileAPI.js';
 import { keyStore } from './database/db.js';
@@ -49,30 +49,27 @@ export function cleanJunks(key?: string) {
 				console.log('Uploads folder not found');
 				return;
 			}
-		});
-
-		readdir('uploads', (err, files) => {
-			if (err) throw err;
-			for (const file of files) {
-
-				if (key) {
-					if (file.startsWith(key)) {
-						console.log(`Deleting ${file} as key ${key} expired`);
+			readdir('uploads', (err, files) => {
+				if (err) throw err;
+				for (const file of files) {
+	
+					if (key) {
+						if (file.startsWith(key)) {
+							console.log(`Deleting ${file} as key ${key} expired`);
+							unlink(`uploads/${file}`, err => {
+								if (err) throw err;
+							});
+						}
+					} else {
+						console.log(`Deleting ${file} from uploads as Junk`);
+	
 						unlink(`uploads/${file}`, err => {
 							if (err) throw err;
 						});
 					}
-				} else {
-					console.log(`Deleting ${file} from uploads as Junk`);
-
-					unlink(`uploads/${file}`, err => {
-						if (err) throw err;
-					});
 				}
-			}
+			});
 		});
-
-
 	} catch (err) {
 		console.log(err);
 	}
