@@ -704,7 +704,7 @@ function showOptions(type, sender, target) {
 				lastElm.dataset.react = clickedElement;
 				lastElm.querySelector('.react-emoji').textContent = clickedElement;
 			}
-		}else{
+		} else {
 			//console.log('No self previous reaction. loading from last react');
 			const last = localStorage.getItem('lastReact');
 			if (!reactArray.primary.includes(last) && !reactArray.expanded.includes(last)) {
@@ -713,7 +713,7 @@ function showOptions(type, sender, target) {
 				lastElm.dataset.react = '🌻';
 				lastElm.querySelector('.react-emoji').textContent = '🌻';
 				localStorage.setItem('lastReact', '🌻');
-			}else if(!reactArray.primary.includes(last) && reactArray.expanded.includes(last)){
+			} else if (!reactArray.primary.includes(last) && reactArray.expanded.includes(last)) {
 				//console.log('Setting Last react:', last);
 				lastElm.dataset.react = last;
 				lastElm.querySelector('.react-emoji').textContent = last;
@@ -723,9 +723,9 @@ function showOptions(type, sender, target) {
 		playExpandSound();
 		messageOptions.classList.add('active');
 		addFocusGlass(false);
-		if (isMobile){
+		if (isMobile) {
 			messageOptions.addEventListener('touchstart', optionsMainEvent);
-		}else{
+		} else {
 			messageOptions.addEventListener('click', optionsMainEvent);
 		}
 	} catch (err) {
@@ -766,7 +766,7 @@ function optionsMainEvent(e) {
 	if (target.classList.contains('close_area') || target.id == 'optionsContainer') {
 		hideOptions();
 	}
-	
+
 	//passes the event to the react event handler, Which handles the reactions if the target is a react
 	optionsReactEvent(e);
 }
@@ -966,9 +966,9 @@ function hideOptions() {
 	removeFocusGlass();
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
 
-	if (isMobile){
+	if (isMobile) {
 		messageOptions.removeEventListener('touchstart', optionsMainEvent);
-	}else{
+	} else {
 		messageOptions.removeEventListener('click', optionsMainEvent);
 	}
 
@@ -1734,7 +1734,7 @@ export function serverMessage(message, type = null) {
 
 			text: `${message.user}'s location`,
 		};
-		
+
 		updateScroll('location', `${message.user}'s location`);
 	} else if (type == 'leave') {
 		messageObj = {
@@ -2489,10 +2489,10 @@ messages.addEventListener('click', (evt) => {
 				}
 			}
 
-			if (target.classList.contains('controls') || target.closest('.controls')){
+			if (target.classList.contains('controls') || target.closest('.controls')) {
 
 				console.log('clicked');
-				
+
 				//if play button was clicked
 				if (target.classList.contains('fa-play')) {
 					//console.log('%cPlaying audio', 'color: green');	
@@ -3331,59 +3331,6 @@ async function sendImageStoreRequest() {
 				//image to file
 				const file = await fetch(image.src).then(r => r.blob()).then(blobFile => new File([blobFile], 'image', { type: image.mimetype }));
 
-				//upload image via xhr request
-				const xhr = new XMLHttpRequest();
-
-				const progresCircle = elem.querySelector('.circleProgressLoader');
-				const progressText = elem.querySelector('.circleProgressLoader .progressPercent');
-
-				xhr.onreadystatechange = function () {
-					if (xhr.readyState === XMLHttpRequest.OPENED) {
-						// Remove 'inactive' class from element with class 'animated'
-						//console.log('Request sent');
-						//console.log(`setting ongoing xhr for ${messageId}`);
-						ongoingXHR.set(messageId, xhr);
-						progressText.textContent = 'Uploading...';
-						progresCircle.querySelector('.animated').classList.remove('inactive');
-					} else if (xhr.readyState === XMLHttpRequest.DONE) {
-						//console.log(`Upload finished with status ${xhr.status}`);
-						ongoingXHR.delete(messageId);
-						if (xhr.status === 200) {
-							// Handle successful response from server
-							if (elem) {
-								progresCircle.remove();
-								progressText.textContent = 'Finishing...';
-								elem.querySelector('.image').style.filter = 'none';
-							}
-
-							const downloadLink = JSON.parse(xhr.response).downlink;
-
-							const _msg = document.getElementById(messageId);
-							_msg.dataset.downloaded = 'true';
-							_msg.dataset.downlink = downloadLink;
-							fileSocket.emit('fileUploadEnd', messageId, myKey, downloadLink);
-						} else {
-							// Handle network errors or server unreachable errors
-							//console.log('Error: could not connect to server');
-							showPopupMessage('Upload failed..!');
-							progresCircle.querySelector('.animated').style.visibility = 'hidden';
-							progressText.textContent = 'Upload failed';
-							fileSocket.emit('fileUploadError', myKey, messageId, 'image');
-						}
-					}
-				};
-
-				//send file via xhr post request
-				xhr.open('POST', `${location.origin}/api/files/upload`, true);
-				xhr.upload.onprogress = function (e) {
-					if (e.lengthComputable) {
-						progresCircle.querySelector('.animated').classList.remove('inactive');
-						progress = (e.loaded / e.total) * 100;
-						progresCircle.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
-						progressText.textContent = `${Math.round(progress)}%`;
-					}
-				};
-
 				if (i == 0) {
 					clearFinalTarget();
 				}
@@ -3404,11 +3351,61 @@ async function sendImageStoreRequest() {
 						chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 					}
 
+					//upload image via xhr request
+					const xhr = new XMLHttpRequest();
+
+					const progresCircle = elem.querySelector('.circleProgressLoader');
+					const progressText = elem.querySelector('.circleProgressLoader .progressPercent');
+
+					xhr.onreadystatechange = function () {
+						if (xhr.readyState === XMLHttpRequest.OPENED) {
+							// Remove 'inactive' class from element with class 'animated'
+							//console.log('Request sent');
+							//console.log(`setting ongoing xhr for ${messageId}`);
+							ongoingXHR.set(messageId, xhr);
+							progressText.textContent = 'Uploading...';
+							progresCircle.querySelector('.animated').classList.remove('inactive');
+						} else if (xhr.readyState === XMLHttpRequest.DONE) {
+							//console.log(`Upload finished with status ${xhr.status}`);
+							ongoingXHR.delete(messageId);
+							if (xhr.status === 200) {
+								// Handle successful response from server
+								if (elem) {
+									progresCircle.remove();
+									progressText.textContent = 'Finishing...';
+									elem.querySelector('.image').style.filter = 'none';
+								}
+
+								const downloadLink = JSON.parse(xhr.response).downlink;
+
+								const _msg = document.getElementById(messageId);
+								_msg.dataset.downloaded = 'true';
+								_msg.dataset.downlink = downloadLink;
+								fileSocket.emit('fileUploadEnd', messageId, myKey, downloadLink);
+							} else {
+								// Handle network errors or server unreachable errors
+								//console.log('Error: could not connect to server');
+								showPopupMessage('Upload failed..!');
+								progresCircle.querySelector('.animated').style.visibility = 'hidden';
+								progressText.textContent = 'Upload failed';
+								fileSocket.emit('fileUploadError', myKey, messageId, 'image');
+							}
+						}
+					};
+
+					//send file via xhr post request
+					xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${messageId}/${myId}`, true);
+					xhr.upload.onprogress = function (e) {
+						if (e.lengthComputable) {
+							progresCircle.querySelector('.animated').classList.remove('inactive');
+							progress = (e.loaded / e.total) * 100;
+							progresCircle.style.strokeDasharray = `${(progress * 251.2) / 100}, 251.2`;
+							progressText.textContent = `${Math.round(progress)}%`;
+						}
+					};
+
 					const formData = new FormData();
 
-					formData.append('key', myKey);
-					formData.append('ext', image.mimetype);
-					formData.append('messageId', messageId);
 					formData.append('file', file);
 
 					xhr.send(formData);
@@ -3456,50 +3453,6 @@ function sendFileStoreRequest(type = null) {
 			let progress = 0;
 			const elem = document.getElementById(messageId)?.querySelector('.messageMain');
 
-			//upload image via xhr request
-			const xhr = new XMLHttpRequest();
-
-
-			xhr.onreadystatechange = function () {
-				if (this.readyState === XMLHttpRequest.OPENED) {
-					//console.log(`Connection opened for message id ${messageId}`);
-					ongoingXHR.set(messageId, xhr);
-				}
-				else if (this.readyState === XMLHttpRequest.DONE) {
-					//console.log(`Connection closed for message id ${messageId}`);
-					ongoingXHR.delete(messageId);
-					if (this.status == 200) {
-						const _msg = document.getElementById(messageId);
-
-						if (_msg) {
-							_msg.dataset.downloaded = 'true';
-							_msg.dataset.downlink = JSON.parse(this.response).downlink;
-							elem.querySelector('.progress').style.visibility = 'hidden';
-							fileSocket.emit('fileUploadEnd', messageId, myKey, JSON.parse(this.response).downlink);
-						}
-					}
-					else {
-						console.log('error uploading file');
-						showPopupMessage('Error uploading file');
-						elem.querySelector('.progress').textContent = 'Upload failed';
-						fileSocket.emit('fileUploadError', myKey, messageId, 'image');
-					}
-				}
-			};
-
-			//send file via xhr post request
-			xhr.open('POST', location.origin + '/api/files/upload', true);
-			xhr.upload.onprogress = function (e) {
-				if (e.lengthComputable) {
-					progress = (e.loaded / e.total) * 100;
-					elem.querySelector('.progress').textContent = `${Math.round(progress)}%`;
-					if (progress === 100) {
-						elem.querySelector('.progress').textContent = 'Finishing...';
-					}
-				}
-			};
-
-
 			if (i == 0) {
 				clearFinalTarget();
 			}
@@ -3519,9 +3472,52 @@ function sendFileStoreRequest(type = null) {
 					chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 				}
 
+				//upload image via xhr request
+				const xhr = new XMLHttpRequest();
+
+				//send file via xhr post request
+				xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${messageId}/${myId}`, true);
+
+
+				xhr.onreadystatechange = function () {
+					if (this.readyState === XMLHttpRequest.OPENED) {
+						//console.log(`Connection opened for message id ${messageId}`);
+						ongoingXHR.set(messageId, xhr);
+					}
+					else if (this.readyState === XMLHttpRequest.DONE) {
+						//console.log(`Connection closed for message id ${messageId}`);
+						ongoingXHR.delete(messageId);
+						if (this.status == 200) {
+							const _msg = document.getElementById(messageId);
+
+							if (_msg) {
+								_msg.dataset.downloaded = 'true';
+								_msg.dataset.downlink = JSON.parse(this.response).downlink;
+								elem.querySelector('.progress').style.visibility = 'hidden';
+								fileSocket.emit('fileUploadEnd', messageId, myKey, JSON.parse(this.response).downlink);
+							}
+						}
+						else {
+							console.log('error uploading file');
+							showPopupMessage('Error uploading file');
+							elem.querySelector('.progress').textContent = 'Upload failed';
+							fileSocket.emit('fileUploadError', myKey, messageId, 'image');
+						}
+					}
+				};
+
+				xhr.upload.onprogress = function (e) {
+					if (e.lengthComputable) {
+						progress = (e.loaded / e.total) * 100;
+						elem.querySelector('.progress').textContent = `${Math.round(progress)}%`;
+						if (progress === 100) {
+							elem.querySelector('.progress').textContent = 'Finishing...';
+						}
+					}
+				};
+
 				const formData = new FormData();
-				formData.append('key', myKey);
-				formData.append('messageId', messageId);
+
 				formData.append('file', fileData);
 
 				xhr.send(formData);
@@ -3611,36 +3607,36 @@ document.addEventListener('keydown', (evt) => {
 		//evt.preventDefault();
 		closeAllModals();
 		switch (evt.key) {
-		case 'o':
-			showSidePanel();
-			break;
-		case 's':
-			showQuickSettings();
-			break;
-		case 't':
-			showThemes();
-			break;
-		case 'i':
-			showStickersPanel();
-			break;
-		case 'a':
-			addAttachment();
-			break;
-		case 'f':
-			//choose file
-			fileButton.click();
-			break;
-		case 'p':
-			//choose photo
-			photoButton.click();
-			break;
-		case 'm':
-			//choose audio
-			audioButton.click();
-			break;
-		case 'r':
-			//record voice
-			recordButton.click();
+			case 'o':
+				showSidePanel();
+				break;
+			case 's':
+				showQuickSettings();
+				break;
+			case 't':
+				showThemes();
+				break;
+			case 'i':
+				showStickersPanel();
+				break;
+			case 'a':
+				addAttachment();
+				break;
+			case 'f':
+				//choose file
+				fileButton.click();
+				break;
+			case 'p':
+				//choose photo
+				photoButton.click();
+				break;
+			case 'm':
+				//choose audio
+				audioButton.click();
+				break;
+			case 'r':
+				//record voice
+				recordButton.click();
 		}
 		return;
 	}

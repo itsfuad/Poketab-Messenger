@@ -122,9 +122,8 @@ fileSocket.on('fileDownloadReady', (id, downlink) => {
 	};
 
 
-	xhr.open('GET', `${location.origin}/api/files/download/${downlink}/${myKey}`, true);
+	xhr.open('GET', `${location.origin}/api/files/download/${myKey}/${downlink}/${myId}`, true);
 	xhr.responseType = 'blob';
-
 
 
 	xhr.onprogress = function(e) {

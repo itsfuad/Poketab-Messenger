@@ -17,6 +17,7 @@ fileSocket.on('connection', (socket) => {
             //socket.emit('fileSent', tempId, id, type, size);
         });
         socket.on('fileDownloaded', (userId, key, messageId) => {
+            //console.log(`${userId} downloaded ${messageId}`);
             markForDelete(userId, key, messageId);
         });
         socket.on('fileUploadError', (key, id, type) => {

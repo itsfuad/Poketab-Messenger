@@ -1,6 +1,6 @@
 {
   "name": "poketab_messenger",
-  "version": "1.7.1",
+  "version": "2.0.1",
   "description": "Realtime messaging application",
   "main": "server/server.js",
   "type": "module",
@@ -32,11 +32,13 @@
     "express-rate-limit": "^6.6.0",
     "metadata-scraper": "^0.2.61",
     "multer": "^1.4.5-lts.1",
+    "parse-multipart-data": "^1.5.0",
     "socket.io": "^4.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.21.3",
     "@babel/preset-env": "^7.20.2",
+    "@types/busboy": "^1.5.0",
     "@types/compression": "^1.7.2",
     "@types/cookie-parser": "^1.4.3",
     "@types/express-useragent": "^1.0.2",

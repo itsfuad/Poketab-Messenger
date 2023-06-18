@@ -1,81 +1,78 @@
 import { Router } from 'express';
-import multer from 'multer';
 import { access } from 'fs/promises';
+import fs from 'fs';
 import crypto from 'crypto';
 import { keyStore } from '../database/db.js';
-import { deleteFile } from '../cleaner.js';
-import { fileSocket } from '../sockets.js';
+import { parse } from './../utils/formParser.js';
 export const fileStore = new Map();
-export const filePaths = new Map();
 export function store(messageId, data) {
     fileStore.set(messageId, data);
-    filePaths.set(data.filename, true);
-    console.log(`${data.filename} stored`);
+    //console.log(`${data.filename} stored`);
 }
 export function deleteFileStore(messageId) {
-    const filename = fileStore.get(messageId)?.filename;
-    if (filename) {
-        filePaths.delete(filename);
-    }
     fileStore.delete(messageId);
+    //console.log(`${messageId} deleted from fileStore`);
 }
-const storage = multer.diskStorage({
-    destination: (_, file, cb) => cb(null, 'uploads/'),
-    filename: (req, file, cb) => {
-        if (file.size >= 20 * 1024 * 1024) {
-            cb(new Error('File size more than 20mb'), '');
-            return;
-        }
-        if (!keyStore.hasKey(req.body.key)) {
-            cb(new Error('Unauthorized'), '');
-        }
-        //console.log(Keys[req.body.key].userCount);
-        if (keyStore.getKey(req.body.key).activeUsers <= 1) {
-            cb(new Error('File upload blocked for single user'), '');
-        }
-        const filename = `poketab-${crypto.randomBytes(16).toString('hex')}`;
-        req.on('aborted', () => {
-            //close the connection
-            console.log(`${file.mimetype} upload aborted`);
-            fileSocket.to(req.body.key).emit('fileUploadError', req.body.messageId, file.mimetype.includes('image') ? 'image' : 'file');
-            deleteFile(filename);
-        });
-        store(req.body.messageId, { filename: filename, key: req.body.key, ext: req.body.ext, uids: new Set([req.body.uid]) });
-        cb(null, filename);
-    },
-});
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 20 * 1024 * 1024 }
-}); //name field name
 const router = Router();
 export default router;
-//Handle the upload of a file
-router.post('/upload', upload.single('file'), (req, res) => {
-    //If the file is present
-    if (req.file) {
-        //Send the file name as a response
-        res.status(200).send({ success: true, downlink: req.file.filename });
-        console.log(`${req.file.filename} recieved to be relayed`);
+router.post('/upload/:key/:messageId/:userId', (req, res) => {
+    if (!keyStore.hasKey(req.params.key)) {
+        res.status(404).send({ error: 'Key not found' });
+        return;
     }
-    else {
-        //Otherwise, send an error
-        res.status(401).send({ error: 'Cannot upload' });
+    if (!keyStore.getKey(req.params.key).users[req.params.userId]) {
+        res.status(404).send({ error: 'User not found' });
+        return;
     }
-});
-router.get('/download/:id/:key', (req, res) => {
-    if (keyStore.hasKey(req.params.key)) {
-        access(`uploads/${req.params.id}`)
-            .then(() => {
-            res.sendFile(`uploads/${req.params.id}`, { root: process.cwd() });
-        }).catch(err => {
-            console.log(`${err}`);
-            res.status(404).send({ error: 'File not found' });
+    const boundary = req.headers['content-type']?.split('; ')[1].split('=')[1];
+    if (!boundary) {
+        res.status(400).send({ error: 'Invalid form' });
+        return;
+    }
+    const chunks = [];
+    req.on('data', (chunk) => {
+        chunks.push(chunk);
+    });
+    req.on('aborted', () => {
+        //console.log(`Upload aborted`);
+        //console.log(chunks);
+        chunks.length = 0;
+        req.destroy();
+    });
+    req.on('end', () => {
+        const data = Buffer.concat(chunks);
+        const formData = parse(data, boundary);
+        if (!formData) {
+            res.status(400).send({ error: 'Invalid form' });
+            return;
+        }
+        const file = formData[0];
+        const filename = `${req.params.key}@${crypto.randomBytes(16).toString('hex')}`;
+        fs.writeFile(`uploads/${filename}`, file.data, (err) => {
+            if (err) {
+                //console.log(err);
+                res.status(500).send({ error: 'Internal server error' });
+                return;
+            }
+            store(req.params.messageId, { filename, key: req.params.key, ext: file.type, uids: new Set([req.params.userId]) });
+            res.status(200).send({ success: true, downlink: filename });
+            //console.log(`${filename} recieved to be relayed`);
         });
+    });
+});
+router.get('/download/:key/:id/:userId', (req, res) => {
+    //Todo: check if user is in key
+    if (!keyStore.getKey(req.params.key).users[req.params.userId]) {
+        res.status(404).send({ error: 'User not found' });
+        return;
     }
-    else {
-        res.status(403).send({ error: 'Unauthorized to view files' });
-    }
+    access(`uploads/${req.params.id}`)
+        .then(() => {
+        res.sendFile(`uploads/${req.params.id}`, { root: process.cwd() });
+    }).catch(err => {
+        //console.log(`${err}`);
+        res.status(404).send({ error: 'File not found' });
+    });
 });
 router.get('*', (req, res) => {
     //unknown route

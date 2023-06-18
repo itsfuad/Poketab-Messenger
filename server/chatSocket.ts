@@ -96,7 +96,6 @@ chatSocket.on('connection', (socket) => {
 				if (msgUid == userId){
 
 					if (fileStore.has(messageId)){
-						console.log(`Delete file request ${fileStore.get(messageId)?.filename}`);
 						deleteFile(messageId);
 					}
 
@@ -168,7 +167,7 @@ chatSocket.on('connection', (socket) => {
 		
 				if (remainingUsers == 0) {
 					keyStore.clearKey(key);
-					cleanJunks();
+					cleanJunks(key);
 					console.log(`%cSession ended with key: ${key}`, 'color: orange');
 				}
 			}

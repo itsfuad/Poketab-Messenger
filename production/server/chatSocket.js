@@ -75,7 +75,6 @@ chatSocket.on('connection', (socket) => {
             if (SocketIds[socket.id]) {
                 if (msgUid == userId) {
                     if (fileStore.has(messageId)) {
-                        console.log(`Delete file request ${fileStore.get(messageId)?.filename}`);
                         deleteFile(messageId);
                     }
                     chatSocket.to(SocketIds[socket.id].key).emit('deleteMessage', messageId, userName);
@@ -133,7 +132,7 @@ chatSocket.on('connection', (socket) => {
                 console.log(`%c${remainingUsers == 0 ? 'No' : remainingUsers} ${remainingUsers > 1 ? 'users' : 'user'} left on ${key}`, 'color: orange');
                 if (remainingUsers == 0) {
                     keyStore.clearKey(key);
-                    cleanJunks();
+                    cleanJunks(key);
                     console.log(`%cSession ended with key: ${key}`, 'color: orange');
                 }
             }

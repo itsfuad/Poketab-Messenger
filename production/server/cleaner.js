@@ -1,27 +1,33 @@
-import { rm, readdir, existsSync } from 'fs';
-import { fileStore, deleteFileStore, filePaths } from './routes/fileAPI.js';
+import { stat, rm, readdir, unlink } from 'fs';
+import { fileStore, deleteFileStore } from './routes/fileAPI.js';
 import { keyStore } from './database/db.js';
 export function markForDelete(userId, key, messageId) {
     const file = fileStore.get(messageId);
     const filename = fileStore.get(messageId)?.filename;
     if (file) {
         file.uids = file.uids != null ? file.uids.add(userId) : new Set();
-        console.log(`${filename} recieved by ${userId} | ${file.uids.size} of ${keyStore.getKey(key).activeUsers} recieved`);
         if (keyStore.getKey(key).activeUsers == file.uids.size) {
-            rm(`uploads/${filename}`, () => {
-                deleteFileStore(messageId);
-                console.log(`${filename} deleted after relaying`);
+            stat(`uploads/${filename}`, (err, fileStats) => {
+                if (err) {
+                    console.error(`Error getting file stats for ${filename}: ${err}`);
+                }
+                else {
+                    rm(`uploads/${filename}`, (err) => {
+                        if (err) {
+                            console.error(`Error deleting ${filename}: ${err}`);
+                        }
+                        else {
+                            deleteFileStore(messageId);
+                            console.log(`${filename} deleted after relaying`);
+                        }
+                    });
+                }
             });
         }
     }
-    else if (existsSync(`uploads/${filename}`)) {
-        rm(`uploads/${filename}`, () => {
-            console.log(`${filename} deleted as Key expired`);
-        });
-    }
 }
 export function deleteFile(messageId) {
-    if (fileStore.get(messageId)) {
+    if (fileStore.has(messageId)) {
         const fileName = fileStore.get(messageId)?.filename;
         rm(`uploads/${fileName}`, () => {
             deleteFileStore(messageId);
@@ -29,18 +35,35 @@ export function deleteFile(messageId) {
         });
     }
 }
-export function cleanJunks() {
+export function cleanJunks(key) {
     try {
+        //remove upload folder
+        stat('uploads', (err, stats) => {
+            if (err) {
+                return;
+            }
+        });
         readdir('uploads', (err, files) => {
             if (err)
                 throw err;
-            files.forEach(file => {
-                if (!filePaths.get(file) && file != 'dummy.txt') {
-                    rm(`uploads/${file}`, () => {
-                        console.log(`${file} deleted as garbage file`);
+            for (const file of files) {
+                if (key) {
+                    if (file.startsWith(key)) {
+                        console.log(`Deleting ${file} as key ${key} expired`);
+                        unlink(`uploads/${file}`, err => {
+                            if (err)
+                                throw err;
+                        });
+                    }
+                }
+                else {
+                    console.log(`Deleting ${file} from uploads as Junk`);
+                    unlink(`uploads/${file}`, err => {
+                        if (err)
+                            throw err;
                     });
                 }
-            });
+            }
         });
     }
     catch (err) {

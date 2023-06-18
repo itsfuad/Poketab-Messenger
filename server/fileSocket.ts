@@ -23,6 +23,7 @@ fileSocket.on('connection', (socket) => {
 		});
 	
 		socket.on('fileDownloaded', (userId, key, messageId) => {
+			//console.log(`${userId} downloaded ${messageId}`);
 			markForDelete(userId, key, messageId);
 		});
 	
