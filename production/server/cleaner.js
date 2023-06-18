@@ -40,6 +40,7 @@ export function cleanJunks(key) {
         //remove upload folder
         stat('uploads', (err, stats) => {
             if (err) {
+                console.log('Uploads folder not found');
                 return;
             }
         });
