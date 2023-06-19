@@ -695,6 +695,10 @@ pre code {
   pointer-events: none;
 }
 
+#showMoreReactBtn i {
+  pointer-events: none;
+}
+
 .deleted .messageTitle {
   transform: none !important;
 }

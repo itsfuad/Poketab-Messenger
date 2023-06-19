@@ -1733,7 +1733,7 @@ i[class^=fa-] {
 }
 .moreReactsContainer #expandReactButton {
   cursor: pointer;
-  padding: 5px;
+  padding: 15px;
   transform: rotate(0deg);
   transition: 300ms ease-in-out;
 }

@@ -184,6 +184,8 @@ let messageSendShortCut = 'Ctrl+Enter'; //send message by default by pressing ct
 //if user device is mobile
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+const _evt = isMobile ? 'touchstart' : 'click';
+
 //detect if user is using a mobile device, if yes then use the click and hold class
 if (isMobile) {
 	ClickAndHold.applyTo(messages, 240, (evt) => {
@@ -723,11 +725,7 @@ function showOptions(type, sender, target) {
 		playExpandSound();
 		messageOptions.classList.add('active');
 		addFocusGlass(false);
-		if (isMobile) {
-			messageOptions.addEventListener('touchstart', optionsMainEvent);
-		} else {
-			messageOptions.addEventListener('click', optionsMainEvent);
-		}
+		messageOptions.addEventListener(_evt, optionsMainEvent);
 	} catch (err) {
 		console.error(err);
 	}
@@ -762,8 +760,24 @@ function optionsMainEvent(e) {
 	//clear the event e
 	e.preventDefault();
 	e.stopPropagation();
-	console.log(e.target);
-	if (target.classList.contains('close_area') || target.id == 'optionsContainer') {
+	//console.log(e.target);
+
+	//replyOption.addEventListener(_evt, showReplyToast);
+	if (target == replyOption){
+		showReplyToast();
+	}else if(target == copyOption){
+		hideOptions();
+		copyText(null);
+	}else if(target == downloadOption){
+		downloadHandler();
+	}else if(target == deleteOption){
+		const uid = document.getElementById(targetMessage.id)?.dataset?.uid;
+		if (uid) {
+			hideOptions();
+			//console.log(document.getElementById(targetMessage.id));
+			chatSocket.emit('deletemessage', targetMessage.id, uid, myName, myId);
+		}
+	}else{
 		hideOptions();
 	}
 
@@ -931,6 +945,8 @@ function optionsReactEvent(e) {
 	if (isReact) {
 		const target = e.target.dataset.react;
 		sendReact(target);
+	}else if(e.target == showMoreReactBtn){
+		updateReactsChooser();
 	}
 }
 
@@ -966,12 +982,7 @@ function hideOptions() {
 	removeFocusGlass();
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
 
-	if (isMobile) {
-		messageOptions.removeEventListener('touchstart', optionsMainEvent);
-	} else {
-		messageOptions.removeEventListener('click', optionsMainEvent);
-	}
-
+	messageOptions.removeEventListener(_evt, optionsMainEvent);
 
 	if (hideOptionsTimeout) {
 		clearTimeout(hideOptionsTimeout);
@@ -1944,7 +1955,7 @@ function showSidePanel() {
 	}
 }
 
-document.querySelector('.footer_options .settings').addEventListener('click', () => {
+document.querySelector('.footer_options .settings').addEventListener(_evt, () => {
 	showQuickSettings();
 	hideOptions();
 });
@@ -1972,7 +1983,7 @@ function hideQuickSettings() {
 	}
 }
 
-quickSettings.addEventListener('click', (e) => {
+quickSettings.addEventListener(_evt, (e) => {
 	//if click on quickSettings, then hide quickSettings
 	if (e.target == quickSettings) {
 		if (activeModals.includes('quickSettings')) {
@@ -1983,7 +1994,7 @@ quickSettings.addEventListener('click', (e) => {
 });
 
 
-document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => {
+document.querySelector('.quickSettingPanel').addEventListener(_evt, (evt) => {
 	const option = evt.target?.closest('.keyboardMode');
 	if (!option) {
 		return;
@@ -2005,14 +2016,14 @@ document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => 
 	showPopupMessage('Settings applied');
 });
 
-document.addEventListener('click', (evt) => {
+document.addEventListener(_evt, (evt) => {
 	//if target is .clickable
 	if (evt.target.closest('.playable')) {
 		playClickSound();
 	}
 });
 
-document.getElementById('messageSound').addEventListener('click', () => {
+document.getElementById('messageSound').addEventListener(_evt, () => {
 	if (document.getElementById('messageSound').checked) {
 		messageSoundEnabled = true;
 	} else {
@@ -2024,7 +2035,7 @@ document.getElementById('messageSound').addEventListener('click', () => {
 	showPopupMessage('Message sounds ' + (messageSoundEnabled ? 'enabled' : 'disabled'));
 });
 
-document.getElementById('buttonSound').addEventListener('click', () => {
+document.getElementById('buttonSound').addEventListener(_evt, () => {
 	if (document.getElementById('buttonSound').checked) {
 		buttonSoundEnabled = true;
 	} else {
@@ -2036,7 +2047,7 @@ document.getElementById('buttonSound').addEventListener('click', () => {
 	showPopupMessage('Button sounds ' + (buttonSoundEnabled ? 'enabled' : 'disabled'));
 });
 
-stickersPanel.addEventListener('click', (evt) => {
+stickersPanel.addEventListener(_evt, (evt) => {
 	if (evt.target == stickersPanel) {
 		//console.log('clicked on stickers panel');
 		if (activeModals.includes('stickersPanel')) {
@@ -2097,19 +2108,19 @@ function removeAttachment() {
 
 
 //Event listeners
-document.getElementById('stickerBtn').addEventListener('click', () => {
+document.getElementById('stickerBtn').addEventListener(_evt, () => {
 	showStickersPanel();
 });
 
-document.getElementById('stickerMoveLeft').addEventListener('click', () => {
+document.getElementById('stickerMoveLeft').addEventListener(_evt, () => {
 	stickerMoveLeft();
 });
 
-document.getElementById('stickerMoveRight').addEventListener('click', () => {
+document.getElementById('stickerMoveRight').addEventListener(_evt, () => {
 	stickerMoveRight();
 });
 
-document.getElementById('selectStickerGroup').addEventListener('click', e => {
+document.getElementById('selectStickerGroup').addEventListener(_evt, e => {
 	if (e.target.tagName === 'IMG') {
 
 		const preload = fragmentBuilder({
@@ -2140,7 +2151,7 @@ document.getElementById('selectStickerGroup').addEventListener('click', e => {
 	}
 });
 
-document.getElementById('stickers').addEventListener('click', e => {
+document.getElementById('stickers').addEventListener(_evt, e => {
 
 	if (e.target.tagName === 'IMG') {
 		const tempId = crypto.randomUUID();
@@ -2173,14 +2184,14 @@ document.getElementById('stickers').addEventListener('click', e => {
 	}
 });
 
-document.getElementById('more').addEventListener('click', () => {
+document.getElementById('more').addEventListener(_evt, () => {
 	showSidePanel();
 });
 
 
 let copyKeyTimeOut;
 const keyname = document.getElementById('keyname');
-keyname.addEventListener('click', () => {
+keyname.addEventListener(_evt, () => {
 	keyname.querySelector('.fa-clone');
 	keyname.classList.replace('fa-clone', 'fa-check');
 	keyname.classList.replace('fa-regular', 'fa-solid');
@@ -2195,7 +2206,7 @@ keyname.addEventListener('click', () => {
 	copyText(myKey);
 });
 
-document.getElementById('invite').addEventListener('click', async () => {
+document.getElementById('invite').addEventListener(_evt, async () => {
 	//copy inner link
 	try {
 		if (!navigator.share) {
@@ -2213,18 +2224,18 @@ document.getElementById('invite').addEventListener('click', async () => {
 	}
 });
 
-document.getElementById('themeButton').addEventListener('click', () => {
+document.getElementById('themeButton').addEventListener(_evt, () => {
 	//hideQuickSettings();
 	showThemes();
 });
 
 //remove the theme optons from the screen when clicked outside
-themePicker.addEventListener('click', () => {
+themePicker.addEventListener(_evt, () => {
 	hideThemes();
 });
 
 document.querySelectorAll('.theme').forEach(theme => {
-	theme.addEventListener('click', (evt) => {
+	theme.addEventListener(_evt, (evt) => {
 		THEME = evt.target.closest('li').id;
 		localStorage.setItem('theme', THEME);
 		showPopupMessage('Theme applied');
@@ -2241,10 +2252,6 @@ document.querySelectorAll('.theme').forEach(theme => {
 	});
 });
 
-showMoreReactBtn.addEventListener('click', () => {
-	updateReactsChooser();
-});
-
 //Opens more reacts when called
 function updateReactsChooser() {
 	const container = document.querySelector('.reactOptionsWrapper');
@@ -2258,7 +2265,8 @@ function updateReactsChooser() {
 	}
 }
 
-document.querySelector('.moreReacts').addEventListener('click', (evt) => {
+document.querySelector('.moreReacts').addEventListener(_evt, (evt) => {
+	evt.preventDefault();
 	const target = evt.target;
 	//if target is not self
 	if (target.classList.contains('reactWrapper')) {
@@ -2294,13 +2302,13 @@ messages.addEventListener('scroll', () => {
 });
 
 
-document.querySelector('.newmessagepopup').addEventListener('click', () => {
+document.querySelector('.newmessagepopup').addEventListener(_evt, () => {
 	scrolling = false;
 	updateScroll();
 	removeNewMessagePopup();
 });
 
-document.getElementById('logoutButton').addEventListener('click', () => {
+document.getElementById('logoutButton').addEventListener(_evt, () => {
 	//show logout screen
 
 	const preload = fragmentBuilder({
@@ -2338,7 +2346,7 @@ document.getElementById('logoutButton').addEventListener('click', () => {
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 
-lightboxCloseButton.addEventListener('click', () => {
+lightboxCloseButton.addEventListener(_evt, () => {
 	lightbox.classList.remove('active');
 	while (lightboxImage.firstChild) {
 		lightboxImage.removeChild(lightboxImage.firstChild);
@@ -2379,19 +2387,19 @@ function hideSidePanel() {
 	}
 }
 
-document.getElementById('closeSideBar').addEventListener('click', () => {
+document.getElementById('closeSideBar').addEventListener(_evt, () => {
 	hideSidePanel();
 });
 
-attachmentCloseArea.addEventListener('click', () => {
+attachmentCloseArea.addEventListener(_evt, () => {
 	removeAttachment();
 });
 
-document.getElementById('attachment').addEventListener('click', () => {
+document.getElementById('attachment').addEventListener(_evt, () => {
 	addAttachment();
 });
 
-document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) => {
+document.querySelector('.reactOptionsWrapper').addEventListener(_evt, (evt) => {
 	//stop parent event
 	if (evt.target.classList.contains('reactOptionsWrapper')) {
 		hideOptions();
@@ -2401,7 +2409,7 @@ document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) =
 let backToNormalTimeout = undefined;
 let scrollIntoViewTimeout = undefined;
 
-messages.addEventListener('click', (evt) => {
+messages.addEventListener(_evt, (evt) => {
 	try {
 		//console.log(evt.target);
 		//if the target is a message
@@ -2604,7 +2612,7 @@ messages.addEventListener('click', (evt) => {
  * @param {MouseEvent} evt
  */
 
-document.getElementById('selectedFiles').addEventListener('click', (evt) => {
+document.getElementById('selectedFiles').addEventListener(_evt, (evt) => {
 	try {
 		//grab the file item element from the target
 		const target = evt.target.closest('.file-item');
@@ -2758,7 +2766,7 @@ function seekAudioMessage(audio, time) {
 }
 
 
-document.querySelector('.reactorContainerWrapper').addEventListener('click', (evt) => {
+document.querySelector('.reactorContainerWrapper').addEventListener(_evt, (evt) => {
 	if (evt.target.classList.contains('reactorContainerWrapper')) {
 		hideOptions();
 	}
@@ -2775,24 +2783,6 @@ window.addEventListener('resize', () => {
 	}, 10);
 	scrolling = temp;
 	softKeyIsUp = maxWindowHeight > window.innerHeight ? true : false;
-});
-
-replyOption.addEventListener('click', showReplyToast);
-
-copyOption.addEventListener('click', () => {
-	hideOptions();
-	copyText(null);
-});
-
-downloadOption.addEventListener('click', downloadHandler);
-
-deleteOption.addEventListener('click', () => {
-	const uid = document.getElementById(targetMessage.id)?.dataset?.uid;
-	if (uid) {
-		hideOptions();
-		console.log(document.getElementById(targetMessage.id));
-		chatSocket.emit('deletemessage', targetMessage.id, uid, myName, myId);
-	}
 });
 
 photoButton.addEventListener('change', () => {
@@ -3182,7 +3172,7 @@ window.addEventListener('online', function () {
 	}, 1500);
 });
 
-sendButton.addEventListener('click', () => {
+sendButton.addEventListener(_evt, () => {
 
 	if (recordedAudio) {
 		sendAudioRecord();
@@ -3268,13 +3258,13 @@ function closeFilePreview() {
 	}, 100);
 }
 
-filePreviewContainer.querySelector('.close')?.addEventListener('click', () => {
+filePreviewContainer.querySelector('.close')?.addEventListener(_evt, () => {
 	clearFileFromInput();
 	selectedFileArray.length = 0;
 	closeFilePreview();
 });
 
-fileSendButton.addEventListener('click', () => {
+fileSendButton.addEventListener(_evt, () => {
 
 	closeFilePreview();
 
@@ -3578,7 +3568,7 @@ export function notifyUser(message, username, avatar) {
 	}
 }
 
-lightboxSaveButton.addEventListener('click', () => {
+lightboxSaveButton.addEventListener(_evt, () => {
 	saveImage();
 });
 
@@ -3668,7 +3658,7 @@ document.addEventListener('keydown', (evt) => {
 
 let locationTimeout = undefined;
 
-document.getElementById('send-location').addEventListener('click', () => {
+document.getElementById('send-location').addEventListener(_evt, () => {
 	let show = true;
 	if (!navigator.geolocation) {
 		showPopupMessage('Geolocation not supported by your browser.');
@@ -3711,7 +3701,7 @@ export function setTypingUsers() {
 /**
  * Expands the reaction keyboard to the full view.
  */
-expandReactButton.addEventListener('click', () => {
+expandReactButton.addEventListener(_evt, () => {
 	const expanded = moreReactsContainer.dataset.expanded;
 	if (expanded == 'true') {
 		moreReactsContainer.dataset.expanded = 'false';
@@ -3721,7 +3711,7 @@ expandReactButton.addEventListener('click', () => {
 });
 
 //record button onclick
-recordButton.addEventListener('click', () => {
+recordButton.addEventListener(_evt, () => {
 	//recorderElement.classList.add('active');
 	//if the recorder is not recording
 	if (recorderElement.dataset.recordingstate === 'false') {
@@ -3749,7 +3739,7 @@ recordButton.addEventListener('click', () => {
 });
 
 //cancel button onclick
-cancelVoiceRecordButton.addEventListener('click', () => {
+cancelVoiceRecordButton.addEventListener(_evt, () => {
 	//if the recorder is not recording
 	if (recorderElement.dataset.recordingstate === 'true') {
 		//stop recording
