@@ -184,8 +184,6 @@ let messageSendShortCut = 'Ctrl+Enter'; //send message by default by pressing ct
 //if user device is mobile
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-const _evt = isMobile ? 'touchstart' : 'click';
-
 //detect if user is using a mobile device, if yes then use the click and hold class
 if (isMobile) {
 	ClickAndHold.applyTo(messages, 240, (evt) => {
@@ -725,7 +723,7 @@ function showOptions(type, sender, target) {
 		playExpandSound();
 		messageOptions.classList.add('active');
 		addFocusGlass(false);
-		messageOptions.addEventListener(_evt, optionsMainEvent);
+		messageOptions.addEventListener('click', optionsMainEvent);
 	} catch (err) {
 		console.error(err);
 	}
@@ -757,12 +755,7 @@ function removeFocusGlass() {
 function optionsMainEvent(e) {
 
 	const target = e.target;
-	//clear the event e
-	e.preventDefault();
-	e.stopPropagation();
-	//console.log(e.target);
-
-	//replyOption.addEventListener(_evt, showReplyToast);
+	//replyOption.addEventListener('click', showReplyToast);
 	if (target == replyOption){
 		showReplyToast();
 	}else if(target == copyOption){
@@ -938,8 +931,7 @@ function downloadFile() {
  * @param {Event} e 
  */
 function optionsReactEvent(e) {
-	e.preventDefault();
-	e.stopPropagation();
+	console.log(e.type);
 	//get the react
 	const isReact = e.target?.classList.contains('reactWrapper');
 	if (isReact) {
@@ -975,14 +967,14 @@ function hideOptions() {
 	moreReactsContainer.classList.remove('active');
 
 	messageOptions.classList.remove('active');
-	//console.log('Hiding options');
+	console.log('Hiding options');
 	hideSidePanel();
 	hideThemes();
 	//document.getElementById('focus_glass').classList.remove('active');
 	removeFocusGlass();
 	document.querySelector('.reactorContainerWrapper').classList.remove('active');
 
-	messageOptions.removeEventListener(_evt, optionsMainEvent);
+	messageOptions.removeEventListener('click', optionsMainEvent);
 
 	if (hideOptionsTimeout) {
 		clearTimeout(hideOptionsTimeout);
@@ -1472,6 +1464,8 @@ function clearFinalTarget() {
  * @returns 
  */
 function OptionEventHandler(evt, popup = true) {
+	evt.stopPropagation();
+	evt.preventDefault();
 
 	const typeList = {
 		'text': true,
@@ -1955,7 +1949,7 @@ function showSidePanel() {
 	}
 }
 
-document.querySelector('.footer_options .settings').addEventListener(_evt, () => {
+document.querySelector('.footer_options .settings').addEventListener('click', () => {
 	showQuickSettings();
 	hideOptions();
 });
@@ -1983,7 +1977,7 @@ function hideQuickSettings() {
 	}
 }
 
-quickSettings.addEventListener(_evt, (e) => {
+quickSettings.addEventListener('click', (e) => {
 	//if click on quickSettings, then hide quickSettings
 	if (e.target == quickSettings) {
 		if (activeModals.includes('quickSettings')) {
@@ -1994,7 +1988,7 @@ quickSettings.addEventListener(_evt, (e) => {
 });
 
 
-document.querySelector('.quickSettingPanel').addEventListener(_evt, (evt) => {
+document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => {
 	const option = evt.target?.closest('.keyboardMode');
 	if (!option) {
 		return;
@@ -2016,14 +2010,14 @@ document.querySelector('.quickSettingPanel').addEventListener(_evt, (evt) => {
 	showPopupMessage('Settings applied');
 });
 
-document.addEventListener(_evt, (evt) => {
+document.addEventListener('click', (evt) => {
 	//if target is .clickable
 	if (evt.target.closest('.playable')) {
 		playClickSound();
 	}
 });
 
-document.getElementById('messageSound').addEventListener(_evt, () => {
+document.getElementById('messageSound').addEventListener('click', () => {
 	if (document.getElementById('messageSound').checked) {
 		messageSoundEnabled = true;
 	} else {
@@ -2035,7 +2029,7 @@ document.getElementById('messageSound').addEventListener(_evt, () => {
 	showPopupMessage('Message sounds ' + (messageSoundEnabled ? 'enabled' : 'disabled'));
 });
 
-document.getElementById('buttonSound').addEventListener(_evt, () => {
+document.getElementById('buttonSound').addEventListener('click', () => {
 	if (document.getElementById('buttonSound').checked) {
 		buttonSoundEnabled = true;
 	} else {
@@ -2047,7 +2041,7 @@ document.getElementById('buttonSound').addEventListener(_evt, () => {
 	showPopupMessage('Button sounds ' + (buttonSoundEnabled ? 'enabled' : 'disabled'));
 });
 
-stickersPanel.addEventListener(_evt, (evt) => {
+stickersPanel.addEventListener('click', (evt) => {
 	if (evt.target == stickersPanel) {
 		//console.log('clicked on stickers panel');
 		if (activeModals.includes('stickersPanel')) {
@@ -2108,19 +2102,19 @@ function removeAttachment() {
 
 
 //Event listeners
-document.getElementById('stickerBtn').addEventListener(_evt, () => {
+document.getElementById('stickerBtn').addEventListener('click', () => {
 	showStickersPanel();
 });
 
-document.getElementById('stickerMoveLeft').addEventListener(_evt, () => {
+document.getElementById('stickerMoveLeft').addEventListener('click', () => {
 	stickerMoveLeft();
 });
 
-document.getElementById('stickerMoveRight').addEventListener(_evt, () => {
+document.getElementById('stickerMoveRight').addEventListener('click', () => {
 	stickerMoveRight();
 });
 
-document.getElementById('selectStickerGroup').addEventListener(_evt, e => {
+document.getElementById('selectStickerGroup').addEventListener('click', e => {
 	if (e.target.tagName === 'IMG') {
 
 		const preload = fragmentBuilder({
@@ -2151,7 +2145,7 @@ document.getElementById('selectStickerGroup').addEventListener(_evt, e => {
 	}
 });
 
-document.getElementById('stickers').addEventListener(_evt, e => {
+document.getElementById('stickers').addEventListener('click', e => {
 
 	if (e.target.tagName === 'IMG') {
 		const tempId = crypto.randomUUID();
@@ -2184,14 +2178,14 @@ document.getElementById('stickers').addEventListener(_evt, e => {
 	}
 });
 
-document.getElementById('more').addEventListener(_evt, () => {
+document.getElementById('more').addEventListener('click', () => {
 	showSidePanel();
 });
 
 
 let copyKeyTimeOut;
 const keyname = document.getElementById('keyname');
-keyname.addEventListener(_evt, () => {
+keyname.addEventListener('click', () => {
 	keyname.querySelector('.fa-clone');
 	keyname.classList.replace('fa-clone', 'fa-check');
 	keyname.classList.replace('fa-regular', 'fa-solid');
@@ -2206,7 +2200,7 @@ keyname.addEventListener(_evt, () => {
 	copyText(myKey);
 });
 
-document.getElementById('invite').addEventListener(_evt, async () => {
+document.getElementById('invite').addEventListener('click', async () => {
 	//copy inner link
 	try {
 		if (!navigator.share) {
@@ -2224,18 +2218,18 @@ document.getElementById('invite').addEventListener(_evt, async () => {
 	}
 });
 
-document.getElementById('themeButton').addEventListener(_evt, () => {
+document.getElementById('themeButton').addEventListener('click', () => {
 	//hideQuickSettings();
 	showThemes();
 });
 
 //remove the theme optons from the screen when clicked outside
-themePicker.addEventListener(_evt, () => {
+themePicker.addEventListener('click', () => {
 	hideThemes();
 });
 
 document.querySelectorAll('.theme').forEach(theme => {
-	theme.addEventListener(_evt, (evt) => {
+	theme.addEventListener('click', (evt) => {
 		THEME = evt.target.closest('li').id;
 		localStorage.setItem('theme', THEME);
 		showPopupMessage('Theme applied');
@@ -2265,9 +2259,10 @@ function updateReactsChooser() {
 	}
 }
 
-document.querySelector('.moreReacts').addEventListener(_evt, (evt) => {
+document.querySelector('.moreReacts').addEventListener('click', (evt) => {
 	evt.preventDefault();
 	const target = evt.target;
+	console.log(target);
 	//if target is not self
 	if (target.classList.contains('reactWrapper')) {
 		const react = target.dataset.react;
@@ -2302,13 +2297,13 @@ messages.addEventListener('scroll', () => {
 });
 
 
-document.querySelector('.newmessagepopup').addEventListener(_evt, () => {
+document.querySelector('.newmessagepopup').addEventListener('click', () => {
 	scrolling = false;
 	updateScroll();
 	removeNewMessagePopup();
 });
 
-document.getElementById('logoutButton').addEventListener(_evt, () => {
+document.getElementById('logoutButton').addEventListener('click', () => {
 	//show logout screen
 
 	const preload = fragmentBuilder({
@@ -2346,7 +2341,7 @@ document.getElementById('logoutButton').addEventListener(_evt, () => {
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 
-lightboxCloseButton.addEventListener(_evt, () => {
+lightboxCloseButton.addEventListener('click', () => {
 	lightbox.classList.remove('active');
 	while (lightboxImage.firstChild) {
 		lightboxImage.removeChild(lightboxImage.firstChild);
@@ -2387,19 +2382,22 @@ function hideSidePanel() {
 	}
 }
 
-document.getElementById('closeSideBar').addEventListener(_evt, () => {
+document.getElementById('closeSideBar').addEventListener('click', () => {
 	hideSidePanel();
 });
 
-attachmentCloseArea.addEventListener(_evt, () => {
+attachmentCloseArea.addEventListener('click', () => {
 	removeAttachment();
 });
 
-document.getElementById('attachment').addEventListener(_evt, () => {
+document.getElementById('attachment').addEventListener('click', () => {
 	addAttachment();
 });
 
-document.querySelector('.reactOptionsWrapper').addEventListener(_evt, (evt) => {
+/**
+ * Primary react menu
+ */
+document.querySelector('.reactOptionsWrapper').addEventListener('click', (evt) => {
 	//stop parent event
 	if (evt.target.classList.contains('reactOptionsWrapper')) {
 		hideOptions();
@@ -2409,9 +2407,9 @@ document.querySelector('.reactOptionsWrapper').addEventListener(_evt, (evt) => {
 let backToNormalTimeout = undefined;
 let scrollIntoViewTimeout = undefined;
 
-messages.addEventListener(_evt, (evt) => {
+messages.addEventListener('click', (evt) => {
 	try {
-		//console.log(evt.target);
+		console.log(evt.target);
 		//if the target is a message
 		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')) {
 			//get the message sent time and show it
@@ -2599,11 +2597,13 @@ messages.addEventListener(_evt, (evt) => {
 				showPopupMessage('Deleted message');
 			}
 		} else {
+			console.log('Calling hideOptions');
 			hideOptions();
 		}
 	} catch (e) {
 		console.log('Error: ', e);
 	}
+	//hideOptions();
 });
 
 
@@ -2612,7 +2612,7 @@ messages.addEventListener(_evt, (evt) => {
  * @param {MouseEvent} evt
  */
 
-document.getElementById('selectedFiles').addEventListener(_evt, (evt) => {
+document.getElementById('selectedFiles').addEventListener('click', (evt) => {
 	try {
 		//grab the file item element from the target
 		const target = evt.target.closest('.file-item');
@@ -2766,7 +2766,7 @@ function seekAudioMessage(audio, time) {
 }
 
 
-document.querySelector('.reactorContainerWrapper').addEventListener(_evt, (evt) => {
+document.querySelector('.reactorContainerWrapper').addEventListener('click', (evt) => {
 	if (evt.target.classList.contains('reactorContainerWrapper')) {
 		hideOptions();
 	}
@@ -3172,7 +3172,7 @@ window.addEventListener('online', function () {
 	}, 1500);
 });
 
-sendButton.addEventListener(_evt, () => {
+sendButton.addEventListener('click', () => {
 
 	if (recordedAudio) {
 		sendAudioRecord();
@@ -3258,13 +3258,13 @@ function closeFilePreview() {
 	}, 100);
 }
 
-filePreviewContainer.querySelector('.close')?.addEventListener(_evt, () => {
+filePreviewContainer.querySelector('.close')?.addEventListener('click', () => {
 	clearFileFromInput();
 	selectedFileArray.length = 0;
 	closeFilePreview();
 });
 
-fileSendButton.addEventListener(_evt, () => {
+fileSendButton.addEventListener('click', () => {
 
 	closeFilePreview();
 
@@ -3568,7 +3568,7 @@ export function notifyUser(message, username, avatar) {
 	}
 }
 
-lightboxSaveButton.addEventListener(_evt, () => {
+lightboxSaveButton.addEventListener('click', () => {
 	saveImage();
 });
 
@@ -3658,7 +3658,7 @@ document.addEventListener('keydown', (evt) => {
 
 let locationTimeout = undefined;
 
-document.getElementById('send-location').addEventListener(_evt, () => {
+document.getElementById('send-location').addEventListener('click', () => {
 	let show = true;
 	if (!navigator.geolocation) {
 		showPopupMessage('Geolocation not supported by your browser.');
@@ -3701,7 +3701,7 @@ export function setTypingUsers() {
 /**
  * Expands the reaction keyboard to the full view.
  */
-expandReactButton.addEventListener(_evt, () => {
+expandReactButton.addEventListener('click', () => {
 	const expanded = moreReactsContainer.dataset.expanded;
 	if (expanded == 'true') {
 		moreReactsContainer.dataset.expanded = 'false';
@@ -3711,7 +3711,7 @@ expandReactButton.addEventListener(_evt, () => {
 });
 
 //record button onclick
-recordButton.addEventListener(_evt, () => {
+recordButton.addEventListener('click', () => {
 	//recorderElement.classList.add('active');
 	//if the recorder is not recording
 	if (recorderElement.dataset.recordingstate === 'false') {
@@ -3739,7 +3739,7 @@ recordButton.addEventListener(_evt, () => {
 });
 
 //cancel button onclick
-cancelVoiceRecordButton.addEventListener(_evt, () => {
+cancelVoiceRecordButton.addEventListener('click', () => {
 	//if the recorder is not recording
 	if (recorderElement.dataset.recordingstate === 'true') {
 		//stop recording
