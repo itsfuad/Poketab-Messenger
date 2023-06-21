@@ -967,7 +967,7 @@ function hideOptions() {
 	moreReactsContainer.classList.remove('active');
 
 	messageOptions.classList.remove('active');
-	console.log('Hiding options');
+	//console.log('Hiding options');
 	hideSidePanel();
 	hideThemes();
 	//document.getElementById('focus_glass').classList.remove('active');
@@ -2409,7 +2409,6 @@ let scrollIntoViewTimeout = undefined;
 
 messages.addEventListener('click', (evt) => {
 	try {
-		console.log(evt.target);
 		//if the target is a message
 		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')) {
 			//get the message sent time and show it
@@ -2597,7 +2596,7 @@ messages.addEventListener('click', (evt) => {
 				showPopupMessage('Deleted message');
 			}
 		} else {
-			console.log('Calling hideOptions');
+			//console.log('Calling hideOptions');
 			hideOptions();
 		}
 	} catch (e) {
