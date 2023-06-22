@@ -1604,7 +1604,7 @@ export function updateScroll(avatar = null, text = '') {
 		const messages = document.getElementById('messages');
 		messages.scrollTo(0, messages.scrollHeight);
 		lastPageLength = messages.scrollTop;
-	}, 150);
+	}, 200);
 }
 
 
