@@ -180,6 +180,9 @@ let lastNotification = undefined;
 let THEME = '';
 let messageSendShortCut = 'Ctrl+Enter'; //send message by default by pressing ctrl+enter
 
+const messageFromStorage = localStorage.getItem('allMessages');
+const allMessages = messageFromStorage ? JSON.parse(messageFromStorage) : [];
+
 //first load functions 
 //if user device is mobile
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -417,6 +420,10 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 				title: false
 			};
 		}
+
+		allMessages.push({ id: id, message: message, type: type, uid: uid, reply: reply, replyId: replyId, replyOptions: replyOptions, metadata: metadata });
+
+		localStorage.setItem('allMessages', JSON.stringify(allMessages));
 
 		let classList = ''; //the class list for the message. Initially empty. 
 		const lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
@@ -3935,6 +3942,7 @@ function stopPlayingRecordedAudio() {
 	recorderTimer.textContent = '00:00';
 }
 
+//sends recorded audio
 function sendAudioRecord() {
 	//convert Audio to File
 	fetch(recordedAudio.src)
@@ -3962,7 +3970,7 @@ function sendAudioRecord() {
 		});
 }
 
-//start timer
+//starts the recording state timer
 function startTimer() {
 	//set the timer to 00:00
 	recorderTimer.textContent = '00:00';
@@ -3982,7 +3990,7 @@ function startTimer() {
 	}, 1000);
 }
 
-//stop timer
+//stops the recording state timer
 function stopTimer() {
 	if (timerInterval) {
 		//clear the timer interval
@@ -4036,7 +4044,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 });
 
-
 //This code blocks the back button to go back on the login page.
 //This action is needed because if the user goes back, he/she has to login again. 
 (() => {
@@ -4048,6 +4055,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	history.pushState({}, '', '');
 	//console.log('Pushed state');
 	window.onpopstate = () => {
+		//showPopupMessage('Press back again to exit');
 		history.forward();
 	};
 })();

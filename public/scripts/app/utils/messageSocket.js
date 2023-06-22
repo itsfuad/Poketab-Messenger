@@ -29,6 +29,8 @@ import {
 	slowInternetTimeout
 } from './../app.js';
 
+import { fragmentBuilder } from './fragmentBuilder.js';
+
 //main socket to deliver messages
 /**
  * @type {SocketIOClient.Socket}
@@ -81,6 +83,7 @@ chatSocket.on('connect', () => {
 			if (slowInternetTimeout){
 				clearTimeout(slowInternetTimeout);
 			}
+
 			showPopupMessage('Connected to message relay server');
 
 			//after connection is established, load the stickers
@@ -118,21 +121,47 @@ chatSocket.on('updateUserList', (users) => {
 	}
 	users.forEach(user => {
 		const listItem = document.createElement('li');
-		listItem.classList.add('user');
-		listItem.setAttribute('data-uid', user.uid);
-		const avt = document.createElement('div');
-		avt.classList.add('avt');
-		const img = document.createElement('img');
-		img.src = `/images/avatars/${user.avatar}(custom).webp`;
-		img.height = 30;
-		img.width = 30;
-		const status = document.createElement('i');
-		status.classList.add('fa-solid', 'fa-circle', 'activeStatus');
-		avt.appendChild(img);
-		avt.appendChild(status);
-		const userSpan = document.createElement('span');
-		userSpan.textContent = user.uid == myId ? user.username + ' (You)' : user.username;
-		listItem.append(avt, userSpan);
+		
+		const userFragment = fragmentBuilder(
+			{
+				tag: 'li',
+				attr: {
+					class: 'user',
+					'data-uid': user.uid,
+				},
+				childs: [
+					{
+						tag: 'div',
+						attr: {
+							class: 'avt',
+						},
+						childs: [
+							{
+								tag: 'img',
+								attr: {
+									src: `/images/avatars/${user.avatar}(custom).webp`,
+									height: 30,
+									width: 30,
+								},
+							},
+							{
+								tag: 'i',
+								attr: {
+									class: 'fa-solid fa-circle activeStatus',
+								},
+							},
+						],
+					},
+					{
+						tag: 'span',
+						text: user.uid == myId ? user.username + ' (You)' : user.username,
+					},
+				],
+			}
+		);
+
+		listItem.append(userFragment);
+
 		if (user.uid == myId){
 			document.getElementById('userlist').prepend(listItem);
 		}else{
