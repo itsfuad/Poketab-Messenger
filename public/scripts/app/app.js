@@ -938,7 +938,7 @@ function downloadFile() {
  * @param {Event} e 
  */
 function optionsReactEvent(e) {
-	console.log(e.type);
+	//console.log(e.type);
 	//get the react
 	const isReact = e.target?.classList.contains('reactWrapper');
 	if (isReact) {
