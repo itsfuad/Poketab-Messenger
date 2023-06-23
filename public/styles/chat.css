@@ -101,7 +101,8 @@ body {
   opacity: 0;
   backdrop-filter: brightness(0.8);
 }
-#sidebarWrapper #sidebar, #sidebarWrapper #closeSideBar {
+#sidebarWrapper #sidebar,
+#sidebarWrapper #closeSideBar {
   position: relative;
   left: -100px;
   transition: 100ms ease-in-out;
@@ -110,7 +111,8 @@ body {
   visibility: visible;
   opacity: 1;
 }
-#sidebarWrapper.active #sidebar, #sidebarWrapper.active #closeSideBar {
+#sidebarWrapper.active #sidebar,
+#sidebarWrapper.active #closeSideBar {
   left: 0;
 }
 #sidebarWrapper .close_area {
@@ -183,10 +185,12 @@ body {
   width: 100%;
   border-radius: 10px;
 }
-.horizontal-flow .fa-angle-left, .horizontal-flow .fa-angle-right {
+.horizontal-flow .fa-angle-left,
+.horizontal-flow .fa-angle-right {
   color: var(--secondary-dark);
 }
-.horizontal-flow .fa-angle-left:hover, .horizontal-flow .fa-angle-right:hover {
+.horizontal-flow .fa-angle-left:hover,
+.horizontal-flow .fa-angle-right:hover {
   cursor: pointer;
   background: var(--focus-dark);
 }
@@ -290,7 +294,8 @@ img:is(.sticker) {
 #sidebar #keyname:hover {
   filter: brightness(0.9);
 }
-#sidebar #keyname, #sidebar #keyname * {
+#sidebar #keyname,
+#sidebar #keyname * {
   color: var(--secondary-dark);
   padding: 5px;
   cursor: pointer;
@@ -319,12 +324,11 @@ img:is(.sticker) {
 }
 #sidebar #userlist .user .avt {
   position: relative;
+  background: var(--option-color);
+  border-radius: 50%;
 }
 #sidebar #userlist .user .avt img {
   display: block;
-  border: 2px solid var(--option-color);
-  border-radius: 25px;
-  background: var(--option-color);
 }
 #sidebar #userlist .user .avt .activeStatus {
   position: absolute;
@@ -707,7 +711,8 @@ img {
   --fa-animation-duration: 2s;
 }
 
-.attachments, #stickerBtn {
+.attachments,
+#stickerBtn {
   position: relative;
 }
 
@@ -751,7 +756,8 @@ img {
   font-size: 0.8rem;
   white-space: nowrap;
 }
-.file_preview .meta .name, .file_preview .meta .size {
+.file_preview .meta .name,
+.file_preview .meta .size {
   overflow: hidden;
   width: 100%;
   text-overflow: ellipsis;
@@ -1129,11 +1135,20 @@ i[class^=fa-] {
   font-size: 1rem;
 }
 
-.fa-link, .fa-clone, .fa-location-dot, .fa-reply, .fa-download, .fa-circle-notch, .fa-arrow-down, .fa-gear {
+.fa-link,
+.fa-clone,
+.fa-location-dot,
+.fa-reply,
+.fa-download,
+.fa-circle-notch,
+.fa-arrow-down,
+.fa-gear {
   color: var(--secondary-dark);
 }
 
-.fa-paper-plane, .fa-paperclip, .fa-note-sticky {
+.fa-paper-plane,
+.fa-paperclip,
+.fa-note-sticky {
   font-size: 1.5rem !important;
   padding: 5px;
   color: var(--secondary-dark);
@@ -1202,7 +1217,8 @@ i[class^=fa-] {
   font-size: 0.7rem;
 }
 
-.fa-location-crosshairs, .fa-square-poll-horizontal {
+.fa-location-crosshairs,
+.fa-square-poll-horizontal {
   position: relative;
   padding: 10px;
   width: 50px;
@@ -1335,7 +1351,8 @@ i[class^=fa-] {
   gap: 5px;
   color: grey;
 }
-.credits .version, .credits .author {
+.credits .version,
+.credits .author {
   color: currentColor;
 }
 
@@ -1385,7 +1402,8 @@ i[class^=fa-] {
   font-size: 0.8rem;
   color: grey;
 }
-#replyToast .replyData .image, #replyToast .replyData .sticker {
+#replyToast .replyData .image,
+#replyToast .replyData .sticker {
   height: 55px;
   max-height: 55px;
   width: auto;
@@ -1797,7 +1815,8 @@ i[class^=fa-] {
   gap: 3px;
   padding: 15px;
 }
-#normalOptions .option i, #normalOptions .option span {
+#normalOptions .option i,
+#normalOptions .option span {
   pointer-events: none;
 }
 #normalOptions .option span {
