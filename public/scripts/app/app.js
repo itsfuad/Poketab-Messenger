@@ -1914,7 +1914,7 @@ function showThemes() {
 		hideOptions();
 		//console.log('showing themes');
 		activeModals.push('themes');
-		console.log(activeModals);
+		//console.log(activeModals);
 		modalCloseMap.set('themes', hideThemes);
 		if (THEME) {
 			if (themeArray.includes(THEME) == false) {
