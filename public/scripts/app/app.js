@@ -2317,6 +2317,7 @@ document.getElementById('logoutButton').addEventListener('click', () => {
 		tag: 'div',
 		attr: {
 			id: 'preload',
+			class: 'preload',
 		},
 		childs: [
 			{
@@ -2327,10 +2328,25 @@ document.getElementById('logoutButton').addEventListener('click', () => {
 				},
 			},
 			{
-				tag: 'i',
+				tag: 'div',
 				attr: {
-					class: 'fa-solid fa-circle-notch fa-spin',
+					class: 'logo',
 				},
+				childs: [
+					{
+						tag: 'img',
+						attr: {
+							src: '/images/pokeball.png',
+							alt: 'Poketab logo',
+						},
+					},
+					{
+						tag: 'div',
+						attr: {
+							class: 'ripple',
+						},
+					}
+				]
 			}
 		]
 	});
