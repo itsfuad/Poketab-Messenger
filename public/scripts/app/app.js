@@ -180,9 +180,6 @@ let lastNotification = undefined;
 let THEME = '';
 let messageSendShortCut = 'Ctrl+Enter'; //send message by default by pressing ctrl+enter
 
-const messageFromStorage = localStorage.getItem('allMessages');
-const allMessages = messageFromStorage ? JSON.parse(messageFromStorage) : [];
-
 //first load functions 
 //if user device is mobile
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -421,219 +418,219 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 			};
 		}
 
-		allMessages.push({ id: id, message: message, type: type, uid: uid, reply: reply, replyId: replyId, replyOptions: replyOptions, metadata: metadata });
-
-		localStorage.setItem('allMessages', JSON.stringify(allMessages));
-
-		let classList = ''; //the class list for the message. Initially empty. 
-		const lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
-		let popupmsg = ''; //the message to be displayed in the popup if user scrolled up
-		const messageIsEmoji = isEmoji(message); //if the message is an emoji
-		if (type === 'text') { //if the message is a text message
-			message = `<div class="msg text">${messageparser.parse(message)}</div>`;
-			const fragment = document.createDocumentFragment();
-			const el = document.createElement('div');
-			el.innerHTML = message;
-			fragment.appendChild(el);
-			popupmsg = fragment.textContent.length > 10 ? fragment.textContent.substring(0, 7) + '...' : fragment.textContent;//the message to be displayed in the popup if user scrolled up
-		} else if (type === 'image') { //if the message is an image
-			popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
-			message = sanitizeImagePath(message); //sanitize the image path
-			message = `
-			<div class='imageContainer msg'>
-				<img class='image' src='${message}' alt='image' data-name='${metadata.name}' height='${metadata.height}' width='${metadata.width}' />
-				<div class="circleProgressLoader" style="stroke-dasharray: 0, 251.2;">
-					<svg class="animated inactive" viewbox="0 0 100 100">
-						<circle cx="50" cy="50" r="45" fill="transparent"/>
-						<path id="progress" stroke-linecap="round" stroke-width="3" stroke="#fff" fill="none"
-							d="M50 10
-								a 40 40 0 0 1 0 80
-								a 40 40 0 0 1 0 -80">
-						</path>
-					</svg>
-					<div class="progressPercent">Waiting for upload</div>
-				</div>
-			</div>
-			`; //insert the image
-		} else if (type === 'sticker') {
-			popupmsg = 'Sticker';
-			message = sanitizeImagePath(message);
-			message = `
-			<img class='sticker msg' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
-			`;
-		} else if (type != 'text' && type != 'image' && type != 'file' && type != 'sticker' && type != 'audio') { //if the message is not a text or image message
-			throw new Error('Invalid message type');
-		}
-		if (uid == myId) { //if the message is sent by the user is me
-			classList += ' self';
-		}
-
-		if (lastMsg?.dataset?.uid != uid || messageIsEmoji || type === 'sticker') { // if the last message is not from the same user
-			classList += ' newGroup'; //then add the new group class
-			classList += ' start end';
-		} else if (lastMsg?.dataset?.uid == uid) { //if the last message is from the same user
-			if (!replyOptions.reply && !lastMsg?.classList.contains('emoji') && !lastMsg?.classList.contains('sticker')) { //and the message is not a reply
-				lastMsg?.classList.remove('end'); //then remove the bottom corner rounded from the last message
-			} else {
-				classList += ' start';
-			}
-			classList += ' end';
-		}
-		if (messageIsEmoji) { //if the message is an emoji or sticker
-			lastMsg?.classList.add('end');
-			classList += ' emoji';
-		}
-		if (type === 'sticker') {
-			lastMsg?.classList.add('end');
-			classList += ' sticker';
-		}
-		if (!replyOptions.reply) {
-			classList += ' noreply';
-		}
-		if ((!replyOptions.title || !classList.includes('start'))) {
-			classList += ' notitle';
-		}
-		else if (classList.includes('self') && classList.includes('noreply')) {
-			classList += ' notitle';
-		}
-		let username = userInfoMap.get(uid)?.username;
-		const avatar = userInfoMap.get(uid)?.avatar;
-		if (username == myName) { username = 'You'; }
-
-		let html;
-		let replyMsg;
-		let repliedTo;
-		if (replyOptions.reply) {
-			//check if the replyid is available in the message list
-			repliedTo = userInfoMap.get(document.getElementById(replyId || '')?.dataset?.uid)?.username;
-			if (repliedTo == myName) { repliedTo = 'you'; }
-			if (repliedTo == username) { repliedTo = 'self'; }
-			if (!document.getElementById(replyId)) {
-				reply = { data: 'Message is not available on this device', type: 'text' };
-			}
-
-			if (['text', 'file', 'audio'].includes(reply.type)) {
-				replyMsg = sanitize(reply.data);
-			} else {
-				//replyMsg = document.getElementById(replyId)?.querySelector(`.messageMain .${reply.type}`).outerHTML.replace(`class="${reply.type}"`, `class="${reply.type} imageReply"`);
-				const replyTarget = document.getElementById(replyId)?.querySelector(`.messageMain .${reply.type}`).cloneNode(true);
-				//remove attributes
-				replyTarget.removeAttribute('data-name');
-				replyTarget.removeAttribute('style');
-				replyTarget.removeAttribute('height');
-				replyTarget.removeAttribute('width');
-				replyTarget.setAttribute('alt', 'Reply');
-				replyTarget.setAttribute('class', `${reply.type} imageReply`);
-				replyMsg = replyTarget.outerHTML;
-			}
-
-		}
-
-		const timeStamp = Date.now();
-
-		if (type === 'file') {
-			popupmsg = 'File';
-			html = parseTemplate(fileTemplate, {
-				classList: classList,
-				avatarSrc: `/images/avatars/${avatar}(custom).webp`,
-				messageId: id,
-				uid: uid,
-				type: type,
-				repId: replyId,
-				title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
-				source: message,
-				fileName: metadata.name,
-				fileSize: metadata.size,
-				ext: metadata.ext,
-				replyMsg: replyMsg,
-				replyFor: reply.type,
-				time: getFormattedDate(timeStamp),
-				timeStamp: timeStamp,
-			});
-		} else if (type == 'audio') {
-			popupmsg = 'Audio';
-			html = parseTemplate(audioTemplate, {
-				classList: classList,
-				avatarSrc: `/images/avatars/${avatar}(custom).webp`,
-				messageId: id,
-				uid: uid,
-				type: type,
-				repId: replyId,
-				title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
-				source: message,
-				length: 'Play',
-				ext: metadata.ext,
-				replyMsg: replyMsg,
-				replyFor: reply.type,
-				time: getFormattedDate(timeStamp),
-				timeStamp: timeStamp,
-				duration: metadata.duration,
-			});
-		} else {
-			html = parseTemplate(messageTemplate, {
-				classList: classList,
-				avatarSrc: `/images/avatars/${avatar}(custom).webp`,
-				messageId: id,
-				uid: uid,
-				type: type,
-				repId: replyId,
-				title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
-				message: message,
-				replyMsg: replyMsg,
-				replyFor: reply.type,
-				time: getFormattedDate(timeStamp),
-				timeStamp: timeStamp,
-			});
-		}
-
-		lastSeenMessage = id;
-
-		if (document.hasFocus()) {
-			chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
-		}
-
-		const fragment = document.createRange().createContextualFragment(html);
-
-		messages.appendChild(fragment);
-
-		if (reply.type == 'image' || reply.type == 'sticker') {
-			document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
-		}
-
-		if (messageTimeStampUpdater) {
-			clearInterval(messageTimeStampUpdater);
-		}
-
-		messageTimeStampUpdater = setInterval(() => {
-			//get the last message
-			const lastMsg = messages.querySelector('.msg-item:last-child');
-			if (lastMsg?.classList?.contains('message')) {
-				const time = lastMsg.querySelector('.messageTime');
-				time.textContent = getFormattedDate(time.dataset.timestamp);
-			}
-		}, 60000);
-
-		lastPageLength = messages.scrollTop;
-		checkgaps(lastMsg?.id);
-
-		//highlight code
-		const codes = document.getElementById(id).querySelector('.messageMain')?.querySelectorAll('pre');
-
-		if (type == 'text' && codes) {
-			//Prism.highlightAll();
-			codes.forEach(code => {
-				code.querySelectorAll('code').forEach(c => {
-					Prism.highlightElement(c);
-				});
-			});
-		}
-
-		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
-
+		makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, metadata);
 	} catch (err) {
 		console.error(err);
 		showPopupMessage(err);
 	}
+}
+
+function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, metadata) {
+
+	let classList = ''; //the class list for the message. Initially empty. 
+	const lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
+	let popupmsg = ''; //the message to be displayed in the popup if user scrolled up
+	const messageIsEmoji = isEmoji(message); //if the message is an emoji
+	if (type === 'text') { //if the message is a text message
+		message = `<div class="msg text">${messageparser.parse(message)}</div>`;
+		const fragment = document.createDocumentFragment();
+		const el = document.createElement('div');
+		el.innerHTML = message;
+		fragment.appendChild(el);
+		popupmsg = fragment.textContent.length > 10 ? fragment.textContent.substring(0, 7) + '...' : fragment.textContent;//the message to be displayed in the popup if user scrolled up
+	} else if (type === 'image') { //if the message is an image
+		popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
+		message = sanitizeImagePath(message); //sanitize the image path
+		message = `
+		<div class='imageContainer msg'>
+			<img class='image' src='${message}' alt='image' data-name='${metadata.name}' height='${metadata.height}' width='${metadata.width}' />
+			<div class="circleProgressLoader" style="stroke-dasharray: 0, 251.2;">
+				<svg class="animated inactive" viewbox="0 0 100 100">
+					<circle cx="50" cy="50" r="45" fill="transparent"/>
+					<path id="progress" stroke-linecap="round" stroke-width="3" stroke="#fff" fill="none"
+						d="M50 10
+							a 40 40 0 0 1 0 80
+							a 40 40 0 0 1 0 -80">
+					</path>
+				</svg>
+				<div class="progressPercent">Waiting for upload</div>
+			</div>
+		</div>
+		`; //insert the image
+	} else if (type === 'sticker') {
+		popupmsg = 'Sticker';
+		message = sanitizeImagePath(message);
+		message = `
+		<img class='sticker msg' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
+		`;
+	} else if (type != 'text' && type != 'image' && type != 'file' && type != 'sticker' && type != 'audio') { //if the message is not a text or image message
+		throw new Error('Invalid message type');
+	}
+	if (uid == myId) { //if the message is sent by the user is me
+		classList += ' self';
+	}
+
+	if (lastMsg?.dataset?.uid != uid || messageIsEmoji || type === 'sticker') { // if the last message is not from the same user
+		classList += ' newGroup'; //then add the new group class
+		classList += ' start end';
+	} else if (lastMsg?.dataset?.uid == uid) { //if the last message is from the same user
+		if (!replyOptions.reply && !lastMsg?.classList.contains('emoji') && !lastMsg?.classList.contains('sticker')) { //and the message is not a reply
+			lastMsg?.classList.remove('end'); //then remove the bottom corner rounded from the last message
+		} else {
+			classList += ' start';
+		}
+		classList += ' end';
+	}
+	if (messageIsEmoji) { //if the message is an emoji or sticker
+		lastMsg?.classList.add('end');
+		classList += ' emoji';
+	}
+	if (type === 'sticker') {
+		lastMsg?.classList.add('end');
+		classList += ' sticker';
+	}
+	if (!replyOptions.reply) {
+		classList += ' noreply';
+	}
+	if ((!replyOptions.title || !classList.includes('start'))) {
+		classList += ' notitle';
+	}
+	else if (classList.includes('self') && classList.includes('noreply')) {
+		classList += ' notitle';
+	}
+	let username = userInfoMap.get(uid)?.username;
+	const avatar = userInfoMap.get(uid)?.avatar;
+	if (username == myName) { username = 'You'; }
+
+	let html;
+	let replyMsg;
+	let repliedTo;
+	if (replyOptions.reply) {
+		//check if the replyid is available in the message list
+		repliedTo = userInfoMap.get(document.getElementById(replyId || '')?.dataset?.uid)?.username;
+		if (repliedTo == myName) { repliedTo = 'you'; }
+		if (repliedTo == username) { repliedTo = 'self'; }
+		if (!document.getElementById(replyId)) {
+			reply = { data: 'Message is not available on this device', type: 'text' };
+		}
+
+		if (['text', 'file', 'audio'].includes(reply.type)) {
+			replyMsg = sanitize(reply.data);
+		} else {
+			//replyMsg = document.getElementById(replyId)?.querySelector(`.messageMain .${reply.type}`).outerHTML.replace(`class="${reply.type}"`, `class="${reply.type} imageReply"`);
+			const replyTarget = document.getElementById(replyId)?.querySelector(`.messageMain .${reply.type}`).cloneNode(true);
+			//remove attributes
+			replyTarget.removeAttribute('data-name');
+			replyTarget.removeAttribute('style');
+			replyTarget.removeAttribute('height');
+			replyTarget.removeAttribute('width');
+			replyTarget.setAttribute('alt', 'Reply');
+			replyTarget.setAttribute('class', `${reply.type} imageReply`);
+			replyMsg = replyTarget.outerHTML;
+		}
+
+	}
+
+	const timeStamp = Date.now();
+
+	if (type === 'file') {
+		popupmsg = 'File';
+		html = parseTemplate(fileTemplate, {
+			classList: classList,
+			avatarSrc: `/images/avatars/${avatar}(custom).webp`,
+			messageId: id,
+			uid: uid,
+			type: type,
+			repId: replyId,
+			title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
+			source: message,
+			fileName: metadata.name,
+			fileSize: metadata.size,
+			ext: metadata.ext,
+			replyMsg: replyMsg,
+			replyFor: reply.type,
+			time: getFormattedDate(timeStamp),
+			timeStamp: timeStamp,
+		});
+	} else if (type == 'audio') {
+		popupmsg = 'Audio';
+		html = parseTemplate(audioTemplate, {
+			classList: classList,
+			avatarSrc: `/images/avatars/${avatar}(custom).webp`,
+			messageId: id,
+			uid: uid,
+			type: type,
+			repId: replyId,
+			title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
+			source: message,
+			length: 'Play',
+			ext: metadata.ext,
+			replyMsg: replyMsg,
+			replyFor: reply.type,
+			time: getFormattedDate(timeStamp),
+			timeStamp: timeStamp,
+			duration: metadata.duration,
+		});
+	} else {
+		html = parseTemplate(messageTemplate, {
+			classList: classList,
+			avatarSrc: `/images/avatars/${avatar}(custom).webp`,
+			messageId: id,
+			uid: uid,
+			type: type,
+			repId: replyId,
+			title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
+			message: message,
+			replyMsg: replyMsg,
+			replyFor: reply.type,
+			time: getFormattedDate(timeStamp),
+			timeStamp: timeStamp,
+		});
+	}
+
+	lastSeenMessage = id;
+
+	if (document.hasFocus()) {
+		chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
+	}
+
+	const fragment = document.createRange().createContextualFragment(html);
+
+	messages.appendChild(fragment);
+
+	if (reply.type == 'image' || reply.type == 'sticker') {
+		document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
+	}
+
+	if (messageTimeStampUpdater) {
+		clearInterval(messageTimeStampUpdater);
+	}
+
+	messageTimeStampUpdater = setInterval(() => {
+		//get the last message
+		const lastMsg = messages.querySelector('.msg-item:last-child');
+		if (lastMsg?.classList?.contains('message')) {
+			const time = lastMsg.querySelector('.messageTime');
+			time.textContent = getFormattedDate(time.dataset.timestamp);
+		}
+	}, 60000);
+
+	lastPageLength = messages.scrollTop;
+	checkgaps(lastMsg?.id);
+
+	//highlight code
+	const codes = document.getElementById(id).querySelector('.messageMain')?.querySelectorAll('pre');
+
+	if (type == 'text' && codes) {
+		//Prism.highlightAll();
+		codes.forEach(code => {
+			code.querySelectorAll('code').forEach(c => {
+				Prism.highlightElement(c);
+			});
+		});
+	}
+
+	updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
 }
 
 /**
