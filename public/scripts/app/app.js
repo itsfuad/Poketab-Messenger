@@ -1797,6 +1797,7 @@ export function serverMessage(message, type = null) {
 	lastSeenMessage = message.id;
 	if (document.hasFocus()) {
 		chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
+		updateScroll();
 	}
 }
 
