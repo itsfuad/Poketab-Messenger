@@ -36,7 +36,7 @@ router.post('/upload/:key/:messageId/:userId', (req, res) => {
     });
     req.on('aborted', () => {
         req.destroy();
-        //console.log(`Upload aborted`);
+        console.log(`Upload aborted`);
         //console.log(chunks);
         chunks.length = 0;
         fileSocket.to(req.body.key).emit('fileUploadError', req.body.messageId);

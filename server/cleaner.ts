@@ -1,4 +1,4 @@
-import { stat, rm, readdir, unlink, mkdir, existsSync } from 'fs';
+import { rm, readdir, unlink, mkdir, existsSync } from 'fs';
 
 import { fileStore, deleteFileStore } from './routes/fileAPI.js';
 import { keyStore } from './database/db.js';
