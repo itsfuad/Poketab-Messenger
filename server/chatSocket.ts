@@ -9,8 +9,6 @@ import crypto from 'crypto';
 
 import { cleanJunks, deleteFile } from './cleaner.js';
 
-import { Worker } from 'worker_threads';
-
 import { chatSocket } from './sockets.js';
 import { fileStore } from './routes/fileAPI.js';
 
@@ -124,19 +122,6 @@ chatSocket.on('connection', (socket) => {
 				const key = SocketIds[socket.id].key;
 				const { uid } = keyStore.getKey(key).getUser(SocketIds[socket.id].uid);
 				socket.broadcast.to(key).emit('stoptyping', uid);
-			}
-		});
-
-		socket.on('getLinkMetadata', (url) => {
-			if (SocketIds[socket.id]){
-				const key = SocketIds[socket.id].key;
-				const { uid } = keyStore.getKey(key).getUser(SocketIds[socket.id].uid);
-				//worker thread
-				const worker = new Worker('server/workers/socialMediaPreview.js');
-				worker.postMessage(url);
-				worker.on('message', (data) => {
-					socket.emit('linkMetadata', data, uid);
-				});
 			}
 		});
 		
