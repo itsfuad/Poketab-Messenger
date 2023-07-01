@@ -880,13 +880,6 @@ input[type="file"] {
     }
 }
 
-#send {
-    border: none;
-    background: none;
-    padding-right: 5px;
-    position: relative;
-}
-
 #filePreviewContainer {
     position: fixed;
     bottom: 0;
@@ -1331,6 +1324,33 @@ i[class^="fa-"] {
 
     .text:empty + .bubble {
         display: none;
+    }
+}
+
+#send {
+    border: none;
+    background: none;
+    padding-right: 5px;
+    position: relative;
+    transition: 350ms ease-in-out;
+}
+
+.btn{
+    transform: scale(1);
+}
+
+.btn-animate.clicked{
+    animation: clicked 350ms ease-in-out forwards;
+}
+
+@keyframes clicked {
+    from{
+        transform: scale(0.8);
+        //opacity: 0.5;
+    }
+    to{
+        transform: scale(1);
+        opacity: 1;
     }
 }
 

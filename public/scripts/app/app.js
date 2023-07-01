@@ -22,6 +22,8 @@ import { ClickAndHold } from './utils/clickAndHoldDetector.js';
 
 import { fragmentBuilder } from './utils/fragmentBuilder.js';
 
+import './utils/buttonsAnimate.js';
+
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
 //main message Element where all messages araree inserted
@@ -1877,7 +1879,6 @@ export function loadStickers() {
 		const img = document.createElement('img');
 		img.src = `/stickers/${selectedStickerGroup}/static/${i}-mini.webp`;
 		img.onerror = () => { retryImageLoad(this); };
-		img.onclick = () => { console.log('hi'); };
 		img.alt = `${selectedStickerGroup}-${i}`;
 		img.dataset.name = `${selectedStickerGroup}/animated/${i}`;
 		img.classList.add('stickerpack', 'clickable');
@@ -3248,6 +3249,7 @@ sendButton.addEventListener('click', () => {
 	textbox.focus();
 	hideOptions();
 	hideReplyToast();
+
 	try {
 		clearTimeout(typingStatusTimeout);
 	} catch (e) {
