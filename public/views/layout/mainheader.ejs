@@ -41,14 +41,14 @@
     gap: 10px;
   }
 
-  .preload .logo{
+  .preload .logo {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
   }
 
-  .preload .text{
+  .preload .text {
     padding: 25px;
     color: var(--secondary-dark);
   }
@@ -69,7 +69,7 @@
     z-index: 999;
   }
 
-  .preload.done{
+  .preload.done {
     display: none;
   }
 
@@ -165,11 +165,18 @@
 <link rel="stylesheet" href="/styles/chat.css">
 <link rel="stylesheet" href="/libs/prism/prism.css">
 <link rel="manifest" href="/manifest.json" crossorigin="anonymous">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P08V2PC0TG"></script>
+<script nonce="<%=hash%>">
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
 
+  gtag('config', 'G-P08V2PC0TG');
+</script>
 <link rel="icon" href="/images/<%=icon_%>">
 
 <% if (ENV==='DEVELOPMENT' ) { %>
   <script defer type="module" src="/scripts/app/app.js"></script>
-  <% } else { %>
+<% } else { %>
     <script defer type="module" src="/scripts/app/bundle/bundle.js"></script>
-    <% } %>
+<% } %>
