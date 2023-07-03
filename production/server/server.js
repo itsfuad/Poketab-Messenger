@@ -27,7 +27,7 @@ import fileRouter from './routes/fileAPI.js';
 //this blocks the client if they request 100 requests in 5 minutes
 const apiRequestLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 15,
+    max: 100,
     message: blockedMessage,
     standardHeaders: false,
     legacyHeaders: false // Disable the `X-RateLimit-*` headers

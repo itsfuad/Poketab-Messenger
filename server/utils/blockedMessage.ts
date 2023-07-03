@@ -6,6 +6,7 @@ export const blockedMessage = `
     body{background-color: #111d2a; color: ghostwhite;}
 </style>
 <link rel="icon" href="${blockedIcon}">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, interactive-widget=resizes-content">
 <title>IP Blocked</title>
 <div style="display: flex; align-items: center; justify-content: center; flex-direction: row; gap: 10px; height: 100%; width: 100%">
     <div style="border-right: 3px solid ghostwhite; font-size: 4rem; padding: 10px; color: #ffffff3d;">429</div>

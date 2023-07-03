@@ -24,6 +24,8 @@ import { fragmentBuilder } from './utils/fragmentBuilder.js';
 
 import './utils/buttonsAnimate.js';
 
+import './utils/call.js';
+
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
 //main message Element where all messages araree inserted
