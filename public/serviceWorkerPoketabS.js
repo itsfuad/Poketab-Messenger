@@ -18,6 +18,9 @@ self.addEventListener('install', (event) => {
 			const cache = await caches.open(CACHE_NAME+'-'+OFFLINE_VERSION);
 			await cache.addAll([
 				new Request(OFFLINE_URL, { cache: 'reload' }),
+				'/fonts/comic-webfont.woff2',
+				'/images/avatars/pikachu.webp',
+				'/images/offline.png',
 			]);
 		})()
 	);
@@ -54,7 +57,21 @@ self.addEventListener('fetch', (event) => {
 				}
 			})()
 		);
-	} else {
+	} else if (event.request.url.includes('/fonts/comic-webfont.woff2')) {
+		event.respondWith(
+			(async () => {
+				const cache = await caches.open(CACHE_NAME+'-'+OFFLINE_VERSION);
+				const cachedResponse = await cache.match(event.request);
+				if (cachedResponse) {
+					return cachedResponse;
+				} else {
+					const networkResponse = await fetch(event.request);
+					cache.put(event.request, networkResponse.clone());
+					return networkResponse;
+				}
+			})()
+		);
+	} else if (event.request.url.includes('/images/offline.png')) {
 		event.respondWith(
 			(async () => {
 				const cache = await caches.open(CACHE_NAME+'-'+OFFLINE_VERSION);

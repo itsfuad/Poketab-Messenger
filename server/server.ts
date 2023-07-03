@@ -69,7 +69,7 @@ app.get('/', (_, res) => {
 	// Generate a random nonce
 	const nonce = crypto.randomBytes(16).toString('hex');
 	// Set the Content-Security-Policy header
-	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}' ; img-src 'self' data:;`);
+	res.setHeader('Content-Security-Policy', `default-src 'self'; style-src 'self' 'nonce-${nonce}' ; img-src 'self' data:; script-src 'self' 'nonce-${nonce}';`);
 	// Set the Developer header
 	res.setHeader('Developer', DEVELOPER);
 	// Render the home page
@@ -205,7 +205,7 @@ function approveNewChatRequest(res: any, data: {username: string, key: string, a
 	const uid = crypto.randomBytes(16).toString('hex');
 
 	res.setHeader('Developer', DEVELOPER);
-	res.setHeader('Content-Security-Policy', 'default-src \'self\'; img-src \'self\' data: blob:; script-src \'self\' \'unsafe-inline\'; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;');
+	res.setHeader('Content-Security-Policy', `default-src \'self\'; img-src \'self\' data: blob:; script-src \'self\' \'unsafe-inline\' 'nonce-${nonce}'; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;`);
 	res.setHeader('Cluster', `ID: ${process.pid}`);
 	res.render('chat/chat', {myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, ENV: ENVIRONMENT, hash: nonce, welcomeSticker: welcomeSticker, icon: data.icon});
 }
