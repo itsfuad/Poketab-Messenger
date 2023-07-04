@@ -1082,8 +1082,9 @@ messages.addEventListener('touchend', (evt) => {
 			const elem = evt.target.closest('.message').querySelector('.messageContainer');
 			elem.dataset.swipestarted = 'false';
 
-			xDiff = 0;
-			yDiff = 0;
+			
+			//xDiff = 0;
+			//yDiff = 0;
 
 			horizontalSwipe = false;
 
@@ -1098,7 +1099,14 @@ messages.addEventListener('touchend', (evt) => {
 				} else {
 					replyIcon.style.transform = 'translateX(-50px)';
 				}
+
+				//add a smooth transition to the element
+				elem.style.transition = 'transform 150ms ease-in-out';
 				elem.style.transform = 'translateX(0px)';
+				setTimeout(() => {
+					elem.style.transition = 'none';
+				}, 150);
+				
 				if (elem.dataset.replyTrigger === 'true') {
 					elem.dataset.replyTrigger = 'false';
 					//add data to finalTarget
@@ -3618,7 +3626,7 @@ document.addEventListener('keydown', (evt) => {
 	const altKeys = ['o', 's', 't', 'i', 'a', 'f', 'p', 'm', 'r'];
 
 	if (altKeys.includes(evt.key) && evt.altKey) {
-		console.log(modalCloseMap);
+		//console.log(modalCloseMap);
 		//evt.preventDefault();
 		closeAllModals();
 		switch (evt.key) {
@@ -3706,7 +3714,7 @@ document.getElementById('send-location').addEventListener('click', () => {
 	}
 
 	locationTimeout = setTimeout(() => {
-		showPopupMessage('Could not connect to the internet');
+		showPopupMessage('Error occured. Please try again.');
 		locationTimeout = undefined;
 		show = false;
 	}, 5000);
