@@ -1,4 +1,5 @@
 <meta name="theme-color" content="#111d2a" />
+<script type="module" src="./../../scripts/themeLoader.js"></script>
 <!--social media preview tag-->
 <meta name="title" content="Poketab Messenger" />
 <meta name="description"
@@ -11,6 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-icon-180.png">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
+
 
 <style nonce="<%=hash%>">
   /* latin */
@@ -165,14 +167,6 @@
 <link rel="stylesheet" href="/styles/chat.css">
 <link rel="stylesheet" href="/libs/prism/prism.css">
 <link rel="manifest" href="/manifest.json" crossorigin="anonymous">
-<script nonce="<%=hash%>" async src="https://www.googletagmanager.com/gtag/js?id=G-P08V2PC0TG"></script>
-<script nonce="<%=hash%>">
-  window.dataLayer = window.dataLayer || [];
-  function gtag() { dataLayer.push(arguments); }
-  gtag('js', new Date());
-
-  gtag('config', 'G-P08V2PC0TG');
-</script>
 <link rel="icon" href="/images/<%=icon_%>">
 
 <% if (ENV==='DEVELOPMENT' ) { %>

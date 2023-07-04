@@ -16,7 +16,8 @@ import {
 } from './utils/media.js';
 
 import { emojiParser, isEmoji, TextParser, parseTemplate } from './utils/messageParser.js';
-import { themePicker, themeArray, themeAccent } from './utils/themes.js';
+import { themePicker, themeArray } from './utils/themes.js';
+import { themeAccent } from '../themeLoader.js';
 
 import { ClickAndHold } from './utils/clickAndHoldDetector.js';
 
