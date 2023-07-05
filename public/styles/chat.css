@@ -1289,12 +1289,12 @@ i[class^=fa-] {
 }
 
 .btn-animate.clicked {
-  animation: clicked 350ms ease-in-out forwards;
+  animation: clicked 120ms ease-in-out forwards;
 }
 
 @keyframes clicked {
   from {
-    transform: scale(0.8);
+    transform: scale(0.7);
   }
   to {
     transform: scale(1);

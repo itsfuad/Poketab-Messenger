@@ -5,6 +5,6 @@ buttons.forEach((button) => {
 		button.classList.add('clicked');
 		setTimeout(() => {
 			button.classList.remove('clicked');
-		}, 300);
+		}, 150);
 	});
 });
