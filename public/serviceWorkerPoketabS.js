@@ -1,4 +1,4 @@
-const OFFLINE_VERSION = 3;
+const OFFLINE_VERSION = 5;
 const CACHE_NAME = 'offline';
 const OFFLINE_URL = '/offline';
 
@@ -63,6 +63,10 @@ self.addEventListener('fetch', (event) => {
 			response(event)
 		);
 	} else if (event.request.url.includes('/images/offline.png')) {
+		event.respondWith(
+			response(event)
+		);
+	} else if (event.request.url.includes('/scripts/themeLoader.js')) {
 		event.respondWith(
 			response(event)
 		);
