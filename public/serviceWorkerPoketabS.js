@@ -21,6 +21,7 @@ self.addEventListener('install', (event) => {
 				'/fonts/comic-webfont.woff2',
 				'/images/avatars/pikachu.webp',
 				'/images/offline.png',
+				'/scripts/themeLoader.js',
 			]);
 		})()
 	);
