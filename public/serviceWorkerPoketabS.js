@@ -59,34 +59,26 @@ self.addEventListener('fetch', (event) => {
 		);
 	} else if (event.request.url.includes('/fonts/comic-webfont.woff2')) {
 		event.respondWith(
-			(async () => {
-				const cache = await caches.open(CACHE_NAME+'-'+OFFLINE_VERSION);
-				const cachedResponse = await cache.match(event.request);
-				if (cachedResponse) {
-					return cachedResponse;
-				} else {
-					const networkResponse = await fetch(event.request);
-					cache.put(event.request, networkResponse.clone());
-					return networkResponse;
-				}
-			})()
+			response(event)
 		);
 	} else if (event.request.url.includes('/images/offline.png')) {
 		event.respondWith(
-			(async () => {
-				const cache = await caches.open(CACHE_NAME+'-'+OFFLINE_VERSION);
-				const cachedResponse = await cache.match(event.request);
-				if (cachedResponse) {
-					return cachedResponse;
-				} else {
-					const networkResponse = await fetch(event.request);
-					cache.put(event.request, networkResponse.clone());
-					return networkResponse;
-				}
-			})()
+			response(event)
 		);
 	}
 });
+
+async function response (event){
+	const cache = await caches.open(CACHE_NAME+'-'+OFFLINE_VERSION);
+	const cachedResponse = await cache.match(event.request);
+	if (cachedResponse) {
+		return cachedResponse;
+	} else {
+		const networkResponse = await fetch(event.request);
+		cache.put(event.request, networkResponse.clone());
+		return networkResponse;
+	}
+}
   
 
 console.log('%cService Worker: Poketab Messenger is running', 'color: limegreen;');

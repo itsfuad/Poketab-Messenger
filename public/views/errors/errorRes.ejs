@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script async type="module" src="/scripts/themeLoader.js" nonce="<%=hash%>"></script>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -56,7 +57,7 @@
         a{
             color: #fff;
             text-decoration: none;
-            background: #0575e6;
+            background: var(--secondary-dark, #0575e6);
             padding: 10px 20px;
             border-radius: 10px;
         }

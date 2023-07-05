@@ -107,7 +107,7 @@ app.post('/~', (req, res) => {
     //if username and avatars are not valid
     if (!isValidUsername || !validateAvatar(avatar)) {
         res.setHeader('Developer', DEVELOPER);
-        res.setHeader('Content-Security-Policy', 'script-src \'none\'');
+        res.setHeader('Content-Security-Policy', `script-src 'none'`);
         res.status(400).send({
             error: !isValidUsername ?
                 'Invalid username'
@@ -151,28 +151,25 @@ app.post('/~', (req, res) => {
     }
 });
 function blockNewChatRequest(res, data) {
+    const nonce = crypto.randomBytes(16).toString('hex');
     res.setHeader('Developer', DEVELOPER);
-    res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-    res.render('errors/errorRes', { title: data.title, errorCode: data.errorCode, errorMessage: data.errorMessage, buttonText: data.buttonText, icon: data.icon });
+    res.setHeader('Content-Security-Policy', `script-src 'nonce-${nonce}'`);
+    res.render('errors/errorRes', { title: data.title, errorCode: data.errorCode, errorMessage: data.errorMessage, buttonText: data.buttonText, icon: data.icon, hash: nonce });
 }
 function approveNewChatRequest(res, data) {
     const nonce = crypto.randomBytes(16).toString('hex');
     const welcomeSticker = Math.floor(Math.random() * 9) + 1;
     const uid = crypto.randomBytes(16).toString('hex');
     res.setHeader('Developer', DEVELOPER);
-    res.setHeader('Content-Security-Policy', `default-src \'self\'; img-src \'self\' data: blob:; script-src \'self\' \'unsafe-inline\' 'nonce-${nonce}'; style-src \'self\' \'unsafe-inline\'; connect-src \'self\' blob:; media-src \'self\' blob:;`);
+    res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'nonce-${nonce}'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob:; media-src 'self' blob:;`);
     res.setHeader('Cluster', `ID: ${process.pid}`);
     res.render('chat/chat', { myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, ENV: ENVIRONMENT, hash: nonce, welcomeSticker: welcomeSticker, icon: data.icon });
 }
 app.get('/offline', (_, res) => {
-    res.setHeader('Developer', DEVELOPER);
-    res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-    res.render('errors/errorRes', { title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline :(', buttonText: 'Refresh', icon: 'offline.png' });
+    blockNewChatRequest(res, { title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline :(', buttonText: 'Refresh', icon: 'offline.png' });
 });
 app.get('*', (_, res) => {
-    res.setHeader('Developer', DEVELOPER);
-    res.setHeader('Content-Security-Policy', 'script-src \'none\'');
-    res.render('errors/errorRes', { title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home', icon: '404.png' });
+    blockNewChatRequest(res, { title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home', icon: '404.png' });
 });
 //fire up the server
 httpServer.listen(port, () => {
