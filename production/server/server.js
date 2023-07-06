@@ -84,11 +84,6 @@ app.get('/join', (_, res) => {
     res.setHeader('Developer', DEVELOPER);
     res.render('login/newUser', { title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce, takenAvlists: null, icon: Icon });
 });
-app.get('/connect', (_, res) => {
-    const uid = crypto.randomBytes(16).toString('hex');
-    const key = generateUniqueId();
-    res.send({ uid: uid, key: key });
-});
 app.get('/~', (_, res) => {
     if (ENVIRONMENT != 'DEVELOPMENT') {
         res.redirect('/join');
