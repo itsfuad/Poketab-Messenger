@@ -5,7 +5,6 @@ const stickersTemplate = document.getElementById('stickersTemplate');
 document.getElementById('stickersTemplate').remove();
 
 export function loadStickerHeaders() {
-
 	const heads = Object.values(Stickers).map((sticker) => {
 		return `<img src="/stickers/${sticker.name}/animated/${sticker.icon}.webp" class="${sticker.name}" data-name="${sticker.name}" alt="${sticker.name}">`;
 	}).join('');
@@ -13,8 +12,6 @@ export function loadStickerHeaders() {
 	let stickersArray = '';
 
 	Object.values(Stickers).forEach((sticker) => {
-		//console.log(sticker, sticker.count);
-
 		let stickerBoard = '';
 
 		for (let i = 1; i <= sticker.count; i++) {
@@ -22,9 +19,9 @@ export function loadStickerHeaders() {
 		}
 
 		stickersArray += `
-        <div class="stickerBoard ${sticker.name}">
-            ${stickerBoard}
-        </div>`;
+      <div class="stickerBoard ${sticker.name}">
+        ${stickerBoard}
+      </div>`;
 	});
 
 	const stickersKeyboard = parseTemplate(stickersTemplate.innerHTML, {
@@ -32,17 +29,15 @@ export function loadStickerHeaders() {
 		stickers: stickersArray
 	});
 
-	//console.log(stickersKeyboard);
 	document.getElementById('stickersKeyboard').innerHTML += stickersKeyboard;
 
 	const stickerHeads = document.querySelector('.stickersHeader');
 
 	stickerHeads.addEventListener('click', (e) => {
-		//console.log(e.target.dataset.name);
 		if (e.target.dataset.name) {
 			const stickerBoard = document.querySelector(`.stickerBoard.${e.target.dataset.name}`);
 			setTimeout(() => {
-				stickerBoard.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+				stickerBoard.scrollIntoView();
 			}, 150);
 		}
 	});
@@ -60,26 +55,24 @@ export function loadStickerHeaders() {
 		stickerHeads.scrollBy(100, 0);
 	});
 
-	const stickersBody = document.querySelector('.stickersBody');
-	stickersBody.addEventListener('scroll', () => {
-		//detect which sticker is in view
-		const stickerBoards = document.querySelectorAll('.stickerBoard');
-		//console.log(stickerBoards[0].getBoundingClientRect().x, stickerBoards[0].getBoundingClientRect().width);
-		stickerBoards.forEach((stickerBoard) => {
-			const rect = stickerBoard.getBoundingClientRect();
-			if (rect.x <= rect.width / 2 && rect.x + rect.width >= rect.width / 2) {
-				//console.log(stickerBoard.classList[1]);
-				const selectedSticker = localStorage.getItem('selectedSticker') || 'catteftel';
-				if (selectedSticker) {
-					const head = document.querySelector(`.stickersHeader img.${selectedSticker}`);
-					if (!head) return;
-					head.dataset.selected = 'false';
-				}
-				const head = document.querySelector(`.stickersHeader img.${stickerBoard.classList[1]}`);
-				if (!head) return;
-				head.dataset.selected = 'true';
-				localStorage.setItem('selectedSticker', stickerBoard.classList[1]);
+	const stickerBoards = document.querySelectorAll('.stickerBoard');
+
+	const observer = new IntersectionObserver((entries) => {
+		entries.forEach((entry) => {
+			if (entry.isIntersecting) {
+				const inViewSticker = entry.target.classList[1];
+				localStorage.setItem('selectedSticker', inViewSticker);
+				console.log(inViewSticker);
+				document.querySelectorAll('.stickersHeader img').forEach((stickerHead) => {
+					stickerHead.dataset.selected = false;
+				});
+				const stickerHead = document.querySelector(`.stickersHeader img[data-name="${inViewSticker}"]`);
+				stickerHead.dataset.selected = true;
 			}
 		});
+	}, { threshold: 0.5 });
+
+	stickerBoards.forEach((stickerBoard) => {
+		observer.observe(stickerBoard);
 	});
 }
