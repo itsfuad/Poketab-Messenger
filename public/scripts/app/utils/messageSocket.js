@@ -14,8 +14,6 @@ import {
 	showPopupMessage, 
 	deleteMessage, 
 	setTypingUsers, 
-	loadStickerHeader, 
-	loadStickers, 
 	isTyping, 
 	serverMessage, 
 	notifyUser, 
@@ -28,6 +26,8 @@ import {
 	loginTimeout,
 	slowInternetTimeout
 } from './../app.js';
+
+import { loadStickerHeaders } from './stickersKeyboard.js';
 
 import { fragmentBuilder } from './fragmentBuilder.js';
 
@@ -87,8 +87,7 @@ chatSocket.on('connect', () => {
 			showPopupMessage('Connected to message relay server');
 
 			//after connection is established, load the stickers
-			loadStickerHeader();
-			loadStickers();
+			loadStickerHeaders();
 			//ask for notification permission
 			if ('Notification' in window){
 				//Notification.requestPermission();

@@ -3,7 +3,7 @@
 
 import { chatSocket } from './utils/messageSocket.js';
 import { fileSocket, incommingXHR } from './utils/fileSocket.js';
-import { Stickers } from '../../stickers/stickersConfig.js';
+
 import { Prism } from '../../libs/prism/prism.min.js';
 import { PanZoom } from '../../libs/panzoom.min.js';
 import { sanitizeImagePath, sanitize } from './utils/sanitizer.js';
@@ -24,6 +24,7 @@ import { ClickAndHold } from './utils/clickAndHoldDetector.js';
 import { fragmentBuilder } from './utils/fragmentBuilder.js';
 
 import './utils/buttonsAnimate.js';
+
 
 //import './utils/call.js';
 
@@ -50,7 +51,7 @@ const micIcon = document.getElementById('micIcon');
 const recorderTimer = document.getElementById('recordingTime');
 
 //dynamic popups
-const stickersPanel = document.getElementById('stickersPanelWrapper');
+const stickersPanel = document.getElementById('stickersKeyboard');
 const sideBarPanel = document.getElementById('sidebarWrapper');
 const quickSettings = document.getElementById('quickSettingPanel');
 const messageOptions = document.getElementById('messageOptionsContainerWrapper');
@@ -1820,101 +1821,6 @@ function vibrate() {
 	}
 }
 
-let selectedStickerGroupCount;
-
-let selectedStickerGroup = localStorage.getItem('selectedStickerGroup') || Stickers[0].name;
-
-const stickersGrp = document.getElementById('selectStickerGroup');
-
-let stickerHeaderIsLoaded = false;
-
-/**
- * Loads the sticker header
- */
-export function loadStickerHeader() {
-
-	try {
-		//if the header is already loaded, return
-		if (stickerHeaderIsLoaded) {
-			return;
-		}
-
-		stickerHeaderIsLoaded = true;
-
-		while (stickersGrp.firstChild) {
-			stickersGrp.removeChild(stickersGrp.firstChild);
-		}
-
-		for (const sticker of Stickers) {
-			const img = document.createElement('img');
-			img.src = `/stickers/${sticker.name}/animated/${sticker.icon}.webp`;
-			img.onerror = () => { retryImageLoad(this); };
-			img.alt = sticker.name;
-			img.dataset.name = sticker.name;
-			img.classList.add('stickerName', 'clickable', 'playable');
-			stickersGrp.append(img);
-		}
-	} catch (e) {
-		console.log(`Error: ${e}`);
-	}
-}
-
-/**
- * Retries to load an image
- * @param {HTMLImageElement} img 
- */
-function retryImageLoad(img) {
-	const src = img.src;
-	img.src = '';
-	img.src = src;
-}
-
-/**
- * Loads the stickers
- */
-export function loadStickers() {
-	//if selectedStickerGroup is not contained in Stickers, then set it to the first sticker group
-	if (!Stickers.some(sticker => sticker.name == selectedStickerGroup)) {
-		selectedStickerGroup = Stickers[0].name;
-		localStorage.setItem('selectedStickerGroup', selectedStickerGroup);
-	}
-
-	selectedStickerGroupCount = Stickers.find(sticker => sticker.name == selectedStickerGroup).count;
-	const stickersContainer = document.getElementById('stickers');
-	//use other method to clear stickersContainer
-	while (stickersContainer.firstChild) {
-		stickersContainer.removeChild(stickersContainer.firstChild);
-	}
-	for (let i = 1; i <= selectedStickerGroupCount; i++) {
-
-		const img = document.createElement('img');
-		img.src = `/stickers/${selectedStickerGroup}/static/${i}-mini.webp`;
-		img.onerror = () => { retryImageLoad(this); };
-		img.alt = `${selectedStickerGroup}-${i}`;
-		img.dataset.name = `${selectedStickerGroup}/animated/${i}`;
-		img.classList.add('stickerpack', 'clickable');
-
-		stickersContainer.append(img);
-	}
-
-	const selectedSticker = document.querySelector('.names > img[data-name="' + selectedStickerGroup + '"]');
-	selectedSticker.dataset.selected = 'true';
-}
-
-/**
- * Shows the stickers panel
- */
-function showStickersPanel() {
-	if (!stickersPanel.classList.contains('active')) {
-		//console.log('showing stickers panel');
-		activeModals.push('stickersPanel');
-		modalCloseMap.set('stickersPanel', hideStickersPanel);
-		stickersPanel.classList.add('active');
-		const grp = document.getElementById('selectStickerGroup');
-		grp.querySelector(`img[data-name="${selectedStickerGroup}"]`).scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-	}
-}
-
 /**
  * Shows the theme picker
  */
@@ -2058,38 +1964,6 @@ document.getElementById('buttonSound').addEventListener('click', () => {
 	showPopupMessage('Button sounds ' + (buttonSoundEnabled ? 'enabled' : 'disabled'));
 });
 
-stickersPanel.addEventListener('click', (evt) => {
-	if (evt.target == stickersPanel) {
-		//console.log('clicked on stickers panel');
-		if (activeModals.includes('stickersPanel')) {
-			hideStickersPanel();
-		}
-	}
-});
-
-function stickerMoveLeft() {
-	stickersGrp.scrollTo({
-		left: stickersGrp.scrollLeft - 60,
-		behavior: 'smooth'
-	});
-}
-
-function stickerMoveRight() {
-	stickersGrp.scrollTo({
-		left: stickersGrp.scrollLeft + 60,
-		behavior: 'smooth'
-	});
-}
-
-function hideStickersPanel() {
-	if (activeModals.includes('stickersPanel')) {
-		removeFocusGlass();
-		stickersPanel.classList.remove('active');
-		activeModals.splice(activeModals.indexOf('stickersPanel'), 1);
-		modalCloseMap.delete('stickersPanel');
-	}
-}
-
 
 /**
  * Show attachment picker panel
@@ -2117,54 +1991,13 @@ function removeAttachment() {
 	}
 }
 
-
-//Event listeners
 document.getElementById('stickerBtn').addEventListener('click', () => {
 	showStickersPanel();
 });
 
-document.getElementById('stickerMoveLeft').addEventListener('click', () => {
-	stickerMoveLeft();
-});
+document.getElementById('stickersKeyboard').addEventListener('click', e => {
 
-document.getElementById('stickerMoveRight').addEventListener('click', () => {
-	stickerMoveRight();
-});
-
-document.getElementById('selectStickerGroup').addEventListener('click', e => {
-	if (e.target.tagName === 'IMG') {
-
-		const preload = fragmentBuilder({
-			tag: 'div',
-			attr: {
-				class: 'preload'
-			},
-			child: {
-				tag: 'i',
-				attr: {
-					class: 'fa-solid fa-circle-notch fa-spin',
-					style: 'color: var(--secondary-dark)'
-				}
-			}
-		});
-
-
-		document.getElementById('stickers').append(preload);
-		document.getElementById('selectStickerGroup').querySelectorAll('.stickerName')
-			.forEach(sticker => {
-				sticker.dataset.selected = 'false';
-			});
-		selectedStickerGroup = e.target.dataset.name;
-		//save to local storage
-		localStorage.setItem('selectedStickerGroup', selectedStickerGroup);
-		selectedStickerGroupCount = Stickers.find(sticker => sticker.name === selectedStickerGroup).count;
-		loadStickers();
-	}
-});
-
-document.getElementById('stickers').addEventListener('click', e => {
-
-	if (e.target.tagName === 'IMG') {
+	if (e.target.tagName === 'IMG' && e.target.classList.contains('sendable')) {
 		const tempId = crypto.randomUUID();
 		playStickerSound();
 		scrolling = false;
@@ -2194,6 +2027,39 @@ document.getElementById('stickers').addEventListener('click', e => {
 		hideStickersPanel();
 	}
 });
+
+stickersPanel.addEventListener('click', (evt) => {
+	//console.log(evt.target.id == 'stickersKeyboard');
+	if (evt.target == stickersPanel) {
+		//console.log('clicked on stickers panel');
+		if (activeModals.includes('stickersPanel')) {
+			hideStickersPanel();
+		}
+	}
+});
+
+function hideStickersPanel(){
+	stickersPanel.classList.remove('active');
+	activeModals.splice(activeModals.indexOf('stickersPanel'), 1);
+	modalCloseMap.delete('stickersPanel');
+}
+
+function showStickersPanel(){
+	activeModals.push('stickersPanel');
+	stickersPanel.classList.add('active');
+	const selectedSticker = localStorage.getItem('selectedSticker') || 'catteftel';
+	if (selectedSticker) {
+		//console.log(selectedSticker);
+		const head = document.querySelector(`.stickersHeader img.${selectedSticker}`);
+		if (!head) return;
+		head.dataset.selected = 'true';
+		head.scrollIntoView({ behavior: 'smooth' });
+
+		const stickerBoard = document.querySelector(`.stickerBoard.${selectedSticker}`);
+		stickerBoard.scrollIntoView({ behavior: 'smooth' });
+	}
+	modalCloseMap.set('stickersPanel', hideStickersPanel);
+}
 
 document.getElementById('more').addEventListener('click', () => {
 	showSidePanel();
