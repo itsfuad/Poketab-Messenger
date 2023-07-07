@@ -63,14 +63,14 @@ chatSocket.on('connection', (socket) => {
                 socket.broadcast.to(SocketIds[socket.id].key).emit('seen', meta);
             }
         });
-        socket.on('react', (target, messageId, myId) => {
+        socket.on('react', (target, messageId, userId) => {
             if (SocketIds[socket.id]) {
                 if (reactArray.primary.includes(target) || reactArray.expanded.includes(target)) {
-                    chatSocket.to(SocketIds[socket.id].key).emit('getReact', target, messageId, myId);
+                    chatSocket.to(SocketIds[socket.id].key).emit('getReact', target, messageId, userId);
                 }
             }
         });
-        socket.on('deletemessage', (messageId, msgUid, userName, userId, _downlink) => {
+        socket.on('deletemessage', (messageId, msgUid, userName, userId) => {
             if (SocketIds[socket.id]) {
                 if (msgUid == userId) {
                     if (fileStore.has(messageId)) {

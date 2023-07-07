@@ -83,6 +83,7 @@ app.get('/create', (req, res) => {
 	res.render('login/newUser', { title: 'Create', avList: avList, key: null, version: `v.${version}`, hash: nonce, takenAvlists: null, icon: Icon });
 });
 
+
 app.get('/join/:key', (req, res) => {
 	if (validateKey(req.params.key)) {
 		if (keyStore.hasKey(req.params.key)) {
