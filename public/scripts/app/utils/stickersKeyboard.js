@@ -40,16 +40,7 @@ export function loadStickerHeaders() {
 	stickerHeads.addEventListener('click', (e) => {
 		//console.log(e.target.dataset.name);
 		if (e.target.dataset.name) {
-			const selectedSticker = localStorage.getItem('selectedSticker') || 'catteftel';
-			if (selectedSticker) {
-				const head = document.querySelector(`.stickersHeader img.${selectedSticker}`);
-				if (!head) return;
-				head.dataset.selected = 'false';
-			}
-			e.target.dataset.selected = 'true';
-			localStorage.setItem('selectedSticker', e.target.dataset.name);
 			const stickerBoard = document.querySelector(`.stickerBoard.${e.target.dataset.name}`);
-			e.target.scrollIntoView({ behavior: 'smooth', inline: 'center' });
 			setTimeout(() => {
 				stickerBoard.scrollIntoView({ behavior: 'smooth', inline: 'center' });
 			}, 150);
@@ -76,7 +67,7 @@ export function loadStickerHeaders() {
 		//console.log(stickerBoards[0].getBoundingClientRect().x, stickerBoards[0].getBoundingClientRect().width);
 		stickerBoards.forEach((stickerBoard) => {
 			const rect = stickerBoard.getBoundingClientRect();
-			if (rect.x <= rect.width / 2) {
+			if (rect.x <= rect.width / 2 && rect.x + rect.width >= rect.width / 2) {
 				//console.log(stickerBoard.classList[1]);
 				const selectedSticker = localStorage.getItem('selectedSticker') || 'catteftel';
 				if (selectedSticker) {

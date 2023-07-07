@@ -216,6 +216,7 @@ body {
             object-fit: contain;
             border-radius: 10px;
             cursor: pointer;
+            background: none;
             &[data-selected="true"] {
                 background: var(--secondary-dark);
             }
