@@ -25,7 +25,7 @@ import { fragmentBuilder } from './utils/fragmentBuilder.js';
 
 import './utils/buttonsAnimate.js';
 
-
+import { setStickerIsActive } from './utils/stickersKeyboard.js';
 //import './utils/call.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
@@ -2042,11 +2042,13 @@ function hideStickersPanel(){
 	stickersPanel.classList.remove('active');
 	activeModals.splice(activeModals.indexOf('stickersPanel'), 1);
 	modalCloseMap.delete('stickersPanel');
+	setStickerIsActive(false);
 }
 
 function showStickersPanel(){
 	activeModals.push('stickersPanel');
 	stickersPanel.classList.add('active');
+	setStickerIsActive(true);
 	const selectedSticker = localStorage.getItem('selectedSticker') || 'catteftel';
 	if (selectedSticker) {
 		//console.log(selectedSticker);

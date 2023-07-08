@@ -4,6 +4,12 @@ import { parseTemplate } from './messageParser.js';
 const stickersTemplate = document.getElementById('stickersTemplate');
 document.getElementById('stickersTemplate').remove();
 
+let stickerIsActive = false;
+
+export function setStickerIsActive(bool) {
+	stickerIsActive = bool;
+}
+
 export function loadStickerHeaders() {
 	const heads = Object.values(Stickers).map((sticker) => {
 		return `<img src="/stickers/${sticker.name}/animated/${sticker.icon}.webp" class="${sticker.name}" data-name="${sticker.name}" alt="${sticker.name}">`;
@@ -59,9 +65,11 @@ export function loadStickerHeaders() {
 
 	const observer = new IntersectionObserver((entries) => {
 		entries.forEach((entry) => {
-			if (entry.isIntersecting) {
+			//console.log(entry);
+			if (entry.isIntersecting && stickerIsActive) {
 				const inViewSticker = entry.target.classList[1];
 				localStorage.setItem('selectedSticker', inViewSticker);
+				console.log('set ' + inViewSticker);
 				//console.log(inViewSticker);
 				document.querySelectorAll('.stickersHeader img').forEach((stickerHead) => {
 					stickerHead.dataset.selected = false;
