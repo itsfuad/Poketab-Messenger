@@ -27,8 +27,8 @@ fileSocket.on('connection', (socket) => {
 			markForDelete(userId, key, messageId);
 		});
 	
-		socket.on('fileUploadError', (key, id, type) => {
-			socket.broadcast.to(key).emit('fileUploadError', id, type);
+		socket.on('fileUploadError', (key, id) => {
+			socket.broadcast.to(key).emit('fileUploadError', id);
 		});
 	}catch(e){
 		console.log(e);

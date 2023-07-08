@@ -30,6 +30,13 @@ router.post('/upload/:key/:messageId/:userId', (req, res) => {
         res.status(400).send({ error: 'Invalid form' });
         return;
     }
+    //get the file size
+    const fileSize = parseInt(req.headers['content-length']);
+    const maxFileSize = 1024 * 1024 * 100; //100MB
+    if (fileSize > maxFileSize) {
+        res.status(400).send({ error: 'File size too large' });
+        return;
+    }
     const chunks = [];
     req.on('data', (chunk) => {
         chunks.push(chunk);

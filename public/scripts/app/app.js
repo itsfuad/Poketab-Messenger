@@ -23,10 +23,9 @@ import { ClickAndHold } from './utils/clickAndHoldDetector.js';
 
 import { fragmentBuilder } from './utils/fragmentBuilder.js';
 
-import './utils/buttonsAnimate.js';
+import { setStickerKeyboardState } from './utils/stickersKeyboard.js';
 
-import { setStickerIsActive } from './utils/stickersKeyboard.js';
-//import './utils/call.js';
+import './utils/buttonsAnimate.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
@@ -2042,13 +2041,13 @@ function hideStickersPanel(){
 	stickersPanel.classList.remove('active');
 	activeModals.splice(activeModals.indexOf('stickersPanel'), 1);
 	modalCloseMap.delete('stickersPanel');
-	setStickerIsActive(false);
+	setStickerKeyboardState(false);
 }
 
 function showStickersPanel(){
 	activeModals.push('stickersPanel');
 	stickersPanel.classList.add('active');
-	setStickerIsActive(true);
+	setStickerKeyboardState(true);
 	const selectedSticker = localStorage.getItem('selectedSticker') || 'catteftel';
 	if (selectedSticker) {
 		//console.log(selectedSticker);
@@ -2712,8 +2711,8 @@ function clearFileFromInput() {
  * @returns boolean
  */
 function fileIsAcceptable(file, type) {
-	if (file.size > 20 * 1024 * 1024) {
-		showPopupMessage('File size must be less than 20 mb');
+	if (file.size > 100 * 1024 * 1024) {
+		showPopupMessage('File size must be less than 100 mb');
 		return false;
 	}
 
@@ -3276,10 +3275,11 @@ async function sendImageStoreRequest() {
 							} else {
 								// Handle network errors or server unreachable errors
 								//console.log('Error: could not connect to server');
-								showPopupMessage('Upload failed..!');
+								console.log(this.response);
+								showPopupMessage(this.response);
 								progresCircle.querySelector('.animated').style.visibility = 'hidden';
 								progressText.textContent = 'Upload failed';
-								fileSocket.emit('fileUploadError', myKey, messageId, 'image');
+								fileSocket.emit('fileUploadError', myKey, messageId);
 							}
 						}
 					};
@@ -3389,10 +3389,10 @@ function sendFileStoreRequest(type = null) {
 							}
 						}
 						else {
-							console.log('error uploading file');
-							showPopupMessage('Error uploading file');
+							console.log(this.response);
+							showPopupMessage(this.response);
 							elem.querySelector('.progress').textContent = 'Upload failed';
-							fileSocket.emit('fileUploadError', myKey, messageId, 'image');
+							fileSocket.emit('fileUploadError', myKey, messageId);
 						}
 					}
 				};

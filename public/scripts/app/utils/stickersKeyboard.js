@@ -4,10 +4,10 @@ import { parseTemplate } from './messageParser.js';
 const stickersTemplate = document.getElementById('stickersTemplate');
 document.getElementById('stickersTemplate').remove();
 
-let stickerIsActive = false;
+let stickerKeyboardIsOpen = false;
 
-export function setStickerIsActive(bool) {
-	stickerIsActive = bool;
+export function setStickerKeyboardState(state) {
+	stickerKeyboardIsOpen = state;
 }
 
 export function loadStickerHeaders() {
@@ -66,7 +66,7 @@ export function loadStickerHeaders() {
 	const observer = new IntersectionObserver((entries) => {
 		entries.forEach((entry) => {
 			//console.log(entry);
-			if (entry.isIntersecting && stickerIsActive) {
+			if (entry.isIntersecting && stickerKeyboardIsOpen) {
 				const inViewSticker = entry.target.classList[1];
 				localStorage.setItem('selectedSticker', inViewSticker);
 				console.log('set ' + inViewSticker);
