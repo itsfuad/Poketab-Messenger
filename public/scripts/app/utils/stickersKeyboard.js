@@ -69,13 +69,15 @@ export function loadStickerHeaders() {
 			if (entry.isIntersecting && stickerKeyboardIsOpen) {
 				const inViewSticker = entry.target.classList[1];
 				localStorage.setItem('selectedSticker', inViewSticker);
-				console.log('set ' + inViewSticker);
+				//console.log('set ' + inViewSticker);
 				//console.log(inViewSticker);
 				document.querySelectorAll('.stickersHeader img').forEach((stickerHead) => {
 					stickerHead.dataset.selected = false;
 				});
 				const stickerHead = document.querySelector(`.stickersHeader img[data-name="${inViewSticker}"]`);
 				stickerHead.dataset.selected = true;
+
+				stickerHead.scrollIntoView();
 			}
 		});
 	}, { threshold: 0.5 });

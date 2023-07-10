@@ -1496,98 +1496,102 @@ function OptionEventHandler(evt, popup = true) {
 
 	//console.log(evt.target);
 
-	const message = evt.target.closest('.message');
-	if (message == null) {
-		return;
+	try{
+		const message = evt.target.closest('.message');
+		if (message == null) {
+			return;
+		}
+	
+		const type = message.dataset.type;
+	
+		if (!typeList[type] || !evt.target.closest('.msg')) {
+			return;
+		}
+	
+		const sender = evt.target.closest('.message').classList.contains('self') ? true : false;
+		if (type == 'text') {
+			//text
+			targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
+			if (targetMessage.sender == myName) {
+				targetMessage.sender = 'You';
+			}
+			targetMessage.message = evt.target.closest('.messageMain').querySelector('.text').textContent;
+			targetMessage.type = type;
+			targetMessage.id = evt.target.closest('.message').id;
+		}
+		else if (type == 'image') {
+			//image
+			while (lightboxImage.firstChild) {
+				lightboxImage.removeChild(lightboxImage.firstChild);
+			}
+	
+			const imageFragment = fragmentBuilder({
+				tag: 'img',
+				attributes: {
+					src: evt.target.closest('.messageMain')?.querySelector('.image').src,
+					alt: 'Image',
+				},
+			});
+	
+			lightboxImage.append(imageFragment);
+			targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
+			if (targetMessage.sender == myName) {
+				targetMessage.sender = 'You';
+			}
+	
+			const targetNode = evt.target.closest('.messageMain').querySelector('.image').cloneNode(true);
+			//remove all attributes
+			targetNode.removeAttribute('alt');
+			targetNode.removeAttribute('id');
+			targetNode.setAttribute('class', 'image');
+			targetMessage.message = targetNode;
+			targetMessage.type = type;
+			targetMessage.id = evt.target.closest('.message').id;
+		} else if (type == 'audio') {
+			// audio
+			targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
+			if (targetMessage.sender == myName) {
+				targetMessage.sender = 'You';
+			}
+			targetFile.fileName = targetMessage.message = 'Audio message';
+			targetFile.fileData = evt.target.closest('.messageMain').querySelector('.msg').dataset.src;
+			targetFile.ext = evt.target.closest('.messageMain').querySelector('.msg').dataset.ext;
+			targetMessage.type = type;
+			targetMessage.id = evt.target.closest('.message').id;
+		} else if (type == 'file') {
+			//file
+			targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
+			if (targetMessage.sender == myName) {
+				targetMessage.sender = 'You';
+			}
+			targetFile.fileName = evt.target.closest('.messageMain').querySelector('.fileName').textContent;
+			targetFile.fileData = evt.target.closest('.messageMain').querySelector('.msg').dataset.src;
+			targetFile.ext = evt.target.closest('.messageMain').querySelector('.msg').dataset.ext;
+			targetMessage.message = targetFile.fileName;
+			targetMessage.type = type;
+			targetMessage.id = evt.target.closest('.message').id;
+		} else if (type == 'sticker') {
+			//sticker
+			targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
+			if (targetMessage.sender == myName) {
+				targetMessage.sender = 'You';
+			}
+			const targetNode = evt.target.closest('.messageMain').querySelector('.sticker').cloneNode(true);
+			//remove all attributes
+			targetNode.removeAttribute('alt');
+			targetNode.removeAttribute('id');
+			targetNode.setAttribute('class', 'image');
+			targetMessage.message = targetNode;
+			targetMessage.type = type;
+			targetMessage.id = evt.target.closest('.message').id;
+		}
+		if ((typeList[type]) && popup) {
+			showOptions(type, sender, evt.target);
+		}
+		vibrate();
+	} catch(e){
+		console.log(e);
 	}
-
-	const type = message.dataset.type;
-
-	if (!typeList[type] || !evt.target.closest('.msg')) {
-		return;
-	}
-
-	const sender = evt.target.closest('.message').classList.contains('self') ? true : false;
-	if (type == 'text') {
-		//text
-		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
-		if (targetMessage.sender == myName) {
-			targetMessage.sender = 'You';
-		}
-		targetMessage.message = evt.target.closest('.messageMain').querySelector('.text').textContent;
-		targetMessage.type = type;
-		targetMessage.id = evt.target.closest('.message').id;
-	}
-	else if (type == 'image') {
-		//image
-		while (lightboxImage.firstChild) {
-			lightboxImage.removeChild(lightboxImage.firstChild);
-		}
-
-		const imageFragment = fragmentBuilder({
-			tag: 'img',
-			attributes: {
-				src: evt.target.closest('.messageMain')?.querySelector('.image').src,
-				alt: 'Image',
-			},
-		});
-
-		lightboxImage.append(imageFragment);
-		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
-		if (targetMessage.sender == myName) {
-			targetMessage.sender = 'You';
-		}
-
-		const targetNode = evt.target.closest('.messageMain').querySelector('.image').cloneNode(true);
-		//remove all attributes
-		targetNode.removeAttribute('alt');
-		targetNode.removeAttribute('id');
-		targetNode.setAttribute('class', 'image');
-		targetMessage.message = targetNode;
-		targetMessage.type = type;
-		targetMessage.id = evt.target.closest('.message').id;
-	} else if (type == 'audio') {
-		// audio
-		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
-		if (targetMessage.sender == myName) {
-			targetMessage.sender = 'You';
-		}
-		targetFile.fileName = targetMessage.message = 'Audio message';
-		targetFile.fileData = evt.target.closest('.messageMain').querySelector('.msg').dataset.src;
-		targetFile.ext = evt.target.closest('.messageMain').querySelector('.msg').dataset.ext;
-		targetMessage.type = type;
-		targetMessage.id = evt.target.closest('.message').id;
-	} else if (type == 'file') {
-		//file
-		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
-		if (targetMessage.sender == myName) {
-			targetMessage.sender = 'You';
-		}
-		targetFile.fileName = evt.target.closest('.messageMain').querySelector('.fileName').textContent;
-		targetFile.fileData = evt.target.closest('.messageMain').querySelector('.msg').dataset.src;
-		targetFile.ext = evt.target.closest('.messageMain').querySelector('.msg').dataset.ext;
-		targetMessage.message = targetFile.fileName;
-		targetMessage.type = type;
-		targetMessage.id = evt.target.closest('.message').id;
-	} else if (type == 'sticker') {
-		//sticker
-		targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
-		if (targetMessage.sender == myName) {
-			targetMessage.sender = 'You';
-		}
-		const targetNode = evt.target.closest('.messageMain').querySelector('.sticker').cloneNode(true);
-		//remove all attributes
-		targetNode.removeAttribute('alt');
-		targetNode.removeAttribute('id');
-		targetNode.setAttribute('class', 'image');
-		targetMessage.message = targetNode;
-		targetMessage.type = type;
-		targetMessage.id = evt.target.closest('.message').id;
-	}
-	if ((typeList[type]) && popup) {
-		showOptions(type, sender, evt.target);
-	}
-	vibrate();
 }
 
 /**
@@ -2009,8 +2013,16 @@ document.getElementById('stickersKeyboard').addEventListener('click', e => {
 			msg?.classList.add('delevered');
 			//playOutgoingSound();
 		} else {
-			chatSocket.emit('message', e.target.dataset.name, 'sticker', myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id) {
+			chatSocket.emit('message', e.target.dataset.name, 'sticker', myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id, error) {
 				playOutgoingSound();
+
+				if (error) {
+					console.log(error);
+					document.getElementById(tempId).dataset.type = 'error';
+					document.getElementById(tempId).querySelector('.messageMain').innerHTML = `<div class="msg text" style="background: red">${error}</div>`;
+					return;
+				}
+
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
 				lastSeenMessage = id;
@@ -2054,10 +2066,10 @@ function showStickersPanel(){
 		const head = document.querySelector(`.stickersHeader img.${selectedSticker}`);
 		if (!head) return;
 		head.dataset.selected = 'true';
-		head.scrollIntoView({ behavior: 'smooth' });
+		head.scrollIntoView();
 
 		const stickerBoard = document.querySelector(`.stickerBoard.${selectedSticker}`);
-		stickerBoard.scrollIntoView({ behavior: 'smooth' });
+		stickerBoard.scrollIntoView();
 	}
 	modalCloseMap.set('stickersPanel', hideStickersPanel);
 }
@@ -3111,8 +3123,17 @@ sendButton.addEventListener('click', () => {
 			msg?.classList.add('delevered');
 			playOutgoingSound();
 		} else {
-			chatSocket.emit('message', message, 'text', myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id) {
+			chatSocket.emit('message', message, 'text', myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id, error) {
+
 				playOutgoingSound();
+
+				if (error) {
+					console.log(error);
+					document.getElementById(tempId).dataset.type = 'error';
+					document.getElementById(tempId).querySelector('.messageMain').innerHTML = `<div class="msg text" style="background: red">${error}</div>`;
+					return;
+				}
+
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
 				lastSeenMessage = id;

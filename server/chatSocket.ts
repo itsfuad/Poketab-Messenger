@@ -63,15 +63,35 @@ chatSocket.on('connection', (socket) => {
 			socket.broadcast.to(params.key).emit('server_message', {color: 'var(--secondary-dark)', text: `${params.name} joined the chat🔥`, id: srvID}, 'join');
 		});
 	
+		/**
+		 * @param {string} message
+		 * @param {string} type
+		 * @param {string} uId
+		 * @param {string} reply
+		 * @param {string} replyId
+		 * @param {object} options
+		 * @param {function} callback
+		 * @returns {void}
+		 */
 		socket.on('message', (message, type, uId, reply, replyId, options, callback) => {
 			//const user = users.getUser(uids.get(socket.id));
 	
 			if (isRealString(message)) {
+
+				if (type == 'sticker' || type == 'image'){
+					const regex = /[<>&'"\s]/g;
+					const containsMaliciousCode = regex.test(message);
+
+					if (containsMaliciousCode){
+						return callback(null, 'Malicious code detected');
+					}
+					//console.log(`Sticker: ${message}`);
+				}
 			
 				const id = crypto.randomUUID();
 				//console.log(`Message: ${message}`);
 				socket.broadcast.to(SocketIds[socket.id].key).emit('newMessage', message, type, id, uId, reply, replyId, options);
-				callback(id);
+				callback(id, null);
 			}
 		});
 	
