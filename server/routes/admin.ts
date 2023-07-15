@@ -83,7 +83,7 @@ router.post('/', (req, res) => {
 });
 
 //route to send running chat numbers and create new chat keys to the admin
-router.post('/data', cookieParser(), (req, res) => {
+router.post('/data', cookieParser(HMAC_KEY), (req, res) => {
 
 	const salt = process.env.SALT;
 	const admin_username = process.env.ADMIN_USERNAME || '';
@@ -92,6 +92,8 @@ router.post('/data', cookieParser(), (req, res) => {
 	const sessionId = req.body.sessionID;
 
 	const signature = crypto.createHmac('sha256', HMAC_KEY).update(admin_username + salt + admin_password).digest('hex');
+
+	console.log(req.signedCookies);
 
 	if (req.signedCookies.auth == signature) {
 		if (sessionId == AdminSessionSecret.get('Admin')){
@@ -106,7 +108,7 @@ router.post('/data', cookieParser(), (req, res) => {
 	}
 });
 
-router.post('/changePassword', cookieParser(), (req, res) => {
+router.post('/changePassword', cookieParser(HMAC_KEY), (req, res) => {
 	const username = req.body.username;
 	const password = req.body.oldPassword;
 	const newPassword = req.body.newPassword;

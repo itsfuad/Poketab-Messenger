@@ -620,7 +620,6 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		}
 	}, 60000);
 
-	lastPageLength = messages.scrollTop;
 	checkgaps(lastMsg?.id);
 
 	//highlight code
@@ -870,7 +869,6 @@ export function deleteMessage(messageId, user) {
 				reply.textContent = 'Deleted message';
 			});
 		}
-		lastPageLength = messages.scrollTop;
 	}
 }
 /**
@@ -1212,12 +1210,15 @@ function showReplyToast() {
 		document.querySelector('.footer').insertAdjacentElement('beforebegin', replyToast);
 	}
 
+	replyToast.classList.add('active');
+
 	setTimeout(() => {
 		if (!scrolling) {
-			//console.log('scrolled to bottom');
-			messages.scrollTo(0, messages.scrollHeight);
+			const lastMsg = messages.querySelector('.msg-item:last-child');
+			if (lastMsg){
+				lastMsg.scrollIntoView({ behavior: 'smooth', block: 'end' });
+			}
 		}
-		replyToast.classList.add('active');
 	}, 120);
 
 	replyToast.querySelector('.close').onclick = () => {
@@ -1231,20 +1232,17 @@ function hideReplyToast() {
 	const replyToast = document.getElementById('replyToast');
 	if (replyToast) {
 		replyToast.classList.remove('active');
-		lastPageLength = messages.scrollTop;
 		document.querySelector('.newmessagepopup').classList.remove('toastActive');
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
 		clearTargetMessage();
+		replyToast.remove();
+		messages.scrollTop = messages.scrollHeight + 1000;
 		setTimeout(() => {
-			setTimeout(() => {
-				if (!scrolling) {
-					//recalculate scroll length
-					messages.scrollTop = lastPageLength;
-					messages.scrollTo(0, messages.scrollHeight);
-				}
-			}, 200);
-			replyToast.remove();
+			const lastMsg = messages.querySelector('.msg-item:last-child');
+			if (lastMsg){
+				lastMsg.scrollIntoView({ behavior: 'smooth', block: 'end' });
+			}
 		}, 150);
 	}
 }
@@ -1614,11 +1612,11 @@ export function updateScroll(avatar = null, text = '') {
 		return;
 	}
 
-	setTimeout(() => {
-		const messages = document.getElementById('messages');
-		messages.scrollTo(0, messages.scrollHeight);
-		lastPageLength = messages.scrollTop;
-	}, 200);
+	const lastMsg = document.querySelector('.msg-item:last-child');
+	//console.log(lastMessage);
+	if (lastMsg) {
+		lastMsg.scrollIntoView({ behavior: 'smooth', block: 'end' });
+	}
 }
 
 
@@ -2686,8 +2684,6 @@ document.querySelector('.reactorContainerWrapper').addEventListener('click', (ev
 window.addEventListener('resize', () => {
 	appHeight();
 	const temp = scrolling;
-	//last added
-	lastPageLength = messages.scrollTop;
 	setTimeout(() => {
 		scrolling = false;
 		updateScroll();

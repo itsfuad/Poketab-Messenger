@@ -1,5 +1,6 @@
 export const Stickers = [
 	{'name': 'catteftel', 'count': '24', 'icon': '14'},
+	{'name': 'text', 'count': '24', 'icon': '4'},
 	{'name': 'bear', 'count': '25', 'icon': '5'},
 	{'name': 'jack', 'count': '20', 'icon': '4'},
 	{'name': 'finn', 'count': '20', 'icon': '5'},

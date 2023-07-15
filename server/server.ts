@@ -54,14 +54,11 @@ const apiRequestLimiter = rateLimit({
 	legacyHeaders: false // Disable the `X-RateLimit-*` headers
 });
 
-
 app.use(apiRequestLimiter); //limit the number of requests to 100 in 15 minutes
 
 app.use('/admin', adminRouter); //route for admin panel
 
 app.use('/api/files', fileRouter); //route for file uploads
-
-
 
 // default route to serve the client
 // Home route
@@ -117,7 +114,7 @@ app.get('/join', (_, res) => {
 	res.render('login/newUser', { title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce, takenAvlists: null, icon: Icon });
 });
 
-app.get('/~', (_, res) => {
+app.get('/~', (req, res) => {
 	if (ENVIRONMENT != 'DEVELOPMENT') {
 		res.redirect('/join');
 	} else {
@@ -128,7 +125,7 @@ app.get('/~', (_, res) => {
 
 app.post('/~', (req, res) => {
 
-	//get the Username and avatar from the pre-request
+	//get username and avatar from the request
 	const username = req.body.username;
 	const avatar = req.body.avatar;
 	//validate username and avatar
@@ -202,6 +199,8 @@ function approveNewChatRequest(res: any, data: { username: string, key: string, 
 	res.setHeader('Developer', DEVELOPER);
 	res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'nonce-${nonce}'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob:; media-src 'self' blob:;`);
 	res.setHeader('Cluster', `ID: ${process.pid}`);
+	res.cookie('username', data.username, {maxAge: 900000, httpOnly: true, sameSite: 'strict'});
+	res.cookie('avatar', data.avatar, {maxAge: 900000, httpOnly: true, sameSite: 'strict'});
 	res.render('chat/chat', { myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, ENV: ENVIRONMENT, hash: nonce, welcomeSticker: welcomeSticker, icon: data.icon });
 }
 
