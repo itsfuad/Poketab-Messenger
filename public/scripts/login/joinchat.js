@@ -153,14 +153,30 @@ const keyElem = document.getElementById('key');
 
 
 function removeAvatars(){
+	document.querySelectorAll('.avatar img.taken')
+		.forEach(elem => {
+			elem.classList.remove('taken');
+		});
+
+
+	if (usersData.length == 0){
+		return;
+	}
+
 	usersData.forEach(userData => {
 		const avatar = document.getElementById(userData.avatar);
 		if (avatar){
 			avatar.closest('.avatar').querySelector('img').classList.add('taken');
-			avatar.remove();
 		}
 	});
 }
+
+socket.on('userUpdate', (response) => {
+	//console.log('new user joined', response);
+	usersData = response.message;
+	//console.log(usersData);
+	removeAvatars();
+});
 
 function emitSignal(onlySignal = false){
 	const key = document.getElementById('key').value;

@@ -3,8 +3,9 @@ import crypto from 'crypto';
 import { keyStore } from './database/db.js';
 import { validateKey } from './utils/validation.js';
 import { auth } from './sockets.js';
+import { Socket } from 'socket.io';
 
-function keyCheck(key: string){
+export function keyCheck(key: string){
 	try{
 		if (!validateKey(key)){
 			return {success: false, message: 'Invalid Key', icon: '<i class="fa-solid fa-triangle-exclamation"></i>', blocked: false};
@@ -33,11 +34,41 @@ function keyCheck(key: string){
 	}
 }
 
+export const askToJoinUserSocket = new Map<string, Set<Socket>>();
+
+const deleterMap = new Map();
+
 auth.on('connection', (socket) => {
 	socket.on('joinRequest', ( key, callback) => {
 		try{
 			//console.log('joinRequest received');
-			callback(keyCheck(key));			
+			const existing = askToJoinUserSocket.get(key);
+			if (existing){
+				existing.add(socket);
+			}else{
+				askToJoinUserSocket.set(key, new Set([socket]));
+			}
+
+			//console.log(askToJoinUserSocket);
+
+			deleterMap.set(socket, key);
+			callback(keyCheck(key));	
+		}catch(err){
+			console.log(err);
+		}
+	});
+
+	socket.on('disconnect', () => {
+		try{
+			const key = deleterMap.get(socket);
+			if (key){
+				const existing = askToJoinUserSocket.get(key);
+				if (existing){
+					existing.delete(socket);
+				}
+			}
+
+			deleterMap.delete(socket);
 		}catch(err){
 			console.log(err);
 		}

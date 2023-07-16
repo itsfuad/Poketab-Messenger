@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import { cleanJunks, deleteFile } from './cleaner.js';
 import { chatSocket } from './sockets.js';
 import { fileStore } from './routes/fileAPI.js';
+import { askToJoinUserSocket } from './preAuthSocket.js';
 //socket.io connection
 chatSocket.on('connection', (socket) => {
     try {
@@ -39,6 +40,15 @@ chatSocket.on('connection', (socket) => {
                 }
             }
             keyStore.addUser(params.key, new User(params.name, params.id, params.avatar), params.maxUser);
+            const requestedUsers = askToJoinUserSocket.get(params.key);
+            //console.log(requestedUsers);
+            if (requestedUsers) {
+                const data = keyStore.getUserList(params.key).map((user) => { return { hash: crypto.createHash('sha256').update(user.username).digest('hex'), name: user.username, avatar: user.avatar }; });
+                requestedUsers.forEach((soc) => {
+                    console.log('Sending data to pre-authenticated user');
+                    soc.emit('userUpdate', { success: true, message: data, block: false });
+                });
+            }
             console.log(`User ${params.name} joined key ${params.key} | ${keyStore.getUserList(params.key).length} user(s) out of ${keyStore.getKey(params.key).maxUser}`);
             const userList = keyStore.getUserList(params.key);
             callback();
@@ -139,6 +149,26 @@ chatSocket.on('connection', (socket) => {
                     keyStore.clearKey(key);
                     cleanJunks(key);
                     console.log(`%cSession ended with key: ${key}`, 'color: orange');
+                }
+                if (askToJoinUserSocket.has(key) && keyStore.hasKey(key)) {
+                    const requestedUsers = askToJoinUserSocket.get(key);
+                    if (requestedUsers) {
+                        const data = keyStore.getUserList(key).map((user) => { return { hash: crypto.createHash('sha256').update(user.username).digest('hex'), name: user.username, avatar: user.avatar }; });
+                        console.log(data);
+                        requestedUsers.forEach((soc) => {
+                            console.log('Sending data to pre-authenticated user on left');
+                            soc.emit('userUpdate', { success: true, message: data, block: false });
+                        });
+                    }
+                }
+                else if (askToJoinUserSocket.has(key) && !keyStore.hasKey(key)) {
+                    const requestedUsers = askToJoinUserSocket.get(key);
+                    if (requestedUsers) {
+                        requestedUsers.forEach((soc) => {
+                            console.log('Sending data to pre-authenticated user on left');
+                            soc.emit('userUpdate', { success: true, message: [{ hash: '', name: '', avatar: '' }], icon: '<i class="fa-solid fa-ghost"></i>', blocked: false });
+                        });
+                    }
                 }
             }
         });
