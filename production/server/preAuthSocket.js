@@ -44,7 +44,7 @@ auth.on('connection', (socket) => {
             else {
                 askToJoinUserSocket.set(key, new Set([socket]));
             }
-            console.log(askToJoinUserSocket);
+            //console.log(askToJoinUserSocket);
             deleterMap.set(socket, key);
             callback(keyCheck(key));
         }

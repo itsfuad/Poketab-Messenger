@@ -45,7 +45,7 @@ chatSocket.on('connection', (socket) => {
             if (requestedUsers) {
                 const data = keyStore.getUserList(params.key).map((user) => { return { hash: crypto.createHash('sha256').update(user.username).digest('hex'), name: user.username, avatar: user.avatar }; });
                 requestedUsers.forEach((soc) => {
-                    console.log('Sending data to pre-authenticated user');
+                    //console.log('Sending data to pre-authenticated user');
                     soc.emit('userUpdate', { success: true, message: data, block: false });
                 });
             }
@@ -154,9 +154,9 @@ chatSocket.on('connection', (socket) => {
                     const requestedUsers = askToJoinUserSocket.get(key);
                     if (requestedUsers) {
                         const data = keyStore.getUserList(key).map((user) => { return { hash: crypto.createHash('sha256').update(user.username).digest('hex'), name: user.username, avatar: user.avatar }; });
-                        console.log(data);
+                        //console.log(data);
                         requestedUsers.forEach((soc) => {
-                            console.log('Sending data to pre-authenticated user on left');
+                            //console.log('Sending data to pre-authenticated user on left');
                             soc.emit('userUpdate', { success: true, message: data, block: false });
                         });
                     }
@@ -165,7 +165,7 @@ chatSocket.on('connection', (socket) => {
                     const requestedUsers = askToJoinUserSocket.get(key);
                     if (requestedUsers) {
                         requestedUsers.forEach((soc) => {
-                            console.log('Sending data to pre-authenticated user on left');
+                            //console.log('Sending data to pre-authenticated user on left');
                             soc.emit('userUpdate', { success: true, message: [{ hash: '', name: '', avatar: '' }], icon: '<i class="fa-solid fa-ghost"></i>', blocked: false });
                         });
                     }
