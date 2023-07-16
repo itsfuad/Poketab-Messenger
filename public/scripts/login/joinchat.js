@@ -152,6 +152,16 @@ const keyElem = document.getElementById('key');
 });
 
 
+function removeAvatars(){
+	usersData.forEach(userData => {
+		const avatar = document.getElementById(userData.avatar);
+		if (avatar){
+			avatar.closest('.avatar').querySelector('img').classList.add('taken');
+			avatar.remove();
+		}
+	});
+}
+
 function emitSignal(onlySignal = false){
 	const key = document.getElementById('key').value;
 	socket.emit('joinRequest', key, (response) => {
@@ -159,13 +169,7 @@ function emitSignal(onlySignal = false){
 		if (response.success){
 			usersData = response.message;
 			//remove existing avatars
-			usersData.forEach(userData => {
-				const avatar = document.getElementById(userData.avatar);
-				if (avatar){
-					avatar.closest('.avatar').querySelector('img').classList.add('taken');
-					avatar.remove();
-				}
-			});
+			removeAvatars();
 
 			if (!onlySignal){
 				form1.classList.add('done');

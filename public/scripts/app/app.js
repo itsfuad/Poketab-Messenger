@@ -1214,10 +1214,7 @@ function showReplyToast() {
 
 	setTimeout(() => {
 		if (!scrolling) {
-			const lastMsg = messages.querySelector('.msg-item:last-child');
-			if (lastMsg){
-				lastMsg.scrollIntoView({ behavior: 'smooth', block: 'end' });
-			}
+			messages.scrollTo(0, messages.scrollHeight);
 		}
 	}, 120);
 
@@ -1237,12 +1234,9 @@ function hideReplyToast() {
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
 		clearTargetMessage();
 		replyToast.remove();
-		messages.scrollTop = messages.scrollHeight + 1000;
+		messages.scrollTop = messages.scrollHeight;
 		setTimeout(() => {
-			const lastMsg = messages.querySelector('.msg-item:last-child');
-			if (lastMsg){
-				lastMsg.scrollIntoView({ behavior: 'smooth', block: 'end' });
-			}
+			messages.scrollTo(0, messages.scrollHeight);
 		}, 150);
 	}
 }
@@ -1612,11 +1606,7 @@ export function updateScroll(avatar = null, text = '') {
 		return;
 	}
 
-	const lastMsg = document.querySelector('.msg-item:last-child');
-	//console.log(lastMessage);
-	if (lastMsg) {
-		lastMsg.scrollIntoView({ behavior: 'smooth', block: 'end' });
-	}
+	messages.scrollTo(0, messages.scrollHeight);
 }
 
 
