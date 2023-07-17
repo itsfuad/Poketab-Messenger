@@ -175,6 +175,8 @@ socket.on('userUpdate', (response) => {
 	//console.log('new user joined', response);
 
 	if (!response.success){
+		next.disabled = true;
+		document.getElementById('enter').disabled = true;
 		errlog('usernameErr', `Key is no longer available ${response.icon}`);
 		let i = 0;
 		setInterval(() => {
