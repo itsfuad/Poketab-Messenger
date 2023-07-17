@@ -2055,7 +2055,6 @@ function showStickersPanel(){
 		if (!head) return;
 		head.dataset.selected = 'true';
 		head.scrollIntoView();
-
 		const stickerBoard = document.querySelector(`.stickerBoard.${selectedSticker}`);
 		stickerBoard.scrollIntoView();
 	}
@@ -3945,6 +3944,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		console.log(e);
 	}
 });
+
 
 //This code blocks the back button to go back on the login page.
 //This action is needed because if the user goes back, he/she has to login again. 

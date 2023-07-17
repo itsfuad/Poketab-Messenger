@@ -587,7 +587,7 @@ img {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  position: relative;
+  position: absolute;
   top: 0;
   width: 100%;
   z-index: 15;
@@ -1437,7 +1437,7 @@ i[class^=fa-] {
   justify-content: space-between;
   background: var(--primary-dark);
   border-radius: 10px;
-  position: absolute;
+  position: relative;
   visibility: hidden;
   opacity: 0;
   top: 20px;
