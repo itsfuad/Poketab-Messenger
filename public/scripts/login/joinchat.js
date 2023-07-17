@@ -173,9 +173,43 @@ function removeAvatars(){
 
 socket.on('userUpdate', (response) => {
 	//console.log('new user joined', response);
+
+	if (!response.success){
+		errlog('usernameErr', `Key is no longer available ${response.icon}`);
+		let i = 0;
+		setInterval(() => {
+			//countdown from 5 to 0
+			errlog('usernameErr', `Reloading after ${5 - i} ${ i != 4 ? 'seconds' : 'second' } ${response.icon}`);
+			i++;
+			if (i == 5){
+				location.reload();
+			}
+		}, 1000);
+	}
+
 	usersData = response.message;
 	//console.log(usersData);
 	removeAvatars();
+});
+
+socket.on('disconnect', () => {
+	console.log('%cDisconnected from auth namespace', 'color: deepskyblue;');
+	errlog('keyErr', 'Disconnected from server <i class="fa-solid fa-triangle-exclamation"></i>');
+	errlog('usernameErr', 'Disconnected from server <i class="fa-solid fa-triangle-exclamation"></i>');
+
+	next.disabled = true;
+	document.getElementById('enter').disabled = true;
+
+	//countdown from 5 to 0
+	let i = 0;
+	setInterval(() => {
+		errlog('keyErr', `Reloading after ${5 - i} ${ i != 4 ? 'seconds' : 'second' } <i class="fa-solid fa-triangle-exclamation"></i>`);
+		errlog('usernameErr', `Reloading after ${5 - i} ${ i != 4 ? 'seconds' : 'second' } <i class="fa-solid fa-triangle-exclamation"></i>`);
+		i++;
+		if (i == 5){
+			location.reload();
+		}
+	}, 1000);
 });
 
 function emitSignal(onlySignal = false){

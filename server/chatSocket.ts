@@ -195,7 +195,7 @@ chatSocket.on('connection', (socket) => {
 						//console.log(data);
 						requestedUsers.forEach((soc) => {
 							//console.log('Sending data to pre-authenticated user on left');
-							soc.emit('userUpdate', {success: true, message: data, block: false});
+							soc.emit('userUpdate', {success: true, message: data});
 						});
 					}
 				}else if(askToJoinUserSocket.has(key) && !keyStore.hasKey(key)){
@@ -204,7 +204,7 @@ chatSocket.on('connection', (socket) => {
 					if (requestedUsers){
 						requestedUsers.forEach((soc) => {
 							//console.log('Sending data to pre-authenticated user on left');
-							soc.emit('userUpdate', {success: true, message: [{hash: '', name: '', avatar: ''}], icon: '<i class="fa-solid fa-ghost"></i>', blocked: false});
+							soc.emit('userUpdate', {success: false, message: [{hash: '', name: '', avatar: ''}], icon: '<i class="fa-solid fa-ghost"></i>'});
 						});
 					}
 				}
