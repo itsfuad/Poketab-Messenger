@@ -601,7 +601,11 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 
 	const fragment = document.createRange().createContextualFragment(html);
 
+	messages.style.height = 'auto';
 	messages.appendChild(fragment);
+	const navbar = document.querySelector('.navbar');
+	const footer = document.querySelector('.footer');
+	messages.style.height = `calc(100vh - ${navbar.offsetHeight + footer.offsetHeight}px)`;
 
 	if (reply.type == 'image' || reply.type == 'sticker') {
 		document.getElementById(id).querySelector('.messageReply')?.classList.add('imageReply');
@@ -634,7 +638,9 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		});
 	}
 
-	updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
+	setTimeout(() => {
+		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
+	}, 100);
 }
 
 /**
@@ -869,6 +875,7 @@ export function deleteMessage(messageId, user) {
 				reply.textContent = 'Deleted message';
 			});
 		}
+		lastPageLength = messages.scrollTop;
 	}
 }
 /**
@@ -1210,13 +1217,12 @@ function showReplyToast() {
 		document.querySelector('.footer').insertAdjacentElement('beforebegin', replyToast);
 	}
 
-	replyToast.classList.add('active');
-
+	
 	setTimeout(() => {
-		if (!scrolling) {
-			messages.scrollTo(0, messages.scrollHeight);
-		}
-	}, 120);
+		replyToast.classList.add('active');
+		updateScroll();
+	}, 100);
+
 
 	replyToast.querySelector('.close').onclick = () => {
 		clearTargetMessage();
@@ -1233,11 +1239,10 @@ function hideReplyToast() {
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
 		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
 		clearTargetMessage();
-		replyToast.remove();
-		messages.scrollTop = messages.scrollHeight;
 		setTimeout(() => {
-			messages.scrollTo(0, messages.scrollHeight);
-		}, 150);
+			updateScroll();
+			replyToast.remove();
+		}, 100);
 	}
 }
 
@@ -1606,7 +1611,11 @@ export function updateScroll(avatar = null, text = '') {
 		return;
 	}
 
-	messages.scrollTo(0, messages.scrollHeight);
+	messages.scrollTop = messages.scrollHeight;
+	const lastMessage = messages.lastElementChild;
+	if (lastMessage) {
+		lastMessage.scrollIntoView({ behavior: 'smooth', block: 'end' });
+	}
 }
 
 
@@ -2161,7 +2170,7 @@ messages.addEventListener('scroll', () => {
 		if (scrolled >= 50) {
 			scrolling = true;
 		}
-		if (scrolled <= 10 && scrolled >= 0) {
+		if (scrolled <= 50 && scrolled >= 0) {
 			document.querySelector('.newmessagepopup').classList.remove('active');
 			scrolling = false;
 		}
@@ -2171,6 +2180,7 @@ messages.addEventListener('scroll', () => {
 		removeNewMessagePopup();
 		scrolling = false;
 	}
+	//console.log(`scroll: ${scroll}, lastPageLength: ${lastPageLength}, scrolled: ${scrolled}`);
 	if (scrolled >= 300) {
 		document.querySelector('.newmessagepopup img').style.display = 'none';
 		document.querySelector('.newmessagepopup .msg').style.display = 'none';
@@ -2263,6 +2273,19 @@ textbox.addEventListener('focus', () => {
 
 textbox.addEventListener('blur', () => {
 	focusInput();
+});
+
+textbox.addEventListener('input', () => {
+	const clone = textbox.cloneNode(true);
+	clone.style.height = 'min-content';
+	clone.style.position = 'absolute';
+	clone.style.top = '-9999px';
+	document.body.appendChild(clone);
+  
+	// Set the new height based on the content
+	textbox.style.height = `${clone.scrollHeight}px`;
+
+	document.body.removeChild(clone);
 });
 
 function focusInput() {
@@ -3082,6 +3105,7 @@ sendButton.addEventListener('click', () => {
 	let message = textbox.innerText.trim();
 
 	textbox.innerText = '';
+	textbox.style.height = 'min-content';
 
 	if (message != null && message.length) {
 		const tempId = crypto.randomUUID();

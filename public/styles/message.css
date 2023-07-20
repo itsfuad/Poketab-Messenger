@@ -25,6 +25,7 @@
   scrollbar-width: none;
   list-style: none;
   z-index: 1;
+  transition: 300ms ease;
 }
 #messages:has(.focused) .msg-item {
   filter: brightness(0.7);

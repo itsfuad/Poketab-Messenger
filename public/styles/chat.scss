@@ -1508,11 +1508,14 @@ i[class^="fa-"] {
     filter: drop-shadow(0 4px 5px black);
     pointer-events: none;
     padding: 10px;
+    height: 0;
     margin: 10px 10px 0 10px;
+    transition: 300ms ease;
     &.active {
         visibility: visible;
         opacity: 1;
         top: 0;
+        height: max-content;
         pointer-events: all;
     }
     .title {
@@ -1580,13 +1583,13 @@ i[class^="fa-"] {
         opacity: 1;
     }
     &.toastActive {
-        bottom: 135px;
+        margin-bottom: 90px;
     }
     &.toastActiveImage {
-        bottom: 170px;
+        margin-bottom: 120px;
     }
     &.toastActiveFile {
-        bottom: 154px;
+        margin-bottom: 90px;
     }
     filter: drop-shadow(0 4px 5px black);
     .newmessagepopupavatar {

@@ -1445,12 +1445,15 @@ i[class^=fa-] {
   filter: drop-shadow(0 4px 5px black);
   pointer-events: none;
   padding: 10px;
+  height: 0;
   margin: 10px 10px 0 10px;
+  transition: 300ms ease;
 }
 #replyToast.active {
   visibility: visible;
   opacity: 1;
   top: 0;
+  height: max-content;
   pointer-events: all;
 }
 #replyToast .title {
@@ -1519,13 +1522,13 @@ i[class^=fa-] {
   opacity: 1;
 }
 .newmessagepopup.toastActive {
-  bottom: 135px;
+  margin-bottom: 90px;
 }
 .newmessagepopup.toastActiveImage {
-  bottom: 170px;
+  margin-bottom: 120px;
 }
 .newmessagepopup.toastActiveFile {
-  bottom: 154px;
+  margin-bottom: 90px;
 }
 .newmessagepopup .newmessagepopupavatar {
   height: 20px;
