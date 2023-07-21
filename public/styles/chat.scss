@@ -1139,6 +1139,16 @@ input[type="file"] {
     input:checked ~ label .toggleButton {
         background: var(--secondary-dark);
     }
+
+    button#chooseQuickEmojiButton{
+        color: var(--secondary-dark);
+        background: transparent;
+        border: none;
+        padding: 5px;
+        cursor: pointer;
+        width: 100%;
+    }
+
 }
 
 #themeButton {
@@ -1602,6 +1612,32 @@ i[class^="fa-"] {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+    }
+}
+
+.quickEmoji{
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+.quickEmoji, .sendIcon{
+    animation: pop 300ms ease-in-out forwards;
+}
+
+@keyframes pop {
+    0%{
+        transform: scale(0.5);
+    }
+    50%{
+        transform: scale(1.2);
+    }
+    100%{
+        transform: scale(1);
     }
 }
 

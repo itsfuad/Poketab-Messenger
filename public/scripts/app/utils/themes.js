@@ -1,11 +1,11 @@
 //enable strict mode
 'use strict';
 
-import { themeAccent } from './../../themeLoader.js';
-
 import { fragmentBuilder } from './fragmentBuilder.js';
+import { themeAccent } from '../../themeLoader.js';
 
 export const themeArray = Object.keys(themeAccent);
+export default themeAccent;
 
 export const themePicker = document.createElement('div');
 themePicker.className = 'themePicker';
