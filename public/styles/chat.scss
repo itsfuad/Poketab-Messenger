@@ -1405,9 +1405,9 @@ i[class^="fa-"] {
 #send {
     border: none;
     position: relative;
-    transition: 350ms ease-in-out;
+    transition: transform 350ms ease-in-out;
     background: transparent;
-    margin-right: 2px;
+    margin-right: 3px;
 }
 
 .btn{
@@ -1475,7 +1475,7 @@ i[class^="fa-"] {
         color: #ffffff5a;
         font-size: 0.9rem;
         top: 50%;
-        left: 25px;
+        left: 30px;
         opacity: 1;
         visibility: visible;
         pointer-events: none;
