@@ -1,19 +1,19 @@
 <div class="chatInput">
-    <div class="clickable playable inputBtn btn-animate" id="stickerBtn" title="Choose stickers [Alt+i]"><i class="fa-solid fa-note-sticky"></i></div>
+    <div class="clickable playable inputBtn btn-animate hoverBtn" id="stickerBtn" title="Choose stickers [Alt+i]"><i class="fa-solid fa-face-laugh-wink"></i></div>
     <!-- Text input -->
-    <div class="attachments clickable playable inputBtn btn-animate" id="attachment" title="Send attactments [Alt+a]"><i class="fa-solid fa-paperclip"></i></div>
+    <div class="attachments clickable playable inputBtn btn-animate hoverBtn" id="attachment" title="Send attactments [Alt+a]"><i class="fa-solid fa-paperclip"></i></div>
     <div class="inputField">
         <div id="textbox" contenteditable="true" class="select" data-placeholder="Message..." tabindex="-1"></div>
         <!-- Microphone -->
         <div class="voiceRecorder" id="recorderOverlay" data-recordingstate="false">
-            <div class="recordBtn btn btn-animate" id="recordVoiceButton" data-playstate="" title="Record voice [Alt+r]">
+            <div class="recordBtn btn btn-animate hoverBtn" id="recordVoiceButton" data-playstate="" title="Record voice [Alt+r]">
                 <i class="fa-solid fa-microphone" id="micIcon"></i>
             </div>
             <div class="recording">
                 <span class="recordingText"><i class="fa-solid fa-circle recordIcon"></i></span>
                 <span id="recordingTime" class="recordingTime">00:00</span>
             </div>
-            <div class="cancelBtn btn clickable playable btn-animate" id="cancelVoiceRecordButton">
+            <div class="cancelBtn btn clickable playable btn-animate hoverBtn" id="cancelVoiceRecordButton">
                 <i class="fa-solid fa-xmark"></i>
             </div>
             <div id="audiovisualizer"></div>
@@ -21,5 +21,5 @@
     </div>
       
     <!-- Send Button-->
-    <button id="send" class=" inputBtn btn-animate" title="Ctrl+Enter" tabindex="-1"></button>
+    <button id="send" class=" inputBtn btn-animate hoverBtn" title="Ctrl+Enter" tabindex="-1"></button>
 </div>

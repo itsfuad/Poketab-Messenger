@@ -16,7 +16,7 @@ export const themeAccent = {
 		msg_get_reply: 'hsl(187, 85%, 20%)',
 		msg_send: 'hsl(187, 100%, 37%',
 		msg_send_reply: 'hsl(187, 40%, 32%)',
-		quickEmoji: '🌊',
+		quickEmoji: '💦',
 	},
 	'cyberpunk': {
 		secondary: 'hsl(233, 100%, 71%)',
@@ -52,7 +52,7 @@ export const themeAccent = {
 		msg_get_reply: 'hsl(162, 32%, 27%)',
 		msg_send: 'hsl(162, 60%, 42%)',
 		msg_send_reply: 'hsl(162, 14%, 27%)',
-		quickEmoji: '🌳',
+		quickEmoji: '🌴',
 	}
 };
 

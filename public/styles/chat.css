@@ -303,12 +303,6 @@ body {
   background: var(--secondary-dark);
 }
 
-#stickerBtn {
-  padding: 0 0 4px 5px;
-  display: grid;
-  place-items: center;
-}
-
 img:is(.sticker) {
   width: 100px;
   height: 100px;
@@ -679,7 +673,6 @@ img {
   justify-content: center;
   align-items: flex-end;
   position: relative;
-  gap: 3px;
   padding: 0 3px;
 }
 
@@ -886,6 +879,7 @@ input[type=file] {
   color: var(--secondary-dark) !important;
 }
 .voiceRecorder .btn {
+  margin: 2px;
   padding: 10px 15px;
   display: flex;
   align-items: center;
@@ -1096,6 +1090,12 @@ input[type=file] {
   padding: 5px;
   cursor: pointer;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.field-checkers button#chooseQuickEmojiButton .quickEmojiIcon {
+  font-size: 1.5rem;
 }
 
 #themeButton {
@@ -1205,7 +1205,7 @@ i[class^=fa-] {
 
 .fa-paper-plane,
 .fa-paperclip,
-.fa-note-sticky {
+.fa-face-laugh-wink {
   font-size: 1.5rem !important;
   padding: 5px;
   color: var(--secondary-dark);
@@ -1226,6 +1226,7 @@ i[class^=fa-] {
 
 .hoverBtn {
   width: 35px;
+  height: 35px;
   aspect-ratio: 1;
   display: flex;
   flex-direction: column;
@@ -1235,7 +1236,7 @@ i[class^=fa-] {
   cursor: pointer;
 }
 .hoverBtn:hover {
-  background: rgba(255, 255, 255, 0.0392156863);
+  background: rgba(255, 255, 255, 0.0392156863) !important;
 }
 
 .optionPanel {
@@ -1342,10 +1343,10 @@ i[class^=fa-] {
 
 #send {
   border: none;
-  background: none;
-  padding-right: 5px;
   position: relative;
   transition: 350ms ease-in-out;
+  background: transparent;
+  margin-right: 2px;
 }
 
 .btn {
@@ -1366,7 +1367,7 @@ i[class^=fa-] {
   }
 }
 .inputField {
-  padding: 0;
+  padding: 0 5px;
   margin: 0;
   border-radius: 25px;
   display: flex;
@@ -1418,7 +1419,7 @@ i[class^=fa-] {
 }
 
 .inputBtn {
-  padding-bottom: 3px;
+  margin-bottom: 3px;
 }
 
 .credits {
@@ -1556,7 +1557,7 @@ i[class^=fa-] {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   cursor: pointer;
 }
 
