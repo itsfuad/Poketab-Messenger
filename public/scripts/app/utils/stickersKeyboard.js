@@ -35,16 +35,16 @@ export function loadStickerHeaders() {
 		stickers: stickersArray
 	});
 
-	document.getElementById('stickersKeyboard').innerHTML += stickersKeyboard;
+	document.getElementById('stickersKeyboard').innerHTML = stickersKeyboard;
 
 	const stickerHeads = document.querySelector('.stickersHeader');
 
 	stickerHeads.addEventListener('click', (e) => {
 		if (e.target.dataset.name) {
 			const stickerBoard = document.querySelector(`.stickerBoard.${e.target.dataset.name}`);
-			setTimeout(() => {
+			requestAnimationFrame(() => {
 				stickerBoard.scrollIntoView();
-			}, 150);
+			});
 		}
 	});
 
@@ -61,6 +61,7 @@ export function loadStickerHeaders() {
 		stickerHeads.scrollBy(100, 0);
 	});
 
+
 	const stickerBoards = document.querySelectorAll('.stickerBoard');
 
 	const observer = new IntersectionObserver((entries) => {
@@ -74,10 +75,13 @@ export function loadStickerHeaders() {
 				document.querySelectorAll('.stickersHeader img').forEach((stickerHead) => {
 					stickerHead.dataset.selected = false;
 				});
-				const stickerHead = document.querySelector(`.stickersHeader img[data-name="${inViewSticker}"]`);
-				stickerHead.dataset.selected = true;
 
-				stickerHead.scrollIntoView();
+				const stickerHead = document.querySelector(`.stickersHeader img[data-name="${inViewSticker}"]`);
+
+				requestAnimationFrame(() => {
+					stickerHead.dataset.selected = true;
+					entry.target.scrollIntoView();
+				});
 			}
 		});
 	}, { threshold: 0.5 });
