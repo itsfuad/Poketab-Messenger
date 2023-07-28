@@ -215,6 +215,8 @@ if (!isMobile) {
 	});
 }
 
+let quickReactsEnabled = localStorage.getItem('quickReactsEnabled');
+
 
 //! functions
 
@@ -310,20 +312,24 @@ function loadTheme() {
 	document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_send_reply);
 	document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
 	
-	const quickEmojiFromLocalStorage = localStorage.getItem('quickEmoji');
-	//console.log(quickEmojiFromLocalStorage, themeAccent[THEME]);
-	if (quickEmojiFromLocalStorage) {
-		if (reactArray.expanded.includes(quickEmojiFromLocalStorage)) {
-			quickReactEmoji = quickEmojiFromLocalStorage;
+	if (quickReactsEnabled){
+		const quickEmojiFromLocalStorage = localStorage.getItem('quickEmoji');
+		console.log(quickEmojiFromLocalStorage, themeAccent[THEME]);
+		if (quickEmojiFromLocalStorage) {
+			if (reactArray.expanded.includes(quickEmojiFromLocalStorage)) {
+				quickReactEmoji = quickEmojiFromLocalStorage;
+			}else{
+				quickReactEmoji = themeAccent[THEME].quickEmoji;
+			}
 		}else{
 			quickReactEmoji = themeAccent[THEME].quickEmoji;
 		}
-	}else{
-		quickReactEmoji = themeAccent[THEME].quickEmoji;
-	}
 	
-	localStorage.setItem('quickEmoji', quickReactEmoji);
-	sendButton.innerHTML = `<span class="quickEmoji">${quickReactEmoji}</span>`;
+		localStorage.setItem('quickEmoji', quickReactEmoji);
+
+		sendButton.innerHTML = `<span class="quickEmoji">${quickReactEmoji}</span>`;
+		console.log(sendButton);
+	}
 }
 /**
  * Loads the send shortcut
@@ -1351,7 +1357,7 @@ export function getReact(reactEmoji, messageId, uid) {
 					setTimeout(() => {
 						animation.classList.remove('active');
 					}, 1000);
-				}, 10);
+				}, 60);
 
 			}
 		} else {
@@ -2145,12 +2151,12 @@ document.querySelectorAll('.theme').forEach(theme => {
 		THEME = evt.target.closest('li').id;
 		localStorage.setItem('theme', THEME);
 		showPopupMessage('Theme applied');
-		quickReactEmoji = themeAccent[THEME].quickEmoji;
-		localStorage.setItem('quickEmoji', quickReactEmoji);
-		chooseQuickEmojiButton.querySelector('.quickEmojiIcon').textContent = quickReactEmoji;
-		if (sendButton.dataset.role == 'quickEmoji') {
-			sendButton.innerHTML = `<span class="quickEmoji">${quickReactEmoji}</span>`;
+		if (quickReactsEnabled){
+			quickReactEmoji = themeAccent[THEME].quickEmoji;
+			localStorage.setItem('quickEmoji', quickReactEmoji);
+			sendButton.dataset.role = 'quickEmoji';
 		}
+		chooseQuickEmojiButton.querySelector('.quickEmojiIcon').textContent = quickReactEmoji;
 		//edit css variables
 		document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${THEME}_w.webp')`);
 		document.documentElement.style.setProperty('--secondary-dark', themeAccent[THEME].secondary);
@@ -2187,9 +2193,8 @@ document.querySelector('.moreReacts').addEventListener('click', (evt) => {
 		quickReactEmoji = target.dataset.react;
 		localStorage.setItem('quickEmoji', quickReactEmoji);
 		if (sendButton.dataset.role == 'quickEmoji') {
-			sendButton.innerHTML = `<span class="quickEmoji">${quickReactEmoji}</span>`;
-			sendButton.dataset.role = 'quickEmoji';
 			chooseQuickEmojiButton.querySelector('.quickEmojiIcon').textContent = quickReactEmoji;
+			sendButton.dataset.role = 'quickEmoji';
 		}
 		hideOptions();
 		return;
@@ -2328,8 +2333,6 @@ textbox.addEventListener('input', () => {
 	document.body.removeChild(clone);
 });
 
-let quickReactsEnabled = localStorage.getItem('quickReactsEnabled');
-
 if (['true', 'false'].includes(quickReactsEnabled) == false) {
 	quickReactsEnabled = 'true';
 	localStorage.setItem('quickReactsEnabled', quickReactsEnabled);
@@ -2337,8 +2340,7 @@ if (['true', 'false'].includes(quickReactsEnabled) == false) {
 	sendButton.dataset.role = 'quickEmoji';
 }else{
 	quickReactsEnabled = quickReactsEnabled == 'true' ? 'true' : 'false';
-	sendButton.innerHTML = quickReactsEnabled == 'true' ? `<span class="quickEmoji">${quickReactEmoji}</span>` : '<i class="fa-solid fa-paper-plane sendIcon"></i>';
-	document.getElementById('quickEmoji').checked = quickReactsEnabled == 'true' ? true : false;
+	document.getElementById('quickEmoji').checked = quickReactsEnabled;
 	sendButton.dataset.role = quickReactsEnabled == 'true' ? 'quickEmoji' : 'send';
 }
 
@@ -2346,11 +2348,10 @@ document.getElementById('quickEmoji').addEventListener('change', ()=>{
 	quickReactsEnabled = document.getElementById('quickEmoji').checked ? 'true' : 'false';
 	localStorage.setItem('quickReactsEnabled', quickReactsEnabled);
 	if (quickReactsEnabled == 'false') {
-		sendButton.innerHTML = '<i class="fa-solid fa-paper-plane sendIcon"></i>';
 		sendButton.dataset.role = 'send';
 	}else{
-		sendButton.innerHTML = `<span class="quickEmoji">${quickReactEmoji}</span>`;
 		sendButton.dataset.role = 'quickEmoji';
+		console.log('changed to quickEmoji 3');
 	}
 });
 
@@ -2362,14 +2363,23 @@ new MutationObserver(() => {
 		return;
 	}
 
-	if (textbox.textContent == '') {
-		sendButton.innerHTML = `<span class="quickEmoji">${quickReactEmoji}</span>`;
+	if (textbox.textContent == '' && sendButton.dataset.role != 'quickEmoji') {
 		sendButton.dataset.role = 'quickEmoji';
-	} else if (sendButton.dataset.role != 'send') {
-		sendButton.innerHTML = '<i class="fa-solid fa-paper-plane sendIcon"></i>';
+		console.log('changed to quickEmoji');
+	} else{
 		sendButton.dataset.role = 'send';
 	}
 }).observe(textbox, { childList: true, subtree: true });
+
+
+new MutationObserver(() => {
+	//console.log('changed');
+	if (sendButton.dataset.role == 'send'){
+		sendButton.innerHTML = '<i class="fa-solid fa-paper-plane sendIcon"></i>';
+	}else{
+		sendButton.innerHTML = `<span class="quickEmoji">${quickReactEmoji}</span>`;
+	}
+}).observe(sendButton, { attributes: true, attributeFilter: ['data-role'] });
 
 
 function focusInput() {
@@ -2783,7 +2793,7 @@ window.addEventListener('resize', () => {
 	setTimeout(() => {
 		scrolling = false;
 		updateScroll();
-	}, 10);
+	}, 100);
 	scrolling = temp;
 	softKeyIsUp = maxWindowHeight > window.innerHeight ? true : false;
 });
@@ -3177,8 +3187,14 @@ window.addEventListener('online', function () {
 
 sendButton.addEventListener('click', () => {
 
-	if (recordedAudio) {
+	if (recordedAudio && sendButton.dataset.role == 'send') {
 		sendAudioRecord();
+		if (quickReactsEnabled && textbox.innerText.trim().length == 0 && sendButton.dataset.role == 'send'){
+			sendButton.dataset.role = 'quickEmoji';
+			console.log('quickEmoji: Audio');
+		}else{
+			sendButton.dataset.role = 'send';
+		}
 		return;
 	}
 	if (recorderElement.dataset.recordingstate === 'true') {
@@ -3804,6 +3820,11 @@ cancelVoiceRecordButton.addEventListener('click', () => {
 	}
 	//reset for new recording
 	recordCancel = true;
+	if (sendButton.dataset.role == 'send' && quickReactsEnabled) {
+		sendButton.dataset.role = 'quickEmoji';
+		console.log('quickEmoji: Audio cancel');
+	}
+
 	stopRecording();
 	stopPlayingRecordedAudio();
 	resetForNewRecording();
@@ -3913,6 +3934,13 @@ function startRecordingAudio() {
 					recordedAudio.dataset.duration = timePassed;
 					recordCancel = false;
 					showPopupMessage('Recorded!');
+					if (recordedAudio){
+						console.log('recorded audio duration: ', recordedAudio.dataset.duration);
+						if (quickReactsEnabled && sendButton.dataset.role == 'quickEmoji') {
+							console.log('quick react enabled');
+							sendButton.dataset.role = 'send';
+						}
+					}
 					//console.log('recorder state: ', mediaRecorder.state);
 					//console.log(`Duration: ${recordedAudio.dataset.duration} seconds`);
 				}
