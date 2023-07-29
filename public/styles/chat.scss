@@ -1144,6 +1144,11 @@ input[type="file"] {
         display: flex;
         justify-content: center;
         align-items: center;
+        transition: 100ms ease-in-out;
+        &:disabled{
+            filter: saturate(0);
+            cursor: not-allowed;
+        }
         .quickEmojiIcon{
             font-size: 1.5rem;
         }
