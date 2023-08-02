@@ -339,16 +339,21 @@ function loadTheme() {
 	const quickEmojiFromLocalStorage = localStorage.getItem('quickEmoji');
 	//console.log(quickEmojiFromLocalStorage, themeAccent[THEME]);
 	if (quickEmojiFromLocalStorage) {
+		//console.log(`Found in local storage: ${quickEmojiFromLocalStorage}`);
 		if (reactArray.expanded.includes(quickEmojiFromLocalStorage)) {
 			quickReactEmoji = quickEmojiFromLocalStorage;
+			//console.log(`Quick Emoji in expanded emojis: ${quickReactEmoji}`);
 		}else{
 			quickReactEmoji = themeAccent[THEME].quickEmoji;
+			//console.log(`Setting from theme: ${quickReactEmoji}`);
 		}
 	}else{
 		quickReactEmoji = themeAccent[THEME].quickEmoji;
+		//console.log(`Not found in local storage: ${quickEmojiFromLocalStorage}`);
 	}
 
 	localStorage.setItem('quickEmoji', quickReactEmoji);
+	console.log(`Quick Emoji: ${quickReactEmoji}`);
 
 	if (quickReactsEnabled == 'true'){
 		sendButton.innerHTML = `<span class="quickEmoji">${quickReactEmoji}</span>`;
@@ -671,7 +676,7 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 			const time = lastMsg.querySelector('.messageTime');
 			time.textContent = getFormattedDate(time.dataset.timestamp);
 		}
-	}, 60000);
+	}, 10000);
 
 	checkgaps(lastMsg?.id);
 
@@ -688,7 +693,8 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 	}
 
 	setTimeout(() => {
-		updateScroll(userInfoMap.get(uid)?.avatar, popupmsg);
+		//console.log(uid, popupmsg);
+		updateScroll(uid, popupmsg);
 	}, 100);
 }
 
@@ -1179,7 +1185,7 @@ messages.addEventListener('touchend', (evt) => {
 
 function showReplyToast() {
 	hideOptions();
-	updateScroll();
+	//updateScroll();
 	textbox.focus();
 	finalTarget = Object.assign({}, targetMessage);
 
@@ -1647,9 +1653,11 @@ function OptionEventHandler(evt, popup = true) {
  * @param {string} text 
  * @returns 
  */
-export function updateScroll(avatar = null, text = '') {
-	if (scrolling) {
-		if (text.length > 0 && avatar != null) {
+export function updateScroll(uid = null, text = '') {
+	//console.log(uid, text, scrolling);
+	if (scrolling && uid != myId) {
+		if (text.length > 0 && uid != null) {
+			const avatar = userInfoMap.get(uid)?.avatar;
 			document.querySelector('.newmessagepopup img').style.display = 'block';
 			document.querySelector('.newmessagepopup .msg').style.display = 'inline-block';
 			document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
@@ -1659,13 +1667,11 @@ export function updateScroll(avatar = null, text = '') {
 			document.querySelector('.newmessagepopup').classList.add('active');
 		}
 		return;
+	}else{
+		//scroll to bottom
+		messages.scrollTop = messages.scrollHeight;
 	}
 
-	messages.scrollTop = messages.scrollHeight;
-	const lastMessage = messages.lastElementChild;
-	if (lastMessage) {
-		lastMessage.scrollIntoView({ behavior: 'smooth', block: 'end' });
-	}
 }
 
 
@@ -2052,7 +2058,7 @@ document.getElementById('stickersKeyboard').addEventListener('click', e => {
 		const tempId = crypto.randomUUID();
 		playStickerSound();
 		scrolling = false;
-		updateScroll();
+
 		insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, {});
 
 		if (Array.from(userInfoMap.keys()).length < 2) {
@@ -2262,8 +2268,8 @@ messages.addEventListener('scroll', () => {
 
 document.querySelector('.newmessagepopup').addEventListener('click', () => {
 	scrolling = false;
-	updateScroll();
 	removeNewMessagePopup();
+	updateScroll();
 });
 
 document.getElementById('logoutButton').addEventListener('click', () => {
@@ -2332,8 +2338,9 @@ textbox.addEventListener('keydown', (evt) => {
 		if (textbox.innerHTML.trim() == '<br>') {
 			textbox.innerText = '';
 		}
+	} else if (evt.key == 'Enter') {
+		updateScroll();
 	}
-	updateScroll();
 	typingStatus();
 });
 
@@ -3209,8 +3216,8 @@ sendButton.addEventListener('click', () => {
 	if (sendButton.dataset.role == 'quickEmoji' && quickReactsEnabled == 'true') {
 		insertNewMessage(quickReactEmoji, 'text', tempId, myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, {});
 		if (skipServerSend) {
-			document.getElementById(tempId).classList.add('delevered');
 			playOutgoingSound();
+			document.getElementById(tempId).classList.add('delevered');
 		} else {
 			chatSocket.emit('message', quickReactEmoji, 'text', myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id, error) {
 				playOutgoingSound();
@@ -3228,52 +3235,53 @@ sendButton.addEventListener('click', () => {
 				}
 			});
 		}
-	}
+	}else if (sendButton.dataset.role == 'send') {
 
-	textbox.innerText = '';
-	textbox.style.height = 'min-content';
+		textbox.innerText = '';
+		textbox.style.height = 'min-content';
 
-	if (message != null && message.length) {
-		scrolling = false;
-		if (message.length > 10000) {
-			message = message.substring(0, 10000);
-			message += '... (message too long)';
-		}
+		if (message != null && message.length) {
+			scrolling = false;
+			if (message.length > 10000) {
+				message = message.substring(0, 10000);
+				message += '... (message too long)';
+			}
 
-		message = emojiParser(message);
+			message = emojiParser(message);
 
-		if (isEmoji(message)) {
-			//replace whitespace with empty string
-			message = message.replace(/\s/g, '');
-		}
+			if (isEmoji(message)) {
+				//replace whitespace with empty string
+				message = message.replace(/\s/g, '');
+			}
 
 
-		insertNewMessage(message, 'text', tempId, myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, {});
+			insertNewMessage(message, 'text', tempId, myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, {});
 
-		if (skipServerSend) {
-			//console.log('Server replay skipped');
-			const msg = document.getElementById(tempId);
-			msg?.classList.add('delevered');
-			playOutgoingSound();
-		} else {
-			chatSocket.emit('message', message, 'text', myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id, error) {
-
+			if (skipServerSend) {
+				//console.log('Server replay skipped');
+				const msg = document.getElementById(tempId);
+				msg?.classList.add('delevered');
 				playOutgoingSound();
+			} else {
+				chatSocket.emit('message', message, 'text', myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id, error) {
 
-				if (error) {
-					console.log(error);
-					document.getElementById(tempId).dataset.type = 'error';
-					document.getElementById(tempId).querySelector('.messageMain').innerHTML = `<div class="msg text" style="background: red">${error}</div>`;
-					return;
-				}
+					playOutgoingSound();
 
-				document.getElementById(tempId).classList.add('delevered');
-				document.getElementById(tempId).id = id;
-				lastSeenMessage = id;
-				if (document.hasFocus()) {
-					chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
-				}
-			});
+					if (error) {
+						console.log(error);
+						document.getElementById(tempId).dataset.type = 'error';
+						document.getElementById(tempId).querySelector('.messageMain').innerHTML = `<div class="msg text" style="background: red">${error}</div>`;
+						return;
+					}
+
+					document.getElementById(tempId).classList.add('delevered');
+					document.getElementById(tempId).id = id;
+					lastSeenMessage = id;
+					if (document.hasFocus()) {
+						chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
+					}
+				});
+			}
 		}
 	}
 

@@ -28,14 +28,16 @@ export function arrayToMap(array) {
 export function getFormattedDate(timestamp) {
 	timestamp = parseInt(timestamp);
 	const currentTime = Date.now();
-	const differenceInMinutes = Math.floor((currentTime - timestamp) / 1000 / 60);
-  
-	if (differenceInMinutes === 0) {
+	const differenceInSeconds = Math.floor((currentTime - timestamp) / 1000);
+
+	if (differenceInSeconds === 0) {
 		return 'Just now';
-	} else if (differenceInMinutes === 1) {
+	} else if (differenceInSeconds < 60) {
+		return `${differenceInSeconds} secs ago`;
+	} else if (differenceInSeconds < 120) {
 		return '1 min ago';
-	} else if (differenceInMinutes < 10) {
-		return `${differenceInMinutes} mins ago`;
+	} else if (differenceInSeconds < 600) {
+		return `${Math.floor(differenceInSeconds / 60)} mins ago`;
 	} else {
 		return new Intl.DateTimeFormat('default', {
 			hour: 'numeric',

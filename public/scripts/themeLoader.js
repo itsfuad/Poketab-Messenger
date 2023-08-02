@@ -14,7 +14,7 @@ export const themeAccent = {
 		foreground: '#e1eeff',
 		msg_get: 'hsl(187, 40%, 57%)',
 		msg_get_reply: 'hsl(187, 85%, 20%)',
-		msg_send: 'hsl(187, 100%, 37%',
+		msg_send: 'hsl(187, 100%, 37%)',
 		msg_send_reply: 'hsl(187, 40%, 32%)',
 		quickEmoji: '💦',
 	},
