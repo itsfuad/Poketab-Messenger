@@ -353,7 +353,7 @@ function loadTheme() {
 	}
 
 	localStorage.setItem('quickEmoji', quickReactEmoji);
-	console.log(`Quick Emoji: ${quickReactEmoji}`);
+	//console.log(`Quick Emoji: ${quickReactEmoji}`);
 
 	if (quickReactsEnabled == 'true'){
 		sendButton.innerHTML = `<span class="quickEmoji">${quickReactEmoji}</span>`;

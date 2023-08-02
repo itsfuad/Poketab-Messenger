@@ -119,11 +119,35 @@ app.get('/~', (req, res) => {
 		res.redirect('/join');
 	} else {
 		const { username, avatar } = makeUsernameandPasswordForDevelopment('00-000-00');
+		const referar = req.headers.referer;
+
+		if (!referar) {
+			blockNewChatRequest(res, { title: 'No Referer', errorCode: '403', errorMessage: 'No referer found', buttonText: 'Back', icon: 'error.png' });
+			return;
+		}
+
+		if (req.headers.host != referar.split('/')[2]) {
+			blockNewChatRequest(res, { title: 'Invalid Referer', errorCode: '403', errorMessage: 'Invalid referer', buttonText: 'Back', icon: 'error.png' });
+			return;
+		}
+
 		approveNewChatRequest(res, { username: username, key: '00-000-00', avatar: avatar, max_users: 10, icon: Icon });
 	}
 });
 
 app.post('/~', (req, res) => {
+	const referar = req.headers.referer;
+	//if the request came from the same host then allow the request
+	console.log(referar);
+	if (!referar){
+		blockNewChatRequest(res, { title: 'No Referer', errorCode: '403', errorMessage: 'No referer found', buttonText: 'Back', icon: 'error.png' });
+		return;
+	}
+
+	if (req.headers.host != referar.split('/')[2]) {	
+		blockNewChatRequest(res, { title: 'Invalid Referer', errorCode: '403', errorMessage: 'Invalid referer', buttonText: 'Back', icon: 'error.png' });
+		return;
+	}
 
 	//get username and avatar from the request
 	const username = req.body.username;
@@ -199,8 +223,6 @@ function approveNewChatRequest(res: any, data: { username: string, key: string, 
 	res.setHeader('Developer', DEVELOPER);
 	res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'nonce-${nonce}'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob:; media-src 'self' blob:;`);
 	res.setHeader('Cluster', `ID: ${process.pid}`);
-	res.cookie('username', data.username, {maxAge: 900000, httpOnly: true, sameSite: 'strict'});
-	res.cookie('avatar', data.avatar, {maxAge: 900000, httpOnly: true, sameSite: 'strict'});
 	res.render('chat/chat', { myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, ENV: ENVIRONMENT, hash: nonce, welcomeSticker: welcomeSticker, icon: data.icon });
 }
 
