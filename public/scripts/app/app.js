@@ -32,7 +32,6 @@ console.log('%cloaded app.js', 'color: deepskyblue;');
 //main message Element where all messages araree inserted
 const messages = document.getElementById('messages');
 
-const maxWindowHeight = window.innerHeight; //max height of the window
 const textbox = document.getElementById('textbox'); //textbox element where user types messages
 
 //all options in the message options menu when a user right clicks on a message or taps and holds on mobile
@@ -117,7 +116,6 @@ document.getElementById('messageTemplate').remove();
 document.getElementById('fileTemplate').remove();
 document.getElementById('audioMessageTemplate').remove();
 
-let softKeyIsUp = false; //to check if soft keyboard of phone is up or not
 let scrolling = false; //to check if user is scrolling or not
 let lastPageLength = messages.scrollTop; // after adding a ^(?!\s*//).*console\.lognew message the page size gets updated
 let scroll = 0; //total scrolled up or down by pixel
@@ -2348,10 +2346,6 @@ textbox.addEventListener('focus', () => {
 	updateScroll();
 });
 
-textbox.addEventListener('blur', () => {
-	focusInput();
-});
-
 textbox.addEventListener('input', () => {
 	const clone = textbox.cloneNode(true);
 	clone.style.height = 'min-content';
@@ -2392,11 +2386,6 @@ new MutationObserver(() => {
 }).observe(sendButton, { attributes: true, attributeFilter: ['data-role'] });
 
 
-function focusInput() {
-	if (softKeyIsUp) {
-		textbox.focus();
-	}
-}
 /**
  * Closes the side panel
  */
@@ -2797,12 +2786,17 @@ document.querySelector('.reactorContainerWrapper').addEventListener('click', (ev
 window.addEventListener('resize', () => {
 	appHeight();
 	const temp = scrolling;
+
+	scrolling = temp;
+
 	setTimeout(() => {
 		scrolling = false;
-		updateScroll();
+		lastPageLength = messages.scrollTop;
+		const lastMsg = messages.querySelector('.message:last-child');
+		if (lastMsg) {
+			lastMsg.scrollIntoView();
+		}
 	}, 100);
-	scrolling = temp;
-	softKeyIsUp = maxWindowHeight > window.innerHeight ? true : false;
 });
 
 photoButton.addEventListener('change', () => {
