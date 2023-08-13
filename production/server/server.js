@@ -19,7 +19,7 @@ const version = process.env.npm_package_version || 'Development';
 const DEVELOPER = 'Fuad Hasan';
 //console.log(__dirname);
 //console.log(publicPath);
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3823;
 const ENVIRONMENT = process.env.BUILD_MODE == 'DEVELOPMENT' ? 'DEVELOPMENT' : 'PRODUCTION';
 const Icon = ENVIRONMENT == 'DEVELOPMENT' ? 'dev.png' : 'icon.png';
 import adminRouter from './routes/admin.js';
