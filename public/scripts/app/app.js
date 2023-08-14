@@ -2346,6 +2346,7 @@ textbox.addEventListener('focus', () => {
 	updateScroll();
 });
 
+
 textbox.addEventListener('input', () => {
 	const clone = textbox.cloneNode(true);
 	clone.style.height = 'min-content';
@@ -3277,10 +3278,11 @@ sendButton.addEventListener('click', () => {
 				});
 			}
 		}
+
+		textbox.focus();
 	}
 
 	clearFinalTarget();
-	textbox.focus();
 	hideOptions();
 	hideReplyToast();
 

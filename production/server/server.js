@@ -22,6 +22,7 @@ const DEVELOPER = 'Fuad Hasan';
 const port = process.env.PORT || 3823;
 const ENVIRONMENT = process.env.BUILD_MODE == 'DEVELOPMENT' ? 'DEVELOPMENT' : 'PRODUCTION';
 const Icon = ENVIRONMENT == 'DEVELOPMENT' ? 'dev.png' : 'icon.png';
+const accessURL = ENVIRONMENT == 'DEVELOPMENT' ? `http://localhost:${port}` : '';
 import adminRouter from './routes/admin.js';
 import fileRouter from './routes/fileAPI.js';
 //this blocks the client if they request 100 requests in 5 minutes
@@ -186,10 +187,20 @@ app.get('/offline', (_, res) => {
 app.get('*', (_, res) => {
     blockNewChatRequest(res, { title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home', icon: '404.png' });
 });
+import os from 'os';
 //fire up the server
 httpServer.listen(port, () => {
+    console.log('------------------------------------------------------------');
     console.log('%cBooting up the server...', 'color: yellow;');
-    console.log(`Server is up on port ${port} | Process ID: ${process.pid} in ${ENVIRONMENT} mode [${process.platform}]`);
+    console.log('------------------------------------------------------------');
+    console.log(`Server is up on port ${port} ${accessURL}`);
+    console.log(`OS: ${os.platform()} ${os.release()} | ${os.type()} ${os.arch()}`);
+    console.log(`CPU: ${os.cpus()[0].model} | ${os.cpus().length} cores`);
+    console.log(`Memory: ${Math.round(os.totalmem() / 1024 / 1024)} MB`);
+    console.log(`Node.js: ${process.version}`);
+    console.log(`Environment: ${ENVIRONMENT}`);
+    console.log(`Process ID: ${process.pid}`);
+    console.log('------------------------------------------------------------');
     if (!fs.existsSync('uploads')) {
         fs.mkdirSync('uploads');
     }
