@@ -3279,9 +3279,9 @@ sendButton.addEventListener('click', () => {
 			}
 		}
 
-		textbox.focus();
 	}
-
+	
+	textbox.focus();
 	clearFinalTarget();
 	hideOptions();
 	hideReplyToast();
