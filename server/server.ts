@@ -241,9 +241,14 @@ httpServer.listen(port, () => {
 	console.log('%cBooting up the server...', 'color: yellow;');
 	console.log('------------------------------------------------------------');
 	console.log(`Server is up on port ${port} ${accessURL}`);
-	console.log(`OS: ${os.platform()} ${os.release()} | ${os.type()} ${os.arch()}`);
-	console.log(`CPU: ${os.cpus()[0].model} | ${os.cpus().length} cores`);
-	console.log(`Memory: ${Math.round(os.totalmem() / 1024 / 1024)} MB`);
+    console.log(`System: ${os.type()} ${os.release()} ${os.arch()}`);
+    console.log(`CPU: ${os.cpus()[0].model}`);
+    console.log(`CPU Cores: ${os.cpus().length}`);
+    console.log(`Memory: ${Math.round(os.totalmem()/1048576)}MB`);
+    console.log(`Free Memory: ${Math.round(os.freemem()/1048576)}MB`);
+    console.log(`Uptime: ${Math.round(os.uptime()/3600)} hours`);
+    console.log(`Hostname: ${os.hostname()}`);
+    console.log(`Home Directory: ${os.homedir()}`);
 	console.log(`Node.js: ${process.version}`);
 	console.log(`Environment: ${ENVIRONMENT}`);
 	console.log(`Process ID: ${process.pid}`);
