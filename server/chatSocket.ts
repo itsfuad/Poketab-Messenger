@@ -11,7 +11,7 @@ import { cleanJunks, deleteFile } from './cleaner.js';
 
 import { chatSocket } from './sockets.js';
 import { fileStore } from './routes/fileAPI.js';
-import { askToJoinUserSocket, keyCheck } from './preAuthSocket.js';
+import { askToJoinUserSocket } from './preAuthSocket.js';
 
 //socket.io connection
 chatSocket.on('connection', (socket) => {

@@ -181,7 +181,7 @@ socket.on('userUpdate', (response) => {
 		let i = 0;
 		setInterval(() => {
 			//countdown from 5 to 0
-			errlog('usernameErr', `Reloading after ${5 - i} ${ i != 4 ? 'seconds' : 'second' } ${response.icon}`);
+			errlog('usernameErr', `Reloading in ${5 - i} ${ i != 4 ? 'seconds' : 'second' } ${response.icon}`);
 			i++;
 			if (i == 5){
 				location.reload();

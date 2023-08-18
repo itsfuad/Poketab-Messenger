@@ -4135,7 +4135,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	history.pushState({}, '', '');
 	//console.log('Pushed state');
 	window.onpopstate = () => {
-		//showPopupMessage('Press back again to exit');
+		showPopupMessage('Exiting will log you out');
 		history.forward();
 	};
 })();

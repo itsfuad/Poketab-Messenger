@@ -57,7 +57,7 @@ export function parse(multipartBodyBuffer, boundary) {
             if ('--' + boundary === lastline) {
                 const j = buffer.length - lastline.length;
                 const part = buffer.slice(0, j - 1);
-                allParts.push(process({ contentDispositionHeader, contentTypeHeader, part }));
+                allParts.push(processPart({ contentDispositionHeader, contentTypeHeader, part }));
                 buffer = [];
                 currentPartHeaders = [];
                 lastline = '';
@@ -124,7 +124,7 @@ export function DemoData() {
         boundary: '----WebKitFormBoundaryvef1fLxmoUdYZWXp'
     };
 }
-function process(part) {
+function processPart(part) {
     // will transform this object:
     // { header: 'Content-Disposition: form-data; name="uploads[]"; filename="A.txt"',
     // info: 'Content-Type: text/plain',

@@ -2,6 +2,7 @@ console.log('Initializing Server');
 import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
 import fs from 'fs';
+import os from 'os';
 import { blockedMessage } from './utils/blockedMessage.js';
 //utility functions for the server
 import { validateUserName, validateAvatar, avList, validateKey } from './utils/validation.js';
@@ -187,7 +188,6 @@ app.get('/offline', (_, res) => {
 app.get('*', (_, res) => {
     blockNewChatRequest(res, { title: 'Page not found', errorCode: '404', errorMessage: 'Page not found', buttonText: 'Home', icon: '404.png' });
 });
-import os from 'os';
 //fire up the server
 httpServer.listen(port, () => {
     console.log('------------------------------------------------------------');

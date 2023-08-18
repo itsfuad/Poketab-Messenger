@@ -70,7 +70,7 @@ export function parse(multipartBodyBuffer: Buffer, boundary: string): Input[] {
                 const part = buffer.slice(0, j - 1)
 
                 allParts.push(
-                    process({ contentDispositionHeader, contentTypeHeader, part })
+                    processPart({ contentDispositionHeader, contentTypeHeader, part })
                 )
                 buffer = []
                 currentPartHeaders = []
@@ -139,7 +139,7 @@ export function DemoData(): { body: Buffer; boundary: string } {
     }
 }
 
-function process(part: Part): Input {
+function processPart(part: Part): Input {
     // will transform this object:
     // { header: 'Content-Disposition: form-data; name="uploads[]"; filename="A.txt"',
     // info: 'Content-Type: text/plain',

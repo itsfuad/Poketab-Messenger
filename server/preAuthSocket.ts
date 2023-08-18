@@ -5,7 +5,7 @@ import { validateKey } from './utils/validation.js';
 import { auth } from './sockets.js';
 import { Socket } from 'socket.io';
 
-export function keyCheck(key: string){
+function keyCheck(key: string){
 	try{
 		if (!validateKey(key)){
 			return {success: false, message: 'Invalid Key', icon: '<i class="fa-solid fa-triangle-exclamation"></i>', blocked: false};

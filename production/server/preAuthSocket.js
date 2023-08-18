@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import { keyStore } from './database/db.js';
 import { validateKey } from './utils/validation.js';
 import { auth } from './sockets.js';
-export function keyCheck(key) {
+function keyCheck(key) {
     try {
         if (!validateKey(key)) {
             return { success: false, message: 'Invalid Key', icon: '<i class="fa-solid fa-triangle-exclamation"></i>', blocked: false };
