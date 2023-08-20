@@ -2346,6 +2346,14 @@ textbox.addEventListener('focus', () => {
 	updateScroll();
 });
 
+/*
+textbox.addEventListener('blur', () => {
+	//textbox.focus();
+	if (document.activeElement == textbox || (document.activeElement == sendButton)){
+		textbox.focus();
+	}
+});
+*/
 
 textbox.addEventListener('input', () => {
 	const clone = textbox.cloneNode(true);
@@ -3187,7 +3195,9 @@ window.addEventListener('online', function () {
 	}, 1500);
 });
 
-sendButton.addEventListener('click', () => {
+sendButton.addEventListener('click', (e) => {
+
+	e.preventDefault();
 
 	if (recordedAudio && sendButton.dataset.role == 'send') {
 		sendAudioRecord();
@@ -3281,7 +3291,13 @@ sendButton.addEventListener('click', () => {
 
 	}
 	
-	textbox.focus();
+	//textbox.focus();
+
+	if (!textbox.matches(':focus') && window.innerHeight < window.screen.height) {
+		// Keyboard is visible, but textbox is not focused, so focus it
+		textbox.focus();
+	}
+
 	clearFinalTarget();
 	hideOptions();
 	hideReplyToast();
