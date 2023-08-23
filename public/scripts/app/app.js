@@ -2266,7 +2266,7 @@ messages.addEventListener('scroll', () => {
 
 document.querySelector('.newmessagepopup').addEventListener('click', () => {
 	scrolling = false;
-	removeNewMessagePopup();
+	//removeNewMessagePopup();
 	updateScroll();
 });
 
