@@ -2806,7 +2806,7 @@ window.addEventListener('resize', () => {
 	} else {
 		softKeyboardActive = false;
 		//showPopupMessage('Keyboard closed');
-		textbox.blur();
+		//textbox.blur();
 	}
 	
 
