@@ -7,6 +7,7 @@ import { cleanJunks, deleteFile } from './cleaner.js';
 import { chatSocket } from './sockets.js';
 import { fileStore } from './routes/fileAPI.js';
 import { askToJoinUserSocket } from './preAuthSocket.js';
+import { filterMessage } from './utils/badwords.js';
 //socket.io connection
 chatSocket.on('connection', (socket) => {
     try {
@@ -80,9 +81,14 @@ chatSocket.on('connection', (socket) => {
                     }
                     //console.log(`Sticker: ${message}`);
                 }
+                const filtered = filterMessage(message);
                 const id = crypto.randomUUID();
                 //console.log(`Message: ${message}`);
-                socket.broadcast.to(SocketIds[socket.id].key).emit('newMessage', message, type, id, uId, reply, replyId, options);
+                socket.broadcast.to(SocketIds[socket.id].key).emit('newMessage', filtered.filteredMessage, type, id, uId, reply, replyId, options);
+                if (filtered.containsBadWords) {
+                    //warn the user
+                    socket.emit('server_message', { color: 'orange', text: 'Your message contains offensive words🚫', id: crypto.randomUUID() }, 'warn');
+                }
                 callback(id, null);
             }
         });

@@ -25,6 +25,7 @@ import { fragmentBuilder } from './utils/fragmentBuilder.js';
 import { setStickerKeyboardState } from './utils/stickersKeyboard.js';
 
 import './utils/buttonsAnimate.js';
+import { filterMessage } from './utils/badwords.js';
 
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
@@ -476,6 +477,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 		}
 
 		makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, metadata);
+		
 	} catch (err) {
 		console.error(err);
 		showPopupMessage(err);
@@ -2345,14 +2347,6 @@ textbox.addEventListener('keydown', (evt) => {
 });
 
 
-
-textbox.addEventListener('blur', () => {
-	if (softKeyboardActive){
-		textbox.focus();
-	}
-});
-
-
 textbox.addEventListener('input', () => {
 	const clone = textbox.cloneNode(true);
 	clone.style.height = 'min-content';
@@ -2792,26 +2786,22 @@ document.querySelector('.reactorContainerWrapper').addEventListener('click', (ev
 
 let softKeyboardActive = false;
 
-const windowHeight = window.innerHeight;
+const maxWindowHeight = window.visualViewport.height;
+
+serverMessage({text: 'Welcome to Poketab Messenger'}, 'info');
+
+textbox.addEventListener('blur', () => {
+	if (softKeyboardActive){
+		textbox.focus();
+	}
+});
 
 window.addEventListener('resize', () => {
 	appHeight();
 	const temp = scrolling;
-
-	scrolling = temp;
-
-	if (window.innerHeight > windowHeight) {
-		softKeyboardActive = true;
-		//showPopupMessage('Keyboard opened');
-	} else {
-		softKeyboardActive = false;
-		//showPopupMessage('Keyboard closed');
-		//textbox.blur();
-	}
 	
-
-	//serverMessage({ text: `Soft keyboard active: ${softKeyboardActive} | window innerHeight: ${window.innerHeight}, window height: ${windowHeight}` , color: softKeyboardActive ? 'lime' : 'red'});
-
+	scrolling = temp;
+	
 	setTimeout(() => {
 		scrolling = false;
 		lastPageLength = messages.scrollTop;
@@ -2820,7 +2810,13 @@ window.addEventListener('resize', () => {
 			lastMsg.scrollIntoView();
 		}
 	}, 100);
+
+	softKeyboardActive = window.visualViewport.height < maxWindowHeight;
+
+	//serverMessage({text: `Keyboard active: ${softKeyboardActive} | WindowMax: ${maxWindowHeight}, CurrentHeight: ${window.visualViewport.height}`}, 'info', softKeyboardActive ? 'lime': 'red');
 });
+
+  
 
 photoButton.addEventListener('change', () => {
 	ImagePreview();
@@ -3273,8 +3269,9 @@ sendButton.addEventListener('click', (e) => {
 				message = message.replace(/\s/g, '');
 			}
 
+			const { filteredMessage } = filterMessage(message);
 
-			insertNewMessage(message, 'text', tempId, myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, {});
+			insertNewMessage(filteredMessage, 'text', tempId, myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, {});
 
 			if (skipServerSend) {
 				//console.log('Server replay skipped');
