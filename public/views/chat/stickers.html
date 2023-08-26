@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./../../libs/fontawesome/css/all.min.css">
+</head>
+
+<body>
+    <script type="module">
+        import { Stickers } from "./../../stickers/stickersConfig.js";
+        import { parseTemplate } from "./../../scripts/app/utils/messageParser.js";
+
+        //console.log(Stickers);
+
+        const stickersTemplate = document.getElementById("stickersTemplate");
+
+        function loadStickerHeaders() {
+
+            const heads = Object.values(Stickers).map((sticker) => {
+                return `<img src="./../../stickers/${sticker.name}/animated/${sticker.icon}.webp" class="${sticker.name}" data-name="${sticker.name}" alt="${sticker.name}">`;
+            }).join("");
+
+            let stickersArray = "";
+
+            Object.values(Stickers).forEach((sticker) => {
+                //console.log(sticker, sticker.count);
+
+                let stickerBoard = "";
+
+                for (let i = 1; i <= sticker.count; i++) {
+                    stickerBoard += `<img src="./../../stickers/${sticker.name}/static/${i}-mini.webp">`;
+                }
+
+                stickersArray += `
+                <div class="stickerBoard ${sticker.name}">
+                    ${stickerBoard}
+                </div>`;
+            });
+
+            const stickersKeyboard = parseTemplate(stickersTemplate.innerHTML, {
+                heads: heads,
+                stickers: stickersArray
+            });
+
+            //console.log(stickersKeyboard);
+            document.body.innerHTML += stickersKeyboard;
+
+            const selectedSticker = localStorage.getItem("selectedSticker") || "catteftel";
+            if (selectedSticker) {
+                console.log(selectedSticker);
+                const head = document.querySelector(`.stickersHeader img.${selectedSticker}`);
+                if (!head) return;
+                head.dataset.selected = "true";
+                head.scrollIntoView({ behavior: "smooth" });
+
+                const stickerBoard = document.querySelector(`.stickerBoard.${selectedSticker}`);
+                stickerBoard.scrollIntoView({ behavior: "smooth" });
+            }
+
+            const stickerHeads = document.querySelector(".stickersHeader");
+
+            stickerHeads.addEventListener("click", (e) => {
+                //console.log(e.target.dataset.name);
+                if (e.target.dataset.name) {
+                    const selectedSticker = localStorage.getItem("selectedSticker") || "catteftel";
+                    if (selectedSticker) {
+                        const head = document.querySelector(`.stickersHeader img.${selectedSticker}`);
+                        if (!head) return;
+                        head.dataset.selected = "false";
+                    }
+                    e.target.dataset.selected = "true";
+                    localStorage.setItem("selectedSticker", e.target.dataset.name);
+                    const stickerBoard = document.querySelector(`.stickerBoard.${e.target.dataset.name}`);
+                    e.target.scrollIntoView({ behavior: "smooth", inline: "center" });
+                    setTimeout(() => {
+                        stickerBoard.scrollIntoView({ behavior: "smooth", inline: "center" });
+                    }, 150);
+                }
+            });
+
+            const prevBtn = document.querySelector(".headers .prev");
+            const nextBtn = document.querySelector(".headers .next");
+
+            prevBtn.addEventListener("click", (e) => {
+                const stickerHeads = document.querySelector(".stickersHeader");
+                stickerHeads.scrollBy(-100, 0);
+            });
+
+            nextBtn.addEventListener("click", (e) => {
+                const stickerHeads = document.querySelector(".stickersHeader");
+                stickerHeads.scrollBy(100, 0);
+            });
+
+            const stickersBody = document.querySelector(".stickersBody");
+            stickersBody.addEventListener("scroll", (e) => {
+                //detect which sticker is in view
+                const stickerBoards = document.querySelectorAll(".stickerBoard");
+                //console.log(stickerBoards[0].getBoundingClientRect().x, stickerBoards[0].getBoundingClientRect().width);
+                stickerBoards.forEach((stickerBoard) => {
+                    const rect = stickerBoard.getBoundingClientRect();
+                    if (rect.x <= rect.width / 2) {
+                        //console.log(stickerBoard.classList[1]);
+                        const selectedSticker = localStorage.getItem("selectedSticker") || "catteftel";
+                        if (selectedSticker) {
+                            const head = document.querySelector(`.stickersHeader img.${selectedSticker}`);
+                            if (!head) return;
+                            head.dataset.selected = "false";
+                        }
+                        const head = document.querySelector(`.stickersHeader img.${stickerBoard.classList[1]}`);
+                        if (!head) return;
+                        head.dataset.selected = "true";
+                        localStorage.setItem("selectedSticker", stickerBoard.classList[1]);
+                    }
+                });
+            });
+        }
+
+        loadStickerHeaders();
+
+    </script>
+
+    <template class="stickersKeyboardTemplate" id="stickersTemplate">
+        <div class="stickerKeyboard">
+            <div class="headers">
+                <div class="prev navBtn"><i class="fa-solid fa-chevron-left"></i></div>
+                <div class="stickersHeader">{{{heads}}}</div>
+                <div class="next navBtn"><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+            <div class="stickersBody">
+                {{{stickers}}}
+            </div>
+        </div>
+    </template>
+
+    <style>
+        :root {
+            --secondary-dark: #3391fb;
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        .stickerKeyboard {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40vh;
+            background-color: #111d2a;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            scroll-behavior: smooth;
+        }
+
+        .stickerKeyboard .headers {
+            width: 100%;
+            height: max-content;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #244263;
+            border-radius: 10px;
+            scroll-behavior: smooth;
+        }
+
+        .stickerKeyboard .headers .navBtn {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-dark);
+            font-size: 20px;
+            padding: 5px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .stickerKeyboard .headers .navBtn:hover {
+            background-color: #213c5b;
+        }
+
+
+        .stickerKeyboard .headers .stickersHeader {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            overflow-x: scroll;
+            scroll-behavior: smooth;
+            gap: 5px;
+        }
+
+        .stickerKeyboard .headers .stickersHeader img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .stickerKeyboard .headers .stickersHeader img[data-selected="true"] {
+            background: var(--secondary-dark);
+        }
+
+        .stickerKeyboard .stickersBody {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: flex-start;
+            overflow-x: scroll;
+            scroll-behavior: smooth;
+            scroll-snap-type: x mandatory;
+            gap: 5px;
+        }
+
+        .stickerKeyboard .stickersBody .stickerBoard {
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+            overflow-y: scroll;
+            position: relative;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            scroll-snap-align: start;
+        }
+
+        .stickerKeyboard .stickersBody .stickerBoard img {
+            width: clamp(70px, 20vw, 90px);
+            height: clamp(70px, 20vw, 90px);
+            object-fit: contain;
+            border-radius: 24px;
+            cursor: pointer;
+            background: #ffffff1e;
+        }
+    </style>
+
+</body>
+
+</html>

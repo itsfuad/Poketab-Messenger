@@ -1787,7 +1787,7 @@ export function showPopupMessage(text) {
  * @param {string} message 
  * @param {string} type Message type [Join, leave, location]
  */
-export function serverMessage(message, type = null) {
+export function serverMessage(message, type = null, color = null) {
 	//create a new message element manually and append it to the messages list
 
 	let messageObj;
@@ -1841,7 +1841,7 @@ export function serverMessage(message, type = null) {
 					tag: 'div',
 					attr: {
 						class: 'messageContainer',
-						style: `color: ${message.color}`,
+						style: `color: ${color || message.color}`,
 					},
 					child: {
 						...messageObj
@@ -2047,6 +2047,8 @@ function removeAttachment() {
 }
 
 document.getElementById('stickerBtn').addEventListener('click', () => {
+	softKeyboardActive = false;
+	textbox.blur();
 	showStickersPanel();
 });
 
@@ -2342,18 +2344,14 @@ textbox.addEventListener('keydown', (evt) => {
 	typingStatus();
 });
 
-textbox.addEventListener('focus', () => {
-	updateScroll();
-});
 
-/*
+
 textbox.addEventListener('blur', () => {
-	//textbox.focus();
-	if (document.activeElement == textbox || (document.activeElement == sendButton)){
+	if (softKeyboardActive){
 		textbox.focus();
 	}
 });
-*/
+
 
 textbox.addEventListener('input', () => {
 	const clone = textbox.cloneNode(true);
@@ -2792,11 +2790,27 @@ document.querySelector('.reactorContainerWrapper').addEventListener('click', (ev
 	}
 });
 
+let softKeyboardActive = false;
+
+const windowHeight = window.innerHeight;
+
 window.addEventListener('resize', () => {
 	appHeight();
 	const temp = scrolling;
 
 	scrolling = temp;
+
+	if (window.innerHeight > windowHeight) {
+		softKeyboardActive = true;
+		//showPopupMessage('Keyboard opened');
+	} else {
+		softKeyboardActive = false;
+		//showPopupMessage('Keyboard closed');
+		textbox.blur();
+	}
+	
+
+	//serverMessage({ text: `Soft keyboard active: ${softKeyboardActive} | window innerHeight: ${window.innerHeight}, window height: ${windowHeight}` , color: softKeyboardActive ? 'lime' : 'red'});
 
 	setTimeout(() => {
 		scrolling = false;
@@ -3291,12 +3305,6 @@ sendButton.addEventListener('click', (e) => {
 
 	}
 	
-	//textbox.focus();
-
-	if (!textbox.matches(':focus') && window.innerHeight < window.screen.height) {
-		// Keyboard is visible, but textbox is not focused, so focus it
-		textbox.focus();
-	}
 
 	clearFinalTarget();
 	hideOptions();
@@ -4140,18 +4148,42 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-//This code blocks the back button to go back on the login page.
-//This action is needed because if the user goes back, he/she has to login again. 
+let exitpressed = false;
+let lastBackPressTime = 0;
+
 (() => {
 	history.pushState({}, '', '');
 	history.pushState({}, '', '');
 	history.pushState({}, '', '');
 	history.pushState({}, '', '');
 	history.pushState({}, '', '');
-	history.pushState({}, '', '');
-	//console.log('Pushed state');
+
 	window.onpopstate = () => {
-		showPopupMessage('Exiting will log you out');
+		const currentTime = new Date().getTime();
+		const timeDifference = currentTime - lastBackPressTime;
+
+		// If exitpressed is already true and the time difference is less than 1000ms
+		if (exitpressed && timeDifference <= 1000) {
+			showPopupMessage('Please log out to exit');
+			exitpressed = false;
+		} else {
+			exitpressed = true;
+
+			// Reset exitpressed after 1 second
+			setTimeout(() => {
+				exitpressed = false;
+			}, 1000);
+		}
+
+		lastBackPressTime = currentTime;
+
+		// Execute escape key event
+		const event = new KeyboardEvent('keydown', { key: 'Escape' });
+		document.dispatchEvent(event);
+		softKeyboardActive = false;
+		//serverMessage({text: `Soft keyboard active: ${softKeyboardActive}`}, null, 'pink');
+
+		// Navigate forward in history
 		history.forward();
 	};
 })();

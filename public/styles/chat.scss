@@ -141,7 +141,7 @@ body {
     flex-direction: column;
     visibility: hidden;
     opacity: 0;
-    transition: 150ms ease-in-out;
+    transition: 100ms;
 
     &.active{
         visibility: visible;

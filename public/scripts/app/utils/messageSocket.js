@@ -63,10 +63,12 @@ chatSocket.on('connect', () => {
 			preload.innerHTML = `${err} <i class="fa-solid fa-ghost"></i>`;
 
 			showPopupMessage('Self destruction in 5 seconds!');
+			
 			setTimeout(() => {
 				document.body.remove();
 				window.location = '/';
 			}, 5000);
+			
 		} else {
 			console.log('%cNo errors!', 'color: limegreen;');
 			//check for the users who are typing
