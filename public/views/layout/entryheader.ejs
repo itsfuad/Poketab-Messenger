@@ -47,6 +47,17 @@
 <link rel="icon" href="/images/<%=icon_%>">
 <title><%= title %></title>
 
+<!-- Google tag (gtag.js) -->
+<script nonce="<%=hash%>" async src="https://www.googletagmanager.com/gtag/js?id=G-2329BNJK6F"></script>
+<script nonce="<%=hash%>">
+//Google Analytics
+window.dataLayer = window.dataLayer || [];
+function gtag(){window.dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-2329BNJK6F');
+</script>
+
 <style nonce="<%=hash%>">
     @font-face {
       font-family: 'Comic';

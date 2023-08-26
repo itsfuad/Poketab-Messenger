@@ -167,6 +167,16 @@
 <link rel="stylesheet" href="/libs/prism/prism.css">
 <link rel="manifest" href="/manifest.json" crossorigin="anonymous">
 <link rel="icon" href="/images/<%=icon_%>">
+<!-- Google tag (gtag.js) -->
+<script nonce="<%=hash%>" async src="https://www.googletagmanager.com/gtag/js?id=G-2329BNJK6F"></script>
+<script nonce="<%=hash%>">
+//Google Analytics
+window.dataLayer = window.dataLayer || [];
+function gtag(){window.dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-2329BNJK6F');
+</script>
 
 <% if (ENV==='DEVELOPMENT' ) { %>
   <script defer type="module" src="/scripts/app/app.js"></script>
