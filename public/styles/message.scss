@@ -389,6 +389,7 @@ pre{
     max-height: 18px;
     display: none;
     width: max-content;
+    transition: 100ms ease-in-out;
     .reactsCount{
         display: none;
     }
