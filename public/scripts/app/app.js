@@ -26,6 +26,7 @@ import { setStickerKeyboardState } from './utils/stickersKeyboard.js';
 
 import './utils/buttonsAnimate.js';
 import { filterMessage } from './utils/badwords.js';
+import { Stickers } from '../../stickers/stickersConfig.js';
 
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
@@ -577,15 +578,20 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 			replyMsg = sanitize(reply.data);
 		} else {
 			//replyMsg = document.getElementById(replyId)?.querySelector(`.messageMain .${reply.type}`).outerHTML.replace(`class="${reply.type}"`, `class="${reply.type} imageReply"`);
-			const replyTarget = document.getElementById(replyId)?.querySelector(`.messageMain .${reply.type}`).cloneNode(true);
-			//remove attributes
-			replyTarget.removeAttribute('data-name');
-			replyTarget.removeAttribute('style');
-			replyTarget.removeAttribute('height');
-			replyTarget.removeAttribute('width');
-			replyTarget.setAttribute('alt', 'Reply');
-			replyTarget.setAttribute('class', `${reply.type} imageReply`);
-			replyMsg = replyTarget.outerHTML;
+			const replyTargetElement = document.getElementById(replyId);
+
+			if (replyTargetElement){
+				const replyTarget = replyTargetElement.querySelector(`.messageMain .${reply.type}`).cloneNode(true);
+				//remove attributes
+				replyTarget.removeAttribute('data-name');
+				replyTarget.removeAttribute('style');
+				replyTarget.removeAttribute('height');
+				replyTarget.removeAttribute('width');
+				replyTarget.setAttribute('alt', 'Reply');
+				replyTarget.setAttribute('class', `${reply.type} imageReply`);
+				replyMsg = replyTarget.outerHTML;
+			}
+						
 		}
 
 	}
@@ -2116,16 +2122,18 @@ function showStickersPanel() {
 	activeModals.push('stickersPanel');
 	stickersPanel.classList.add('active');
 	setStickerKeyboardState(true);
-	const selectedSticker = localStorage.getItem('selectedSticker') || 'catteftel';
-	if (selectedSticker) {
-		//console.log(selectedSticker);
-		const head = document.querySelector(`.stickersHeader img.${selectedSticker}`);
-		if (!head) return;
-		head.dataset.selected = 'true';
-		head.scrollIntoView();
-		const stickerBoard = document.querySelector(`.stickerBoard.${selectedSticker}`);
-		stickerBoard.scrollIntoView();
+	let selectedSticker = localStorage.getItem('selectedSticker');
+	if (Stickers.includes(selectedSticker) == false) {
+		selectedSticker = 'catteftel';
+		localStorage.setItem('selectedSticker', selectedSticker);
 	}
+	//console.log(selectedSticker);
+	const head = document.querySelector(`.stickersHeader img.${selectedSticker}`);
+	if (!head) return;
+	head.dataset.selected = 'true';
+	head.scrollIntoView();
+	const stickerBoard = document.querySelector(`.stickerBoard.${selectedSticker}`);
+	stickerBoard.scrollIntoView();
 	modalCloseMap.set('stickersPanel', hideStickersPanel);
 }
 
@@ -2798,9 +2806,6 @@ textbox.addEventListener('blur', () => {
 
 window.addEventListener('resize', () => {
 	appHeight();
-	const temp = scrolling;
-	
-	scrolling = temp;
 	
 	setTimeout(() => {
 		scrolling = false;

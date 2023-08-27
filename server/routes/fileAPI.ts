@@ -73,7 +73,7 @@ router.post('/upload/:key/:messageId/:userId', (req, res) => {
 
     const formData = parse(data, boundary);
 
-    if (!formData) {
+    if (formData.length < 1) {
       res.status(400).send({ error: 'Invalid form' });
       return;
     }

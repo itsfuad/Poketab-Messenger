@@ -98,7 +98,7 @@ export function parse(multipartBodyBuffer: Buffer, boundary: string): Input[] {
 //  'multipart/form-data; boundary=----WebKitFormBoundaryvm5A9tzU1ONaGP5B',
 export function getBoundary(header: string): string {
     const items = header.split(';')
-    if (items) {
+    if (items.length > 1) {
         for (let i = 0; i < items.length; i++) {
             const item = new String(items[i]).trim()
             if (item.indexOf('boundary') >= 0) {
