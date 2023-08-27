@@ -5,7 +5,6 @@ import { chatSocket } from './utils/messageSocket.js';
 import { fileSocket, incommingXHR } from './utils/fileSocket.js';
 
 import { Prism } from '../../libs/prism/prism.min.js';
-import { PanZoom } from '../../libs/panzoom.min.js';
 import { sanitizeImagePath, sanitize } from './utils/sanitizer.js';
 import {
 	getFormattedDate, reactArray, shortFileName, getTypingString, remainingTime
@@ -27,6 +26,7 @@ import { setStickerKeyboardState } from './utils/stickersKeyboard.js';
 import './utils/buttonsAnimate.js';
 import { filterMessage } from './utils/badwords.js';
 import { Stickers } from '../../stickers/stickersConfig.js';
+import { PanZoom } from '../../libs/panzoom.js';
 
 
 console.log('%cloaded app.js', 'color: deepskyblue;');

@@ -1,7 +1,7 @@
 // Inital method to call to apply PanZoom to elements given a selector
 export function PanZoom(element, opts) {
 	opts = opts || {};
-	const minScale = (opts.minScale ? opts.minScale : 0.4);
+	const minScale = (opts.minScale ? opts.minScale : 1);
 	const maxScale = (opts.maxScale ? opts.maxScale : 3);
 	const increment = (opts.increment ? opts.increment  : 0.05);
 	const liner = (opts.liner ? opts.liner  : false);
@@ -17,6 +17,8 @@ class AttachPanZoom {
 		this.liner = liner;
 		this.panning = false;
 		this.oldX = this.oldY = 0;
+		this.currentScale = 1;
+		this.initialDistance = 0;
 		const self = this;
 		ele.style.transform = 'matrix(1, 0, 0, 1, 0, 0)';
 
@@ -87,13 +89,66 @@ class AttachPanZoom {
 			}
 		});
 
-		//double tap to reset
-		ele.addEventListener('dblclick', function () {
+		function reset() {
 			const newTrans = self.getTransformMatrix();
 			newTrans.scale = 1;
 			newTrans.transX = 0;
 			newTrans.transY = 0;
 			self.setTransformMatrix(newTrans);
+		}
+
+		//double tap to reset
+		ele.addEventListener('dblclick', reset);
+
+
+		ele.addEventListener('touchstart', function (e) {
+			e.preventDefault();
+			if (e.touches.length === 1) {
+				this.panning = true;
+				this.oldX = e.touches[0].clientX;
+				this.oldY = e.touches[0].clientY;
+			} else if (e.touches.length === 2) {
+				// store initial distance for continuous zoom
+				const point1 = e.touches[0];
+				const point2 = e.touches[1];
+				this.initialDistance = Math.sqrt(Math.pow(point1.clientX - point2.clientX, 2) + Math.pow(point1.clientY - point2.clientY, 2));
+				this.initialScale = this.currentScale;
+			}
+		});
+
+		ele.addEventListener('touchmove', function (e) {
+			if (this.panning) {
+				e.preventDefault();
+				const deltaX = e.touches[0].clientX - this.oldX;
+				const deltaY = e.touches[0].clientY - this.oldY;
+				self.applyTranslate(deltaX, deltaY);
+				this.oldX = e.touches[0].clientX;
+				this.oldY = e.touches[0].clientY;
+			}
+			if (e.touches.length === 2) {
+				const point1 = e.touches[0];
+				const point2 = e.touches[1];
+				const dist = Math.sqrt(Math.pow(point1.clientX - point2.clientX, 2) + Math.pow(point1.clientY - point2.clientY, 2));
+				const centerX = (point1.clientX + point2.clientX) / 2;
+				const centerY = (point1.clientY + point2.clientY) / 2;
+				const dscale = (dist - this.initialDistance) / 10000;
+				self.applyScale(dscale, centerX, centerY);
+			}
+		});
+
+		ele.addEventListener('touchend', function (e) {
+			if (e.touches.length === 1) {
+				this.panning = true;
+				this.oldX = e.touches[0].clientX;
+				this.oldY = e.touches[0].clientY;
+			} else if (e.touches.length === 0) {
+				this.panning = false;
+				this.initialDistance = 0;
+			}
+		});
+
+		ele.addEventListener('touchcancel', function () {
+			this.panning = false;
 		});
 
 
