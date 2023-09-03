@@ -2796,8 +2796,6 @@ let softKeyboardActive = false;
 
 const maxWindowHeight = window.visualViewport.height;
 
-serverMessage({text: 'Welcome to Poketab Messenger'}, 'info');
-
 textbox.addEventListener('blur', () => {
 	if (softKeyboardActive){
 		textbox.focus();

@@ -82,4 +82,4 @@ function setDefaultTheme(theme = 'ocean'){
 	document.documentElement.style.setProperty('--msg-send-reply', themeAccent[theme].msg_send_reply);
 }
 
-console.log('themeLoader.js loaded');
+console.log('%cThemes loaded', 'color: aquamarine; font-size: 1.5em; font-weight: bold;');

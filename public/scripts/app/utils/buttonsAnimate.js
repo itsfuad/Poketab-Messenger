@@ -1,10 +1,9 @@
-const buttons = document.querySelectorAll('.btn-animate');
-
-buttons.forEach((button) => {
-	button.addEventListener('click', () => {
-		button.classList.add('clicked');
+document.addEventListener('click', (evt) => {
+	const elem = evt.target.closest('.btn-animate');
+	if (elem) {
+		elem.classList.add('clicked');
 		setTimeout(() => {
-			button.classList.remove('clicked');
+			elem.classList.remove('clicked');
 		}, 150);
-	});
+	}
 });
