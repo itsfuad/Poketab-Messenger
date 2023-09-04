@@ -24,7 +24,7 @@ export function errlog(id, msg){
 }
 
 function wait(){
-	const wait = document.getElementById('wait');
+	const wait = document.getElementById('loader');
 	wait.style.display = 'flex';
 }
 

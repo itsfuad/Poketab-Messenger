@@ -1732,7 +1732,7 @@ export function updateScroll(uid = null, text = '') {
 			document.querySelector('.newmessagepopup img').style.display = 'block';
 			document.querySelector('.newmessagepopup .msg').style.display = 'inline-block';
 			document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
-			document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar}(custom).webp`;
+			document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar || 'msg-mini'}(custom).webp`;
 			document.querySelector('.newmessagepopup img').classList.add('newmessagepopupavatar');
 			document.querySelector('.newmessagepopup .msg').textContent = text;
 			document.querySelector('.newmessagepopup').classList.add('active');

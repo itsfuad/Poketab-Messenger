@@ -7,3 +7,74 @@
 .button-animate.small.buttonPressed {
   transform: scale(0.8);
 }
+
+.loader {
+  width: 100vw;
+  height: 100vh;
+  background: var(--primary-dark);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  gap: 10px;
+  display: none;
+  backdrop-filter: blur(30px);
+}
+
+.loader .logo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader .text {
+  padding: 25px;
+  color: var(--secondary-dark);
+}
+
+.loader img {
+  display: inline-block;
+  z-index: 1000;
+  animation: rotate 700ms infinite;
+}
+
+.loader .loader-ripple {
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.2470588235);
+  border-radius: 50%;
+  position: absolute;
+  animation: loader-ripple 700ms infinite;
+  z-index: 999;
+}
+
+@keyframes loader-ripple {
+  0% {
+    height: 50px;
+    width: 50px;
+    opacity: 1;
+  }
+  100% {
+    height: 100px;
+    width: 100px;
+    opacity: 0;
+  }
+}
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  80% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.loader.active {
+  display: flex;
+}

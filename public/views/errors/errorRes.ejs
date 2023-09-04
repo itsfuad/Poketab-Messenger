@@ -1,14 +1,18 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="theme-color" content="#111d2a">
     <link rel="stylesheet" href="./../../styles/global.css">
-    <script defer type="module" src="./../../scripts/global.js"></script>
+    <script defer type="module" src="./../../scripts/errors/error.js"></script>
     <link rel="icon" href="/images/<%=icon_%>">
-    <title><%=title%></title>
+    <title>
+        <%=title%>
+    </title>
 </head>
+
 <body>
     <style>
         @font-face {
@@ -16,11 +20,11 @@
             src: url('/fonts/comic-webfont.woff2') format('woff2');
         }
 
-        :root{
+        :root {
             --secondary-dark: <%=color_%>;
         }
 
-        *{
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -33,7 +37,8 @@
             user-select: none;
             font-family: 'Comic';
         }
-        body{
+
+        body {
             background: #111d2a;
             color: #3E5968;
             display: flex;
@@ -45,36 +50,58 @@
             width: 100vw;
             overflow: hidden;
         }
-        .text{
+
+        .text {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
-        h1{
+
+        h1 {
             font-size: 6rem;
         }
-        h3{
+
+        h3 {
             color: #fff;
             position: absolute;
         }
-        a{
+
+        a {
             color: #fff;
             text-decoration: none;
             background: var(--secondary-dark, #0575e6);
             padding: 10px 20px;
             border-radius: 10px;
         }
-        a:hover{
+
+        a:hover {
             filter: brightness(0.9);
         }
+
     </style>
-    <div class="container">
-        <div class="text">
-            <h1><%=errorCode%></h1>
-            <h3><%=errorMessage%></h3>
+
+    <div class="loader" id="loader">
+        <div class="text">Please wait</div>
+        <div class="logo">
+            <img src="/images/pokeball.png" alt="Pokeball">
+            <div class="loader-ripple"></div>
         </div>
     </div>
-    <a href="/join" class="btn button-animate play-sound"><%=buttonText%></a>
+
+    <div class="container">
+        <div class="text">
+            <h1>
+                <%=errorCode%>
+            </h1>
+            <h3>
+                <%=errorMessage%>
+            </h3>
+        </div>
+    </div>
+    <a href="/join" class="btn button-animate play-sound">
+        <%=buttonText%>
+    </a>
 </body>
+
 </html>

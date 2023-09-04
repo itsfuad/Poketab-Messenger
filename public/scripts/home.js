@@ -34,6 +34,14 @@ function angle(cx, cy, ex, ey){
 	return deg;
 }
 
+document.querySelector('.links').addEventListener('click', evt => {
+	const target = evt.target;
+	if (target.tagName === 'A'){
+		document.getElementById('loader').classList.add('active');
+	}
+});
+
+
 if ('serviceWorker' in navigator){
 	window.addEventListener('load', () => {
 		//if service worker is already registered, skip

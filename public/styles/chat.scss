@@ -1555,20 +1555,25 @@ i[class^="fa-"] {
     }
 }
 
+.scrollPopupWrapper{
+    position: fixed;
+    bottom: 80px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
 .newmessagepopup {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
     background: var(--primary-dark);
     padding: 5px 10px;
     min-width: 35px;
     min-height: 35px;
     border-radius: 25px;
     font-size: 0.8rem;
-    transform: translateX(-50%);
     z-index: 10;
     gap: 5px;
     width: max-content;

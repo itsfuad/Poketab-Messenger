@@ -21,7 +21,8 @@ self.addEventListener('install', (event) => {
 				'/fonts/comic-webfont.woff2',
 				'/images/avatars/pikachu.webp',
 				'/images/offline.png',
-				'/scripts/themeLoader.js',
+				'/scripts/errors/error.js',
+				'/styles/global.css',
 			]);
 		})()
 	);
@@ -66,7 +67,11 @@ self.addEventListener('fetch', (event) => {
 		event.respondWith(
 			response(event)
 		);
-	} else if (event.request.url.includes('/scripts/themeLoader.js')) {
+	} else if (event.request.url.includes('/scripts/errors/error.js')) {
+		event.respondWith(
+			response(event)
+		);
+	} else if (event.request.url.includes('/styles/global.css')) {
 		event.respondWith(
 			response(event)
 		);
