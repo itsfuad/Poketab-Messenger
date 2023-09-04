@@ -16,7 +16,7 @@ export const themeAccent = {
         msg_get_reply: 'hsl(187, 85%, 20%)',
         msg_send: 'hsl(187, 100%, 37%)',
         msg_send_reply: 'hsl(187, 40%, 32%)',
-        quickEmoji: '💦',
+        quickEmoji: '🐳',
     },
     'cyberpunk': {
         secondary: 'hsl(233, 100%, 71%)',
@@ -25,7 +25,7 @@ export const themeAccent = {
         msg_get_reply: 'hsl(233, 64%, 30%)',
         msg_send: 'hsl(233, 100%, 71%)',
         msg_send_reply: 'hsl(233, 24%, 32%)',
-        quickEmoji: '🤖',
+        quickEmoji: '👾',
     },
     'geometry': {
         secondary: 'hsl(15, 98%, 57%)',
@@ -43,7 +43,7 @@ export const themeAccent = {
         msg_get_reply: 'hsl(216, 32%, 23%)',
         msg_send: 'hsl(216, 37%, 44%)',
         msg_send_reply: 'hsl(216, 20%, 21%)',
-        quickEmoji: '🌚',
+        quickEmoji: '💣',
     },
     'forest': {
         secondary: 'hsl(162, 60%, 42%)',
@@ -52,7 +52,7 @@ export const themeAccent = {
         msg_get_reply: 'hsl(162, 32%, 27%)',
         msg_send: 'hsl(162, 60%, 42%)',
         msg_send_reply: 'hsl(162, 14%, 27%)',
-        quickEmoji: '🌴',
+        quickEmoji: '🍃',
     }
 };
 //# sourceMappingURL=themes.js.map
