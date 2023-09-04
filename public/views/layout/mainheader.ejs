@@ -1,6 +1,5 @@
 <meta name="theme-color" content="#111d2a" />
 <meta name="title" content="Poketab Messenger" />
-<script type="module" src="/scripts/themeLoader.js"></script>
 <meta name="description"
   content="This is a temporary instant messaging app where you can chat also in groups. There is no database so any of your chat is not stored. ">
 <meta property="og:title" content="Instant Messaging App" />
@@ -165,6 +164,7 @@
   content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, interactive-widget=resizes-visual">
 <link rel="stylesheet" href="/libs/fontawesome/css/all.min.css">
 <link rel="stylesheet" href="/styles/chat.css">
+<link rel="stylesheet" href="/styles/global.css">
 <link rel="stylesheet" href="/libs/prism/prism.css">
 <link rel="manifest" href="/manifest.json" crossorigin="anonymous">
 <link rel="icon" href="/images/<%=icon_%>">
@@ -178,6 +178,12 @@ gtag('js', new Date());
 
 gtag('config', 'G-2329BNJK6F');
 </script>
+
+<style>
+  :root{
+    --secondary-dark: <%=color_%>;
+  }
+</style>
 
 <% if (ENV==='DEVELOPMENT' ) { %>
   <script defer type="module" src="/scripts/app/app.js"></script>

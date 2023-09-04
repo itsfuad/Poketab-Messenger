@@ -1,6 +1,9 @@
-.button-observe{
+.button-animate{
     transition: 100ms ease-in-out;
     &.buttonPressed{
         transform: scale(0.95);
+    }
+    &.small.buttonPressed{
+        transform: scale(0.8);
     }
 }

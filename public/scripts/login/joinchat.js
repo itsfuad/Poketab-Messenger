@@ -1,7 +1,7 @@
 //enable strict mode
 'use strict';
 
-import { errlog, usernameformat, clickSound } from './common.min.js';
+import { errlog, usernameformat } from './common.js';
 
 // eslint-disable-next-line no-undef
 const socket = io('/auth');
@@ -236,8 +236,6 @@ function emitSignal(onlySignal = false){
 				next.innerHTML = 'Reload <i class="fa-solid fa-rotate-right"></i>';
 				next.style.background = '#ff2a20';
 				next.onclick = () => {
-					clickSound.currentTime = 0;
-					clickSound.play();
 					next.innerHTML = 'Please wait <i class="fa-solid fa-rotate-right fa-spin"></i>';
 					location.reload();
 				};

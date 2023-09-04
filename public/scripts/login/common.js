@@ -1,6 +1,6 @@
 'use strict';
 
-export const clickSound = new Audio('/sounds/click.mp3');
+import './../global.js';
 
 export const usernameformat = /^[a-zA-Z0-9_\u0980-\u09FF]{3,20}$/;
 
@@ -60,15 +60,8 @@ help.addEventListener('click', () => {
 		help.querySelector('i').style.color = '#f33636';
 	}else{
 		help.querySelector('i').classList.replace('fa-circle-xmark', 'fa-circle-question');
-		help.querySelector('i').style.color = '#4598ff';
+		help.querySelector('i').style.color = 'var(--secondary-dark)';
 	}
-});
-
-document.querySelectorAll('.clickable').forEach(elem => {
-	elem.addEventListener('click', () => {
-		clickSound.currentTime = 0;
-		clickSound.play();
-	});
 });
 
 const enter = document.getElementById('enter');

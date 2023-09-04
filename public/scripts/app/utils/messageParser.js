@@ -1,7 +1,15 @@
 //enable strict mode
 'use strict';
 
+/**
+ * 
+ * @param {string} text 
+ * @returns string
+ */
 export function escapeXSS(text) {
+	if (text == null || text == '' || typeof text !== 'string'){
+		return '';
+	}
 	// Define the characters that need to be escaped
 	const escapeChars = {
 		'\'': '&apos;',
@@ -10,6 +18,7 @@ export function escapeXSS(text) {
 		'&': '&amp;',
 		'"': '&quot;'
 	};
+
 	return text.replace(/[<>'"&]/g, match => escapeChars[match]);
 }
 
@@ -49,6 +58,9 @@ export class TextParser {
   
 	// Function to parse text and return HTML
 	parse(text) {
+		if (text == null || text == ''){
+			return '';
+		}
 		// Escape special characters
 		text = escapeXSS(text);
 

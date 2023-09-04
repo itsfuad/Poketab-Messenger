@@ -3,7 +3,7 @@
 
 import { io } from './../../../libs/socket.io.js';
 
-import { playJoinSound, playLeaveSound, playLocationSound, playIncomingSound, playStickerSound, playTypingSound } from './media.js';
+import { playJoinSound, playLeaveSound, playLocationSound, playIncomingSound, playStickerSound, playTypingSound } from './../../global.js';
 
 import { 
 	myName, 

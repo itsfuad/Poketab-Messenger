@@ -10,6 +10,7 @@
     
     :root {
       --height: 90vh;
+      --secondary-dark: <%=color_%>;
     }
     
     *:not(input, textarea) {
@@ -644,12 +645,12 @@
                     <% } %>
                 </div>
                 <div class="form-field">
-                    <button id="next" class="clickable button-observe" type="button">Next</button>
+                    <button id="next" class="button-animate btn play-sound" type="button">Next</button>
                 </div>
                 <div class="redirect">
                     <fieldset>
                         <legend>Or</legend>
-                        <a id="redirect" class="noSelect clickable" href="/create">Create chat</a>
+                        <a id="redirect" class="noSelect button-animate btn play-sound" href="/create">Create chat</a>
                     </fieldset>
                 </div>
             </div>
@@ -682,13 +683,13 @@
                 </div>
                 <% } %>
                 <div class="form-field">
-                    <button id="enter" class="clickable button-observe" type="submit" disabled style="cursor: not-allowed">Enter Chat</button>
+                    <button id="enter" class="button-animate btn play-sound" type="submit" disabled style="cursor: not-allowed">Enter Chat</button>
                 </div>
                 <% if (title === 'Create') { %>
                 <div class="redirect">
                     <fieldset>
                         <legend>Or</legend>
-                        <a id="redirect" class="noSelect clickable button-observe" href="/join">Join chat</a>
+                        <a id="redirect" class="noSelect button-animate btn play-sound" href="/join">Join chat</a>
                     </fieldset>
                 </div>
                 <% } %>
@@ -696,7 +697,7 @@
         </form>
     </div>
     
-    <div class="help" id="help">
+    <div class="help button-animate icon btn" id="help">
         <i class="fa-regular fa-circle-question"></i>
     </div>
 
@@ -718,10 +719,10 @@
       </script>
     <% } %>
     <% if (title === 'Create') { %>
-        <script type="module" defer src="/scripts/login/createchat.min.js"></script>
+        <script type="module" defer src="/scripts/login/createchat.js"></script>
     <% } else if (title === 'Join') { %>
         <script type="module" src="/socket.io/socket.io.js"></script>
-        <script type="module" defer src="/scripts/login/joinchat.min.js"></script>
+        <script type="module" defer src="/scripts/login/joinchat.js"></script>
     <% } %>
 </body>
 </html>

@@ -1,6 +1,5 @@
 <meta name="theme-color" content="#111d2a" />
 <meta name="title" content="<%= title %>  | PokeTab Messenger"/>
-<script type="module" src="/scripts/themeLoader.js"></script>
 <meta name="description" content="This is a temporary instant messaging app where you can chat also in groups. There is no database so any of your chat is not stored. ">
 <meta property="og:title" content="Instant Messaging App" />
 <meta property="og:description" content="This is a temporary instant messaging app where you can chat also in groups. There is no database so any of your chat is not stored. ">
@@ -45,7 +44,6 @@
 
 <!--Global effects-->
 <link rel="stylesheet" href="/styles/global.css" crossorigin="anonymous">
-<script defer src="/scripts/global.js"></script>
 
 <!-- Google tag (gtag.js) -->
 <script nonce="<%=hash%>" async src="https://www.googletagmanager.com/gtag/js?id=G-2329BNJK6F"></script>
@@ -58,7 +56,7 @@ gtag('js', new Date());
 gtag('config', 'G-2329BNJK6F');
 </script>
 
-<script defer src="/scripts/home.min.js"></script>
+<script defer type="module" src="/scripts/home.js"></script>
 
 <link rel="manifest" href="/manifest.json" crossorigin="anonymous">
 <link rel="icon" href="/images/<%=icon_%>">

@@ -3,7 +3,7 @@
 
 import { io } from './../../../libs/socket.io.js';
 import { myKey, myId, userInfoMap, fileBuffer, insertNewMessage, notifyUser, updateScroll, clearDownload } from './../app.js';
-import { playIncomingSound } from './media.js';
+import { playIncomingSound } from './../../global.js';
 
 //file socket to deliver file metadata [This is not used for file transfer, only for metadata. Files will be transferred using xhr requests]
 /**

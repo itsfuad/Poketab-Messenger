@@ -14,9 +14,12 @@ html {
     --red: indianred;
     --primary-dark: #111d2a;
     --foreground-dark: #e1eeff;
-    --secondary-dark: hsl(213, 98%, 57%);
     --focus-dark: #19283880;
     --option-color: #213142;
+    --msg-get: hsl(213, 40%, 57%);
+    --msg-get-reply: hsl(213, 35%, 27%);
+    --msg-send: hsl(213, 98%, 57%);
+    --msg-send-reply: hsl(213, 88%, 27%);
     --glass: #ffffff17;
     --app-height: 100vh;
     --pattern: url("/images/backgrounds/ocean_w.webp");
@@ -1410,28 +1413,8 @@ i[class^="fa-"] {
 #send {
     border: none;
     position: relative;
-    transition: transform 350ms ease-in-out;
     background: transparent;
     margin-right: 3px;
-}
-
-.btn{
-    transform: scale(1);
-}
-
-.btn-animate.clicked{
-    animation: clicked 120ms ease-in-out forwards;
-}
-
-@keyframes clicked {
-    from{
-        transform: scale(0.7);
-        //opacity: 0.5;
-    }
-    to{
-        transform: scale(1);
-        opacity: 1;
-    }
 }
 
 .inputField {

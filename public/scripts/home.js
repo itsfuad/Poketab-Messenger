@@ -1,6 +1,8 @@
 //enable strict mode
 'use strict';
 
+import './global.js';
+
 document.addEventListener('touchmove', evt => {
 	animate(evt.touches[0]);
 });

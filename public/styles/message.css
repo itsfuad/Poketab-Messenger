@@ -5,14 +5,6 @@
   font-family: Comic;
 }
 
-:root {
-  --msg-get: hsl(213, 40%, 57%);
-  --msg-get-reply: hsl(213, 35%, 27%);
-  --msg-send: hsl(213, 98%, 57%);
-  --msg-send-reply: hsl(213, 88%, 27%);
-  --glass: #ffffff17;
-}
-
 #messages {
   position: relative;
   display: flex;

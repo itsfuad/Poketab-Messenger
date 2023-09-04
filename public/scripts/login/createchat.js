@@ -1,7 +1,7 @@
 //enable strict mode
 'use strict';
 
-import { usernameformat, errlog } from './common.min.js';
+import { usernameformat, errlog } from './common.js';
 
 const form = document.getElementById('form');
 

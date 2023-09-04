@@ -11,11 +11,10 @@ import {
 } from './utils/helperFunctions.js';
 
 import {
-	playReactSound, playStickerSound, playOutgoingSound, playClickSound, playStartRecordSound, playExpandSound,
-} from './utils/media.js';
+	playReactSound, playStickerSound, playOutgoingSound, playStartRecordSound, playExpandSound, setMessageSound, setButtonSound, getButtonSound, getMessageSound
+} from './../global.js';
 
 import { emojiParser, isEmoji, TextParser, parseTemplate } from './utils/messageParser.js';
-import themeAccent, { themePicker, themeArray } from './utils/themes.js';
 
 import { ClickAndHold } from './utils/clickAndHoldDetector.js';
 
@@ -23,11 +22,11 @@ import { fragmentBuilder } from './utils/fragmentBuilder.js';
 
 import { setStickerKeyboardState } from './utils/stickersKeyboard.js';
 
-import './utils/buttonsAnimate.js';
 import { filterMessage } from './utils/badwords.js';
 import { Stickers } from '../../stickers/stickersConfig.js';
 import { PanZoom } from '../../libs/panzoom.js';
 
+import { getRandomID } from './utils/generateRandomID.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
@@ -122,9 +121,6 @@ let scrolling = false; //to check if user is scrolling or not
 let lastPageLength = messages.scrollTop; // after adding a ^(?!\s*//).*console\.lognew message the page size gets updated
 let scroll = 0; //total scrolled up or down by pixel
 
-export let messageSoundEnabled = true; //message sound is enabled by default
-export let buttonSoundEnabled = true; //button sound is enabled by default
-
 //here we add the usernames who are typing
 export const userTypingMap = new Map();
 //all the user and their info is stored in this map
@@ -217,16 +213,16 @@ if (!isMobile) {
 
 let quickReactsEnabled = localStorage.getItem('quickReactsEnabled');
 
-function checkQuickReactsEnabled(){
+function checkQuickReactsEnabled() {
 	if (quickReactsEnabled == 'true') {
 		document.getElementById('quickEmoji').checked = true;
 		sendButton.dataset.role = 'quickEmoji';
 		document.getElementById('chooseQuickEmojiButton').disabled = false;
-	}else if(quickReactsEnabled == 'false'){
+	} else if (quickReactsEnabled == 'false') {
 		document.getElementById('quickEmoji').checked = false;
 		sendButton.dataset.role = 'send';
 		document.getElementById('chooseQuickEmojiButton').disabled = true;
-	}else{
+	} else {
 		quickReactsEnabled = 'true';
 		document.getElementById('quickEmoji').checked = true;
 		sendButton.dataset.role = 'quickEmoji';
@@ -236,7 +232,7 @@ function checkQuickReactsEnabled(){
 
 checkQuickReactsEnabled();
 
-document.getElementById('quickEmoji').addEventListener('change', ()=>{
+document.getElementById('quickEmoji').addEventListener('change', () => {
 	quickReactsEnabled = document.getElementById('quickEmoji').checked ? 'true' : 'false';
 	localStorage.setItem('quickReactsEnabled', quickReactsEnabled);
 	checkQuickReactsEnabled();
@@ -316,12 +312,74 @@ function loadReacts() {
 	}
 }
 
+let themeAccent = null;
+let themeArray = null;
+
+async function fetchThemeAccent() {
+	const response = await fetch('/theme', {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
+
+	if (!response.ok) {
+		throw new Error('Failed to fetch themeAccent data');
+	}
+
+	const themeAccent = await response.json();
+	return themeAccent.themeAccent;
+}
+
 /**
  * Loads theme
  */
-function loadTheme() {
+async function loadTheme() {
+	themeAccent = await fetchThemeAccent();
+	themeArray = Object.keys(themeAccent);
 	//append the theme to the DOM
+	const themePicker = document.createElement('div');
+	themePicker.id = 'themePicker';
+	themePicker.className = 'themePicker';
+
+	const themeListFragment = fragmentBuilder({
+		tag: 'ul',
+		attr: {
+			class: 'themeList'
+		},
+		childs: themeArray.map((theme) => {
+			return {
+				tag: 'li',
+				attr: {
+					class: 'theme clickable playable',
+					id: theme
+				},
+				childs: [
+					{
+						tag: 'img',
+						attr: {
+							class: 'themeIcon',
+							src: `/images/backgrounds/${theme}_icon.webp`,
+							alt: 'Theme Thumbnail'
+						}
+					},
+					{
+						tag: 'span',
+						text: theme.charAt(0).toUpperCase() + theme.slice(1)
+					}
+				]
+			};
+		})
+	});
+
+	themePicker.appendChild(themeListFragment);
+
 	document.body.appendChild(themePicker);
+
+	//remove the theme optons from the screen when clicked outside
+	themePicker.addEventListener('click', () => {
+		hideThemes();
+	});
 
 	THEME = localStorage.getItem('theme');
 	if (THEME == null || themeArray.includes(THEME) == false) {
@@ -335,7 +393,42 @@ function loadTheme() {
 	document.documentElement.style.setProperty('--msg-send', themeAccent[THEME].msg_send);
 	document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_send_reply);
 	document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
-	
+
+	//make a request to the server to update the cookie
+	const themeRequest = new XMLHttpRequest();
+	themeRequest.open('PUT', '/theme');
+	themeRequest.setRequestHeader('Content-Type', 'application/json');
+	themeRequest.send(JSON.stringify({ theme: THEME }));
+
+	document.querySelectorAll('.theme').forEach(theme => {
+		theme.addEventListener('click', (evt) => {
+			THEME = evt.target.closest('li').id;
+			localStorage.setItem('theme', THEME);
+			showPopupMessage('Theme applied');
+			//make a request to the server to update the cookie
+			const themeRequest = new XMLHttpRequest();
+			themeRequest.open('PUT', '/theme');
+			themeRequest.setRequestHeader('Content-Type', 'application/json');
+			themeRequest.send(JSON.stringify({ theme: THEME }));
+			if (quickReactsEnabled == 'true') {
+				quickReactEmoji = themeAccent[THEME].quickEmoji;
+				localStorage.setItem('quickEmoji', quickReactEmoji);
+				sendButton.dataset.role = 'quickEmoji';
+			}
+			chooseQuickEmojiButton.querySelector('.quickEmojiIcon').textContent = quickReactEmoji;
+			//edit css variables
+			document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${THEME}_w.webp')`);
+			document.documentElement.style.setProperty('--secondary-dark', themeAccent[THEME].secondary);
+			document.documentElement.style.setProperty('--msg-get', themeAccent[THEME].msg_get);
+			document.documentElement.style.setProperty('--msg-get-reply', themeAccent[THEME].msg_get_reply);
+			document.documentElement.style.setProperty('--msg-send', themeAccent[THEME].msg_send);
+			document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_send_reply);
+			//Todo
+			document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
+			hideOptions();
+		});
+	});
+
 	const quickEmojiFromLocalStorage = localStorage.getItem('quickEmoji');
 	//console.log(quickEmojiFromLocalStorage, themeAccent[THEME]);
 	if (quickEmojiFromLocalStorage) {
@@ -343,11 +436,11 @@ function loadTheme() {
 		if (reactArray.expanded.includes(quickEmojiFromLocalStorage)) {
 			quickReactEmoji = quickEmojiFromLocalStorage;
 			//console.log(`Quick Emoji in expanded emojis: ${quickReactEmoji}`);
-		}else{
+		} else {
 			quickReactEmoji = themeAccent[THEME].quickEmoji;
 			//console.log(`Setting from theme: ${quickReactEmoji}`);
 		}
-	}else{
+	} else {
 		quickReactEmoji = themeAccent[THEME].quickEmoji;
 		//console.log(`Not found in local storage: ${quickEmojiFromLocalStorage}`);
 	}
@@ -355,9 +448,9 @@ function loadTheme() {
 	localStorage.setItem('quickEmoji', quickReactEmoji);
 	//console.log(`Quick Emoji: ${quickReactEmoji}`);
 
-	if (quickReactsEnabled == 'true'){
+	if (quickReactsEnabled == 'true') {
 		sendButton.innerHTML = `<span class="quickEmoji">${quickReactEmoji}</span>`;
-	}else{
+	} else {
 		sendButton.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
 	}
 }
@@ -392,34 +485,6 @@ function loadSendShortcut() {
 		console.log(`Error: ${e}`);
 	}
 }
-/**
- * Loads the button sound preference
- */
-function loadButtonSoundPreference() {
-	const sound = localStorage.getItem('buttonSoundEnabled');
-	if (sound === 'false') {
-		buttonSoundEnabled = false;
-		document.getElementById('buttonSound').removeAttribute('checked');
-	} else {
-		buttonSoundEnabled = true;
-		localStorage.setItem('buttonSoundEnabled', true);
-		document.getElementById('buttonSound').setAttribute('checked', 'checked');
-	}
-}
-/**
- * Loads the message sound preference
- */
-function loadMessageSoundPreference() {
-	const sound = localStorage.getItem('messageSoundEnabled');
-	if (sound === 'false') {
-		messageSoundEnabled = false;
-		document.getElementById('messageSound').removeAttribute('checked');
-	} else {
-		messageSoundEnabled = true;
-		localStorage.setItem('messageSoundEnabled', true);
-		document.getElementById('messageSound').setAttribute('checked', 'checked');
-	}
-}
 
 /**
  * Loads default settings
@@ -431,8 +496,6 @@ function bootLoad() {
 	appHeight();
 	updateScroll();
 	loadSendShortcut();
-	loadButtonSoundPreference();
-	loadMessageSoundPreference();
 }
 
 bootLoad();
@@ -478,7 +541,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 		}
 
 		makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, metadata);
-		
+
 	} catch (err) {
 		console.error(err);
 		showPopupMessage(err);
@@ -580,7 +643,7 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 			//replyMsg = document.getElementById(replyId)?.querySelector(`.messageMain .${reply.type}`).outerHTML.replace(`class="${reply.type}"`, `class="${reply.type} imageReply"`);
 			const replyTargetElement = document.getElementById(replyId);
 
-			if (replyTargetElement){
+			if (replyTargetElement) {
 				const replyTarget = replyTargetElement.querySelector(`.messageMain .${reply.type}`).cloneNode(true);
 				//remove attributes
 				replyTarget.removeAttribute('data-name');
@@ -591,7 +654,7 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 				replyTarget.setAttribute('class', `${reply.type} imageReply`);
 				replyMsg = replyTarget.outerHTML;
 			}
-						
+
 		}
 
 	}
@@ -686,16 +749,18 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 
 	checkgaps(lastMsg?.id);
 
-	//highlight code
-	const codes = document.getElementById(id).querySelector('.messageMain')?.querySelectorAll('pre');
-
-	if (type == 'text' && codes) {
-		//Prism.highlightAll();
-		codes.forEach(code => {
-			code.querySelectorAll('code').forEach(c => {
-				Prism.highlightElement(c);
+	if (document.getElementById(id)){
+		//highlight code
+		const codes = document.getElementById(id).querySelector('.messageMain')?.querySelectorAll('pre');
+	
+		if (type == 'text' && codes) {
+			//Prism.highlightAll();
+			codes.forEach(code => {
+				code.querySelectorAll('code').forEach(c => {
+					Prism.highlightElement(c);
+				});
 			});
-		});
+		}
 	}
 
 	setTimeout(() => {
@@ -1673,7 +1738,7 @@ export function updateScroll(uid = null, text = '') {
 			document.querySelector('.newmessagepopup').classList.add('active');
 		}
 		return;
-	}else{
+	} else {
 		//scroll to bottom
 		messages.scrollTop = messages.scrollHeight;
 	}
@@ -1887,7 +1952,7 @@ function vibrate() {
  * Shows the theme picker
  */
 function showThemes() {
-
+	const themePicker = document.getElementById('themePicker');
 	if (!themePicker.classList.contains('active')) {
 		hideOptions();
 		//console.log('showing themes');
@@ -1915,7 +1980,7 @@ function showThemes() {
 function hideThemes() {
 	//console.log('hiding themes', activeModals);
 	if (activeModals.includes('themes')) {
-		themePicker.classList.remove('active');
+		document.getElementById('themePicker').classList.remove('active');
 		//removeFocusGlass();
 		activeModals.splice(activeModals.indexOf('themes'), 1);
 		modalCloseMap.delete('themes');
@@ -1996,35 +2061,27 @@ document.querySelector('.quickSettingPanel').addEventListener('click', (evt) => 
 	showPopupMessage('Settings applied');
 });
 
-document.addEventListener('click', (evt) => {
-	//if target is .clickable
-	if (evt.target.closest('.playable')) {
-		playClickSound();
-	}
-});
+document.getElementById('messageSound').checked = getMessageSound();
+document.getElementById('buttonSound').checked = getButtonSound();
 
 document.getElementById('messageSound').addEventListener('click', () => {
 	if (document.getElementById('messageSound').checked) {
-		messageSoundEnabled = true;
+		setMessageSound(true);
 	} else {
-		messageSoundEnabled = false;
+		setMessageSound(false);
 		document.getElementById('messageSound').removeAttribute('checked');
 	}
-	//hideQuickSettings();
-	localStorage.setItem('messageSoundEnabled', messageSoundEnabled);
-	showPopupMessage('Message sounds ' + (messageSoundEnabled ? 'enabled' : 'disabled'));
+	showPopupMessage('Message sounds ' + (getMessageSound() ? 'enabled' : 'disabled'));
 });
 
 document.getElementById('buttonSound').addEventListener('click', () => {
 	if (document.getElementById('buttonSound').checked) {
-		buttonSoundEnabled = true;
+		setButtonSound(true);
 	} else {
-		buttonSoundEnabled = false;
+		setButtonSound(false);
 		document.getElementById('buttonSound').removeAttribute('checked');
 	}
-	//hideQuickSettings();
-	localStorage.setItem('buttonSoundEnabled', buttonSoundEnabled);
-	showPopupMessage('Button sounds ' + (buttonSoundEnabled ? 'enabled' : 'disabled'));
+	showPopupMessage('Button sounds ' + (getButtonSound() ? 'enabled' : 'disabled'));
 });
 
 
@@ -2063,7 +2120,7 @@ document.getElementById('stickerBtn').addEventListener('click', () => {
 document.getElementById('stickersKeyboard').addEventListener('click', e => {
 
 	if (e.target.tagName === 'IMG' && e.target.classList.contains('sendable')) {
-		const tempId = crypto.randomUUID();
+		const tempId = getRandomID();
 		playStickerSound();
 		scrolling = false;
 
@@ -2145,15 +2202,13 @@ document.getElementById('more').addEventListener('click', () => {
 let copyKeyTimeOut;
 const keyname = document.getElementById('keyname');
 keyname.addEventListener('click', () => {
-	keyname.querySelector('.fa-clone');
-	keyname.classList.replace('fa-clone', 'fa-check');
-	keyname.classList.replace('fa-regular', 'fa-solid');
-	keyname.style.color = 'var(--secondary-dark)';
+	const icon = keyname.querySelector('i');
+	icon.classList.replace('fa-clone', 'fa-check');
+	icon.classList.replace('fa-regular', 'fa-solid');
 	if (copyKeyTimeOut) { clearTimeout(copyKeyTimeOut); }
 	copyKeyTimeOut = setTimeout(() => {
-		keyname.classList.replace('fa-check', 'fa-clone');
-		keyname.classList.replace('fa-solid', 'fa-regular');
-		keyname.style.color = 'var(--secondary-dark)';
+		icon.classList.replace('fa-check', 'fa-clone');
+		icon.classList.replace('fa-solid', 'fa-regular');
 		copyKeyTimeOut = undefined;
 	}, 1000);
 	copyText(myKey);
@@ -2182,35 +2237,6 @@ document.getElementById('themeButton').addEventListener('click', () => {
 	showThemes();
 });
 
-//remove the theme optons from the screen when clicked outside
-themePicker.addEventListener('click', () => {
-	hideThemes();
-});
-
-document.querySelectorAll('.theme').forEach(theme => {
-	theme.addEventListener('click', (evt) => {
-		THEME = evt.target.closest('li').id;
-		localStorage.setItem('theme', THEME);
-		showPopupMessage('Theme applied');
-		if (quickReactsEnabled == 'true'){
-			quickReactEmoji = themeAccent[THEME].quickEmoji;
-			localStorage.setItem('quickEmoji', quickReactEmoji);
-			sendButton.dataset.role = 'quickEmoji';
-		}
-		chooseQuickEmojiButton.querySelector('.quickEmojiIcon').textContent = quickReactEmoji;
-		//edit css variables
-		document.documentElement.style.setProperty('--pattern', `url('../images/backgrounds/${THEME}_w.webp')`);
-		document.documentElement.style.setProperty('--secondary-dark', themeAccent[THEME].secondary);
-		document.documentElement.style.setProperty('--msg-get', themeAccent[THEME].msg_get);
-		document.documentElement.style.setProperty('--msg-get-reply', themeAccent[THEME].msg_get_reply);
-		document.documentElement.style.setProperty('--msg-send', themeAccent[THEME].msg_send);
-		document.documentElement.style.setProperty('--msg-send-reply', themeAccent[THEME].msg_send_reply);
-		themePicker.classList.remove('active');
-		document.querySelector('meta[name="theme-color"]').setAttribute('content', themeAccent[THEME].secondary);
-		hideOptions();
-	});
-});
-
 //Opens more reacts when called
 function updateReactsChooser() {
 	const container = document.querySelector('.reactOptionsWrapper');
@@ -2230,7 +2256,7 @@ document.querySelector('.moreReacts').addEventListener('click', (evt) => {
 	const target = evt.target;
 	//console.log('sending react ' + target.dataset.react);
 
-	if(moreReactsContainer.dataset.role == 'quickEmoji'){
+	if (moreReactsContainer.dataset.role == 'quickEmoji') {
 		quickReactEmoji = target.dataset.react;
 		localStorage.setItem('quickEmoji', quickReactEmoji);
 		if (sendButton.dataset.role == 'quickEmoji') {
@@ -2372,14 +2398,14 @@ new MutationObserver(() => {
 	//console.log('changed');
 	//if the textbox is empty, then hide the send button
 
-	if(quickReactsEnabled == 'false'){
+	if (quickReactsEnabled == 'false') {
 		return;
 	}
 
 	if (textbox.textContent == '' && sendButton.dataset.role != 'quickEmoji') {
 		sendButton.dataset.role = 'quickEmoji';
 		//console.log('changed to quickEmoji');
-	} else{
+	} else {
 		sendButton.dataset.role = 'send';
 	}
 }).observe(textbox, { childList: true, subtree: true });
@@ -2387,9 +2413,9 @@ new MutationObserver(() => {
 
 new MutationObserver(() => {
 	//console.log('changed');
-	if (sendButton.dataset.role == 'send'){
+	if (sendButton.dataset.role == 'send') {
 		sendButton.innerHTML = '<i class="fa-solid fa-paper-plane sendIcon"></i>';
-	}else{
+	} else {
 		sendButton.innerHTML = `<span class="quickEmoji">${quickReactEmoji}</span>`;
 	}
 }).observe(sendButton, { attributes: true, attributeFilter: ['data-role'] });
@@ -2797,14 +2823,14 @@ let softKeyboardActive = false;
 const maxWindowHeight = window.visualViewport.height;
 
 textbox.addEventListener('blur', () => {
-	if (softKeyboardActive){
+	if (softKeyboardActive) {
 		textbox.focus();
 	}
 });
 
 window.addEventListener('resize', () => {
 	appHeight();
-	
+
 	setTimeout(() => {
 		scrolling = false;
 		lastPageLength = messages.scrollTop;
@@ -2819,7 +2845,7 @@ window.addEventListener('resize', () => {
 	//serverMessage({text: `Keyboard active: ${softKeyboardActive} | WindowMax: ${maxWindowHeight}, CurrentHeight: ${window.visualViewport.height}`}, 'info', softKeyboardActive ? 'lime': 'red');
 });
 
-  
+
 
 photoButton.addEventListener('change', () => {
 	ImagePreview();
@@ -2917,7 +2943,7 @@ function ImagePreview(filesFromClipboard = null) {
 		for (let i = 0; i < files.length; i++) {
 
 			const fileURL = URL.createObjectURL(files[i]);
-			const fileID = crypto.randomUUID();
+			const fileID = getRandomID();
 
 			const imageFragment = fragmentBuilder({
 				tag: 'img',
@@ -2939,7 +2965,7 @@ function ImagePreview(filesFromClipboard = null) {
 					{
 						tag: 'i',
 						attr: {
-							class: 'close fa-solid fa-xmark button clickable'
+							class: 'close fa-solid fa-xmark button button-animate'
 						}
 					},
 					{
@@ -3060,7 +3086,7 @@ function FilePreview(filesFromClipboard = null, audio = false) {
 			name = shortFileName(name);
 			selectedObject = audio ? 'audio' : 'file';
 
-			const fileID = crypto.randomUUID();
+			const fileID = getRandomID();
 
 			const fileElementFragment = fragmentBuilder({
 				tag: 'div',
@@ -3214,9 +3240,9 @@ sendButton.addEventListener('click', (e) => {
 
 	if (recordedAudio && sendButton.dataset.role == 'send') {
 		sendAudioRecord();
-		if (quickReactsEnabled == 'true' && textbox.innerText.trim().length == 0 && sendButton.dataset.role == 'send'){
+		if (quickReactsEnabled == 'true' && textbox.innerText.trim().length == 0 && sendButton.dataset.role == 'send') {
 			sendButton.dataset.role = 'quickEmoji';
-		}else{
+		} else {
 			sendButton.dataset.role = 'send';
 		}
 		return;
@@ -3229,13 +3255,13 @@ sendButton.addEventListener('click', (e) => {
 	let message = textbox.innerText.trim();
 	const replyData = finalTarget?.type === 'text' ? finalTarget?.message.substring(0, 100) : finalTarget?.message;
 	const skipServerSend = Array.from(userInfoMap.keys()).length < 2;
-	const tempId = crypto.randomUUID();
+	const tempId = getRandomID();
 
 	if (sendButton.dataset.role == 'quickEmoji' && quickReactsEnabled == 'true') {
 		insertNewMessage(quickReactEmoji, 'text', tempId, myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, {});
 		if (skipServerSend) {
 			playOutgoingSound();
-			document.getElementById(tempId).classList.add('delevered');
+			document.getElementById(tempId)?.classList.add('delevered');
 		} else {
 			chatSocket.emit('message', quickReactEmoji, 'text', myId, { data: replyData, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, function (id, error) {
 				playOutgoingSound();
@@ -3245,7 +3271,7 @@ sendButton.addEventListener('click', (e) => {
 					document.getElementById(tempId).querySelector('.messageMain').innerHTML = `<div class="msg text" style="background: red">${error}</div>`;
 					return;
 				}
-				document.getElementById(tempId).classList.add('delevered');
+				document.getElementById(tempId)?.classList.add('delevered');
 				document.getElementById(tempId).id = id;
 				lastSeenMessage = id;
 				if (document.hasFocus()) {
@@ -3253,7 +3279,7 @@ sendButton.addEventListener('click', (e) => {
 				}
 			});
 		}
-	}else if (sendButton.dataset.role == 'send') {
+	} else if (sendButton.dataset.role == 'send') {
 
 		textbox.innerText = '';
 		textbox.style.height = 'min-content';
@@ -3293,7 +3319,7 @@ sendButton.addEventListener('click', (e) => {
 						return;
 					}
 
-					document.getElementById(tempId).classList.add('delevered');
+					document.getElementById(tempId)?.classList.add('delevered');
 					document.getElementById(tempId).id = id;
 					lastSeenMessage = id;
 					if (document.hasFocus()) {
@@ -3304,7 +3330,7 @@ sendButton.addEventListener('click', (e) => {
 		}
 
 	}
-	
+
 
 	clearFinalTarget();
 	hideOptions();
@@ -3372,7 +3398,7 @@ async function sendImageStoreRequest() {
 		image.onload = async function () {
 			//console.log('Inside onload');
 			const thumbnail = resizeImage(image, image.mimetype, 50);
-			let messageId = crypto.randomUUID();
+			let messageId = getRandomID();
 			scrolling = false;
 
 			insertNewMessage(image.src, 'image', messageId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: '', height: image.height, width: image.width, name: image.dataset.name });
@@ -3500,7 +3526,7 @@ function sendFileStoreRequest(type = null) {
 
 	for (let i = 0; i < selectedFileArray.length; i++) {
 
-		let messageId = crypto.randomUUID();
+		let messageId = getRandomID();
 		scrolling = false;
 
 		const fileData = selectedFileArray[i].data;
@@ -3960,7 +3986,7 @@ function startRecordingAudio() {
 					recordedAudio.dataset.duration = timePassed;
 					recordCancel = false;
 					showPopupMessage('Recorded!');
-					if (recordedAudio){
+					if (recordedAudio) {
 						console.log('recorded audio duration: ', recordedAudio.dataset.duration);
 						if (quickReactsEnabled == 'true' && sendButton.dataset.role == 'quickEmoji') {
 							sendButton.dataset.role = 'send';
@@ -4061,7 +4087,7 @@ function sendAudioRecord() {
 			const ext = 'mp3';
 			const duration = recordedAudio.dataset.duration;
 
-			const fileID = crypto.randomUUID();
+			const fileID = getRandomID();
 
 			selectedFileArray.length = 0;
 			selectedFileArray.push({ data, name, size, ext, id: fileID, duration: duration });
