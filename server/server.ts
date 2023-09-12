@@ -264,7 +264,7 @@ function approveNewChatRequest(req: any, res: any, data: { username: string, key
 	const uid = crypto.randomBytes(16).toString('hex');
 
 	res.setHeader('Developer', DEVELOPER);
-	res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'nonce-${nonce}'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob:; media-src 'self' blob:;`);
+	res.setHeader('Content-Security-Policy', `script-src 'self' 'unsafe-inline' 'nonce-${nonce}'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob:; media-src 'self' blob:;`);
 	res.setHeader('Cluster', `ID: ${process.pid}`);
 	
 	const cookie: string = req.cookies['theme'] || 'ocean';

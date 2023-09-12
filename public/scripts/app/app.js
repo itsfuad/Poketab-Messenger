@@ -555,7 +555,7 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 	let popupmsg = ''; //the message to be displayed in the popup if user scrolled up
 	const messageIsEmoji = isEmoji(message); //if the message is an emoji
 	if (type === 'text') { //if the message is a text message
-		message = `<div class="msg text">${messageparser.parse(message)}</div>`;
+		message = `<div class="msg text"><div class="data">${messageparser.parse(message)}</div></div>`;
 		const fragment = document.createDocumentFragment();
 		const el = document.createElement('div');
 		el.innerHTML = message;
@@ -565,7 +565,8 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
 		message = sanitizeImagePath(message); //sanitize the image path
 		message = `
-		<div class='imageContainer msg'>
+		<div class='msg'>
+			<div class="imageContainer data">
 			<img class='image' src='${message}' alt='image' data-name='${metadata.name}' height='${metadata.height}' width='${metadata.width}' />
 			<div class="circleProgressLoader" style="stroke-dasharray: 0, 251.2;">
 				<svg class="animated inactive" viewbox="0 0 100 100">
@@ -578,13 +579,16 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 				</svg>
 				<div class="progressPercent">Waiting for upload</div>
 			</div>
+			</div>
 		</div>
 		`; //insert the image
 	} else if (type === 'sticker') {
 		popupmsg = 'Sticker';
 		message = sanitizeImagePath(message);
 		message = `
-		<img class='sticker msg' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
+		<div class='msg'>
+			<img class='sticker data' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
+		</div>
 		`;
 	} else if (type != 'text' && type != 'image' && type != 'file' && type != 'sticker' && type != 'audio') { //if the message is not a text or image message
 		throw new Error('Invalid message type');
@@ -965,7 +969,13 @@ export function deleteMessage(messageId, user) {
 			attr: {
 				class: 'text msg',
 			},
-			text: 'Deleted message',
+			child: {
+				tag: 'div',
+				attr: {
+					class: 'data',
+				},
+				text: 'Deleted message',
+			}
 		});
 		message.querySelector('.msg').replaceWith(fragment);
 		message.classList.add('deleted');
@@ -1301,8 +1311,8 @@ function showReplyToast() {
 	//add data to reply toast
 	if (finalTarget.type == 'image' || finalTarget.type == 'sticker') {
 
-		document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveFile');
-		document.querySelector('.scrollPopupWrapper').classList.add('toastActiveImage');
+		//document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveFile');
+		//document.querySelector('.scrollPopupWrapper').classList.add('toastActiveImage');
 		if (finalTarget.message.src !== replyData.firstChild?.src) {
 			while (replyData.firstChild) {
 				replyData.removeChild(replyData.firstChild);
@@ -1310,8 +1320,8 @@ function showReplyToast() {
 			replyData.appendChild(finalTarget.message);
 		}
 	} else if (finalTarget.type == 'file' || finalTarget.type == 'audio') {
-		document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveImage');
-		document.querySelector('.scrollPopupWrapper').classList.add('toastActiveFile');
+		//document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveImage');
+		//document.querySelector('.scrollPopupWrapper').classList.add('toastActiveFile');
 		while (replyData.firstChild) {
 			replyData.removeChild(replyData.firstChild);
 		}
@@ -1324,9 +1334,9 @@ function showReplyToast() {
 		replyData.appendChild(fileIcon);
 		replyData.appendChild(document.createTextNode(finalTarget.message?.substring(0, 50)));
 	} else {
-		document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveImage');
-		document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveFile');
-		document.querySelector('.scrollPopupWrapper').classList.add('toastActive');
+		//document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveImage');
+		//document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveFile');
+		//document.querySelector('.scrollPopupWrapper').classList.add('toastActive');
 		replyData.textContent = finalTarget.message?.length > 30 ? finalTarget.message.substring(0, 27) + '...' : finalTarget.message;
 	}
 
@@ -1362,9 +1372,9 @@ function hideReplyToast() {
 	const replyToast = document.getElementById('replyToast');
 	if (replyToast) {
 		replyToast.classList.remove('active');
-		document.querySelector('.scrollPopupWrapper').classList.remove('toastActive');
-		document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveImage');
-		document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveFile');
+		//document.querySelector('.scrollPopupWrapper').classList.remove('toastActive');
+		//document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveImage');
+		//document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveFile');
 		clearTargetMessage();
 		setTimeout(() => {
 			updateScroll();
@@ -1639,7 +1649,7 @@ function OptionEventHandler(evt, popup = true) {
 			if (targetMessage.sender == myName) {
 				targetMessage.sender = 'You';
 			}
-			targetMessage.message = evt.target.closest('.messageMain').querySelector('.text').textContent;
+			targetMessage.message = evt.target.closest('.messageMain').querySelector('.data').textContent;
 			targetMessage.type = type;
 			targetMessage.id = evt.target.closest('.message').id;
 		}

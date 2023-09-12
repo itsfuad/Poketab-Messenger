@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./../../styles/message.css">
     <title>Test</title>
 </head>
 <body>
@@ -18,16 +19,65 @@
             </div>
             <div id="chat-body">
                 <div id="chat-body-messages">
-                    <div id="chat-body-messages-container">
-                        <div id="chat-body-messages-container-message">
-                            <div id="chat-body-messages-container-message-user">
-                                <h3>Username</h3>
-                            </div>
-                            <div id="chat-body-messages-container-message-message">
-                                <p>Message</p>
+<!-- Message template -->
+    <li class="message msg-item start end self" id="text" data-uid="{{uid}}" data-type="{{type}}"> <!-- noreply notitle delevered start end self react -->
+        <div class="seenBy"></div>
+        <div class="messageContainer">
+            <div class="replyIcon">
+                <i class="fa-solid fa-reply"></i>
+            </div>
+            <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
+            <div class="avatar"><img src="{{avatarSrc}}" width='30px' height='30px' alt='avatar'/></div>
+            <div class="messageBody">
+                <div class="messageTitle">{{{title}}}</div>
+                <div class="messageReply" data-repid="{{repId}}" data-replyfor="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
+                <div class="messageMain">
+                    {{{message}}}
+                    <div class="messageTime" data-timestamp="{{timeStamp}}">{{time}}</div>
+                </div>
+                <div class="reactsOfMessage">
+                    <div class="reactsContainer"></div>
+                    <div class="reactsCount"></div>
+                </div>
+            </div>
+            <div class="reactedUsers" style="display: none;"></div>
+        </div>
+    </li>
+
+    <li class="message msg-item start end self" id="file" data-uid="{{uid}}" data-type="{{type}}">
+        <div class="seenBy"></div>
+        <div class="messageContainer">
+            <div class="replyIcon">
+                <i class="fa-solid fa-reply"></i>
+            </div>
+            <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
+            <div class="avatar"><img src="{{avatarSrc}}" width='30px' height='30px' alt='avatar'/></div>
+            <div class="messageBody">
+                <div class="messageTitle">{{{title}}}</div>
+                <div class="messageReply" data-repid="{{repId}}" data-replyfor="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
+                <div class="messageMain">
+                    <div class="file msg" data-src="{{source}}" data-ext="{{ext}}">
+                        <div class="fileIcon">
+                            <i class="fa-regular fa-file-lines"></i>
+                        </div>
+                        <div class="fileInfo">
+                            <div class="fileName">{{fileName}}</div>
+                            <div class="filemeta">
+                                <div class="progress"></div>
+                                <div class="fileSize">{{fileSize}}</div>
                             </div>
                         </div>
                     </div>
+                    <div class="messageTime" data-timestamp="{{timeStamp}}">{{time}}</div>
+                </div>
+                <div class="reactsOfMessage">
+                    <div class="reactsContainer"></div>
+                    <div class="reactsCount"></div>
+                </div>
+            </div>
+            <div class="reactedUsers" style="display: none;"></div>
+        </div>
+    </li>
                 </div>
                 <div id="chat-body-input">
                     <input type="text" id="chat-body-input-text" placeholder="Type a message...">
@@ -55,5 +105,11 @@
                 console.log(username + " disconnected");
             });
         </script>
+
+        <style>
+            body{
+                background: teal;
+            }
+        </style>
 </body>
 </html>

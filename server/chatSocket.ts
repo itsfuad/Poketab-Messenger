@@ -13,6 +13,7 @@ import { chatSocket } from './sockets.js';
 import { fileStore } from './routes/fileAPI.js';
 import { askToJoinUserSocket } from './preAuthSocket.js';
 import { filterMessage } from './utils/badwords.js';
+import { getLinkMetadata } from './utils/metadataParser.js';
 
 //socket.io connection
 chatSocket.on('connection', (socket) => {
@@ -105,6 +106,18 @@ chatSocket.on('connection', (socket) => {
 				const id = crypto.randomUUID();
 				//console.log(`Message: ${message}`);
 				socket.broadcast.to(SocketIds[socket.id].key).emit('newMessage', filtered.filteredMessage, type, id, uId, reply, replyId, options);
+
+				getLinkMetadata(message)
+					.then((data) => {
+						if (data?.success){
+							//socket.broadcast.to(SocketIds[socket.id].key).emit('linkMetadata', data.data, id);
+							//send to everyone
+							chatSocket.to(SocketIds[socket.id].key).emit('linkMetadata', data.data, id);
+						}
+					})
+					.catch((err) => {
+						console.log(err);
+					});
 				
 				if (filtered.containsBadWords) {
 					//warn the user

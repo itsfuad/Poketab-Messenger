@@ -197,6 +197,69 @@ chatSocket.on('newMessage', (message, type, id, uid, reply, replyId, options) =>
 	notifyUser({data: type == 'text' ? message : '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uid)?.username, userInfoMap.get(uid)?.avatar);
 });
 
+chatSocket.on('linkMetadata', (meta, id) => {
+	const target = document.getElementById(id).querySelector('.msg');
+
+	const fragment = fragmentBuilder(
+		{
+			tag: 'div',
+			attr: {
+				class: 'linkMetadata',
+			},
+			childs: [
+				{
+					tag: 'div',
+					attr: {
+						class: `linkMetadata__image ${meta.image ? '' : 'hidden'}`,
+					},
+					child: {
+						tag: 'img',
+						attr: {
+							src: meta.image,
+							alt: 'Link Image',
+						},
+					}
+				},
+				{
+					tag: 'div',
+					attr: {
+						class: `linkMetadata__details ${!meta.title && !meta.description ? 'hidden' : ''}`,
+					},
+					childs: [
+						{
+							tag: 'div',
+							attr: {
+								class: `linkMetadata__title ${meta.title ? '' : 'hidden'}`,
+							},
+							text: meta.title,
+						},
+						{
+							tag: 'div',
+							attr: {
+								class: `linkMetadata__description ${meta.description ? '' : 'hidden'}`,
+							},
+							text: meta.description,
+						},
+						{
+							tag: 'div',
+							attr: {
+								class: 'linkMetadata__url',
+							},
+							text: meta.url,
+						},
+					],
+				},
+			],
+
+		});
+
+	target.appendChild(fragment);
+
+	setTimeout(() => {
+		updateScroll();
+	}, 100);
+});
+
 chatSocket.on('seen', meta => {
 	const message = document.getElementById(meta.messageId);
 	const isMessage = message?.classList?.contains('message');

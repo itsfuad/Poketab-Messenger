@@ -1491,20 +1491,28 @@ i[class^=fa-] {
   cursor: pointer;
 }
 
+.hiddenLine {
+  height: 0;
+  position: relative;
+}
+
 .scrollPopupWrapper {
-  position: fixed;
-  bottom: 40px;
-  width: 100%;
+  position: relative;
+  width: min-content;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10;
+  left: 50%;
+  bottom: 0px;
+  transform: translateX(-50%);
   visibility: hidden;
   opacity: 0;
   transition: 200ms ease-in-out;
+  margin-bottom: 11px;
 }
 .scrollPopupWrapper.active {
-  bottom: 65px;
+  bottom: 30px;
   visibility: visible;
   opacity: 1;
 }
