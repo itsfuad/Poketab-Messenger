@@ -1557,12 +1557,29 @@ i[class^="fa-"] {
 
 .scrollPopupWrapper{
     position: fixed;
-    bottom: 80px;
+    bottom: 40px;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 10;
+    visibility: hidden;
+    opacity: 0;
+    transition: 200ms ease-in-out;
+    &.active {
+        bottom: 65px;
+        visibility: visible;
+        opacity: 1;
+    }
+    &.toastActive {
+        margin-bottom: 75px;
+    }
+    &.toastActiveImage {
+        margin-bottom: 115px;
+    }
+    &.toastActiveFile {
+        margin-bottom: 90px;
+    }
 }
 .newmessagepopup {
     flex-direction: row;
@@ -1578,24 +1595,9 @@ i[class^="fa-"] {
     gap: 5px;
     width: max-content;
     display: flex;
-    visibility: hidden;
-    opacity: 0;
     transition: 100ms ease-in-out;
     cursor: pointer;
-    &.active {
-        bottom: 65px;
-        visibility: visible;
-        opacity: 1;
-    }
-    &.toastActive {
-        margin-bottom: 90px;
-    }
-    &.toastActiveImage {
-        margin-bottom: 120px;
-    }
-    &.toastActiveFile {
-        margin-bottom: 90px;
-    }
+
     filter: drop-shadow(0 4px 5px black);
     .newmessagepopupavatar {
         height: 20px;

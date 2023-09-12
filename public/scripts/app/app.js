@@ -1301,8 +1301,8 @@ function showReplyToast() {
 	//add data to reply toast
 	if (finalTarget.type == 'image' || finalTarget.type == 'sticker') {
 
-		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
-		document.querySelector('.newmessagepopup').classList.add('toastActiveImage');
+		document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveFile');
+		document.querySelector('.scrollPopupWrapper').classList.add('toastActiveImage');
 		if (finalTarget.message.src !== replyData.firstChild?.src) {
 			while (replyData.firstChild) {
 				replyData.removeChild(replyData.firstChild);
@@ -1310,8 +1310,8 @@ function showReplyToast() {
 			replyData.appendChild(finalTarget.message);
 		}
 	} else if (finalTarget.type == 'file' || finalTarget.type == 'audio') {
-		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
-		document.querySelector('.newmessagepopup').classList.add('toastActiveFile');
+		document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveImage');
+		document.querySelector('.scrollPopupWrapper').classList.add('toastActiveFile');
 		while (replyData.firstChild) {
 			replyData.removeChild(replyData.firstChild);
 		}
@@ -1324,9 +1324,9 @@ function showReplyToast() {
 		replyData.appendChild(fileIcon);
 		replyData.appendChild(document.createTextNode(finalTarget.message?.substring(0, 50)));
 	} else {
-		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
-		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
-		document.querySelector('.newmessagepopup').classList.add('toastActive');
+		document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveImage');
+		document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveFile');
+		document.querySelector('.scrollPopupWrapper').classList.add('toastActive');
 		replyData.textContent = finalTarget.message?.length > 30 ? finalTarget.message.substring(0, 27) + '...' : finalTarget.message;
 	}
 
@@ -1362,9 +1362,9 @@ function hideReplyToast() {
 	const replyToast = document.getElementById('replyToast');
 	if (replyToast) {
 		replyToast.classList.remove('active');
-		document.querySelector('.newmessagepopup').classList.remove('toastActive');
-		document.querySelector('.newmessagepopup').classList.remove('toastActiveImage');
-		document.querySelector('.newmessagepopup').classList.remove('toastActiveFile');
+		document.querySelector('.scrollPopupWrapper').classList.remove('toastActive');
+		document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveImage');
+		document.querySelector('.scrollPopupWrapper').classList.remove('toastActiveFile');
 		clearTargetMessage();
 		setTimeout(() => {
 			updateScroll();
@@ -1735,7 +1735,7 @@ export function updateScroll(uid = null, text = '') {
 			document.querySelector('.newmessagepopup img').src = `/images/avatars/${avatar || 'msg-mini'}(custom).webp`;
 			document.querySelector('.newmessagepopup img').classList.add('newmessagepopupavatar');
 			document.querySelector('.newmessagepopup .msg').textContent = text;
-			document.querySelector('.newmessagepopup').classList.add('active');
+			document.querySelector('.scrollPopupWrapper').classList.add('active');
 		}
 		return;
 	} else {
@@ -1747,7 +1747,7 @@ export function updateScroll(uid = null, text = '') {
 
 
 function removeNewMessagePopup() {
-	document.querySelector('.newmessagepopup').classList.remove('active');
+	document.querySelector('.scrollPopupWrapper').classList.remove('active');
 	document.querySelector('.newmessagepopup img').style.display = 'none';
 	document.querySelector('.newmessagepopup .downarrow').style.display = 'none';
 }
@@ -2283,7 +2283,7 @@ messages.addEventListener('scroll', () => {
 			scrolling = true;
 		}
 		if (scrolled <= 50 && scrolled >= 0) {
-			document.querySelector('.newmessagepopup').classList.remove('active');
+			document.querySelector('.scrollPopupWrapper').classList.remove('active');
 			scrolling = false;
 		}
 	}
@@ -2297,12 +2297,12 @@ messages.addEventListener('scroll', () => {
 		document.querySelector('.newmessagepopup img').style.display = 'none';
 		document.querySelector('.newmessagepopup .msg').style.display = 'none';
 		document.querySelector('.newmessagepopup .downarrow').style.display = 'block';
-		document.querySelector('.newmessagepopup').classList.add('active');
+		document.querySelector('.scrollPopupWrapper').classList.add('active');
 	}
 });
 
 
-document.querySelector('.newmessagepopup').addEventListener('click', () => {
+document.querySelector('.scrollPopupWrapper').addEventListener('click', () => {
 	scrolling = false;
 	//removeNewMessagePopup();
 	updateScroll();

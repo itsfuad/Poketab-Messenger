@@ -1493,12 +1493,29 @@ i[class^=fa-] {
 
 .scrollPopupWrapper {
   position: fixed;
-  bottom: 80px;
+  bottom: 40px;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10;
+  visibility: hidden;
+  opacity: 0;
+  transition: 200ms ease-in-out;
+}
+.scrollPopupWrapper.active {
+  bottom: 65px;
+  visibility: visible;
+  opacity: 1;
+}
+.scrollPopupWrapper.toastActive {
+  margin-bottom: 75px;
+}
+.scrollPopupWrapper.toastActiveImage {
+  margin-bottom: 115px;
+}
+.scrollPopupWrapper.toastActiveFile {
+  margin-bottom: 90px;
 }
 
 .newmessagepopup {
@@ -1515,25 +1532,9 @@ i[class^=fa-] {
   gap: 5px;
   width: max-content;
   display: flex;
-  visibility: hidden;
-  opacity: 0;
   transition: 100ms ease-in-out;
   cursor: pointer;
   filter: drop-shadow(0 4px 5px black);
-}
-.newmessagepopup.active {
-  bottom: 65px;
-  visibility: visible;
-  opacity: 1;
-}
-.newmessagepopup.toastActive {
-  margin-bottom: 90px;
-}
-.newmessagepopup.toastActiveImage {
-  margin-bottom: 120px;
-}
-.newmessagepopup.toastActiveFile {
-  margin-bottom: 90px;
 }
 .newmessagepopup .newmessagepopupavatar {
   height: 20px;
