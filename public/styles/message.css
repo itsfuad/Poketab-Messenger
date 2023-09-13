@@ -293,9 +293,9 @@ code {
   transition: 100ms ease-in-out;
 }
 .messageMain .msg .data {
-  padding: 8px;
+  border-radius: inherit;
 }
-.messageMain .text {
+.messageMain .msg.text {
   background: var(--msg-get);
   min-width: 32px;
   max-width: 75%;
@@ -305,7 +305,14 @@ code {
   align-items: flex-start;
   white-space: pre-wrap;
 }
-.messageMain img {
+.messageMain .msg.text .data {
+  padding: 8px;
+}
+.messageMain .msg.sticker {
+  width: 100px;
+  height: 100px;
+}
+.messageMain .msg img {
   height: 100%;
   max-width: 100%;
   min-height: 100px;
@@ -313,10 +320,6 @@ code {
   background: rgba(255, 255, 255, 0.0901960784);
   border-radius: inherit;
   display: block;
-}
-.messageMain > * {
-  border-radius: 5px 18px 18px 5px;
-  z-index: 10;
 }
 
 code {

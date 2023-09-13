@@ -565,20 +565,20 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		popupmsg = 'Image'; //the message to be displayed in the popup if user scrolled up
 		message = sanitizeImagePath(message); //sanitize the image path
 		message = `
-		<div class='msg'>
-			<div class="imageContainer data">
-			<img class='image' src='${message}' alt='image' data-name='${metadata.name}' height='${metadata.height}' width='${metadata.width}' />
-			<div class="circleProgressLoader" style="stroke-dasharray: 0, 251.2;">
-				<svg class="animated inactive" viewbox="0 0 100 100">
-					<circle cx="50" cy="50" r="45" fill="transparent"/>
-					<path id="progress" stroke-linecap="round" stroke-width="3" stroke="#fff" fill="none"
-						d="M50 10
-							a 40 40 0 0 1 0 80
-							a 40 40 0 0 1 0 -80">
-					</path>
-				</svg>
-				<div class="progressPercent">Waiting for upload</div>
-			</div>
+		<div class='msg imageContainer'>
+			<div class="data">
+				<img class='image' src='${message}' alt='image' data-name='${metadata.name}' height='${metadata.height}' width='${metadata.width}' />
+				<div class="circleProgressLoader" style="stroke-dasharray: 0, 251.2;">
+					<svg class="animated inactive" viewbox="0 0 100 100">
+						<circle cx="50" cy="50" r="45" fill="transparent"/>
+						<path id="progress" stroke-linecap="round" stroke-width="3" stroke="#fff" fill="none"
+							d="M50 10
+								a 40 40 0 0 1 0 80
+								a 40 40 0 0 1 0 -80">
+						</path>
+					</svg>
+					<div class="progressPercent">Waiting for upload</div>
+				</div>
 			</div>
 		</div>
 		`; //insert the image
@@ -586,8 +586,8 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		popupmsg = 'Sticker';
 		message = sanitizeImagePath(message);
 		message = `
-		<div class='msg'>
-			<img class='sticker data' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
+		<div class='msg sticker'>
+			<img class='data' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
 		</div>
 		`;
 	} else if (type != 'text' && type != 'image' && type != 'file' && type != 'sticker' && type != 'audio') { //if the message is not a text or image message
