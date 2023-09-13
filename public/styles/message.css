@@ -33,6 +33,7 @@
   width: 100%;
   border-bottom-left-radius: inherit;
   border-bottom-right-radius: inherit;
+  text-decoration: none;
 }
 
 .linkMetadata__title {
@@ -790,12 +791,9 @@ a:hover {
   filter: brightness(0.95);
 }
 
-a::after {
+a:not(.linkMetadata)::after {
   font-family: "FontAwesome";
   padding: 0 2px;
-}
-
-a::after {
   content: "\f08e";
 }
 

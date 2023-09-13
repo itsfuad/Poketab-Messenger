@@ -202,9 +202,10 @@ chatSocket.on('linkMetadata', (meta, id) => {
 
 	const fragment = fragmentBuilder(
 		{
-			tag: 'div',
+			tag: 'a',
 			attr: {
 				class: 'linkMetadata',
+				href: meta.url,
 			},
 			childs: [
 				{
@@ -255,10 +256,24 @@ chatSocket.on('linkMetadata', (meta, id) => {
 
 	target.appendChild(fragment);
 
+	//if contains image and the image loads, update scroll
+	if (meta.image){
+		target.querySelector('.linkMetadata__image img').addEventListener('load', imgMetaLoad);
+	}
+
 	setTimeout(() => {
 		updateScroll();
 	}, 100);
 });
+
+function imgMetaLoad(){
+	setTimeout(() => {
+		updateScroll();
+		this.removeEventListener('load', imgMetaLoad);
+	}, 100);
+	//remove event listener
+	//console.log('META Image loaded');
+}
 
 chatSocket.on('seen', meta => {
 	const message = document.getElementById(meta.messageId);

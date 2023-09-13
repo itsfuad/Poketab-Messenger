@@ -10,7 +10,12 @@ export async function getLinkMetadata(message) {
         const imageRegex = /<meta[^>]*property="og:image"[^>]*content="([^"]*)"[^>]*>/g;
         const title = titleRegex.exec(html)?.[1] || '';
         const description = descriptionRegex.exec(html)?.[1] || '';
-        const image = imageRegex.exec(html)?.[1] || '';
+        let image = imageRegex.exec(html)?.[1] || '';
+        //if image path is relative, convert it to absolute
+        if (image && image.startsWith('/')) {
+            const urlObject = new URL(url);
+            image = `${urlObject.protocol}//${urlObject.host}${image}`;
+        }
         //console.log(`Title: ${title}`);
         //console.log(`Description: ${description}`);
         //console.log(`Image: ${image}`);
