@@ -566,7 +566,7 @@ pre code {
   border-radius: inherit;
   pointer-events: none;
   height: 100%;
-  width: 100%;
+  max-width: 100%;
 }
 .messageMain .imageContainer .circleProgressLoader {
   position: absolute;

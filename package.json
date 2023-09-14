@@ -30,7 +30,7 @@
     "ejs": "^3.1.9",
     "express": "^4.17.3",
     "express-rate-limit": "^6.7.1",
-    "pika-form-parser": "^1.0.2",
+    "pika-form-parser": "^1.0.4",
     "socket.io": "^4.7.0"
   },
   "devDependencies": {
