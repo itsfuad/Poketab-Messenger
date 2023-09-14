@@ -566,19 +566,17 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		message = sanitizeImagePath(message); //sanitize the image path
 		message = `
 		<div class='msg imageContainer'>
-			<div class="data">
-				<img class='image' src='${message}' alt='image' data-name='${metadata.name}' height='${metadata.height}' width='${metadata.width}' />
-				<div class="circleProgressLoader" style="stroke-dasharray: 0, 251.2;">
-					<svg class="animated inactive" viewbox="0 0 100 100">
-						<circle cx="50" cy="50" r="45" fill="transparent"/>
-						<path id="progress" stroke-linecap="round" stroke-width="3" stroke="#fff" fill="none"
-							d="M50 10
-								a 40 40 0 0 1 0 80
-								a 40 40 0 0 1 0 -80">
-						</path>
-					</svg>
-					<div class="progressPercent">Waiting for upload</div>
-				</div>
+			<img class='image' src='${message}' alt='image' data-name='${metadata.name}' height='${metadata.height}' width='${metadata.width}' />
+			<div class="circleProgressLoader" style="stroke-dasharray: 0, 251.2;">
+				<svg class="animated inactive" viewbox="0 0 100 100">
+					<circle cx="50" cy="50" r="45" fill="transparent"/>
+					<path id="progress" stroke-linecap="round" stroke-width="3" stroke="#fff" fill="none"
+						d="M50 10
+							a 40 40 0 0 1 0 80
+							a 40 40 0 0 1 0 -80">
+					</path>
+				</svg>
+				<div class="progressPercent">Waiting for upload</div>
 			</div>
 		</div>
 		`; //insert the image
@@ -586,9 +584,7 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		popupmsg = 'Sticker';
 		message = sanitizeImagePath(message);
 		message = `
-		<div class='msg sticker'>
-			<img class='data' src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
-		</div>
+			<img class="msg sticker image" src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
 		`;
 	} else if (type != 'text' && type != 'image' && type != 'file' && type != 'sticker' && type != 'audio') { //if the message is not a text or image message
 		throw new Error('Invalid message type');
@@ -1308,6 +1304,8 @@ function showReplyToast() {
 		close.classList.add('close', 'fa-solid', 'fa-xmark');
 	}
 
+	//console.log('Final target type: ', finalTarget.type);
+
 	//add data to reply toast
 	if (finalTarget.type == 'image' || finalTarget.type == 'sticker') {
 
@@ -1317,6 +1315,7 @@ function showReplyToast() {
 			while (replyData.firstChild) {
 				replyData.removeChild(replyData.firstChild);
 			}
+			//console.log('Appending: ', finalTarget.message);
 			replyData.appendChild(finalTarget.message);
 		}
 	} else if (finalTarget.type == 'file' || finalTarget.type == 'audio') {
@@ -1341,6 +1340,8 @@ function showReplyToast() {
 	}
 
 	username.textContent = finalTarget.sender;
+
+	//console.log('Reply data: ', finalTarget);
 
 	if (!document.getElementById('replyToast')) {
 		title.appendChild(document.createTextNode(' Replying to '));
@@ -1642,6 +1643,8 @@ function OptionEventHandler(evt, popup = true) {
 			return;
 		}
 
+		//console.log('type: ', type);
+
 		const sender = evt.target.closest('.message').classList.contains('self') ? true : false;
 		if (type == 'text') {
 			//text
@@ -1716,6 +1719,7 @@ function OptionEventHandler(evt, popup = true) {
 			targetNode.removeAttribute('id');
 			targetNode.setAttribute('class', 'image');
 			targetMessage.message = targetNode;
+			//console.log('Target message: ', targetNode);
 			targetMessage.type = type;
 			targetMessage.id = evt.target.closest('.message').id;
 		}

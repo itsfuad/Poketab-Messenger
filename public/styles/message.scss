@@ -177,24 +177,16 @@ code{
             &.imageReply{
                 padding: 0;
                 filter: brightness(0.4) !important;
-                background: rgba(255,255,255,.0901960784)!important;
+                background: rgba(255,255,255,.09)!important;
                 position: relative;
-                max-height: 150px;
-                max-width: 150px;
-                min-width: 100px;
-                min-height: 100px;
-                object-fit: cover;
-                vertical-align: bottom;
-
-                border-radius: 18px 18px 18px 8px !important;
-
                 img{
-                    max-width: inherit;
-                    max-height: inherit;
-                    min-height: inherit;
-                    min-width: inherit;
-                    object-fit: inherit;
-                    border-radius: inherit;
+                    max-height: 200px;
+                    max-width: 200px;
+                    object-fit: cover;
+                }
+                img.sticker{
+                    height: 100px;
+                    width: 100px;
                 }
             }
         }
@@ -329,21 +321,16 @@ code{
         &.sticker {
             width: 100px;
             height: 100px;
-        }
-        img{
-            //width: 100%;
-            height: 100%;
-            max-width: 100%;
-            min-height: 100px;
-            min-width: 100px;
             background: #ffffff17;
-            border-radius: inherit;
+            border-radius: 18px;
             display: block;
+            .image{
+                border-radius: inherit;
+                height: 100%;
+                width: 100%;
+            }
         }
     }
-
-
-
 }
 
 code{
@@ -610,7 +597,7 @@ pre{
         align-items: center;
         justify-content: center;
         width: fit-content;
-        max-width: 75%;
+        max-width: 60%;
 
         &.msg:hover::before {
             content: '';
@@ -625,6 +612,8 @@ pre{
             object-fit: contain;
             border-radius: inherit;
             pointer-events: none;
+            height: 100%;
+            width: 100%;
         }
         
         .circleProgressLoader{
