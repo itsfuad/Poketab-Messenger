@@ -37,7 +37,7 @@ export async function getLinkMetadata(message: string) {
     };
 
   } else {
-    console.error('No valid links found in the message.');
+    //console.error('No valid links found in the message.');
     return {
       success: false,
       error: 'No valid links found in the message',

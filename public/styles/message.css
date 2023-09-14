@@ -161,7 +161,7 @@ code {
   text-overflow: ellipsis;
   transform: translateY(20px);
   cursor: pointer;
-  z-index: 10;
+  z-index: 0;
   padding: 8px 8px 25px 8px;
 }
 .message .messageBody .messageReply i {
@@ -291,6 +291,8 @@ code {
 }
 .messageMain .msg {
   transition: 100ms ease-in-out;
+  border-top-right-radius: 18px;
+  border-bottom-right-radius: 18px;
 }
 .messageMain .msg .data {
   border-radius: inherit;
