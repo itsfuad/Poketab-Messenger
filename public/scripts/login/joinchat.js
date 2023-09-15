@@ -179,11 +179,12 @@ socket.on('userUpdate', (response) => {
 		document.getElementById('enter').disabled = true;
 		errlog('usernameErr', `Key is no longer available ${response.icon}`);
 		let i = 0;
-		setInterval(() => {
+		const timeout = setInterval(() => {
 			//countdown from 5 to 0
 			errlog('usernameErr', `Reloading in ${5 - i} ${ i != 4 ? 'seconds' : 'second' } ${response.icon}`);
 			i++;
 			if (i == 5){
+				clearInterval(timeout);
 				location.reload();
 			}
 		}, 1000);
