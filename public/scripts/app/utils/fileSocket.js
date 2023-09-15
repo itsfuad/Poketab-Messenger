@@ -11,6 +11,10 @@ import { playIncomingSound } from './../../global.js';
  */
 export const fileSocket = io('/file');
 
+/**
+ * This map stores all the incomming xhr requests
+ * @type {Map<string, XMLHttpRequest>}
+ */
 export const incommingXHR = new Map();
 
 //files metadata will be sent on different socket

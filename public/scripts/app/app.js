@@ -134,10 +134,17 @@ const modalCloseMap = new Map();
 //list of active modals
 const activeModals = [];
 
+/**
+ * This map stores all the ongoing xhr requests
+ * @type {Map<string, XMLHttpRequest>}
+ */
 const ongoingXHR = new Map();
+
+
 
 /**
  * This array stores the selected files to be sent
+ * @type {Array<{data: string, name: string, size: number, ext: string, id: string}>}
  */
 const selectedFileArray = [];
 
@@ -174,6 +181,9 @@ let finalTarget = {
 	id: '',
 };
 
+/**
+ * @type {string|null} lastSeenMessage
+ */
 let lastSeenMessage = null;
 let lastNotification = undefined;
 
@@ -548,6 +558,28 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
 	}
 }
 
+/**
+ * Inserts a new message on the DOM
+ * @param {string} message The message to insert on DOM
+ * @param {string} type Message type
+ * @param {string} id Message id
+ * @param {string} uid Senders id
+ * @param {Object} reply Reply type and data object
+ * @param {string} reply.type 
+ * @param {string} reply.data 
+ * @param {string} replyId 
+ * @param {Object} replyOptions Options for message
+ * @param {boolean} options.reply If the message contains a reply
+ * @param {boolean} options.title If the message contains a title to show 
+ * @param {Object} metadata File metadata
+ * @param {string} metadata.height Image Height 
+ * @param {string} metadata.width Image width 
+ * @param {string} metadata.name FIle name 
+ * @param {string} metadata.size File size 
+ * @param {string} metadata.ext File extension
+ * @param {number} metadata.duration number of seconds the audio file is
+ * 
+ */
 function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, metadata) {
 
 	let classList = ''; //the class list for the message. Initially empty. 
@@ -929,13 +961,14 @@ export function deleteMessage(messageId, user) {
 		const type = message.dataset.type;
 		if (['image', 'file'].includes(type)) { //if the message is an image or file
 			//console.log(`Deleting message id: ${messageId}`);
-			//if any xhr is running, abort it
 			if (ongoingXHR.has(messageId)) {
 				//console.log('Aborted ongoing XHR');
+				console.log(ongoingXHR.get(messageId));
 				ongoingXHR.get(messageId).abort();
 				ongoingXHR.delete(messageId);
 			} else if (incommingXHR.has(messageId)) {
 				//console.log('Aborted incomming XHR');
+				//console.log(incommingXHR.get(messageId));
 				incommingXHR.get(messageId).abort();
 				incommingXHR.delete(messageId);
 			}
@@ -3497,7 +3530,7 @@ async function sendImageStoreRequest() {
 							} else {
 								// Handle network errors or server unreachable errors
 								//console.log('Error: could not connect to server');
-								console.log(this.response);
+								//console.log(this.response);
 								showPopupMessage(this.response);
 								progresCircle.querySelector('.animated').style.visibility = 'hidden';
 								progressText.textContent = 'Upload failed';
@@ -3507,7 +3540,6 @@ async function sendImageStoreRequest() {
 					};
 
 					//send file via xhr post request
-					xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${messageId}/${myId}`, true);
 					xhr.upload.onprogress = function (e) {
 						if (e.lengthComputable) {
 							progresCircle.querySelector('.animated').classList.remove('inactive');
@@ -3516,11 +3548,12 @@ async function sendImageStoreRequest() {
 							progressText.textContent = `${Math.round(progress)}%`;
 						}
 					};
-
+					
 					const formData = new FormData();
-
+					
 					formData.append('file', file);
-
+					
+					xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${messageId}/${myId}`, true);
 					xhr.send(formData);
 				});
 
@@ -3589,9 +3622,8 @@ function sendFileStoreRequest(type = null) {
 				const xhr = new XMLHttpRequest();
 
 				//send file via xhr post request
-				xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${messageId}/${myId}`, true);
-
-
+				
+				
 				xhr.onreadystatechange = function () {
 					if (this.readyState === XMLHttpRequest.OPENED) {
 						//console.log(`Connection opened for message id ${messageId}`);
@@ -3611,28 +3643,35 @@ function sendFileStoreRequest(type = null) {
 							}
 						}
 						else {
-							console.log(this.response);
+							//(this.response);
 							showPopupMessage(this.response);
 							elem.querySelector('.progress').textContent = 'Upload failed';
 							fileSocket.emit('fileUploadError', myKey, messageId);
 						}
 					}
 				};
-
+				
+				
+				
+				
 				xhr.upload.onprogress = function (e) {
 					if (e.lengthComputable) {
 						progress = (e.loaded / e.total) * 100;
-						elem.querySelector('.progress').textContent = `${Math.round(progress)}%`;
-						if (progress === 100) {
-							elem.querySelector('.progress').textContent = 'Finishing...';
+						const progressLog = elem.querySelector('.progress');
+						if (progressLog){
+							progressLog.textContent = `${Math.round(progress)}%`;
+							if (progress === 100) {
+								progressLog.textContent = 'Finishing...';
+							}
 						}
 					}
 				};
-
+				
 				const formData = new FormData();
-
+				
 				formData.append('file', fileData);
-
+				
+				xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${messageId}/${myId}`, true);
 				xhr.send(formData);
 			});
 		}

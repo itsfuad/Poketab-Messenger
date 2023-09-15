@@ -7,7 +7,7 @@ import { keyStore } from '../database/db.js';
 
 import { fileSocket } from '../sockets.js';
 
-import { setMaxFileSize, formParser } from 'pika-form-parser';
+import { parse, getBoundary }  from './../utils/formParser.js';
 
 
 export const fileStore = new Map<string, { filename: string; key: string; ext: string; uids: Set<string> }>();
@@ -25,7 +25,7 @@ export function deleteFileStore(messageId: string) {
 const router = Router();
 export default router;
 
-/*
+
 router.post('/upload/:key/:messageId/:userId', (req, res) => {
 
   if (!keyStore.hasKey(req.params.key)) {
@@ -38,7 +38,7 @@ router.post('/upload/:key/:messageId/:userId', (req, res) => {
     return;
   }
 
-  const boundary = req.headers['content-type']?.split('; boundary=')[1];
+  const boundary = getBoundary(req.headers['content-type'] as string);
 
   if (!boundary) {
     res.status(400).send({ error: 'Invalid form' });
@@ -95,33 +95,7 @@ router.post('/upload/:key/:messageId/:userId', (req, res) => {
     });
   });
 });
-*/
 
-setMaxFileSize(1024 * 1024 * 100); //100MB
-
-router.post('/upload/:key/:messageId/:userId', formParser, (req, res) => {
-
-  if (!req.body) {
-    res.status(400).send({ error: 'Invalid form' });
-    return;
-  }
-
-  const file = req.body.files[0];
-
-  const filename = `${req.params.key}@${crypto.randomBytes(16).toString('hex')}`;
-
-  fs.writeFile(`uploads/${filename}`, file.data, (err) => {
-    if (err) {
-      //console.log(err);
-      res.status(500).send({ error: 'Internal server error' });
-      return;
-    }
-
-    store(req.params.messageId, { filename, key: req.params.key, ext: file.type, uids: new Set([req.params.userId]) });
-    res.status(200).send({ success: true, downlink: filename });
-    //console.log(`${filename} recieved to be relayed`);
-  });
-});
 
 router.get('/download/:key/:id/:userId', (req, res) => {
 
