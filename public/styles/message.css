@@ -302,11 +302,8 @@ code {
   align-items: flex-start;
   white-space: pre-wrap;
 }
-.messageMain .msg.text .data {
+.messageMain .msg.text .data.text-content {
   padding: 8px;
-}
-.messageMain .msg.text .data:has(.emoticon) {
-  padding: 0px;
 }
 .messageMain .msg.sticker {
   width: 100px;

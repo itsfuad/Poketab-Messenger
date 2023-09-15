@@ -316,12 +316,8 @@ code{
             align-items: flex-start;
             white-space: pre-wrap;
 
-            .data{
+            .data.text-content{
                 padding: 8px;
-            }
-
-            .data:has(.emoticon){
-                padding: 0px;
             }
         }
         &.sticker {

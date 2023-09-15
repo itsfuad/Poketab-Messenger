@@ -587,7 +587,7 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 	let popupmsg = ''; //the message to be displayed in the popup if user scrolled up
 	const messageIsEmoji = isEmoji(message); //if the message is an emoji
 	if (type === 'text') { //if the message is a text message
-		message = `<div class="msg text"><div class="data">${messageparser.parse(message)}</div></div>`;
+		message = `<div class="msg text">${messageparser.parse(message)}</div>`;
 		const fragment = document.createDocumentFragment();
 		const el = document.createElement('div');
 		el.innerHTML = message;

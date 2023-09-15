@@ -159,7 +159,12 @@ export class TextParser {
 
 	parseEmoji(text) {
 		//replace white space with empty string
-		return text.replace(this.emojiRegex, '<span class="emoticon">$&</span>');
+		//if contains emoji
+		if (this.emojiRegex.test(text)){
+			return text.replace(this.emojiRegex, '<span class="emoticon data">$&</span>');
+		} else {
+			return `<span class="data text-content">${text}</span>`;
+		}
 	}
 }
 
