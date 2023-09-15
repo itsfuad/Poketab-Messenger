@@ -17,6 +17,7 @@
     scrollbar-width: none;
     list-style: none;
     z-index: 1;
+    padding-bottom: 2px;
     //transition: 300ms ease;
     &:has(.focused){
         .msg-item{
@@ -314,8 +315,13 @@ code{
             justify-content: center;
             align-items: flex-start;
             white-space: pre-wrap;
+
             .data{
                 padding: 8px;
+            }
+
+            .data:has(.emoticon){
+                padding: 0px;
             }
         }
         &.sticker {

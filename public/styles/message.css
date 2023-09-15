@@ -17,6 +17,7 @@
   scrollbar-width: none;
   list-style: none;
   z-index: 1;
+  padding-bottom: 2px;
 }
 #messages:has(.focused) .msg-item {
   filter: brightness(0.7);
@@ -303,6 +304,9 @@ code {
 }
 .messageMain .msg.text .data {
   padding: 8px;
+}
+.messageMain .msg.text .data:has(.emoticon) {
+  padding: 0px;
 }
 .messageMain .msg.sticker {
   width: 100px;
