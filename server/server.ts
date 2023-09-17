@@ -45,6 +45,7 @@ const accessURL = ENVIRONMENT == 'DEVELOPMENT' ? `http://localhost:${port}` : ''
 
 import adminRouter from './routes/admin.js';
 import fileRouter from './routes/fileAPI.js';
+import { featureItemsData } from './utils/featureItemsData.js';
 
 
 //this blocks the client if they request 100 requests in 5 minutes
@@ -78,7 +79,7 @@ app.get('/', (req, res) => {
 	//never expire cookie
 	res.cookie('theme', theme, { maxAge: 2147483647, httpOnly: true });
 	// Render the home page
-	res.render('home/home', { title: 'Get Started', hash: nonce, version: `v.${version}`, icon: Icon ,color: color});
+	res.render('home/home', { title: 'Get Started', hash: nonce, version: `v.${version}`, icon: Icon, color: color, featureItems: featureItemsData});
 });
 
 app.get('/create', (req, res) => {

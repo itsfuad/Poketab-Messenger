@@ -37,6 +37,7 @@
     "@babel/preset-env": "^7.20.2",
     "@types/compression": "^1.7.2",
     "@types/cookie-parser": "^1.4.3",
+    "@types/express-rate-limit": "^6.0.0",
     "@types/express-useragent": "^1.0.2",
     "babel-jest": "^29.5.0",
     "eslint": "^8.28.0",

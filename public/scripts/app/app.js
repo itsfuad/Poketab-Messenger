@@ -464,6 +464,10 @@ async function loadTheme() {
 		sendButton.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
 	}
 }
+
+
+
+
 /**
  * Loads the send shortcut
  */

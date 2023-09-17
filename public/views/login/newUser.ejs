@@ -699,15 +699,24 @@
 
     <%- include ('./../layout/entryfooter.ejs') %>
     <% if (key) { %>
+      <!-- This code stores autofetch to true globally. It will trigger auto fetch the usernames and avatars -->
       <script id="autoFetch" defer nonce="<%=hash%>">
           window.autoFetch = true;
       </script>
     <% } %>
     <% if (title === 'Create') { %>
+      <!-- For creating the chat -->
         <script type="module" defer src="/scripts/login/createchat.js"></script>
     <% } else if (title === 'Join') { %>
+      <!-- For joining the chat -->
         <script type="module" src="/socket.io/socket.io.js"></script>
         <script type="module" defer src="/scripts/login/joinchat.js"></script>
+    <% } else { %>
+        <!-- Alert -->
+        <script defer nonce="<%=hash%>">
+            alert('Invalid URL');
+            window.location.href = '/';
+        </script>
     <% } %>
 </body>
 </html>

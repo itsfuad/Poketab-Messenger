@@ -105,7 +105,7 @@
             text-align: center;
         }
 
-        .why{
+        .feature{
             font-size: 0.8rem;
             display: flex;
             flex-direction: row;
@@ -116,7 +116,7 @@
             gap: 30px;
         }
 
-        .why-item{
+        .feature-item{
             display: flex;
             flex-direction: column;
             gap: 30px;
@@ -132,15 +132,15 @@
             cursor: pointer;
         }
 
-        .why-item i{
+        .feature-item i{
             font-size: 4rem;
         }
 
-        .why-item:hover{
+        .feature-item:hover{
             transform: translateY(-5px);
         }
 
-        .why-item-title{
+        .feature-item-title{
             font-size: 1.3rem;
             text-align: center;
         }
@@ -205,70 +205,23 @@
             <a id="github" class="button-animate btn play-sound" href="https://github.com/itsfuad/poketab-messenger">View Source</a>
         </div>
         <div class="titleText">What does it offer?</div>
-        <div class="why">
-            <div class="why-item">
-                <i class="fas fa-user-friends"></i>
-                <div class="why-item-title">
-                    Group chat.
+        <div class="feature">
+            <% featureItems.forEach(function(item) { %>
+                <div class="feature-item">
+                    <i class="<%= item.iconClass %>"></i>
+                    <div class="feature-item-title">
+                        <%= item.title %>
+                    </div>
+                    <div class="detail">
+                        <%= item.description %>
+                    </div>
                 </div>
-                <div class="detail">
-                    Poketab Messenger allows you to chat with up to 10 people at once. No one can interrupt your conversations. So, you can chat with your friends and colleagues without any distractions. Just keep the conversation going.
-                </div>
-            </div>
-            <div class="why-item">
-                <i class="fas fa-lock"></i>
-                <div class="why-item-title">
-                    Encrypted message.
-                </div>
-                <div class="detail">
-                    We understand the importance of privacy, which is why we do not store any of your messages or files on our servers. Our app simply relays the information, ensuring that your conversations remain private and secure.
-                </div>
-            </div>
-            <div class="why-item">
-                <i class="fas fa-mobile-alt"></i>
-                <div class="why-item-title">
-                    Works on all devices.
-                </div>
-                <div class="detail">
-                    Poketab Messenger is a Progressive Web App (PWA), which means it works on all devices, including mobile. You can use it on your desktop, laptop, tablet, or mobile phone. No need to install any app, just use it on any device. It's that simple.
-                </div>
-            </div>
-            <div class="why-item">
-                <i class="fas fa-bolt"></i>
-                <div class="why-item-title">
-                    Fast and lightweight.
-                </div>
-                <div class="detail">
-                    This is not native app that can steal your information. It's fully web-based and it fetches it's content from the server only when you need it.
-                </div>
-            </div>
-            <!--Easy file sharing-->
-            <div class="why-item">
-                <i class="fa-solid fa-share-nodes"></i>
-                <div class="why-item-title">
-                    Easy file sharing.
-                </div>
-                <div class="detail">
-                    With Poketab Messenger, you can easily share files, images, and even record audio messages to bring your conversations to life. 
-                </div>
-            </div>
-            <!--chat replies and reactions-->
-            <div class="why-item">
-                <i class="fas fa-comment"></i>
-                <div class="why-item-title">
-                    Chat replies and reactions.
-                </div>
-                <div class="detail">
-                    Poketab Messenger allows you to reply to any message in a chat. You can also react to any message with a variety of fun and expressive stickers and reactions.
-                </div>
-            </div>
+            <% }); %>
         </div>
         <div class="footer">
             <a href="mailto:support@poketab.live">support@poketab.live</a>
         </div>
     </div>
-
-
     <div class="loader" id="loader">
         <div class="text">Please wait</div>
         <div class="logo">
@@ -276,7 +229,5 @@
             <div class="loader-ripple"></div>
         </div>
     </div>
-
-
 </body>
 </html>
