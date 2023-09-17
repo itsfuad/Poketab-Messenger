@@ -370,21 +370,6 @@ body {
   gap: 5px;
   font-weight: 900;
 }
-#sidebar #userlist .user .avt {
-  position: relative;
-  background: var(--option-color);
-  border-radius: 50%;
-}
-#sidebar #userlist .user .avt img {
-  display: block;
-}
-#sidebar #userlist .user .avt .activeStatus {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  font-size: 0.5rem;
-  color: lime;
-}
 #sidebar .footer_options {
   display: flex;
   flex-direction: row;
@@ -396,6 +381,22 @@ body {
 #sidebar .footer_options #logoutButton {
   background: red;
   font-size: 0.8rem;
+}
+
+.avt {
+  position: relative;
+  background: var(--option-color);
+  border-radius: 50%;
+}
+.avt img {
+  display: block;
+}
+.avt .activeStatus {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 0.5rem;
+  color: lime;
 }
 
 .footer_options .fa-gear {

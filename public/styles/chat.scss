@@ -378,21 +378,6 @@ body {
             justify-content: center;
             gap: 5px;
             font-weight: 900;
-            .avt {
-                position: relative;
-                background: var(--option-color);
-                border-radius: 50%;
-                img {
-                    display: block;
-                }
-                .activeStatus {
-                    position: absolute;
-                    bottom: 0;
-                    right: 0;
-                    font-size: 0.5rem;
-                    color: lime;
-                }
-            }
         }
     }
     .footer_options {
@@ -407,6 +392,22 @@ body {
             background: red;
             font-size: 0.8rem;
         }
+    }
+}
+
+.avt {
+    position: relative;
+    background: var(--option-color);
+    border-radius: 50%;
+    img {
+        display: block;
+    }
+    .activeStatus {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        font-size: 0.5rem;
+        color: lime;
     }
 }
 

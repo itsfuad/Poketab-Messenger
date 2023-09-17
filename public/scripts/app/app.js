@@ -7,7 +7,7 @@ import { fileSocket, incommingXHR } from './utils/fileSocket.js';
 import { Prism } from '../../libs/prism/prism.min.js';
 import { sanitizeImagePath, sanitize } from './utils/sanitizer.js';
 import {
-	getFormattedDate, reactArray, shortFileName, getTypingString, remainingTime
+	getFormattedDate, shortFileName, getTypingString, remainingTime
 } from './utils/helperFunctions.js';
 
 import {
@@ -250,78 +250,6 @@ document.getElementById('quickEmoji').addEventListener('change', () => {
 
 //! functions
 
-/**
- * Loads the reacts from the Defined array of reacts and inserts on the DOM
- */
-function loadReacts() {
-	//load all the reacts from the react object
-	const reactOptions = document.getElementById('reactOptions');
-	for (let i = 0; i < reactArray.primary.length - 1; i++) {
-
-		const reactWrapperFragment = fragmentBuilder({
-			tag: 'div',
-			attr: {
-				class: 'reactWrapper',
-				'data-react': reactArray.primary[i],
-			},
-			child: {
-				tag: 'div',
-				attr: {
-					class: 'react-emoji',
-				},
-				text: reactArray.primary[i],
-			}
-		});
-
-		reactOptions.insertBefore(reactWrapperFragment, reactOptions.lastElementChild);
-	}
-
-	let lastReact = localStorage.getItem('lastReact') || reactArray.last;
-
-	if (!reactArray.expanded.includes(lastReact) || reactArray.primary.includes(lastReact)) {
-		lastReact = '🌻';
-	}
-
-	const lastWrapperFragment = fragmentBuilder({
-		tag: 'div',
-		attr: {
-			class: 'reactWrapper last',
-			'data-react': lastReact,
-		},
-		child: {
-			tag: 'div',
-			attr: {
-				class: 'react-emoji',
-			},
-			text: lastReact,
-		}
-	});
-
-	reactOptions.insertBefore(lastWrapperFragment, reactOptions.lastElementChild);
-
-	const moreReacts = document.querySelector('.moreReacts');
-
-	for (let i = 0; i < reactArray.expanded.length; i++) {
-
-		const moreReactWrapper = fragmentBuilder({
-			tag: 'div',
-			attr: {
-				class: 'reactWrapper',
-				'data-react': reactArray.expanded[i],
-			},
-			child: {
-				tag: 'div',
-				attr: {
-					class: 'react-emoji',
-				},
-				text: reactArray.expanded[i],
-			}
-		});
-
-		moreReacts.appendChild(moreReactWrapper);
-	}
-}
-
 let themeAccent = null;
 let themeArray = null;
 
@@ -334,12 +262,44 @@ async function fetchThemeAccent() {
 	});
 
 	if (!response.ok) {
+		showPopupMessage('Failed to fetch themeAccent data');
 		throw new Error('Failed to fetch themeAccent data');
 	}
 
 	const themeAccent = await response.json();
 	return themeAccent.themeAccent;
 }
+
+let reactArray = null;
+
+async function fetchReacts() {
+	const response = await fetch('/reacts', {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
+
+	if (!response.ok) {
+		showPopupMessage('Failed to fetch reacts data');
+		throw new Error('Failed to fetch reacts data');
+	}
+
+	const reacts = await response.json();
+	return reacts.reactArray;
+}
+
+async function loadReacts() {
+	reactArray = await fetchReacts();
+	console.log(reactArray.lastReact);
+	const reactFromStorage = localStorage.getItem('lastReact');
+	if (!reactArray.primary.includes(reactFromStorage) && !reactArray.expanded.includes(reactFromStorage)) {
+		localStorage.setItem('lastReact', reactArray.lastReact);
+	} else {
+		reactArray.lastReact = reactFromStorage;
+	}
+}
+
 
 /**
  * Loads theme
