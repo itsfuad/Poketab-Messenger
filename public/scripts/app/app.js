@@ -2191,8 +2191,11 @@ function showStickersPanel() {
 	stickersPanel.classList.add('active');
 	setStickerKeyboardState(true);
 	let selectedSticker = localStorage.getItem('selectedSticker');
-	if (Stickers.includes(selectedSticker) == false) {
+	//if the sticker is not found in the Stickers array, set it to default
+	//Sticker = {name: string, src: string, type: string, sendable: boolean, category: string}, compare by name
+	if (!Stickers.find(sticker => sticker.name == selectedSticker)) {
 		selectedSticker = 'catteftel';
+		console.log('Sticker not found, setting to default');
 		localStorage.setItem('selectedSticker', selectedSticker);
 	}
 	//console.log(selectedSticker);
