@@ -1,5 +1,5 @@
 //utility functions for the server
-import { avList, isRealString, reactArray, validateKey } from './utils/validation.js';
+import { avList, isRealString, validateKey } from './utils/validation.js';
 import { keyStore, SocketIds } from './database/db.js';
 import { User } from './database/schema/User.js';
 import crypto from 'crypto';
@@ -111,9 +111,7 @@ chatSocket.on('connection', (socket) => {
         });
         socket.on('react', (target, messageId, userId) => {
             if (SocketIds[socket.id]) {
-                if (reactArray.primary.includes(target) || reactArray.expanded.includes(target)) {
-                    chatSocket.to(SocketIds[socket.id].key).emit('getReact', target, messageId, userId);
-                }
+                chatSocket.to(SocketIds[socket.id].key).emit('getReact', target, messageId, userId);
             }
         });
         socket.on('deletemessage', (messageId, msgUid, userName, userId) => {

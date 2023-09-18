@@ -28,6 +28,8 @@ import { PanZoom } from '../../libs/panzoom.js';
 
 import { getRandomID } from './utils/generateRandomID.js';
 
+import { reactArray } from './utils/reacts.js';
+
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
 //main message Element where all messages araree inserted
@@ -270,33 +272,75 @@ async function fetchThemeAccent() {
 	return themeAccent.themeAccent;
 }
 
-let reactArray = null;
+/**
+ * Loads the reacts from the Defined array of reacts and inserts on the DOM
+ */
+function loadReacts() {
+	//load all the reacts from the react object
+	const reactOptions = document.getElementById('reactOptions');
+	for (let i = 0; i < reactArray.primary.length - 1; i++) {
 
-async function fetchReacts() {
-	const response = await fetch('/reacts', {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json'
+		const reactWrapperFragment = fragmentBuilder({
+			tag: 'div',
+			attr: {
+				class: 'reactWrapper',
+				'data-react': reactArray.primary[i],
+			},
+			child: {
+				tag: 'div',
+				attr: {
+					class: 'react-emoji',
+				},
+				text: reactArray.primary[i],
+			}
+		});
+
+		reactOptions.insertBefore(reactWrapperFragment, reactOptions.lastElementChild);
+	}
+
+	let lastReact = localStorage.getItem('lastReact') || reactArray.last;
+
+	if (!reactArray.expanded.includes(lastReact) || reactArray.primary.includes(lastReact)) {
+		lastReact = '🌻';
+	}
+
+	const lastWrapperFragment = fragmentBuilder({
+		tag: 'div',
+		attr: {
+			class: 'reactWrapper last',
+			'data-react': lastReact,
+		},
+		child: {
+			tag: 'div',
+			attr: {
+				class: 'react-emoji',
+			},
+			text: lastReact,
 		}
 	});
 
-	if (!response.ok) {
-		showPopupMessage('Failed to fetch reacts data');
-		throw new Error('Failed to fetch reacts data');
-	}
+	reactOptions.insertBefore(lastWrapperFragment, reactOptions.lastElementChild);
 
-	const reacts = await response.json();
-	return reacts.reactArray;
-}
+	const moreReacts = document.querySelector('.moreReacts');
 
-async function loadReacts() {
-	reactArray = await fetchReacts();
-	console.log(reactArray.lastReact);
-	const reactFromStorage = localStorage.getItem('lastReact');
-	if (!reactArray.primary.includes(reactFromStorage) && !reactArray.expanded.includes(reactFromStorage)) {
-		localStorage.setItem('lastReact', reactArray.lastReact);
-	} else {
-		reactArray.lastReact = reactFromStorage;
+	for (let i = 0; i < reactArray.expanded.length; i++) {
+
+		const moreReactWrapper = fragmentBuilder({
+			tag: 'div',
+			attr: {
+				class: 'reactWrapper',
+				'data-react': reactArray.expanded[i],
+			},
+			child: {
+				tag: 'div',
+				attr: {
+					class: 'react-emoji',
+				},
+				text: reactArray.expanded[i],
+			}
+		});
+
+		moreReacts.appendChild(moreReactWrapper);
 	}
 }
 
@@ -579,6 +623,9 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 	} else if (type === 'sticker') {
 		popupmsg = 'Sticker';
 		message = sanitizeImagePath(message);
+		if (!stickerIsValid(message)) {
+			return;
+		}
 		message = `
 			<img class="msg sticker image" src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
 		`;
@@ -1404,6 +1451,11 @@ function appendReactToMessage(target, uid, reactEmoji) {
  */
 export function getReact(reactEmoji, messageId, uid) {
 	try {
+
+		if (!reactArray.primary.includes(reactEmoji) && !reactArray.expanded.includes(reactEmoji)) {
+			return;
+		}
+
 		const targetMessage = document.getElementById(messageId);
 		const target = targetMessage.querySelector('.reactedUsers');
 		const exists = target.querySelector('.list') ? true : false;
@@ -1868,7 +1920,7 @@ export function showPopupMessage(text) {
 
 /**
  * Message from the server
- * @param {string} message 
+ * @param {string} message
  * @param {string} type Message type [Join, leave, location]
  */
 export function serverMessage(message, type = null, color = null) {
@@ -2128,12 +2180,41 @@ document.getElementById('stickerBtn').addEventListener('click', () => {
 	showStickersPanel();
 });
 
+/**
+ * 
+ * @param {string} msg 
+ * @returns 
+ */
+function stickerIsValid(msg){
+	//example: amongus/animated/5
+	if (!msg.includes('/')){
+		return false;
+	} else if (msg.split('/').length != 3){
+		return false;
+	}
+	const stickerGroup = msg.split('/')[0];
+	const stickerNumber = parseInt(msg.split('/')[2]);
+	const sticker = Stickers.find((sticker) => sticker.name == stickerGroup);
+	if (!sticker || (stickerNumber > parseInt(sticker.count) || stickerNumber < 1)){
+		return false;
+	} else {
+		return true;
+	}
+}
+
 document.getElementById('stickersKeyboard').addEventListener('click', e => {
 
 	if (e.target.tagName === 'IMG' && e.target.classList.contains('sendable')) {
 		const tempId = getRandomID();
 		playStickerSound();
 		scrolling = false;
+
+		const msg = e.target.dataset.name;
+
+		if (!stickerIsValid(msg)){
+			serverMessage({text: 'You\'re an IDIOT..!'}, 'info', 'yellow');
+			return;
+		}
 
 		insertNewMessage(e.target.dataset.name, 'sticker', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, {});
 
@@ -2149,7 +2230,7 @@ document.getElementById('stickersKeyboard').addEventListener('click', e => {
 				if (error) {
 					console.log(error);
 					document.getElementById(tempId).dataset.type = 'error';
-					document.getElementById(tempId).querySelector('.messageMain').innerHTML = `<div class="msg text" style="background: red">${error}</div>`;
+					document.getElementById(tempId).querySelector('.messageMain').innerHTML = `<div class="msg text" style="background: red"><div class="data text-content">${error}</div></div>`;
 					return;
 				}
 

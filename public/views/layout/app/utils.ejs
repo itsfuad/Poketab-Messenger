@@ -9,14 +9,6 @@
         <div class="reactOptionsWrapper" data-expanded="false">
             <ul id="reactOptions" class="options">
                 <!--Reacts-->
-                <% for (let i = 0; i < reactArray.primary.length - 1; i++) { %>
-                <div class="reactWrapper" data-react="<%= reactArray.primary[i] %>">
-                    <div class="react-emoji"><%= reactArray.primary[i] %></div>
-                </div>
-                <% } %>
-                <div class="reactWrapper last" data-react="<%= reactArray.last %>">
-                    <div class="react-emoji"><%= reactArray.last %></div>
-                </div>
                 <div class="more option" title="More reactions" id="showMoreReactBtn"><i class="fa-solid fa-plus"></i></div>
             </ul>
         </div>
@@ -28,6 +20,13 @@
                 <div class="deleteOption option"><i class="fa-solid fa-trash"></i> <span>Delete</span></div>
             </ul>
         </div>
+    </div>
+</div>
+
+<!--message popup-->
+<div class="scrollPopupWrapper">
+    <div class="newmessagepopup button-animate small btn play-sound">
+        <img src="" alt="Avatar"><div class="msg"></div><div class="downarrow"><i class="fa-solid fa-arrow-down"></i></div>
     </div>
 </div>
 
@@ -64,11 +63,6 @@
     <div id="expandReactButton"><i class="expandReactsIcon fa-solid fa-chevron-up"></i></div>
     <div class="moreReacts">
         <!-- Add more emojis -->
-        <% reactArray.expanded.forEach(function(react) { %>
-            <div class="reactWrapper" data-react="<%= react %>">
-                <div class="react-emoji"><%= react %></div>
-            </div>
-        <% }); %>
     </div>
 </div>
 

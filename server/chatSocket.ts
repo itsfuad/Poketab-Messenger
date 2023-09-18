@@ -1,5 +1,5 @@
 //utility functions for the server
-import { avList, isRealString, reactArray, validateKey } from './utils/validation.js';
+import { avList, isRealString, validateKey } from './utils/validation.js';
 
 import { keyStore, SocketIds } from './database/db.js';
 
@@ -92,6 +92,7 @@ chatSocket.on('connection', (socket) => {
 			if (isRealString(message)) {
 
 				if (type == 'sticker' || type == 'image'){
+
 					const regex = /[<>&'"\s]/g;
 					const containsMaliciousCode = regex.test(message);
 
@@ -135,9 +136,7 @@ chatSocket.on('connection', (socket) => {
 	
 		socket.on('react', (target, messageId, userId) => {
 			if (SocketIds[socket.id]){
-				if (reactArray.primary.includes(target) || reactArray.expanded.includes(target)) {
-					chatSocket.to(SocketIds[socket.id].key).emit('getReact', target, messageId, userId);
-				}
+				chatSocket.to(SocketIds[socket.id].key).emit('getReact', target, messageId, userId);
 			}
 		});
 	

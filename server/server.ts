@@ -9,7 +9,7 @@ import { blockedMessage } from './utils/blockedMessage.js';
 
 
 //utility functions for the server
-import { validateUserName, validateAvatar, avList, validateKey, reactArray } from './utils/validation.js';
+import { validateUserName, validateAvatar, avList, validateKey } from './utils/validation.js';
 import { generateUniqueId, makeUsernameandPasswordForDevelopment } from './utils/functions.js';
 import { keyStore } from './database/db.js';
 import { themeAccent } from './utils/themes.js';
@@ -141,10 +141,6 @@ app.get('/join', (req, res) => {
 	res.render('login/newUser', { title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce, takenAvlists: null, icon: Icon , color: color});
 });
 
-app.get('/reacts', (req, res) => {
-	res.status(200).send({ reactArray: reactArray });
-});
-
 app.get('/theme', (_, res) => {
 	res.status(200).send({ themeAccent });
 });
@@ -172,7 +168,7 @@ app.get('/~', (req, res) => {
 			return;
 		}
 
-		approveNewChatRequest(req, res, { username: username, key: '00-000-00', avatar: avatar, max_users: 10, icon: Icon, reactArray: reactArray });
+		approveNewChatRequest(req, res, { username: username, key: '00-000-00', avatar: avatar, max_users: 10, icon: Icon });
 	}
 });
 
@@ -221,7 +217,7 @@ app.post('/~', (req, res) => {
 
 		const maxuser = req.body.maxuser;
 
-		approveNewChatRequest(req, res, { username: username, key: newKey, avatar: avatar, max_users: maxuser, icon: Icon, reactArray: reactArray });
+		approveNewChatRequest(req, res, { username: username, key: newKey, avatar: avatar, max_users: maxuser, icon: Icon });
 
 	} else if (key && keyStore.hasKey(key)) {
 		//Key exists, so the request is a join request
@@ -238,7 +234,7 @@ app.post('/~', (req, res) => {
 
 			const { maxUser } = keyStore.getKey(key);
 
-			approveNewChatRequest(req, res, { username: username, key: key, avatar: avatar, max_users: maxUser, icon: Icon, reactArray: reactArray });
+			approveNewChatRequest(req, res, { username: username, key: key, avatar: avatar, max_users: maxUser, icon: Icon });
 			return;
 		}
 	} else {
@@ -262,7 +258,7 @@ function blockNewChatRequest(req: any, res: any, data: { title: string, errorCod
 	res.render('errors/errorRes', { title: data.title, errorCode: data.errorCode, errorMessage: data.errorMessage, buttonText: data.buttonText, icon: data.icon, color: color });
 }
 
-function approveNewChatRequest(req: any, res: any, data: { username: string, key: string, avatar: string, max_users: number, icon: string, reactArray: { primary: string[], last: string, expanded: string[]} }) {
+function approveNewChatRequest(req: any, res: any, data: { username: string, key: string, avatar: string, max_users: number, icon: string}) {
 	const nonce = crypto.randomBytes(16).toString('hex');
 	const welcomeSticker = Math.floor(Math.random() * 9) + 1;
 
@@ -279,7 +275,7 @@ function approveNewChatRequest(req: any, res: any, data: { username: string, key
 	//never expire cookie
 	res.cookie('theme', theme, { maxAge: 2147483647, httpOnly: true });
 	
-	res.render('chat/chat', { myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, ENV: ENVIRONMENT, hash: nonce, welcomeSticker: welcomeSticker, icon: data.icon, color: color, reactArray: data.reactArray });
+	res.render('chat/chat', { myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, ENV: ENVIRONMENT, hash: nonce, welcomeSticker: welcomeSticker, icon: data.icon, color: color});
 }
 
 app.get('/offline', (req, res) => {

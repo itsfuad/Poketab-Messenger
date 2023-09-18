@@ -4,8 +4,3 @@ export declare function validateUserName(username: string): boolean;
 export declare function validateAvatar(avatar: string): boolean;
 export declare function validateKey(key: string): boolean;
 export declare function validateAll(username: string, key: string, avatar: string): boolean;
-export declare const reactArray: {
-    primary: string[];
-    last: string;
-    expanded: string[];
-};
