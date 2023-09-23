@@ -15,6 +15,9 @@ import { askToJoinUserSocket } from './preAuthSocket.js';
 import { filterMessage } from './utils/badwords.js';
 import { getLinkMetadata } from './utils/metadataParser.js';
 
+import { stickerIsValid } from '../public/scripts/shared/StickersConfig.js';
+
+
 //socket.io connection
 chatSocket.on('connection', (socket) => {
 	try{
@@ -76,22 +79,18 @@ chatSocket.on('connection', (socket) => {
 			socket.broadcast.to(params.key).emit('server_message', {color: 'var(--secondary-dark)', text: `${params.name} joined the chat🔥`, id: srvID}, 'join');
 		});
 	
-		/**
-		 * @param {string} message
-		 * @param {string} type
-		 * @param {string} uId
-		 * @param {string} reply
-		 * @param {string} replyId
-		 * @param {object} options
-		 * @param {function} callback
-		 * @returns {void}
-		 */
-		socket.on('message', (message, type, uId, reply, replyId, options, callback) => {
+
+		socket.on('message', (message: string, type: string, uId: string, reply: string, replyId: string, options: Object, callback: Function) => {
 			//const user = users.getUser(uids.get(socket.id));
 	
 			if (isRealString(message)) {
+				if (type == 'sticker'){
+					if (!stickerIsValid(message)){
+						return callback(null, 'Invalid sticker');
+					}
+				}
 
-				if (type == 'sticker' || type == 'image'){
+				if (type == 'image'){
 
 					const regex = /[<>&'"\s]/g;
 					const containsMaliciousCode = regex.test(message);
@@ -135,6 +134,7 @@ chatSocket.on('connection', (socket) => {
 		});
 	
 		socket.on('react', (target, messageId, userId) => {
+
 			if (SocketIds[socket.id]){
 				chatSocket.to(SocketIds[socket.id].key).emit('getReact', target, messageId, userId);
 			}

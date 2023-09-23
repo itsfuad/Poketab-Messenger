@@ -12,7 +12,9 @@ import { blockedMessage } from './utils/blockedMessage.js';
 import { validateUserName, validateAvatar, avList, validateKey } from './utils/validation.js';
 import { generateUniqueId, makeUsernameandPasswordForDevelopment } from './utils/functions.js';
 import { keyStore } from './database/db.js';
-import { themeAccent } from './utils/themes.js';
+//import { themeAccent } from './utils/themes.js';
+
+import { themeAccent } from './../public/scripts/shared/Themes.js';
 
 //import .env variables
 import { config } from 'dotenv';
@@ -141,11 +143,13 @@ app.get('/join', (req, res) => {
 	res.render('login/newUser', { title: 'Join', avList: avList, version: `v.${version}`, key: null, hash: nonce, takenAvlists: null, icon: Icon , color: color});
 });
 
-app.get('/theme', (_, res) => {
-	res.status(200).send({ themeAccent });
-});
-
 app.put('/theme', (req, res) => {
+	const referer = req.headers.referer;
+	//if the request came from the same host then allow the request
+	if (!referer){
+		res.status(403).send({ error: 'No referer found' });
+		return;
+	}
 	const theme = themeAccent[req.body.theme] ? req.body.theme : 'ocean';
 	res.cookie('theme', theme, { maxAge: 2147483647, httpOnly: true });
 	res.status(200).send({ message: 'Theme changed' });

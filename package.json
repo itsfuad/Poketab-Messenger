@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "webpack",
-    "start": "node production/server/server.js",
-    "dev": "nodemon --config src/config/nodemon.json production/server/server.js",
+    "start": "node server/server.js",
+    "dev": "nodemon --config src/config/nodemon.json server/server.js",
     "test": "jest",
     "test-watch": "nodemon --exec 'npm test'"
   },

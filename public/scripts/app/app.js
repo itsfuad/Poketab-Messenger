@@ -23,12 +23,14 @@ import { fragmentBuilder } from './utils/fragmentBuilder.js';
 import { setStickerKeyboardState } from './utils/stickersKeyboard.js';
 
 import { filterMessage } from './utils/badwords.js';
-import { Stickers } from '../../stickers/stickersConfig.js';
+import { Stickers, stickerIsValid } from './../shared/StickersConfig.js';
 import { PanZoom } from '../../libs/panzoom.js';
 
 import { getRandomID } from './utils/generateRandomID.js';
 
-import { reactArray } from './utils/reacts.js';
+import { reactArray } from './../shared/Reacts.js';
+
+import { themeAccent } from './../shared/Themes.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
@@ -142,7 +144,7 @@ const activeModals = [];
  */
 const ongoingXHR = new Map();
 
-
+const themeArray = Object.keys(themeAccent);
 
 /**
  * This array stores the selected files to be sent
@@ -252,26 +254,6 @@ document.getElementById('quickEmoji').addEventListener('change', () => {
 
 //! functions
 
-let themeAccent = null;
-let themeArray = null;
-
-async function fetchThemeAccent() {
-	const response = await fetch('/theme', {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json'
-		}
-	});
-
-	if (!response.ok) {
-		showPopupMessage('Failed to fetch themeAccent data');
-		throw new Error('Failed to fetch themeAccent data');
-	}
-
-	const themeAccent = await response.json();
-	return themeAccent.themeAccent;
-}
-
 /**
  * Loads the reacts from the Defined array of reacts and inserts on the DOM
  */
@@ -349,8 +331,6 @@ function loadReacts() {
  * Loads theme
  */
 async function loadTheme() {
-	themeAccent = await fetchThemeAccent();
-	themeArray = Object.keys(themeAccent);
 	//append the theme to the DOM
 	const themePicker = document.createElement('div');
 	themePicker.id = 'themePicker';
@@ -2179,28 +2159,6 @@ document.getElementById('stickerBtn').addEventListener('click', () => {
 	textbox.blur();
 	showStickersPanel();
 });
-
-/**
- * 
- * @param {string} msg 
- * @returns 
- */
-function stickerIsValid(msg){
-	//example: amongus/animated/5
-	if (!msg.includes('/')){
-		return false;
-	} else if (msg.split('/').length != 3){
-		return false;
-	}
-	const stickerGroup = msg.split('/')[0];
-	const stickerNumber = parseInt(msg.split('/')[2]);
-	const sticker = Stickers.find((sticker) => sticker.name == stickerGroup);
-	if (!sticker || (stickerNumber > parseInt(sticker.count) || stickerNumber < 1)){
-		return false;
-	} else {
-		return true;
-	}
-}
 
 document.getElementById('stickersKeyboard').addEventListener('click', e => {
 

@@ -1,4 +1,4 @@
-import { Stickers } from './../../../stickers/stickersConfig.js';
+import { Stickers } from './../../shared/StickersConfig.js';
 import { parseTemplate } from './messageParser.js';
 
 const stickersTemplate = document.getElementById('stickersTemplate');
@@ -70,8 +70,8 @@ export function loadStickerHeaders() {
 			if (entry.isIntersecting && stickerKeyboardIsOpen) {
 				const inViewSticker = entry.target.classList[1];
 				localStorage.setItem('selectedSticker', inViewSticker);
-				console.log('set ' + inViewSticker);
-				console.log(inViewSticker);
+				//console.log('set ' + inViewSticker);
+				//console.log(inViewSticker);
 				document.querySelectorAll('.stickersHeader img').forEach((stickerHead) => {
 					stickerHead.dataset.selected = false;
 				});
