@@ -246,22 +246,17 @@ httpServer.listen(port, () => {
     console.log(`System: ${os.type()} ${os.release()} ${os.arch()}`);
     console.log(`CPU: ${os.cpus()[0].model}`);
     console.log(`CPU Cores: ${os.cpus().length}`);
-    console.log(`Memory: ${Math.round(os.totalmem() / 1048576)}MB`);
-    console.log(`Free Memory: ${Math.round(os.freemem() / 1048576)}MB`);
+    console.log(`Memory: ${Math.round(os.totalmem() / 1024 / 1024 / 1024)} Gigabytes`);
+    console.log(`Free Memory: ${Math.round(os.freemem() / 1024 / 1024 / 1024)} Gigabytes`);
     console.log(`Uptime: ${Math.round(os.uptime() / 3600)} hours`);
     console.log(`Hostname: ${os.hostname()}`);
-    console.log(`Home Directory: ${os.homedir()}`);
+    console.log(`Server Version: ${version}`);
+    console.log(`Developer: ${DEVELOPER}`);
     console.log(`Node.js: ${process.version}`);
     console.log(`Environment: ${ENVIRONMENT}`);
     console.log(`Process ID: ${process.pid}`);
     console.log('------------------------------------------------------------');
     if (!fs.existsSync('uploads')) {
         fs.mkdirSync('uploads');
-    }
-    const HOOK_API_KEY = process.env.HOOK_API_KEY;
-    const CHAT_ID = process.env.CHAT_ID;
-    if (ENVIRONMENT === 'PRODUCTION' && HOOK_API_KEY && CHAT_ID) {
-        fetch(`https://api.telegram.org/bot${HOOK_API_KEY}/sendMessage?chat_id=${CHAT_ID}&text=Server is up on port ${port} | Process ID: ${process.pid} in ${ENVIRONMENT} mode`, { method: 'GET' })
-            .catch(err => console.log);
     }
 });

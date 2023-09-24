@@ -7,7 +7,7 @@ import { cleanJunks, deleteFile } from './cleaner.js';
 import { chatSocket } from './sockets.js';
 import { fileStore } from './routes/fileAPI.js';
 import { askToJoinUserSocket } from './preAuthSocket.js';
-import { filterMessage } from './utils/badwords.js';
+import { filterMessage } from './../public/scripts/shared/BadWords.js';
 import { getLinkMetadata } from './utils/metadataParser.js';
 import { stickerIsValid } from '../public/scripts/shared/StickersConfig.js';
 //socket.io connection

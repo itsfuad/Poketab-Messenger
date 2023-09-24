@@ -106,8 +106,14 @@ chatSocket.on('connect', () => {
 });
 
 //updates current user list when a user joins or leaves
+/**
+ * @param {Array} users
+ * @param {string} users[].username
+ * @param {string} users[].uid
+ * @param {string} users[].avatar
+ * @param {string} users[].key
+ */
 chatSocket.on('updateUserList', (users) => {
-
 	users.forEach(user => {
 		userInfoMap.set(user.uid, user);
 	});

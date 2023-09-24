@@ -22,7 +22,7 @@ import { fragmentBuilder } from './utils/fragmentBuilder.js';
 
 import { setStickerKeyboardState } from './utils/stickersKeyboard.js';
 
-import { filterMessage } from './utils/badwords.js';
+import { filterMessage } from './../shared/BadWords.js';
 import { Stickers, stickerIsValid } from './../shared/StickersConfig.js';
 import { PanZoom } from '../../libs/panzoom.js';
 
