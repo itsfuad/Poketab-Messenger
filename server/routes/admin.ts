@@ -11,7 +11,7 @@ import crypto from 'crypto';
 
 import { HMAC_KEY } from '../expressApp.js';
 
-import { Keys } from '../database/db.js';
+import { keyStore } from '../database/db.js';
 
 const AdminSessionSecret = new Map();
 
@@ -98,7 +98,7 @@ router.post('/data', cookieParser(HMAC_KEY), (req, res) => {
 	if (req.signedCookies.auth == signature) {
 		if (sessionId == AdminSessionSecret.get('Admin')){
 			console.log('Sending chat keys');
-			res.status(200).send(Keys);
+			res.status(200).send(keyStore.getAllKeys());
 		}else{
 			res.status(403).send('Unauthorized');
 		}

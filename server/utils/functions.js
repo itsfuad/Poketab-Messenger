@@ -1,4 +1,4 @@
-import { Keys, keyStore } from '../database/db.js';
+import { keyStore } from '../database/db.js';
 import { avList } from './validation.js';
 class idGenerator {
     constructor() {
@@ -65,9 +65,9 @@ const usernameList = [
 export function makeUsernameandPasswordForDevelopment(key) {
     const username = usernameList[Math.floor(Math.random() * usernameList.length)];
     const avatar = avList[Math.floor(Math.random() * avList.length)];
-    if (Keys[key]) {
-        const existingNames = Keys[key].getUserList().map((user => user.username));
-        const existingAvatars = Keys[key].getUserList().map((user => user.avatar));
+    if (keyStore.getKey(key)) {
+        const existingNames = keyStore.getKey(key).getUserList().map((user => user.username));
+        const existingAvatars = keyStore.getKey(key).getUserList().map((user => user.avatar));
         if (existingNames.includes(username) || existingAvatars.includes(avatar)) {
             return makeUsernameandPasswordForDevelopment(key);
         }

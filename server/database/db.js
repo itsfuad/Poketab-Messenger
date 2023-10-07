@@ -1,5 +1,5 @@
 import { Key } from './schema/Key.js';
-export const Keys = {};
+const Keys = {};
 class KeyStore {
     //returns true if key is in the Keys object
     hasKey(key) {
@@ -10,6 +10,9 @@ class KeyStore {
     }
     getKey(key) {
         return Keys[key];
+    }
+    getAllKeys() {
+        return Keys;
     }
     setKey(key, value) {
         Keys[key] = value;

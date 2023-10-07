@@ -1,7 +1,7 @@
 import { Key } from './schema/Key.js';
 import { User } from './schema/User.js';
 
-export const Keys: {[key: string]: Key} = {};
+const Keys: {[key: string]: Key} = {};
 
 class KeyStore {
 //returns true if key is in the Keys object
@@ -16,6 +16,10 @@ class KeyStore {
 	getKey(key: string): Key{
 		return Keys[key];
 	}
+
+  getAllKeys(): {[key: string]: Key}{
+    return Keys;
+  }
 
 	setKey(key: string, value: Key): void{
 		Keys[key] = value;
