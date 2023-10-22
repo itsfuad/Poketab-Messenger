@@ -130,15 +130,6 @@ app.get('/~', (req, res) => {
     }
     else {
         const { username, avatar } = makeUsernameandPasswordForDevelopment('00-000-00');
-        const referar = req.headers.referer;
-        if (!referar) {
-            blockNewChatRequest(req, res, { title: 'No Referer', errorCode: '403', errorMessage: 'No referer found', buttonText: 'Back', icon: 'error.png' });
-            return;
-        }
-        if (req.headers.host != referar.split('/')[2]) {
-            blockNewChatRequest(req, res, { title: 'Invalid Referer', errorCode: '403', errorMessage: 'Invalid referer', buttonText: 'Back', icon: 'error.png' });
-            return;
-        }
         approveNewChatRequest(req, res, { username: username, key: '00-000-00', avatar: avatar, max_users: 10, icon: Icon });
     }
 });
