@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <link rel="stylesheet" href="./../../styles/message.css">
+    <link rel="stylesheet" href="./../../styles/chat.css">
+</head>
+<body>
+    <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}"> <!-- noreply notitle delevered start end self react -->
+        <div class="seenBy"></div>
+        <div class="messageContainer">
+            <div class="replyIcon">
+                <i class="fa-solid fa-reply"></i>
+            </div>
+            <div class="sent"><i class="fa-regular fa-paper-plane"></i></div>
+            <div class="avatar"><img src="./../../images/avatars/caterpie(custom).webp" width='30px' height='30px' alt='avatar'/></div>
+            <div class="messageBody">
+                <div class="messageTitle">Fuad</div>
+                <div class="messageReply" data-repid="{{repId}}" data-replyfor="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
+                <div class="messageMain">
+                    <div class="text">Hello World</div>
+                    <div class="messageTime" data-timestamp="{{timeStamp}}">{{time}}</div>
+                </div>
+                <div class="reactsOfMessage">
+                    <div class="reactsContainer"></div>
+                    <div class="reactsCount"></div>
+                </div>
+            </div>
+            <div class="reactedUsers" style="display: none;"></div>
+        </div>
+    </li>
+</body>
+</html>

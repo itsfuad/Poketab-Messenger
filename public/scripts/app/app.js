@@ -701,7 +701,6 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 			replyMsg: replyMsg,
 			replyFor: reply.type,
 			time: getFormattedDate(timeStamp),
-			timeStamp: timeStamp,
 		});
 	} else if (type == 'audio') {
 		popupmsg = 'Audio';
@@ -719,7 +718,6 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 			replyMsg: replyMsg,
 			replyFor: reply.type,
 			time: getFormattedDate(timeStamp),
-			timeStamp: timeStamp,
 			duration: metadata.duration,
 		});
 	} else {
@@ -735,7 +733,6 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 			replyMsg: replyMsg,
 			replyFor: reply.type,
 			time: getFormattedDate(timeStamp),
-			timeStamp: timeStamp,
 		});
 	}
 
@@ -749,6 +746,15 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 
 	messages.style.height = 'auto';
 	messages.appendChild(fragment);
+
+	messageDatabase.set(id, {
+		type: type,
+		sender: uid,
+		timeStamp: timeStamp,
+		replyTo: replyId,
+		reacts: new Map(),
+	});
+
 	const navbar = document.querySelector('.navbar');
 	const footer = document.querySelector('.footer');
 	messages.style.height = `calc(100vh - ${navbar.offsetHeight + footer.offsetHeight}px)`;
@@ -766,16 +772,18 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		const lastMsg = messages.querySelector('.msg-item:last-child');
 		if (lastMsg?.classList?.contains('message')) {
 			const time = lastMsg.querySelector('.messageTime');
-			time.textContent = getFormattedDate(time.dataset.timestamp);
+			const timeStamp = messageDatabase.get(lastMsg?.id)?.timeStamp;
+			//console.log(timeStamp);
+			time.textContent = getFormattedDate(timeStamp);
 		}
 	}, 10000);
 
 	checkgaps(lastMsg?.id);
 
-	if (document.getElementById(id)){
+	if (document.getElementById(id)) {
 		//highlight code
 		const codes = document.getElementById(id).querySelector('.messageMain')?.querySelectorAll('pre');
-	
+
 		if (type == 'text' && codes) {
 			//Prism.highlightAll();
 			codes.forEach(code => {
@@ -843,29 +851,27 @@ function showOptions(type, sender, target) {
 			//console.log('Delete Option Hidden');
 		}
 		//get if the message has my reaction or not
-		const clicked = Array.from(target.closest('.message').querySelectorAll('.reactedUsers .list')).reduce((acc, curr) => {
-			return acc || curr.dataset.uid == myId;
-		}, false);
+		const containsMyReact = messageDatabase.get(target.closest('.message')?.id)?.reacts.has(myId);
 
 		//2nd last element
 		const elm = document.getElementById('reactOptions');
 		const lastElm = elm.lastElementChild.previousElementSibling;
 
-		if (clicked) { //if the message has my reaction
+		if (containsMyReact) { //if the message has my reaction
 			//get how many reactions the message has
-			const clickedElement = target.closest('.message')?.querySelector(`.reactedUsers [data-uid="${myId}"]`)?.textContent;
+			const react = messageDatabase.get(target.closest('.message')?.id)?.reacts.get(myId);
 
-			if (reactArray.primary.includes(clickedElement)) { //if the message has my primary reaction
+			if (reactArray.primary.includes(react)) { //if the message has my primary reaction
 				//selected react color
-				document.querySelector(`#reactOptions [data-react="${clickedElement}"]`).style.background = 'var(--secondary-dark)';
+				document.querySelector(`#reactOptions [data-react="${react}"]`).style.background = 'var(--secondary-dark)';
 			}
-			if (reactArray.expanded.includes(clickedElement)) {
-				document.querySelector(`.moreReacts [data-react="${clickedElement}"]`).style.background = 'var(--secondary-dark)';
+			if (reactArray.expanded.includes(react)) {
+				document.querySelector(`.moreReacts [data-react="${react}"]`).style.background = 'var(--secondary-dark)';
 			}
-			if (reactArray.expanded.includes(clickedElement) && !reactArray.primary.includes(clickedElement)) {
+			if (reactArray.expanded.includes(react) && !reactArray.primary.includes(react)) {
 				lastElm.style.background = 'var(--secondary-dark)';
-				lastElm.dataset.react = clickedElement;
-				lastElm.querySelector('.react-emoji').textContent = clickedElement;
+				lastElm.dataset.react = react;
+				lastElm.querySelector('.react-emoji').textContent = react;
 			}
 		} else {
 			//console.log('No self previous reaction. loading from last react');
@@ -1010,7 +1016,7 @@ export function deleteMessage(messageId, user) {
 		if (message.querySelector('.messageReply') != null) {
 			message.querySelector('.messageReply').remove();
 			message.querySelector('.reactsOfMessage').remove();
-			message.querySelector('.reactedUsers').remove();
+			messageDatabase.delete(messageId);
 			message.classList.remove('reply');
 			message.classList.remove('react');
 			message.querySelector('.seenBy').style.marginTop = '0px';
@@ -1408,20 +1414,21 @@ function hideReplyToast() {
 	}
 }
 
-/**
- * 
- * @param {HTMLElement} target 
- * @param {string} uid 
- * @param {string} reactEmoji 
- */
-function appendReactToMessage(target, uid, reactEmoji) {
-	playReactSound();
-	const div = document.createElement('div');
-	div.classList.add('list');
-	div.dataset.uid = uid;
-	div.textContent = reactEmoji;
-	target.append(div);
+class MessageObj {
+	constructor() {
+		this.type = '';
+		this.sender = '';
+		this.replyTo = '';
+		this.timeStamp = 0;
+		this.timeout = null;
+		this.reacts = new Map();
+	}
 }
+
+/**
+ * @type {Map<string, MessageObj>}
+ */
+const messageDatabase = new Map();
 
 /**
  * 
@@ -1436,26 +1443,17 @@ export function getReact(reactEmoji, messageId, uid) {
 			return;
 		}
 
-		const targetMessage = document.getElementById(messageId);
-		const target = targetMessage.querySelector('.reactedUsers');
-		const exists = target.querySelector('.list') ? true : false;
-		if (exists) {
-			const list = target.querySelector('.list[data-uid="' + uid + '"]');
-			if (list) {
-				if (list.textContent == reactEmoji) {
-					list.remove();
-				} else {
-					list.textContent = reactEmoji;
-				}
-			} else {
-				appendReactToMessage(target, uid, reactEmoji);
-			}
-		}
-		else {
-			appendReactToMessage(target, uid, reactEmoji);
+		// Get the target message from the messageDatabase
+		let messageObj;
+
+		if (messageDatabase.has(messageId)) {
+			messageObj = messageDatabase.get(messageId);
+		} else {
+			messageObj = new MessageObj();
+			messageDatabase.set(messageId, messageObj);
 		}
 
-		const list = Array.from(target.querySelectorAll('.list'));
+		const targetMessage = document.getElementById(messageId);
 
 		//main react container
 		const reactsOfMessage = targetMessage.querySelector('.reactsOfMessage');
@@ -1463,94 +1461,71 @@ export function getReact(reactEmoji, messageId, uid) {
 		//reacts container
 		const reactsContainer = reactsOfMessage.querySelector('.reactsContainer');
 
-		//if other react has the uid
-		const currentReact = reactsContainer.querySelector(`.react[data-emoji="${reactEmoji}"]`);
-		if (currentReact) {
-			//console.log('Same react found: ', currentReact);
-			//if the sender is same, then remove uid
-			if (currentReact.dataset.uids.includes(uid)) {
-				currentReact.dataset.uids = currentReact.dataset.uids.replace(`${uid};`, '');
-				//console.log('uid removed from : ', currentReact.dataset.emoji);
-				if (currentReact.dataset.uids == '') {
-					currentReact.remove();
-				}
+		// Add the reactEmoji to the MessageObj
+		const reacts = messageObj.reacts;
+
+		if (reacts.has(uid)) {
+			//console.log('Already reacted');
+			//if same react is clicked again, remove the react
+			if (reacts.get(uid) == reactEmoji) {
+				reacts.delete(uid);
 			} else {
-				//if user has other reacts on the same target
-				const previousReact = reactsContainer.querySelector(`.react[data-uids*="${uid}"]`);
-				if (previousReact) {
-					//remove uid
-					previousReact.dataset.uids = previousReact.dataset.uids.replace(`${uid};`, '');
-					//console.log('uid removed from previous : ', previousReact.dataset.emoji);
-					if (previousReact.dataset.uids == '') {
-						previousReact.remove();
-					}
-				}
-
-				//move the react to the last
-				reactsContainer.appendChild(currentReact); //This react is moved to the last, because it is the latest react
-
-				//add uid to the current react
-				currentReact.dataset.uids += `${uid};`;
-				//reset the animation
-				const animation = currentReact.querySelector('.react-popup');
-				animation.classList.remove('active');
-				setTimeout(() => {
-					animation.classList.add('active');
-					setTimeout(() => {
-						animation.classList.remove('active');
-					}, 1000);
-				}, 60);
-
+				reacts.set(uid, reactEmoji);
 			}
 		} else {
+			playReactSound();
+			reacts.set(uid, reactEmoji);
+		}
 
-			//if user has other reacts on the same target
-			const previousReact = reactsContainer.querySelector(`.react[data-uids*="${uid}"]`);
-			if (previousReact) {
-				//remove uid
-				previousReact.dataset.uids = previousReact.dataset.uids.replace(`${uid};`, '');
-				//console.log('uid removed from previous : ', previousReact.dataset.emoji);
-				if (previousReact.dataset.uids == '') {
-					previousReact.remove();
-				}
+		//convert uid:react to react:uids map
+		const reactMap = new Map();
+		reacts.forEach((value, key) => {
+			if (reactMap.has(value)) {
+				reactMap.get(value).push(key);
+			} else {
+				reactMap.set(value, [key]);
 			}
+		});
 
-			//react does not exists, so make it.
-			//console.log('Creating new react : ', reactEmoji);
+		//Update UI
+		//remove all reacts
+		while (reactsContainer.firstChild) {
+			reactsContainer.removeChild(reactsContainer.firstChild);
+		}
 
+		//add reacts
+		reactMap.forEach((uids, react) => {
 			const fragment = fragmentBuilder({
 				tag: 'span',
 				attr: {
 					class: 'react',
-					'data-uids': `${uid};`,
-					'data-emoji': reactEmoji
+					'data-emoji': react,
 				},
-				childs: [
-					{
-						tag: 'span',
-						text: reactEmoji,
-						attr: {
-							class: 'emoji',
-						}
+				childs: [{
+					tag: 'span',
+					attr: {
+						class: 'emoji',
 					},
-					{
-						tag: 'span',
-						text: reactEmoji,
-						attr: {
-							class: 'react-popup active',
-						}
-					}
-				]
+					text: react,
+				},
+				{
+					tag: 'span',
+					attr: {
+						class: `react-popup ${react == reactEmoji ? 'active' : ''}`,
+					},
+					text: react,
+				}],
 			});
 
 			reactsContainer.appendChild(fragment);
-		}
+		});
+
 
 		const reactsCount = reactsOfMessage.querySelector('.reactsCount');
 
-		reactsCount.textContent = list.length;
+		const reactsLength = reactsCount.textContent = messageObj.reacts.size;
 
-		if (list.length > 0) {
+		if (reactsLength > 0) {
 			targetMessage.classList.add('react');
 			//console.log('Reacted');
 		} else {
@@ -1558,7 +1533,7 @@ export function getReact(reactEmoji, messageId, uid) {
 			//console.log('No react');
 		}
 
-		if (list.length > 1) {
+		if (reactsLength > 1) {
 			reactsOfMessage.classList.add('pad');
 		} else {
 			reactsOfMessage.classList.remove('pad');
@@ -2169,8 +2144,8 @@ document.getElementById('stickersKeyboard').addEventListener('click', e => {
 
 		const msg = e.target.dataset.name;
 
-		if (!stickerIsValid(msg)){
-			serverMessage({text: 'You\'re an IDIOT..!'}, 'info', 'yellow');
+		if (!stickerIsValid(msg)) {
+			serverMessage({ text: 'You\'re an IDIOT..!' }, 'info', 'yellow');
 			return;
 		}
 
@@ -2416,11 +2391,18 @@ document.addEventListener('contextmenu', event => event.preventDefault());
 
 
 lightboxCloseButton.addEventListener('click', () => {
+	closeLightBox();
+});
+
+function closeLightBox() {
 	lightbox.classList.remove('active');
+	lightbox.opened = false;
 	while (lightboxImage.firstChild) {
 		lightboxImage.removeChild(lightboxImage.firstChild);
 	}
-});
+	activeModals.splice(activeModals.indexOf('lightbox'), 1);
+	modalCloseMap.delete('lightbox');
+}
 
 textbox.addEventListener('keydown', (evt) => {
 	if (evt.key == 'Backspace') {
@@ -2515,9 +2497,11 @@ messages.addEventListener('click', (evt) => {
 		//if the target is a message
 		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')) {
 			//get the message sent time and show it
-			const messageTime = evt.target.closest('.message').querySelector('.messageTime');
-			messageTime.textContent = getFormattedDate(messageTime.dataset.timestamp);
-			messageTime.classList?.add('active');
+			const message = evt.target.closest('.message');
+			const messageTimeElem = message.querySelector('.messageTime');
+			const messageObj = messageDatabase.get(message.id);
+			messageTimeElem.textContent = getFormattedDate(messageObj.timeStamp);
+			messageTimeElem.classList?.add('active');
 
 			//if target is a pre or code
 			if (evt.target.tagName == 'PRE' || evt.target.tagName == 'CODE') {
@@ -2526,13 +2510,13 @@ messages.addEventListener('click', (evt) => {
 				showPopupMessage('Copied to clipboard');
 			}
 
-			if (messageTime.timeOut) {
-				clearTimeout(messageTime.timeOut);
+			if (messageObj.timeout) {
+				clearTimeout(messageObj.timeout);
 			}
 
-			messageTime.timeOut = setTimeout(() => {
-				messageTime.classList?.remove('active');
-				messageTime.timeOut = undefined;
+			messageObj.timeout = setTimeout(() => {
+				messageTimeElem.classList?.remove('active');
+				messageObj.timeout = undefined;
 			}, 1500);
 		}
 		if (evt.target?.classList?.contains('imageContainer')) {
@@ -2567,6 +2551,10 @@ messages.addEventListener('click', (evt) => {
 			PanZoom(lightboxImage.querySelector('img'));
 
 			lightbox.classList.add('active');
+			lightbox.opened = true;
+			activeModals.push('lightbox');
+			modalCloseMap.set('lightbox', closeLightBox);
+
 		} else if (evt.target?.closest('.message')?.dataset?.type == 'audio' && evt.target.closest('.main-element')) {
 
 			evt.preventDefault();
@@ -2613,17 +2601,17 @@ messages.addEventListener('click', (evt) => {
 
 			}
 		} else if (evt.target?.classList?.contains('reactsOfMessage')) {
-			const target = evt.target?.closest('.message')?.querySelectorAll('.reactedUsers .list');
+			const reactsMap = messageDatabase.get(evt.target.closest('.message').id)?.reacts;
 			const container = document.querySelector('.reactorContainer ul');
-
+			console.log(reactsMap, reactsMap.size);
 			while (container.firstChild) {
 				container.removeChild(container.firstChild);
 			}
-			if (target.length > 0) {
-				target.forEach(element => {
-
-					const avatar = userInfoMap.get(element.dataset.uid).avatar;
-					let name = userInfoMap.get(element.dataset.uid).username;
+			if (reactsMap.size > 0) {
+				reactsMap.forEach((react, uid) => {
+					console.log(react);
+					const avatar = userInfoMap.get(uid).avatar;
+					let name = userInfoMap.get(uid).username;
 					name = name == myName ? 'You' : name;
 
 					const listItem = fragmentBuilder({
@@ -2646,7 +2634,7 @@ messages.addEventListener('click', (evt) => {
 							},
 							{
 								tag: 'span',
-								text: element.textContent,
+								text: react,
 								attr: {
 									class: 'r'
 								}
@@ -2654,7 +2642,7 @@ messages.addEventListener('click', (evt) => {
 						]
 					});
 
-					if (element.dataset.uid == myId) {
+					if (uid == myId) {
 						container.prepend(listItem);
 					} else {
 						container.appendChild(listItem);
@@ -2695,6 +2683,18 @@ messages.addEventListener('click', (evt) => {
 				}
 			} else {
 				showPopupMessage('Deleted message');
+			}
+		} else if (evt.target?.closest('.sticker')) {
+			const target = evt.target.closest('.message').querySelector('.msg');
+			const src = target?.src;
+			if (src) {
+				//src = 'http://localhost:3823/stickers/catteftel/animated/6.webp' to 'catteftel'
+				const sticker = src.split('/')[4];
+				localStorage.setItem('selectedSticker', sticker);
+				//open the stickerskeyboard
+				showStickersPanel();
+			} else {
+				console.log('No src found');
 			}
 		} else {
 			//console.log('Calling hideOptions');
@@ -3554,11 +3554,11 @@ async function sendImageStoreRequest() {
 							progressText.textContent = `${Math.round(progress)}%`;
 						}
 					};
-					
+
 					const formData = new FormData();
-					
+
 					formData.append('file', file);
-					
+
 					xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${messageId}/${myId}`, true);
 					xhr.send(formData);
 				});
@@ -3628,8 +3628,8 @@ function sendFileStoreRequest(type = null) {
 				const xhr = new XMLHttpRequest();
 
 				//send file via xhr post request
-				
-				
+
+
 				xhr.onreadystatechange = function () {
 					if (this.readyState === XMLHttpRequest.OPENED) {
 						//console.log(`Connection opened for message id ${messageId}`);
@@ -3656,15 +3656,15 @@ function sendFileStoreRequest(type = null) {
 						}
 					}
 				};
-				
-				
-				
-				
+
+
+
+
 				xhr.upload.onprogress = function (e) {
 					if (e.lengthComputable) {
 						progress = (e.loaded / e.total) * 100;
 						const progressLog = elem.querySelector('.progress');
-						if (progressLog){
+						if (progressLog) {
 							progressLog.textContent = `${Math.round(progress)}%`;
 							if (progress === 100) {
 								progressLog.textContent = 'Finishing...';
@@ -3672,11 +3672,11 @@ function sendFileStoreRequest(type = null) {
 						}
 					}
 				};
-				
+
 				const formData = new FormData();
-				
+
 				formData.append('file', fileData);
-				
+
 				xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${messageId}/${myId}`, true);
 				xhr.send(formData);
 			});
@@ -3753,80 +3753,77 @@ function closeAllModals() {
  */
 document.addEventListener('keydown', (evt) => {
 
-	if (lightbox.classList.contains('active') || filePreviewContainer.classList.contains('active')) {
-		//console.log('Skipping keyboard shortcuts because lightbox or file preview is active');
-		return;
-	}
-
-	const altKeys = ['o', 's', 't', 'i', 'a', 'f', 'p', 'm', 'r'];
-
-	if (altKeys.includes(evt.key) && evt.altKey) {
-		//console.log(modalCloseMap);
-		//evt.preventDefault();
-		closeAllModals();
-		switch (evt.key) {
-		case 'o':
-			showSidePanel();
-			break;
-		case 's':
-			showQuickSettings();
-			break;
-		case 't':
-			showThemes();
-			break;
-		case 'i':
-			showStickersPanel();
-			break;
-		case 'a':
-			addAttachment();
-			break;
-		case 'f':
-			//choose file
-			fileButton.click();
-			break;
-		case 'p':
-			//choose photo
-			photoButton.click();
-			break;
-		case 'm':
-			//choose audio
-			audioButton.click();
-			break;
-		case 'r':
-			//record voice
-			recordButton.click();
-		}
-		return;
-	}
-
 	//if escape key is pressed, close last opened modal
 	if (evt.key === 'Escape') {
 		if (activeModals.length > 0) {
 			evt.preventDefault();
-			const close = activeModals[activeModals.length - 1];
-			//console.log(`closing ${close}`);
-			modalCloseMap.get(close)();
+			const closeMethod = activeModals[activeModals.length - 1];
+			modalCloseMap.get(closeMethod)();
 		}
 		return;
 	}
+	
+	if (!filePreviewContainer.classList.contains('active')) {
+		//console.log('Skipping keyboard shortcuts because lightbox or file preview is active');
 
-	if (evt.key === 'Enter' && messageSendShortCut === 'Enter' && !evt.ctrlKey) { // if Enter key is pressed
-		//if shift+enter is pressed, then add a new line
-		if (evt.shiftKey) {
+		const altKeys = ['o', 's', 't', 'i', 'a', 'f', 'p', 'm', 'r'];
+
+		if (altKeys.includes(evt.key) && evt.altKey) {
+			//console.log(modalCloseMap);
+			//evt.preventDefault();
+			closeAllModals();
+			switch (evt.key) {
+			case 'o':
+				showSidePanel();
+				break;
+			case 's':
+				showQuickSettings();
+				break;
+			case 't':
+				showThemes();
+				break;
+			case 'i':
+				showStickersPanel();
+				break;
+			case 'a':
+				addAttachment();
+				break;
+			case 'f':
+				//choose file
+				fileButton.click();
+				break;
+			case 'p':
+				//choose photo
+				photoButton.click();
+				break;
+			case 'm':
+				//choose audio
+				audioButton.click();
+				break;
+			case 'r':
+				//record voice
+				recordButton.click();
+			}
 			return;
 		}
-		evt.preventDefault(); // prevent default behavior of Enter key
-		if (sendButton.dataset.role == 'quickEmoji') {
-			return;
+
+		if (evt.key === 'Enter' && messageSendShortCut === 'Enter' && !evt.ctrlKey) { // if Enter key is pressed
+			//if shift+enter is pressed, then add a new line
+			if (evt.shiftKey) {
+				return;
+			}
+			evt.preventDefault(); // prevent default behavior of Enter key
+			if (sendButton.dataset.role == 'quickEmoji') {
+				return;
+			}
+			sendButton.click();
+		} else if (evt.key === 'Enter' && messageSendShortCut === 'Ctrl+Enter' && evt.ctrlKey) { // if Ctrl+Enter key is pressed
+			if (sendButton.dataset.role == 'quickEmoji') {
+				return;
+			}
+			sendButton.click();
 		}
-		sendButton.click();
-	} else if (evt.key === 'Enter' && messageSendShortCut === 'Ctrl+Enter' && evt.ctrlKey) { // if Ctrl+Enter key is pressed
-		if (sendButton.dataset.role == 'quickEmoji') {
-			return;
-		}
-		sendButton.click();
 	}
-	return;
 });
 
 const chooseQuickEmojiButton = document.getElementById('chooseQuickEmojiButton');
