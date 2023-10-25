@@ -1,6 +1,6 @@
 <!-- Message template -->
 <template id="messageTemplate">
-    <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}"> <!-- noreply notitle delevered start end self react -->
+    <li class="message msg-item {{classList}}" id="{{messageId}}""> <!-- noreply notitle delevered start end self react -->
         <div class="seenBy"></div>
         <div class="messageContainer">
             <div class="replyIcon">
@@ -10,7 +10,7 @@
             <div class="avatar"><img src="{{avatarSrc}}" width='30px' height='30px' alt='avatar'/></div>
             <div class="messageBody">
                 <div class="messageTitle">{{{title}}}</div>
-                <div class="messageReply" data-repid="{{repId}}" data-replyfor="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
+                <div class="messageReply" data-repid="{{repId}}" data-deleted>{{{replyMsg}}}</div>
                 <div class="messageMain">
                     {{{message}}}
                     <div class="messageTime" >{{time}}</div>
@@ -26,7 +26,7 @@
 </template>
 
 <template id="fileTemplate">
-    <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}">
+    <li class="message msg-item {{classList}}" id="{{messageId}}"">
         <div class="seenBy"></div>
         <div class="messageContainer">
             <div class="replyIcon">
@@ -36,9 +36,9 @@
             <div class="avatar"><img src="{{avatarSrc}}" width='30px' height='30px' alt='avatar'/></div>
             <div class="messageBody">
                 <div class="messageTitle">{{{title}}}</div>
-                <div class="messageReply" data-repid="{{repId}}" data-replyfor="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
+                <div class="messageReply" data-repid="{{repId}}" data-deleted>{{{replyMsg}}}</div>
                 <div class="messageMain">
-                    <div class="file msg" data-src="{{source}}" data-ext="{{ext}}">
+                    <div class="file msg">
                         <div class="fileIcon">
                             <i class="fa-regular fa-file-lines"></i>
                         </div>
@@ -64,7 +64,7 @@
 
 
 <template id="audioMessageTemplate">
-    <li class="message msg-item {{classList}}" id="{{messageId}}" data-uid="{{uid}}" data-type="{{type}}"> <!-- noreply notitle delevered start end self react -->
+    <li class="message msg-item {{classList}}" id="{{messageId}}"> <!-- noreply notitle delevered start end self react -->
         <div class="seenBy"></div>
         <div class="messageContainer">
             <div class="replyIcon">
@@ -74,9 +74,9 @@
             <div class="avatar"><img src="{{avatarSrc}}" width='30px' height='30px' alt='avatar'/></div>
             <div class="messageBody">
                 <div class="messageTitle">{{{title}}}</div>
-                <div class="messageReply" data-repid="{{repId}}" data-replyfor="{{replyFor}}" data-deleted>{{{replyMsg}}}</div>
+                <div class="messageReply" data-repid="{{repId}}"data-deleted>{{{replyMsg}}}</div>
                 <div class="messageMain">
-                    <div class="msg audioMessage" data-length="{{length}}" data-src="{{source}}" data-duration="{{duration}}" data-ext="{{ext}}">
+                    <div class="msg audioMessage">
                         <div class="main-element">
                             <audio style="display: none;"></audio>
                             <div class="controls">

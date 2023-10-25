@@ -4,6 +4,7 @@
 import { io } from './../../../libs/socket.io.js';
 import { myKey, myId, userInfoMap, fileBuffer, insertNewMessage, notifyUser, updateScroll, clearDownload } from './../app.js';
 import { playIncomingSound } from './../../global.js';
+import { messageDatabase } from './messageDatabase.js';
 
 //file socket to deliver file metadata [This is not used for file transfer, only for metadata. Files will be transferred using xhr requests]
 /**
@@ -46,9 +47,9 @@ fileSocket.on('fileUploadError', (id) => {
 	try{
 
 		console.log(id);
-		
+		const messageObj = messageDatabase.get(id);
 		const element = document.getElementById(id).querySelector('.messageMain');
-		const type = element.closest('.message').dataset.type; 
+		const type = messageObj.type;
 		let progressContainer;
 		if (type === 'image'){
 			progressContainer = element.querySelector('.circleProgressLoader .progressPercent');

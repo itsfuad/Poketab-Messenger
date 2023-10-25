@@ -86,6 +86,8 @@
         background: none;
         margin: 0;
         padding: 0;
+        height: 100%;
+        width: 100%;
         display: block;
     }
 }
@@ -318,6 +320,7 @@ code{
 
             .data.text-content{
                 padding: 8px;
+                font-size: 0.8rem;
             }
         }
         &.sticker {
@@ -651,7 +654,7 @@ pre{
 
 }
 
-.emoji .messageMain .text{
+.emoji:not(.deleted) .messageMain .text{
     background: none !important; 
     font-size:30px !important; 
     padding: 0 !important;
@@ -807,7 +810,6 @@ pre{
         pointer-events: none;
     }
 }
-
 
 #showMoreReactBtn i{
     pointer-events: none;

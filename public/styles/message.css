@@ -83,6 +83,8 @@
   background: none;
   margin: 0;
   padding: 0;
+  height: 100%;
+  width: 100%;
   display: block;
 }
 
@@ -304,6 +306,7 @@ code {
 }
 .messageMain .msg.text .data.text-content {
   padding: 8px;
+  font-size: 0.8rem;
 }
 .messageMain .msg.sticker {
   width: 100px;
@@ -598,7 +601,7 @@ pre code {
   text-align: center;
 }
 
-.emoji .messageMain .text {
+.emoji:not(.deleted) .messageMain .text {
   background: none !important;
   font-size: 30px !important;
   padding: 0 !important;

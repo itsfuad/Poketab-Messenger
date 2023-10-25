@@ -5,37 +5,39 @@ import { io } from './../../../libs/socket.io.js';
 
 import { playJoinSound, playLeaveSound, playLocationSound, playIncomingSound, playStickerSound, playTypingSound } from './../../global.js';
 
-import { 
-	myName, 
-	myId, 
-	myAvatar, 
-	maxUser, 
-	myKey, 
-	showPopupMessage, 
-	deleteMessage, 
-	setTypingUsers, 
-	isTyping, 
-	serverMessage, 
-	notifyUser, 
-	checkgaps, 
-	updateScroll, 
-	getReact, 
+import {
+	myName,
+	myId,
+	myAvatar,
+	maxUser,
+	myKey,
+	showPopupMessage,
+	deleteMessage,
+	setTypingUsers,
+	isTyping,
+	serverMessage,
+	notifyUser,
+	checkgaps,
+	updateScroll,
+	getReact,
 	insertNewMessage,
 	userTypingMap,
 	userInfoMap,
 	loginTimeout,
-	slowInternetTimeout
+	slowInternetTimeout,
 } from './../app.js';
 
 import { loadStickerHeaders } from './stickersKeyboard.js';
 
 import { fragmentBuilder } from './fragmentBuilder.js';
 
+import { messageDatabase } from './messageDatabase.js';
+
 //main socket to deliver messages
 /**
  * @type {SocketIOClient.Socket}
  */
-export const chatSocket = io('/chat'); 
+export const chatSocket = io('/chat');
 
 //sockets
 //When connection is established to message relay server
@@ -50,12 +52,12 @@ chatSocket.on('connect', () => {
 		maxUser: maxUser,
 	};
 	//Emits the join signal with the user parameters
-	chatSocket.emit('join', params, function(err){
+	chatSocket.emit('join', params, function (err) {
 		//if error, display error message and reload page
 		if (err) {
 			console.log(err);
 			let preload = document.getElementById('preload');
-			if (!preload){
+			if (!preload) {
 				preload = document.createElement('div');
 				preload.id = 'preload';
 			}
@@ -63,26 +65,26 @@ chatSocket.on('connect', () => {
 			preload.innerHTML = `${err} <i class="fa-solid fa-ghost"></i>`;
 
 			showPopupMessage('Self destruction in 5 seconds!');
-			
+
 			setTimeout(() => {
 				document.body.remove();
 				window.location = '/';
 			}, 5000);
-			
+
 		} else {
 			console.log('%cNo errors!', 'color: limegreen;');
 			//check for the users who are typing
-			if (userTypingMap.size > 0){
+			if (userTypingMap.size > 0) {
 				setTypingUsers();
 			}
 			const preload = document.getElementById('preload');
-			if (preload){
+			if (preload) {
 				preload.remove();
 			}
-			if (loginTimeout){
+			if (loginTimeout) {
 				clearTimeout(loginTimeout);
 			}
-			if (slowInternetTimeout){
+			if (slowInternetTimeout) {
 				clearTimeout(slowInternetTimeout);
 			}
 
@@ -91,14 +93,14 @@ chatSocket.on('connect', () => {
 			//after connection is established, load the stickers
 			loadStickerHeaders();
 			//ask for notification permission
-			if ('Notification' in window){
+			if ('Notification' in window) {
 				//Notification.requestPermission();
 				//check if permission is not granted
-				if (Notification.permission !== 'granted'){
+				if (Notification.permission !== 'granted') {
 					//ask for permission
 					Notification.requestPermission();
 				}
-			}else{
+			} else {
 				showPopupMessage('Notifications not supported by your browser');
 			}
 		}
@@ -118,7 +120,7 @@ chatSocket.on('updateUserList', (users) => {
 		userInfoMap.set(user.uid, user);
 	});
 
-	if(isTyping){
+	if (isTyping) {
 		chatSocket.emit('typing');
 	}
 
@@ -128,7 +130,7 @@ chatSocket.on('updateUserList', (users) => {
 	}
 	users.forEach(user => {
 		const listItem = document.createElement('li');
-		
+
 		const userFragment = fragmentBuilder(
 			{
 				tag: 'li',
@@ -169,9 +171,9 @@ chatSocket.on('updateUserList', (users) => {
 
 		listItem.append(userFragment);
 
-		if (user.uid == myId){
+		if (user.uid == myId) {
 			document.getElementById('userlist').prepend(listItem);
-		}else{
+		} else {
 			document.getElementById('userlist').appendChild(listItem);
 		}
 	});
@@ -194,13 +196,13 @@ chatSocket.on('server_message', (meta, type) => {
 });
 //new message received from other users
 chatSocket.on('newMessage', (message, type, id, uid, reply, replyId, options) => {
-	if (type == 'text'){
+	if (type == 'text') {
 		playIncomingSound();
-	}else if(type == 'sticker'){
+	} else if (type == 'sticker') {
 		playStickerSound();
 	}
 	insertNewMessage(message, type, id, uid, reply, replyId, options, {});
-	notifyUser({data: type == 'text' ? message : '', type: type[0].toUpperCase()+type.slice(1)}, userInfoMap.get(uid)?.username, userInfoMap.get(uid)?.avatar);
+	notifyUser({ data: type == 'text' ? message : '', type: type[0].toUpperCase() + type.slice(1) }, userInfoMap.get(uid)?.username, userInfoMap.get(uid)?.avatar);
 });
 
 chatSocket.on('linkMetadata', (meta, id) => {
@@ -263,7 +265,7 @@ chatSocket.on('linkMetadata', (meta, id) => {
 	target.appendChild(fragment);
 
 	//if contains image and the image loads, update scroll
-	if (meta.image){
+	if (meta.image) {
 		target.querySelector('.linkMetadata__image img').addEventListener('load', imgMetaLoad);
 	}
 
@@ -272,7 +274,7 @@ chatSocket.on('linkMetadata', (meta, id) => {
 	}, 100);
 });
 
-function imgMetaLoad(){
+function imgMetaLoad() {
 	setTimeout(() => {
 		updateScroll();
 		this.removeEventListener('load', imgMetaLoad);
@@ -281,31 +283,48 @@ function imgMetaLoad(){
 	//console.log('META Image loaded');
 }
 
+
+/**
+ * A callback function that is triggered when a new 'seen' event is received from the chat server.
+ *
+ *  @param {object} meta An object containing information about the 'seen' event.
+ *  @param {string} meta.messageId The ID of the message that was seen.
+ *  @param {string} meta.userId The ID of the user who saw the message.
+ *  @param {string} meta.avatar The URL of the user's avatar.
+ */
 chatSocket.on('seen', meta => {
-	const message = document.getElementById(meta.messageId);
-	const isMessage = message?.classList?.contains('message');
-	if (message && isMessage && !message.dataset.seen?.includes(meta.userId)){
-		document.querySelectorAll(`.msg-item[data-seen*="${meta.userId}"]`)
-			.forEach(elem => {
-				if (elem != null){
-					elem.querySelector(`.seenBy img[data-user="${meta.userId}"]`)?.remove();
-					if (elem.querySelector('.seenBy').childElementCount < 2){
-						//console.log('Resetting gap');
-						elem.closest('.message').classList.remove('seenByMultiple');
-					}
-					checkgaps(elem.id);
-				}
+	const message = messageDatabase.get(meta.messageId);
+
+	if (message) {
+		// Mark the message as seen by the user.
+		message.seenBy.add(meta.userId);
+
+		// Update the DOM to reflect the change.
+
+		//check if the user is already in the seenBy list
+		const messageElement = document.getElementById(meta.messageId);
+		const seenByElement = messageElement.querySelector('.seenBy');
+		
+		if (!seenByElement.querySelector(`[data-user="${meta.userId}"]`)) {
+			//remove avatars from previous messages
+			const prevMessagesAvatars = document.querySelectorAll(`.msg-item .seenBy [data-user="${meta.userId}"]`);
+			prevMessagesAvatars.forEach(avatar => {
+				avatar.remove();
 			});
 
-		message.dataset.seen = message.dataset.seen ? message.dataset.seen + '|' + meta.userId : meta.userId;
-		const element = document.createElement('img');
-		element.src = `/images/avatars/${meta.avatar}(custom)-mini.webp`;
-		element.dataset.user = meta.userId;
-		message.querySelector('.seenBy').appendChild(element);
-		if (message.querySelector('.seenBy').childElementCount > 1){
-			message.classList.add('seenByMultiple');
+			const userAvatarElement = document.createElement('img');
+			userAvatarElement.src = `/images/avatars/${meta.avatar}(custom)-mini.webp`;
+			userAvatarElement.dataset.user = meta.userId;
+			seenByElement.appendChild(userAvatarElement);
 		}
-		checkgaps(message.id);
+
+		// If there are now multiple users who have seen the message, update the DOM accordingly.
+		if (seenByElement.childElementCount > 1) {
+			messageElement.classList.add('seenByMultiple');
+		}
+
+		checkgaps();
+		// Update the scroll position.
 		updateScroll();
 	}
 });
@@ -323,7 +342,7 @@ chatSocket.on('typing', (user, id) => {
 	userTypingMap.set(id, user);
 	setTypingUsers();
 });
-  
+
 chatSocket.on('stoptyping', (id) => {
 	userTypingMap.delete(id);
 	setTypingUsers();
@@ -333,7 +352,7 @@ chatSocket.on('stoptyping', (id) => {
 chatSocket.on('disconnect', () => {
 	const id = crypto.randomUUID();
 	console.log('%cDisconnected from message relay server.', 'color: red;');
-	serverMessage({color: 'grey', text: 'Disconnected from server😔', id: id}, 'disconnect');
+	serverMessage({ color: 'grey', text: 'Disconnected from server😔', id: id }, 'disconnect');
 	playLeaveSound();
 	showPopupMessage('Disconnected from server');
 });

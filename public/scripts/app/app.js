@@ -7,7 +7,7 @@ import { fileSocket, incommingXHR } from './utils/fileSocket.js';
 import { Prism } from '../../libs/prism/prism.min.js';
 import { sanitizeImagePath, sanitize } from './utils/sanitizer.js';
 import {
-	getFormattedDate, shortFileName, getTypingString, remainingTime
+	getFormattedDate, getTypingString, remainingTime
 } from './utils/helperFunctions.js';
 
 import {
@@ -31,6 +31,8 @@ import { getRandomID } from './utils/generateRandomID.js';
 import { reactArray } from './../shared/Reacts.js';
 
 import { themeAccent } from './../shared/Themes.js';
+
+import { messageDatabase, MessageObj } from './utils/messageDatabase.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
@@ -203,7 +205,9 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 //detect if user is using a mobile device, if yes then use the click and hold class
 if (isMobile) {
 	ClickAndHold.applyTo(messages, 240, (evt) => {
-		const isDeleted = evt.target.closest('.message').dataset.deleted == 'true' ? true : false;
+		const messageId = evt.target.closest('.message')?.id;
+		if (!messageId) { return; }
+		const isDeleted = !messageDatabase.has(messageId);
 		if (!isDeleted) {
 			OptionEventHandler(evt);
 		}
@@ -216,9 +220,10 @@ if (!isMobile) {
 		evt.preventDefault();
 		evt.stopPropagation();
 		if (evt.button == 2) {
-			const isMessage = evt.target.closest('.message') ?? false;
-			const isDeleted = evt.target.closest('.message')?.dataset.deleted == 'true' ? true : false;
-			if (isMessage && !isDeleted) {
+			const messageId = evt.target.closest('.message')?.id;
+			if (!messageId) { return; }
+			const isDeleted = !messageDatabase.has(messageId);
+			if (!isDeleted) {
 				OptionEventHandler(evt);
 			}
 		}
@@ -586,7 +591,7 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		message = sanitizeImagePath(message); //sanitize the image path
 		message = `
 		<div class='msg imageContainer'>
-			<img class='image' src='${message}' alt='image' data-name='${metadata.name}' height='${metadata.height}' width='${metadata.width}' />
+			<img class='image' src='${message}' alt='image' height='${metadata.height}' width='${metadata.width}' />
 			<div class="circleProgressLoader" style="stroke-dasharray: 0, 251.2;">
 				<svg class="animated inactive" viewbox="0 0 100 100">
 					<circle cx="50" cy="50" r="45" fill="transparent"/>
@@ -616,10 +621,12 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		classList += ' self';
 	}
 
-	if (lastMsg?.dataset?.uid != uid || messageIsEmoji || type === 'sticker') { // if the last message is not from the same user
+	const lastMsgSender = messageDatabase.get(lastMsg?.id)?.sender;
+
+	if (lastMsgSender != uid || messageIsEmoji || type === 'sticker') { // if the last message is not from the same user
 		classList += ' newGroup'; //then add the new group class
 		classList += ' start end';
-	} else if (lastMsg?.dataset?.uid == uid) { //if the last message is from the same user
+	} else if (lastMsgSender == uid) { //if the last message is from the same user
 		if (!replyOptions.reply && !lastMsg?.classList.contains('emoji') && !lastMsg?.classList.contains('sticker')) { //and the message is not a reply
 			lastMsg?.classList.remove('end'); //then remove the bottom corner rounded from the last message
 		} else {
@@ -651,6 +658,15 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 	let html;
 	let replyMsg;
 	let repliedTo;
+
+	const timeStamp = Date.now();
+
+	const messageObj = new MessageObj();
+	messageObj.type = type;
+	messageObj.sender = uid;
+	messageObj.replyTo = replyId;
+	messageObj.timeStamp = timeStamp;
+
 	if (replyOptions.reply) {
 		//check if the replyid is available in the message list
 		repliedTo = userInfoMap.get(document.getElementById(replyId || '')?.dataset?.uid)?.username;
@@ -682,58 +698,66 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 
 	}
 
-	const timeStamp = Date.now();
-
 	if (type === 'file') {
 		popupmsg = 'File';
 		html = parseTemplate(fileTemplate, {
 			classList: classList,
 			avatarSrc: `/images/avatars/${avatar}(custom).webp`,
 			messageId: id,
-			uid: uid,
-			type: type,
 			repId: replyId,
 			title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
 			source: message,
+			replyMsg: replyMsg,
 			fileName: metadata.name,
 			fileSize: metadata.size,
-			ext: metadata.ext,
-			replyMsg: replyMsg,
-			replyFor: reply.type,
 			time: getFormattedDate(timeStamp),
 		});
+
+		messageObj.fileSrc = message;
+		messageObj.filename = metadata.name;
+		messageObj.fileSize = metadata.size;
+		messageObj.fileExt = metadata.ext;
+
 	} else if (type == 'audio') {
 		popupmsg = 'Audio';
 		html = parseTemplate(audioTemplate, {
 			classList: classList,
 			avatarSrc: `/images/avatars/${avatar}(custom).webp`,
 			messageId: id,
-			uid: uid,
-			type: type,
 			repId: replyId,
 			title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
 			source: message,
 			length: 'Play',
-			ext: metadata.ext,
 			replyMsg: replyMsg,
-			replyFor: reply.type,
 			time: getFormattedDate(timeStamp),
 			duration: metadata.duration,
 		});
+
+		messageObj.fileSrc = message;
+		messageObj.filename = metadata.name;
+		messageObj.fileSize = metadata.size;
+		messageObj.fileExt = metadata.ext;
+		messageObj.duration = metadata.duration;
+
 	} else {
 		html = parseTemplate(messageTemplate, {
 			classList: classList,
 			avatarSrc: `/images/avatars/${avatar}(custom).webp`,
 			messageId: id,
-			uid: uid,
-			type: type,
 			repId: replyId,
 			title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
 			message: message,
 			replyMsg: replyMsg,
-			replyFor: reply.type,
 			time: getFormattedDate(timeStamp),
 		});
+
+		if (type == 'image'){
+			messageObj.filename = metadata.name;
+			messageObj.fileSize = metadata.size;
+			messageObj.fileExt = metadata.ext;
+			messageObj.height = metadata.height;
+			messageObj.width = metadata.width;
+		}
 	}
 
 	lastSeenMessage = id;
@@ -747,13 +771,7 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 	messages.style.height = 'auto';
 	messages.appendChild(fragment);
 
-	messageDatabase.set(id, {
-		type: type,
-		sender: uid,
-		timeStamp: timeStamp,
-		replyTo: replyId,
-		reacts: new Map(),
-	});
+	messageDatabase.set(id, messageObj);
 
 	const navbar = document.querySelector('.navbar');
 	const footer = document.querySelector('.footer');
@@ -773,6 +791,9 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		if (lastMsg?.classList?.contains('message')) {
 			const time = lastMsg.querySelector('.messageTime');
 			const timeStamp = messageDatabase.get(lastMsg?.id)?.timeStamp;
+			if (!timeStamp) {
+				return;
+			}
 			//console.log(timeStamp);
 			time.textContent = getFormattedDate(timeStamp);
 		}
@@ -838,9 +859,9 @@ function showOptions(type, sender, target) {
 			copyOption.style.display = 'flex';
 			//console.log('Copy Option Shown');
 		} else if (downloadable[type]) { //if the message is an image
-			if (target.closest('.message')?.dataset.downloaded == 'true') {
+			if (messageDatabase.get(target.closest('.message')?.id)?.downloaded == true) {
 				downloadOption.style.display = 'flex';
-				//console.log('Download Option Shown');
+				console.log('Download Option Shown');
 			}
 		}
 		if (sender === true) { //if the message is sent by me
@@ -933,7 +954,7 @@ function optionsMainEvent(e) {
 	} else if (target == downloadOption) {
 		downloadHandler();
 	} else if (target == deleteOption) {
-		const uid = document.getElementById(targetMessage.id)?.dataset?.uid;
+		const uid = messageDatabase.get(targetMessage.id).sender;
 		if (uid) {
 			hideOptions();
 			//console.log(document.getElementById(targetMessage.id));
@@ -953,9 +974,9 @@ function optionsMainEvent(e) {
  * @param {string} user 
  */
 export function deleteMessage(messageId, user) {
-	const message = document.getElementById(messageId);
+	const message = messageDatabase.get(messageId);
 	if (message) { //if the message exists
-		const type = message.dataset.type;
+		const type = message.type;
 		if (['image', 'file'].includes(type)) { //if the message is an image or file
 			//console.log(`Deleting message id: ${messageId}`);
 			if (ongoingXHR.has(messageId)) {
@@ -970,25 +991,12 @@ export function deleteMessage(messageId, user) {
 				incommingXHR.delete(messageId);
 			}
 
-			if (type == 'image') {
-				//delete the image from the source
-				URL.revokeObjectURL(message.querySelector('.image').src);
-				//console.log(message.querySelector('.image').src, 'deleted');
-			} else if (type == 'file') {
-				//delete the file from the source
-				URL.revokeObjectURL(message.querySelector('.msg').dataset.src);
-				//console.log(message.querySelector('a').href, 'deleted');
+			if (type == 'image' || type == 'file') {
+				//delete the image from the database
+				URL.revokeObjectURL(messageDatabase.get(messageId).fileSrc);
+				console.log('Revoked object url');
 			}
 		}
-
-		//if message is image or file
-		message.querySelectorAll('[data-type="image"], [data-type="file"]')
-			.forEach((elem) => {
-				//delete element and also from the source
-				URL.revokeObjectURL(elem.src);
-				//console.log(elem.src, 'deleted');
-				elem.remove();
-			});
 
 		const fragment = fragmentBuilder({
 			tag: 'div',
@@ -998,28 +1006,35 @@ export function deleteMessage(messageId, user) {
 			child: {
 				tag: 'div',
 				attr: {
-					class: 'data',
+					class: 'data text-content',
 				},
 				text: 'Deleted message',
 			}
 		});
-		message.querySelector('.msg').replaceWith(fragment);
-		message.classList.add('deleted');
-		message.dataset.deleted = true;
-		message.querySelector('.messageTitle').textContent = user;
+
+		const messageElem = document.getElementById(messageId);
+
+		messageElem.querySelector('.msg').replaceWith(fragment);
+		messageElem.querySelector('.messageTime').textContent = '';
+		messageElem.classList.add('deleted');
+		messageElem.dataset.deleted = true;
+		messageElem.querySelector('.messageTitle').textContent = user;
+
+		messageDatabase.delete(messageId);
+
 		showPopupMessage(`${user == myName ? 'You' : user} deleted a message`);
 
-		if (maxUser == 2 || (message.dataset.uid == myId)) {
-			message.classList.add('notitle');
+		if (maxUser == 2 || (message.sender == myId)) {
+			messageElem.classList.add('notitle');
 		}
 
-		if (message.querySelector('.messageReply') != null) {
-			message.querySelector('.messageReply').remove();
-			message.querySelector('.reactsOfMessage').remove();
+		if (message.replyTo) {
+			messageElem.querySelector('.messageReply').remove();
+			messageElem.querySelector('.reactsOfMessage').remove();
 			messageDatabase.delete(messageId);
-			message.classList.remove('reply');
-			message.classList.remove('react');
-			message.querySelector('.seenBy').style.marginTop = '0px';
+			messageElem.classList.remove('reply');
+			messageElem.classList.remove('react');
+			messageElem.querySelector('.seenBy').style.marginTop = '0px';
 			checkgaps(messageId);
 		}
 		const replyMessages = document.querySelectorAll(`[data-repid='${messageId}']`);
@@ -1030,7 +1045,6 @@ export function deleteMessage(messageId, user) {
 					reply.classList.remove('imageReply');
 					reply.querySelector('img').remove();
 				}
-				reply.removeAttribute('data-replyfor');
 				reply.style.background = 'var(--glass)';
 				reply.style.color = '#7d858c';
 				reply.style.fontStyle = 'italic';
@@ -1044,7 +1058,7 @@ export function deleteMessage(messageId, user) {
  * Handles the download of the file
  */
 function downloadHandler() {
-	if (document.getElementById(targetMessage.id).dataset.downloaded != 'true') {
+	if (messageDatabase.get(targetMessage.id)?.downloaded == false) {
 		//if sender is me
 		if (targetMessage.sender == 'You') {
 			showPopupMessage('Not uploaded yet');
@@ -1071,7 +1085,8 @@ function saveImage() {
 		showPopupMessage('Preparing image...');
 		const a = document.createElement('a');
 		a.href = lightboxImage.querySelector('img').src;
-		a.download = `poketab-${Date.now()}`;
+		a.download = messageDatabase.get(targetMessage.id).filename;
+		console.log(messageDatabase.get(targetMessage.id).filename);
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
@@ -1085,17 +1100,15 @@ function saveImage() {
 function downloadFile() {
 	showPopupMessage('Preparing download...');
 
-	const downloadName = {
-		'file': `Poketab-${Date.now()}-${targetFile.fileName}`,
-		'audio': `Poketab-${Date.now()}.${targetFile.ext == 'mpeg' ? 'mp3' : targetFile.ext}`,
-	};
+	console.log(targetMessage.type);
 
 	const data = targetFile.fileData;
 
 	//let filetype = filename.split('.').pop();
 	const a = document.createElement('a');
 	a.href = data;
-	a.download = downloadName[targetMessage.type];
+	a.download = messageDatabase.get(targetMessage.id).filename;
+	console.log(a.download);
 	document.body.appendChild(a);
 	a.click();
 	document.body.removeChild(a);
@@ -1187,7 +1200,7 @@ messages.addEventListener('touchmove', (evt) => {
 	try {
 		const msg = evt.target.closest('.message');
 
-		if (evt.target.classList.contains('msg') || evt.target.closest('.msg') && msg.dataset.deleted != 'true') {
+		if (evt.target.classList.contains('msg') || evt.target.closest('.msg') && messageDatabase.has(msg.id)) {
 			//console.log(xDiff);
 
 			xDiff = xStart - (evt.touches[0].clientX / 3);
@@ -1414,22 +1427,6 @@ function hideReplyToast() {
 	}
 }
 
-class MessageObj {
-	constructor() {
-		this.type = '';
-		this.sender = '';
-		this.replyTo = '';
-		this.timeStamp = 0;
-		this.timeout = null;
-		this.reacts = new Map();
-	}
-}
-
-/**
- * @type {Map<string, MessageObj>}
- */
-const messageDatabase = new Map();
-
 /**
  * 
 * @param {string} reactEmoji Emoji to react with
@@ -1557,8 +1554,14 @@ export function checkgaps(targetId) {
 		if (targetId) {
 
 			const target = document.getElementById(targetId);
-
+			
 			if (target == null) {
+				return;
+			}
+
+			const targetMessageObj = messageDatabase.get(targetId);
+
+			if (targetMessageObj == null){
 				return;
 			}
 
@@ -1568,28 +1571,46 @@ export function checkgaps(targetId) {
 				return;
 			}
 
-			if (target.dataset.uid === after.dataset.uid) {
+			const afterMessageObj = messageDatabase.get(after.id);
+
+			if (afterMessageObj == null){
+				return;
+			}
+
+			if (targetMessageObj.sender === afterMessageObj.sender) {
 
 				const gap = Math.abs(target.querySelector('.messageContainer').getBoundingClientRect().bottom - after.querySelector('.messageContainer').getBoundingClientRect().top);
 
-				if (target.dataset.uid == myId) {
+				const afterMsg = after.querySelector('.messageMain .msg');
+
+				if (afterMsg == null) {
+					return;
+				}
+	
+				const targetMsg = target.querySelector('.messageMain .msg');
+	
+				if (targetMsg == null) {
+					return;
+				}
+
+				if (targetMessageObj.sender == myId) {
 					if (gap > 5) {
-						target.querySelector('.messageMain .msg').style.borderBottomRightRadius = '18px';
-						after.querySelector('.messageMain .msg').style.borderTopRightRadius = '18px';
+						targetMsg.style.borderBottomRightRadius = '18px';
+						afterMsg.style.borderTopRightRadius = '18px';
 					} else {
 						if (!target.classList.contains('end') && !after.classList.contains('start')) {
-							target.querySelector('.messageMain .msg').style.borderBottomRightRadius = '5px';
-							after.querySelector('.messageMain .msg').style.borderTopRightRadius = '5px';
+							targetMsg.style.borderBottomRightRadius = '5px';
+							afterMsg.style.borderTopRightRadius = '5px';
 						}
 					}
 				} else {
 					if (gap > 5) {
-						target.querySelector('.messageMain .msg').style.borderBottomLeftRadius = '18px';
-						after.querySelector('.messageMain .msg').style.borderTopLeftRadius = '18px';
+						targetMsg.style.borderBottomLeftRadius = '18px';
+						afterMsg.style.borderTopLeftRadius = '18px';
 					} else {
 						if (!target.classList.contains('end') && !after.classList.contains('start')) {
-							target.querySelector('.messageMain .msg').style.borderBottomLeftRadius = '5px';
-							after.querySelector('.messageMain .msg').style.borderTopLeftRadius = '5px';
+							targetMsg.style.borderBottomLeftRadius = '5px';
+							afterMsg.style.borderTopLeftRadius = '5px';
 						}
 					}
 				}
@@ -1636,23 +1657,19 @@ function OptionEventHandler(evt, popup = true) {
 	//console.log(evt.target);
 
 	try {
-		const message = evt.target.closest('.message');
-		if (message == null) {
-			return;
-		}
+		const message = messageDatabase.get(evt.target.closest('.message')?.id);
 
-		const type = message.dataset.type;
+		const type = message.type;
 
 		if (!typeList[type] || !evt.target.closest('.msg')) {
 			return;
 		}
 
-		//console.log('type: ', type);
 
 		const sender = evt.target.closest('.message').classList.contains('self') ? true : false;
 		if (type == 'text') {
 			//text
-			targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
+			targetMessage.sender = userInfoMap.get(message.sender).username;
 			if (targetMessage.sender == myName) {
 				targetMessage.sender = 'You';
 			}
@@ -1675,7 +1692,7 @@ function OptionEventHandler(evt, popup = true) {
 			});
 
 			lightboxImage.append(imageFragment);
-			targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
+			targetMessage.sender = userInfoMap.get(message.sender).username;
 			if (targetMessage.sender == myName) {
 				targetMessage.sender = 'You';
 			}
@@ -1690,30 +1707,30 @@ function OptionEventHandler(evt, popup = true) {
 			targetMessage.id = evt.target.closest('.message').id;
 		} else if (type == 'audio') {
 			// audio
-			targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
+			targetMessage.sender = userInfoMap.get(message.sender).username;
 			if (targetMessage.sender == myName) {
 				targetMessage.sender = 'You';
 			}
 			targetFile.fileName = targetMessage.message = 'Audio message';
-			targetFile.fileData = evt.target.closest('.messageMain').querySelector('.msg').dataset.src;
-			targetFile.ext = evt.target.closest('.messageMain').querySelector('.msg').dataset.ext;
+			targetFile.fileData = message.fileSrc;
+			targetFile.ext = message.fileExt;
 			targetMessage.type = type;
 			targetMessage.id = evt.target.closest('.message').id;
 		} else if (type == 'file') {
 			//file
-			targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
+			targetMessage.sender = userInfoMap.get(message.sender).username;
 			if (targetMessage.sender == myName) {
 				targetMessage.sender = 'You';
 			}
-			targetFile.fileName = evt.target.closest('.messageMain').querySelector('.fileName').textContent;
-			targetFile.fileData = evt.target.closest('.messageMain').querySelector('.msg').dataset.src;
-			targetFile.ext = evt.target.closest('.messageMain').querySelector('.msg').dataset.ext;
+			targetFile.fileName = message.filename;
+			targetFile.fileData = message.fileSrc;
+			targetFile.ext = message.fileExt;
 			targetMessage.message = targetFile.fileName;
 			targetMessage.type = type;
 			targetMessage.id = evt.target.closest('.message').id;
 		} else if (type == 'sticker') {
 			//sticker
-			targetMessage.sender = userInfoMap.get(evt.target.closest('.message')?.dataset?.uid).username;
+			targetMessage.sender = userInfoMap.get(message.sender).username;
 			if (targetMessage.sender == myName) {
 				targetMessage.sender = 'You';
 			}
@@ -1909,9 +1926,9 @@ export function serverMessage(message, type = null, color = null) {
 			text: message.text
 		};
 		userTypingMap.delete(message.who);
-		document.querySelectorAll(`.msg-item[data-seen*="${message.who}"]`)
+		document.querySelectorAll(`.msg-item .seenBy [data-user="${message.who}"]`)
 			.forEach(elem => {
-				elem.querySelector(`.seenBy img[data-user="${message.who}"]`)?.remove();
+				elem.remove();
 			});
 		setTypingUsers();
 	} else {
@@ -2169,6 +2186,8 @@ document.getElementById('stickersKeyboard').addEventListener('click', e => {
 
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
+				messageDatabase.set(id, messageDatabase.get(tempId));
+				messageDatabase.delete(tempId);
 				lastSeenMessage = id;
 				if (document.hasFocus()) {
 					chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
@@ -2216,7 +2235,9 @@ function showStickersPanel() {
 	const head = document.querySelector(`.stickersHeader img.${selectedSticker}`);
 	if (!head) return;
 	head.dataset.selected = 'true';
-	head.scrollIntoView();
+	setTimeout(() => {
+		head.scrollIntoView();
+	}, 100);
 	const stickerBoard = document.querySelector(`.stickerBoard.${selectedSticker}`);
 	stickerBoard.scrollIntoView();
 	modalCloseMap.set('stickersPanel', hideStickersPanel);
@@ -2494,12 +2515,22 @@ let scrollIntoViewTimeout = undefined;
 
 messages.addEventListener('click', (evt) => {
 	try {
+		if (!evt.target){
+			return;
+		}
+		const msgId = evt.target.closest('.message')?.id;
+		if (!msgId) {
+			return;
+		}
+		const messageObj = messageDatabase.get(msgId);
+		if (!messageObj) {
+			return;
+		}
 		//if the target is a message
-		if (evt.target?.closest('.message')?.contains(evt.target) && !evt.target?.classList.contains('message')) {
+		if (evt.target.closest('.message')?.contains(evt.target) && !evt.target.classList.contains('message')) {
 			//get the message sent time and show it
 			const message = evt.target.closest('.message');
 			const messageTimeElem = message.querySelector('.messageTime');
-			const messageObj = messageDatabase.get(message.id);
 			messageTimeElem.textContent = getFormattedDate(messageObj.timeStamp);
 			messageTimeElem.classList?.add('active');
 
@@ -2519,11 +2550,12 @@ messages.addEventListener('click', (evt) => {
 				messageObj.timeout = undefined;
 			}, 1500);
 		}
-		if (evt.target?.classList?.contains('imageContainer')) {
+		if (evt.target.classList?.contains('imageContainer')) {
 			evt.preventDefault();
 			evt.stopPropagation();
-			if (evt.target.closest('.message')?.dataset.downloaded != 'true') {
-				if (evt.target.closest('.message')?.dataset.uid == myId) {
+
+			if (messageObj.downloaded == false) {
+				if (messageObj.sender == myId) {
 					showPopupMessage('Not sent yet');
 				} else {
 					showPopupMessage('Not downloaded yet');
@@ -2555,7 +2587,7 @@ messages.addEventListener('click', (evt) => {
 			activeModals.push('lightbox');
 			modalCloseMap.set('lightbox', closeLightBox);
 
-		} else if (evt.target?.closest('.message')?.dataset?.type == 'audio' && evt.target.closest('.main-element')) {
+		} else if (messageObj.type == 'audio' && evt.target.closest('.main-element')) {
 
 			evt.preventDefault();
 
@@ -2566,6 +2598,7 @@ messages.addEventListener('click', (evt) => {
 			}
 
 			const audio = audioContainer.querySelector('audio');
+			console.log(audio.duration);
 			//console.log(evt.target);
 			if (evt.target.classList.contains('main-element')) {
 				//if target audio is not paused, then seek to where is was clicked
@@ -2600,16 +2633,15 @@ messages.addEventListener('click', (evt) => {
 				}
 
 			}
-		} else if (evt.target?.classList?.contains('reactsOfMessage')) {
+		} else if (evt.target.classList?.contains('reactsOfMessage')) {
 			const reactsMap = messageDatabase.get(evt.target.closest('.message').id)?.reacts;
 			const container = document.querySelector('.reactorContainer ul');
-			console.log(reactsMap, reactsMap.size);
+
 			while (container.firstChild) {
 				container.removeChild(container.firstChild);
 			}
 			if (reactsMap.size > 0) {
 				reactsMap.forEach((react, uid) => {
-					console.log(react);
 					const avatar = userInfoMap.get(uid).avatar;
 					let name = userInfoMap.get(uid).username;
 					name = name == myName ? 'You' : name;
@@ -2652,11 +2684,14 @@ messages.addEventListener('click', (evt) => {
 			hideOptions();
 			document.querySelector('.reactorContainerWrapper').classList.add('active');
 			addFocusGlass(false);
-		} else if (evt.target?.closest('.messageReply')) {
-			const target = evt.target.closest('.messageReply')?.dataset.repid;
+		} else if (evt.target.closest('.messageReply')) {
+			const target = messageObj.replyTo;
+			if (!target){
+				return;
+			}
 			const targetElement = document.getElementById(target);
 
-			if (target && targetElement) {
+			if (targetElement) {
 				try {
 
 					targetElement.classList.add('focused');
@@ -2684,9 +2719,9 @@ messages.addEventListener('click', (evt) => {
 			} else {
 				showPopupMessage('Deleted message');
 			}
-		} else if (evt.target?.closest('.sticker')) {
-			const target = evt.target.closest('.message').querySelector('.msg');
-			const src = target?.src;
+		} else if (evt.target.classList.contains('msg') && evt.target.classList.contains('sticker')) {
+			const target = evt.target;
+			const src = target.src;
 			if (src) {
 				//src = 'http://localhost:3823/stickers/catteftel/animated/6.webp' to 'catteftel'
 				const sticker = src.split('/')[4];
@@ -2767,23 +2802,17 @@ function playAudio(audioContainer) {
 	try {
 		// Get the audio element from the container
 		const audio = audioContainer.querySelector('audio');
-
+		const messageObj = messageDatabase.get(audioContainer.closest('.message').id);
+		
 		// Check if the audio file is ready to be played
-		if (!audioContainer.dataset?.src) {
+		if (!messageObj.fileSrc) {
 			showPopupMessage('Audio is not ready to play');
 			return;
 		}
 
 		// If the audio file source is not set, set it to the container's data source
 		if (!audio.src) {
-			audio.src = audioContainer.dataset?.src;
-		}
-
-		// Check if the audio duration is a finite number
-		//console.log(`Audio duration is ${audio.duration}`);
-		if (!isFinite(audio.duration)) {
-			audio.dataset.duration = audioContainer.dataset?.duration || 0;
-			//console.log(`Audio duration is infinity and is set to ${audio.dataset.duration}`);
+			audio.src = messageObj.fileSrc;
 		}
 
 		// Get the time element for the audio file
@@ -3122,7 +3151,7 @@ function FilePreview(filesFromClipboard = null, audio = false) {
 				loadingElement.remove();
 			}
 
-			let name = files[i].name;
+			const name = files[i].name;
 			let size = files[i].size;
 			const ext = files[i].type.split('/')[1];
 
@@ -3136,7 +3165,7 @@ function FilePreview(filesFromClipboard = null, audio = false) {
 			}
 
 			const data = files[i];
-			name = shortFileName(name);
+			//name = shortFileName(name);
 			selectedObject = audio ? 'audio' : 'file';
 
 			const fileID = getRandomID();
@@ -3326,6 +3355,8 @@ sendButton.addEventListener('click', (e) => {
 				}
 				document.getElementById(tempId)?.classList.add('delevered');
 				document.getElementById(tempId).id = id;
+				messageDatabase.set(id, messageDatabase.get(tempId));
+				messageDatabase.delete(tempId);
 				lastSeenMessage = id;
 				if (document.hasFocus()) {
 					chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
@@ -3374,6 +3405,8 @@ sendButton.addEventListener('click', (e) => {
 
 					document.getElementById(tempId)?.classList.add('delevered');
 					document.getElementById(tempId).id = id;
+					messageDatabase.set(id, messageDatabase.get(tempId));
+					messageDatabase.delete(tempId);
 					lastSeenMessage = id;
 					if (document.hasFocus()) {
 						chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
@@ -3451,25 +3484,26 @@ async function sendImageStoreRequest() {
 		image.onload = async function () {
 			//console.log('Inside onload');
 			const thumbnail = resizeImage(image, image.mimetype, 50);
-			let messageId = getRandomID();
+			let tempId = getRandomID();
 			scrolling = false;
 
-			insertNewMessage(image.src, 'image', messageId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: '', height: image.height, width: image.width, name: image.dataset.name });
+			insertNewMessage(image.src, 'image', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: '', height: image.height, width: image.width, name: image.dataset.name });
 
 			if (Array.from(userInfoMap.keys()).length < 2) {
 				//console.log('Server upload skipped');
 
-				const msg = document.getElementById(messageId);
+				const msg = document.getElementById(tempId);
 				if (msg == null) {
 					return;
 				}
 				msg.classList.add('delevered');
-				msg.dataset.downloaded = 'true';
+				const messageObj = messageDatabase.get(tempId);
+				messageObj.downloaded = true;
 				msg.querySelector('.circleProgressLoader').remove();
 				playOutgoingSound();
 			} else {
 
-				const elem = document.getElementById(messageId)?.querySelector('.messageMain');
+				const elem = document.getElementById(tempId)?.querySelector('.messageMain');
 
 				if (elem == null) {
 					return;
@@ -3487,17 +3521,23 @@ async function sendImageStoreRequest() {
 				}
 
 
-				fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: image.dataset.name }, myKey, (newId) => {
+				fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: image.dataset.name }, myKey, (id) => {
 					playOutgoingSound();
-					document.getElementById(messageId).classList.add('delevered');
-					document.getElementById(messageId).id = newId;
-					if (ongoingXHR.has(messageId)) {
+					document.getElementById(tempId).classList.add('delevered');
+					document.getElementById(tempId).id = id;
+					messageDatabase.set(id, messageDatabase.get(tempId));
+					messageDatabase.delete(tempId);
+
+					if (ongoingXHR.has(tempId)) {
 						//replace the old key with the new key
-						ongoingXHR.set(newId, ongoingXHR.get(messageId));
+						ongoingXHR.set(id, ongoingXHR.get(tempId));
 						//ongoingXHR.delete(messageId);
 					}
-					messageId = newId;
-					lastSeenMessage = newId;
+
+					tempId = id;
+
+					lastSeenMessage = id;
+
 					if (document.hasFocus()) {
 						chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 					}
@@ -3513,12 +3553,12 @@ async function sendImageStoreRequest() {
 							// Remove 'inactive' class from element with class 'animated'
 							//console.log('Request sent');
 							//console.log(`setting ongoing xhr for ${messageId}`);
-							ongoingXHR.set(messageId, xhr);
+							ongoingXHR.set(tempId, xhr);
 							progressText.textContent = 'Uploading...';
 							progresCircle.querySelector('.animated').classList.remove('inactive');
 						} else if (xhr.readyState === XMLHttpRequest.DONE) {
 							//console.log(`Upload finished with status ${xhr.status}`);
-							ongoingXHR.delete(messageId);
+							ongoingXHR.delete(tempId);
 							if (xhr.status === 200) {
 								// Handle successful response from server
 								if (elem) {
@@ -3529,10 +3569,10 @@ async function sendImageStoreRequest() {
 
 								const downloadLink = JSON.parse(xhr.response).downlink;
 
-								const _msg = document.getElementById(messageId);
-								_msg.dataset.downloaded = 'true';
-								_msg.dataset.downlink = downloadLink;
-								fileSocket.emit('fileUploadEnd', messageId, myKey, downloadLink);
+								const messageObj = messageDatabase.get(tempId);
+								messageObj.downloaded = true;
+								messageObj.downloadLink = downloadLink;
+								fileSocket.emit('fileUploadEnd', tempId, myKey, downloadLink);
 							} else {
 								// Handle network errors or server unreachable errors
 								//console.log('Error: could not connect to server');
@@ -3540,7 +3580,7 @@ async function sendImageStoreRequest() {
 								showPopupMessage(this.response);
 								progresCircle.querySelector('.animated').style.visibility = 'hidden';
 								progressText.textContent = 'Upload failed';
-								fileSocket.emit('fileUploadError', myKey, messageId);
+								fileSocket.emit('fileUploadError', myKey, tempId);
 							}
 						}
 					};
@@ -3559,7 +3599,7 @@ async function sendImageStoreRequest() {
 
 					formData.append('file', file);
 
-					xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${messageId}/${myId}`, true);
+					xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${tempId}/${myId}`, true);
 					xhr.send(formData);
 				});
 
@@ -3579,47 +3619,54 @@ function sendFileStoreRequest(type = null) {
 
 	for (let i = 0; i < selectedFileArray.length; i++) {
 
-		let messageId = getRandomID();
+		let tempId = getRandomID();
 		scrolling = false;
 
 		const fileData = selectedFileArray[i].data;
 		const fileUrl = URL.createObjectURL(fileData);
 
 		if (type && type == 'audio') {
-			insertNewMessage(fileUrl, 'audio', messageId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name, duration: selectedFileArray[i].duration });
+			insertNewMessage(fileUrl, 'audio', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name, duration: selectedFileArray[i].duration });
 		} else {
-			insertNewMessage(fileUrl, 'file', messageId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name });
+			insertNewMessage(fileUrl, 'file', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name });
 		}
 
 		if (Array.from(userInfoMap.keys()).length < 2) {
 
-			const msg = document.getElementById(messageId);
+			const msg = document.getElementById(tempId);
 			if (msg == null) {
 				return;
 			}
 			msg.classList.add('delevered');
-			msg.dataset.downloaded = 'true';
+			const messageObj = messageDatabase.get(tempId);
+			messageObj.downloaded = true;
 			msg.querySelector('.progress').style.visibility = 'hidden';
 			playOutgoingSound();
 		} else {
 			let progress = 0;
-			const elem = document.getElementById(messageId)?.querySelector('.messageMain');
+			const elem = document.getElementById(tempId)?.querySelector('.messageMain');
 
 			if (i == 0) {
 				clearFinalTarget();
 			}
 
-			fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name }, myKey, (newId) => {
+			fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name }, myKey, (id) => {
 				playOutgoingSound();
-				document.getElementById(messageId).classList.add('delevered');
-				document.getElementById(messageId).id = newId;
-				if (ongoingXHR.has(messageId)) {
+				document.getElementById(tempId).classList.add('delevered');
+				document.getElementById(tempId).id = id;
+				messageDatabase.set(id, messageDatabase.get(tempId));
+				messageDatabase.delete(tempId);
+
+				if (ongoingXHR.has(tempId)) {
 					//replace the old key with the new key
-					ongoingXHR.set(newId, ongoingXHR.get(messageId));
+					ongoingXHR.set(id, ongoingXHR.get(tempId));
 					//ongoingXHR.delete(messageId);
 				}
-				messageId = newId;
-				lastSeenMessage = newId;
+
+				tempId = id;
+
+				lastSeenMessage = id;
+
 				if (document.hasFocus()) {
 					chatSocket.emit('seen', ({ userId: myId, messageId: lastSeenMessage, avatar: myAvatar }));
 				}
@@ -3633,26 +3680,25 @@ function sendFileStoreRequest(type = null) {
 				xhr.onreadystatechange = function () {
 					if (this.readyState === XMLHttpRequest.OPENED) {
 						//console.log(`Connection opened for message id ${messageId}`);
-						ongoingXHR.set(messageId, xhr);
+						ongoingXHR.set(tempId, xhr);
 					}
 					else if (this.readyState === XMLHttpRequest.DONE) {
 						//console.log(`Connection closed for message id ${messageId}`);
-						ongoingXHR.delete(messageId);
+						ongoingXHR.delete(tempId);
 						if (this.status == 200) {
-							const _msg = document.getElementById(messageId);
-
-							if (_msg) {
-								_msg.dataset.downloaded = 'true';
-								_msg.dataset.downlink = JSON.parse(this.response).downlink;
+							const messageObj = messageDatabase.get(tempId);
+							if (messageObj) {
+								messageObj.downloaded = true;
+								messageObj.downloadLink = JSON.parse(this.response).downlink;
 								elem.querySelector('.progress').style.visibility = 'hidden';
-								fileSocket.emit('fileUploadEnd', messageId, myKey, JSON.parse(this.response).downlink);
+								fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(this.response).downlink);
 							}
 						}
 						else {
 							//(this.response);
 							showPopupMessage(this.response);
 							elem.querySelector('.progress').textContent = 'Upload failed';
-							fileSocket.emit('fileUploadError', myKey, messageId);
+							fileSocket.emit('fileUploadError', myKey, tempId);
 						}
 					}
 				};
@@ -3677,7 +3723,7 @@ function sendFileStoreRequest(type = null) {
 
 				formData.append('file', fileData);
 
-				xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${messageId}/${myId}`, true);
+				xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${tempId}/${myId}`, true);
 				xhr.send(formData);
 			});
 		}
@@ -3993,7 +4039,7 @@ function startRecordingAudio() {
 			stream = s;
 			//process the audio stream
 			//use low quality audio and mono channel and 32kbps
-			const mediaRecorder = new MediaRecorder(stream, { type: 'audio/mp3;', audioBitsPerSecond: 32000, audioChannels: 1 });
+			const mediaRecorder = new MediaRecorder(stream, { type: 'audio/webm;', audioBitsPerSecond: 512000, audioChannels: 1 });
 			//start recording
 			mediaRecorder.start();
 			startTimer();
@@ -4035,7 +4081,7 @@ function startRecordingAudio() {
 			//when the media recorder stops recording
 			mediaRecorder.onstop = function () {
 				if (!recordCancel) {
-					const audioBlob = new Blob(audioChunks, { type: 'audio/mp3;', audioBitsPerSecond: 32000, audioChannels: 1 });
+					const audioBlob = new Blob(audioChunks, { type: 'audio/webm;', audioBitsPerSecond: 512000, audioChannels: 1 });
 					recordedAudio = new Audio();
 					recordedAudio.src = URL.createObjectURL(audioBlob);
 					recordedAudio.load();
@@ -4077,7 +4123,7 @@ function stopRecordingAudio() {
  */
 function updateAudioMessageTimer(audio, timerDisplay) {
 	const currentTime = audio.currentTime;
-	const duration = isFinite(audio.duration) ? audio.duration : audio.dataset?.duration;
+	const duration = audio.duration;
 	const percentage = (currentTime / duration) * 100;
 
 	timerDisplay.textContent = remainingTime(duration, currentTime);
@@ -4189,21 +4235,24 @@ function stopTimer() {
 //clear the previous thumbnail when user gets the file completely
 export function clearDownload(element, fileURL, type) {
 	playOutgoingSound();
-	if (element.closest('.message').dataset.deleted === 'true') return;
+	const messageId = element.closest('.message').id;
+	if (!messageDatabase.has(messageId)) return;
+	const messageObj = messageDatabase.get(messageId);
 	if (type === 'image') {
 		setTimeout(() => {
 			element.querySelector('.circleProgressLoader').remove();
 			element.querySelector('.image').src = fileURL;
+			messageObj.fileSrc = fileURL;
 			element.querySelector('.image').alt = 'image';
 			element.querySelector('.image').style.filter = 'none';
 		}, 50);
 	} else if (type === 'file' || type === 'audio') {
 		setTimeout(() => {
-			element.querySelector('.msg').dataset.src = fileURL;
+			messageObj.fileSrc = fileURL;
 			element.querySelector('.progress').style.visibility = 'hidden';
 		}, 50);
 	}
-	element.closest('.message').dataset.downloaded = 'true';
+	messageDatabase.get(messageId).downloaded = true;
 }
 
 export let loginTimeout = undefined;
