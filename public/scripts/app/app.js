@@ -1,7 +1,5 @@
 //enable strict mode
 'use strict';
-
-import { chatSocket } from './utils/messageSocket.js';
 import { fileSocket, incommingXHR } from './utils/fileSocket.js';
 
 import { Prism } from '../../libs/prism/prism.min.js';
@@ -33,6 +31,16 @@ import { reactArray } from './../shared/Reacts.js';
 import { themeAccent } from './../shared/Themes.js';
 
 import { messageDatabase, MessageObj } from './utils/messageDatabase.js';
+
+const userMetadata = JSON.parse(document.getElementById('userMetaData').textContent);
+
+export const myId = userMetadata.myId;
+export const myName = userMetadata.myName;
+export const myAvatar = userMetadata.myAvatar;
+export const myKey = userMetadata.myKey;
+export const maxUser = userMetadata.maxUser;
+
+import { chatSocket } from './utils/messageSocket.js';
 
 console.log('%cloaded app.js', 'color: deepskyblue;');
 
@@ -105,20 +113,13 @@ const audioButton = document.getElementById('audioChooser');
 export let isTyping = false;
 let messageTimeStampUpdater = undefined;
 
-//all the variables that are fetched from the server
-export const myId = document.getElementById('myId').textContent;
-export const myName = document.getElementById('myName').textContent;
-export const myAvatar = document.getElementById('myAvatar').textContent;
-export const myKey = document.getElementById('myKey').textContent;
-export const maxUser = document.getElementById('maxUser').textContent;
-
 //template messages
 const messageTemplate = document.getElementById('messageTemplate').innerHTML;
 const fileTemplate = document.getElementById('fileTemplate').innerHTML;
 const audioTemplate = document.getElementById('audioMessageTemplate').innerHTML;
 
 //remove the templates from the dom to make it invisible
-document.getElementById('userMetaTemplate').remove();
+//document.getElementById('userMetaTemplate').remove();
 document.getElementById('messageTemplate').remove();
 document.getElementById('fileTemplate').remove();
 document.getElementById('audioMessageTemplate').remove();
