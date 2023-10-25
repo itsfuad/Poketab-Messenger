@@ -33,6 +33,7 @@ import { themeAccent } from './../shared/Themes.js';
 import { messageDatabase, MessageObj } from './utils/messageDatabase.js';
 
 const userMetadata = JSON.parse(document.getElementById('userMetaData').textContent);
+document.getElementById('userMetaData').remove();
 
 export const myId = userMetadata.myId;
 export const myName = userMetadata.myName;
