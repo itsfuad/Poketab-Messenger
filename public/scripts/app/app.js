@@ -152,7 +152,7 @@ const themeArray = Object.keys(themeAccent);
 
 /**
  * This array stores the selected files to be sent
- * @type {Array<{data: string, name: string, size: number, ext: string, id: string}>}
+ * @type {Array<{data: string, name: string, size: number, id: string}>}
  */
 const selectedFileArray = [];
 
@@ -176,7 +176,6 @@ const targetMessage = {
 const targetFile = {
 	fileName: '',
 	fileData: '',
-	ext: '',
 };
 
 /**
@@ -531,7 +530,6 @@ function appHeight() {
  * @param {string} metadata.width Image width 
  * @param {string} metadata.name FIle name 
  * @param {string} metadata.size File size 
- * @param {string} metadata.ext File extension
  * @param {number} metadata.duration number of seconds the audio file is
  * 
  */
@@ -571,7 +569,6 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
  * @param {string} metadata.width Image width 
  * @param {string} metadata.name FIle name 
  * @param {string} metadata.size File size 
- * @param {string} metadata.ext File extension
  * @param {number} metadata.duration number of seconds the audio file is
  * 
  */
@@ -715,10 +712,9 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 			time: getFormattedDate(timeStamp),
 		});
 
-		messageObj.fileSrc = message;
-		messageObj.filename = metadata.name;
-		messageObj.fileSize = metadata.size;
-		messageObj.fileExt = metadata.ext;
+		messageObj.file.src = message;
+		messageObj.file.name = metadata.name;
+		messageObj.file.size = metadata.size;
 
 	} else if (type == 'audio') {
 		popupmsg = 'Audio';
@@ -735,11 +731,10 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 			duration: metadata.duration,
 		});
 
-		messageObj.fileSrc = message;
-		messageObj.filename = metadata.name;
-		messageObj.fileSize = metadata.size;
-		messageObj.fileExt = metadata.ext;
-		messageObj.duration = metadata.duration;
+		messageObj.file.src = message;
+		messageObj.file.name = metadata.name;
+		messageObj.file.size = metadata.size;
+		messageObj.file.duration = metadata.duration;
 
 	} else {
 		html = parseTemplate(messageTemplate, {
@@ -754,11 +749,8 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		});
 
 		if (type == 'image'){
-			messageObj.filename = metadata.name;
-			messageObj.fileSize = metadata.size;
-			messageObj.fileExt = metadata.ext;
-			messageObj.height = metadata.height;
-			messageObj.width = metadata.width;
+			messageObj.file.name = metadata.name;
+			messageObj.file.size = metadata.size;
 		}
 	}
 
@@ -861,9 +853,15 @@ function showOptions(type, sender, target) {
 			copyOption.style.display = 'flex';
 			//console.log('Copy Option Shown');
 		} else if (downloadable[type]) { //if the message is an image
-			if (messageDatabase.get(target.closest('.message')?.id)?.downloaded == true) {
+			const messageId = target.closest('.message')?.id;
+			if (!messageId){
+				return;
+			}
+
+			//console.log(messageDatabase.get(messageId));
+
+			if (messageDatabase.get(messageId)?.file.loaded) {
 				downloadOption.style.display = 'flex';
-				console.log('Download Option Shown');
 			}
 		}
 		if (sender === true) { //if the message is sent by me
@@ -995,7 +993,7 @@ export function deleteMessage(messageId, user) {
 
 			if (type == 'image' || type == 'file') {
 				//delete the image from the database
-				URL.revokeObjectURL(messageDatabase.get(messageId).fileSrc);
+				URL.revokeObjectURL(messageDatabase.get(messageId).file.src);
 				console.log('Revoked object url');
 			}
 		}
@@ -1060,7 +1058,7 @@ export function deleteMessage(messageId, user) {
  * Handles the download of the file
  */
 function downloadHandler() {
-	if (messageDatabase.get(targetMessage.id)?.downloaded == false) {
+	if (messageDatabase.get(targetMessage.id)?.file.loaded == false) {
 		//if sender is me
 		if (targetMessage.sender == 'You') {
 			showPopupMessage('Not uploaded yet');
@@ -1087,8 +1085,8 @@ function saveImage() {
 		showPopupMessage('Preparing image...');
 		const a = document.createElement('a');
 		a.href = lightboxImage.querySelector('img').src;
-		a.download = messageDatabase.get(targetMessage.id).filename;
-		console.log(messageDatabase.get(targetMessage.id).filename);
+		a.download = messageDatabase.get(targetMessage.id).file.name;
+		//console.log(messageDatabase.get(targetMessage.id).filename);
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
@@ -1102,15 +1100,13 @@ function saveImage() {
 function downloadFile() {
 	showPopupMessage('Preparing download...');
 
-	console.log(targetMessage.type);
-
 	const data = targetFile.fileData;
 
 	//let filetype = filename.split('.').pop();
 	const a = document.createElement('a');
 	a.href = data;
-	a.download = messageDatabase.get(targetMessage.id).filename;
-	console.log(a.download);
+	a.download = messageDatabase.get(targetMessage.id).file.name;
+
 	document.body.appendChild(a);
 	a.click();
 	document.body.removeChild(a);
@@ -1714,8 +1710,7 @@ function OptionEventHandler(evt, popup = true) {
 				targetMessage.sender = 'You';
 			}
 			targetFile.fileName = targetMessage.message = 'Audio message';
-			targetFile.fileData = message.fileSrc;
-			targetFile.ext = message.fileExt;
+			targetFile.fileData = message.file.src;
 			targetMessage.type = type;
 			targetMessage.id = evt.target.closest('.message').id;
 		} else if (type == 'file') {
@@ -1724,9 +1719,8 @@ function OptionEventHandler(evt, popup = true) {
 			if (targetMessage.sender == myName) {
 				targetMessage.sender = 'You';
 			}
-			targetFile.fileName = message.filename;
-			targetFile.fileData = message.fileSrc;
-			targetFile.ext = message.fileExt;
+			targetFile.fileName = message.file.name;
+			targetFile.fileData = message.file.src;
 			targetMessage.message = targetFile.fileName;
 			targetMessage.type = type;
 			targetMessage.id = evt.target.closest('.message').id;
@@ -2556,7 +2550,7 @@ messages.addEventListener('click', (evt) => {
 			evt.preventDefault();
 			evt.stopPropagation();
 
-			if (messageObj.downloaded == false) {
+			if (messageObj.file.loaded == false) {
 				if (messageObj.sender == myId) {
 					showPopupMessage('Not sent yet');
 				} else {
@@ -2594,13 +2588,24 @@ messages.addEventListener('click', (evt) => {
 			evt.preventDefault();
 
 			const target = evt.target;
+			const id = target.closest('.message')?.id;
+
+			if (!id){
+				return;
+			}
+
 			const audioContainer = target.closest('.audioMessage');
-			if (audioContainer == null) {
+			if (!audioContainer) {
 				return;
 			}
 
 			const audio = audioContainer.querySelector('audio');
-			console.log(audio.duration);
+			const audioObj = messageDatabase.get(id);
+
+			if (!audioObj){
+				return;
+			}
+
 			//console.log(evt.target);
 			if (evt.target.classList.contains('main-element')) {
 				//if target audio is not paused, then seek to where is was clicked
@@ -2608,11 +2613,11 @@ messages.addEventListener('click', (evt) => {
 					//if audio seek was within the area
 					if (evt.offsetX < audioContainer.offsetWidth && evt.offsetX > 0) {
 						//if duration is not finite, then set it to 0 and wait for it to be updated
-						if (!isFinite(audio.duration)) {
+						if (!isFinite(audioObj.file.duration)) {
 							showPopupMessage('Please wait for the audio to load');
 							return;
 						}
-						const duration = audio.duration;
+						const duration = audioObj.file.duration;
 						//get the calculated time and seek to it
 						const time = (evt.offsetX / audioContainer.offsetWidth) * duration;
 						seekAudioMessage(audio, time);
@@ -2804,17 +2809,27 @@ function playAudio(audioContainer) {
 	try {
 		// Get the audio element from the container
 		const audio = audioContainer.querySelector('audio');
-		const messageObj = messageDatabase.get(audioContainer.closest('.message').id);
+		const id = audioContainer.closest('.message')?.id;
+
+		if (!id){
+			return;
+		}
+
+		const messageObj = messageDatabase.get(id);
+
+		if (!messageObj){
+			return;
+		}
 		
 		// Check if the audio file is ready to be played
-		if (!messageObj.fileSrc) {
+		if (!messageObj.file.src) {
 			showPopupMessage('Audio is not ready to play');
 			return;
 		}
 
 		// If the audio file source is not set, set it to the container's data source
 		if (!audio.src) {
-			audio.src = messageObj.fileSrc;
+			audio.src = messageObj.file.src;
 		}
 
 		// Get the time element for the audio file
@@ -2833,7 +2848,7 @@ function playAudio(audioContainer) {
 		lastPlayedAudioMessage.ontimeupdate = () => {
 			//updateAudioMessageTime(audioMessage);
 			//if audio.duration is number
-			const percentage = updateAudioMessageTimer(audio, timeElement);
+			const percentage = updateAudioMessageTimer(audio, timeElement, messageObj.file.duration);
 			audioContainer.style.setProperty('--audioMessageProgress', `${percentage}%`);
 		};
 
@@ -3065,11 +3080,10 @@ function ImagePreview(filesFromClipboard = null) {
 			document.getElementById('selectedFiles').append(fileContainerFragment);
 
 			const data = fileURL;
-			const ext = files[i].type.split('/')[1];
 			const name = files[i].name;
 			const size = files[i].size;
 
-			selectedFileArray.push({ data: data, name: name, size: size, ext: ext, id: fileID });
+			selectedFileArray.push({ data: data, name: name, size: size, id: fileID });
 
 			if (i == files.length - 1) {
 				fileSendButton.style.display = 'flex';
@@ -3155,7 +3169,6 @@ function FilePreview(filesFromClipboard = null, audio = false) {
 
 			const name = files[i].name;
 			let size = files[i].size;
-			const ext = files[i].type.split('/')[1];
 
 			//convert to B, KB, MB
 			if (size < 1024) {
@@ -3219,7 +3232,7 @@ function FilePreview(filesFromClipboard = null, audio = false) {
 
 			document.getElementById('selectedFiles').appendChild(fileElementFragment);
 
-			selectedFileArray.push({ data: data, name: name, size: size, ext: ext, id: fileID });
+			selectedFileArray.push({ data: data, name: name, size: size, id: fileID });
 
 			if (i == files.length - 1) {
 				fileSendButton.style.display = 'flex';
@@ -3482,14 +3495,13 @@ async function sendImageStoreRequest() {
 		const image = new Image();
 		image.src = selectedFileArray[i].data;
 		image.dataset.name = selectedFileArray[i].name;
-		image.mimetype = selectedFileArray[i].ext;
 		image.onload = async function () {
 			//console.log('Inside onload');
 			const thumbnail = resizeImage(image, image.mimetype, 50);
-			let tempId = getRandomID();
+			const tempId = getRandomID();
 			scrolling = false;
 
-			insertNewMessage(image.src, 'image', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: '', height: image.height, width: image.width, name: image.dataset.name });
+			insertNewMessage(image.src, 'image', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { size: '', height: image.height, width: image.width, name: image.dataset.name });
 
 			if (Array.from(userInfoMap.keys()).length < 2) {
 				//console.log('Server upload skipped');
@@ -3500,7 +3512,7 @@ async function sendImageStoreRequest() {
 				}
 				msg.classList.add('delevered');
 				const messageObj = messageDatabase.get(tempId);
-				messageObj.downloaded = true;
+				messageObj.file.loaded = true;
 				msg.querySelector('.circleProgressLoader').remove();
 				playOutgoingSound();
 			} else {
@@ -3523,7 +3535,7 @@ async function sendImageStoreRequest() {
 				}
 
 
-				fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: image.mimetype, size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: image.dataset.name }, myKey, (id) => {
+				fileSocket.emit('fileUploadStart', 'image', thumbnail.data, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { size: (image.width * image.height * 4) / 1024 / 1024, height: image.height, width: image.width, name: image.dataset.name }, myKey, (id) => {
 					playOutgoingSound();
 					document.getElementById(tempId).classList.add('delevered');
 					document.getElementById(tempId).id = id;
@@ -3535,8 +3547,6 @@ async function sendImageStoreRequest() {
 						ongoingXHR.set(id, ongoingXHR.get(tempId));
 						//ongoingXHR.delete(messageId);
 					}
-
-					tempId = id;
 
 					lastSeenMessage = id;
 
@@ -3555,12 +3565,12 @@ async function sendImageStoreRequest() {
 							// Remove 'inactive' class from element with class 'animated'
 							//console.log('Request sent');
 							//console.log(`setting ongoing xhr for ${messageId}`);
-							ongoingXHR.set(tempId, xhr);
+							ongoingXHR.set(id, xhr);
 							progressText.textContent = 'Uploading...';
 							progresCircle.querySelector('.animated').classList.remove('inactive');
 						} else if (xhr.readyState === XMLHttpRequest.DONE) {
 							//console.log(`Upload finished with status ${xhr.status}`);
-							ongoingXHR.delete(tempId);
+							ongoingXHR.delete(id);
 							if (xhr.status === 200) {
 								// Handle successful response from server
 								if (elem) {
@@ -3571,10 +3581,10 @@ async function sendImageStoreRequest() {
 
 								const downloadLink = JSON.parse(xhr.response).downlink;
 
-								const messageObj = messageDatabase.get(tempId);
-								messageObj.downloaded = true;
-								messageObj.downloadLink = downloadLink;
-								fileSocket.emit('fileUploadEnd', tempId, myKey, downloadLink);
+								const messageObj = messageDatabase.get(id);
+								messageObj.file.loaded = true;
+								messageObj.file.downloadLink = downloadLink;
+								fileSocket.emit('fileUploadEnd', id, myKey, downloadLink);
 							} else {
 								// Handle network errors or server unreachable errors
 								//console.log('Error: could not connect to server');
@@ -3582,7 +3592,7 @@ async function sendImageStoreRequest() {
 								showPopupMessage(this.response);
 								progresCircle.querySelector('.animated').style.visibility = 'hidden';
 								progressText.textContent = 'Upload failed';
-								fileSocket.emit('fileUploadError', myKey, tempId);
+								fileSocket.emit('fileUploadError', myKey, id);
 							}
 						}
 					};
@@ -3601,7 +3611,7 @@ async function sendImageStoreRequest() {
 
 					formData.append('file', file);
 
-					xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${tempId}/${myId}`, true);
+					xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${id}/${myId}`, true);
 					xhr.send(formData);
 				});
 
@@ -3621,16 +3631,16 @@ function sendFileStoreRequest(type = null) {
 
 	for (let i = 0; i < selectedFileArray.length; i++) {
 
-		let tempId = getRandomID();
+		const tempId = getRandomID();
 		scrolling = false;
 
 		const fileData = selectedFileArray[i].data;
 		const fileUrl = URL.createObjectURL(fileData);
 
 		if (type && type == 'audio') {
-			insertNewMessage(fileUrl, 'audio', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name, duration: selectedFileArray[i].duration });
+			insertNewMessage(fileUrl, 'audio', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { size: selectedFileArray[i].size, name: selectedFileArray[i].name, duration: selectedFileArray[i].duration });
 		} else {
-			insertNewMessage(fileUrl, 'file', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name });
+			insertNewMessage(fileUrl, 'file', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { size: selectedFileArray[i].size, name: selectedFileArray[i].name });
 		}
 
 		if (Array.from(userInfoMap.keys()).length < 2) {
@@ -3641,7 +3651,7 @@ function sendFileStoreRequest(type = null) {
 			}
 			msg.classList.add('delevered');
 			const messageObj = messageDatabase.get(tempId);
-			messageObj.downloaded = true;
+			messageObj.file.loaded = true;
 			msg.querySelector('.progress').style.visibility = 'hidden';
 			playOutgoingSound();
 		} else {
@@ -3652,10 +3662,11 @@ function sendFileStoreRequest(type = null) {
 				clearFinalTarget();
 			}
 
-			fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { ext: selectedFileArray[i].ext, size: selectedFileArray[i].size, name: selectedFileArray[i].name }, myKey, (id) => {
+			fileSocket.emit('fileUploadStart', type ? type : 'file', '', myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { size: selectedFileArray[i].size, name: selectedFileArray[i].name }, myKey, (id) => {
 				playOutgoingSound();
 				document.getElementById(tempId).classList.add('delevered');
 				document.getElementById(tempId).id = id;
+
 				messageDatabase.set(id, messageDatabase.get(tempId));
 				messageDatabase.delete(tempId);
 
@@ -3664,8 +3675,6 @@ function sendFileStoreRequest(type = null) {
 					ongoingXHR.set(id, ongoingXHR.get(tempId));
 					//ongoingXHR.delete(messageId);
 				}
-
-				tempId = id;
 
 				lastSeenMessage = id;
 
@@ -3681,26 +3690,26 @@ function sendFileStoreRequest(type = null) {
 
 				xhr.onreadystatechange = function () {
 					if (this.readyState === XMLHttpRequest.OPENED) {
-						//console.log(`Connection opened for message id ${messageId}`);
-						ongoingXHR.set(tempId, xhr);
+						//console.log(`Connection opened for message id ${id}`);
+						ongoingXHR.set(id, xhr);
 					}
 					else if (this.readyState === XMLHttpRequest.DONE) {
 						//console.log(`Connection closed for message id ${messageId}`);
-						ongoingXHR.delete(tempId);
+						ongoingXHR.delete(id);
 						if (this.status == 200) {
-							const messageObj = messageDatabase.get(tempId);
+							const messageObj = messageDatabase.get(id);
 							if (messageObj) {
-								messageObj.downloaded = true;
-								messageObj.downloadLink = JSON.parse(this.response).downlink;
+								messageObj.file.loaded = true;
+								messageObj.file.downloadLink = JSON.parse(this.response).downlink;
 								elem.querySelector('.progress').style.visibility = 'hidden';
-								fileSocket.emit('fileUploadEnd', tempId, myKey, JSON.parse(this.response).downlink);
+								fileSocket.emit('fileUploadEnd', id, myKey, JSON.parse(this.response).downlink);
 							}
 						}
 						else {
 							//(this.response);
 							showPopupMessage(this.response);
 							elem.querySelector('.progress').textContent = 'Upload failed';
-							fileSocket.emit('fileUploadError', myKey, tempId);
+							fileSocket.emit('fileUploadError', myKey, id);
 						}
 					}
 				};
@@ -3725,7 +3734,7 @@ function sendFileStoreRequest(type = null) {
 
 				formData.append('file', fileData);
 
-				xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${tempId}/${myId}`, true);
+				xhr.open('POST', `${location.origin}/api/files/upload/${myKey}/${id}/${myId}`, true);
 				xhr.send(formData);
 			});
 		}
@@ -4041,7 +4050,7 @@ function startRecordingAudio() {
 			stream = s;
 			//process the audio stream
 			//use low quality audio and mono channel and 32kbps
-			const mediaRecorder = new MediaRecorder(stream, { type: 'audio/webm;', audioBitsPerSecond: 512000, audioChannels: 1 });
+			const mediaRecorder = new MediaRecorder(stream, { type: 'audio/mp3;', audioBitsPerSecond: 48000, audioChannels: 1 });
 			//start recording
 			mediaRecorder.start();
 			startTimer();
@@ -4083,7 +4092,7 @@ function startRecordingAudio() {
 			//when the media recorder stops recording
 			mediaRecorder.onstop = function () {
 				if (!recordCancel) {
-					const audioBlob = new Blob(audioChunks, { type: 'audio/webm;', audioBitsPerSecond: 512000, audioChannels: 1 });
+					const audioBlob = new Blob(audioChunks, { type: 'audio/mp3;', audioBitsPerSecond: 48000, audioChannels: 1 });
 					recordedAudio = new Audio();
 					recordedAudio.src = URL.createObjectURL(audioBlob);
 					recordedAudio.load();
@@ -4091,7 +4100,7 @@ function startRecordingAudio() {
 					recordCancel = false;
 					showPopupMessage('Recorded!');
 					if (recordedAudio) {
-						console.log('recorded audio duration: ', recordedAudio.dataset.duration);
+						//console.log('recorded audio duration: ', recordedAudio.dataset.duration);
 						if (quickReactsEnabled == 'true' && sendButton.dataset.role == 'quickEmoji') {
 							sendButton.dataset.role = 'send';
 						}
@@ -4123,12 +4132,13 @@ function stopRecordingAudio() {
  * @param {HTMLElement} timerDisplay
  * @returns 
  */
-function updateAudioMessageTimer(audio, timerDisplay) {
+function updateAudioMessageTimer(audio, timerDisplay, duration = null) {
 	const currentTime = audio.currentTime;
-	const duration = audio.duration;
-	const percentage = (currentTime / duration) * 100;
+	const audioDuration = duration || audio.duration;
 
-	timerDisplay.textContent = remainingTime(duration, currentTime);
+	const percentage = (currentTime / audioDuration) * 100;
+
+	timerDisplay.textContent = remainingTime(audioDuration, currentTime);
 	return percentage;
 }
 
@@ -4147,7 +4157,7 @@ function playRecordedAudio() {
 		//updates the timer
 		recordedAudio.addEventListener('timeupdate', () => {
 			//if recordedaudio.duration is a number
-			const percentage = updateAudioMessageTimer(recordedAudio, recorderTimer);
+			const percentage = updateAudioMessageTimer(recordedAudio, recorderTimer, recordedAudio.dataset.duration);
 			recorderElement.style.setProperty('--recordedAudioPlaybackProgress', percentage + '%');
 		});
 
@@ -4188,13 +4198,12 @@ function sendAudioRecord() {
 			const data = file;
 			const name = file.name;
 			const size = file.size;
-			const ext = 'mp3';
 			const duration = recordedAudio.dataset.duration;
 
 			const fileID = getRandomID();
 
 			selectedFileArray.length = 0;
-			selectedFileArray.push({ data, name, size, ext, id: fileID, duration: duration });
+			selectedFileArray.push({ data, name, size, id: fileID, duration: duration });
 
 			selectedObject = 'audio';
 
@@ -4244,17 +4253,17 @@ export function clearDownload(element, fileURL, type) {
 		setTimeout(() => {
 			element.querySelector('.circleProgressLoader').remove();
 			element.querySelector('.image').src = fileURL;
-			messageObj.fileSrc = fileURL;
+			messageObj.file.src = fileURL;
 			element.querySelector('.image').alt = 'image';
 			element.querySelector('.image').style.filter = 'none';
 		}, 50);
 	} else if (type === 'file' || type === 'audio') {
 		setTimeout(() => {
-			messageObj.fileSrc = fileURL;
+			messageObj.file.src = fileURL;
 			element.querySelector('.progress').style.visibility = 'hidden';
 		}, 50);
 	}
-	messageDatabase.get(messageId).downloaded = true;
+	messageDatabase.get(messageId).file.loaded = true;
 }
 
 export let loginTimeout = undefined;

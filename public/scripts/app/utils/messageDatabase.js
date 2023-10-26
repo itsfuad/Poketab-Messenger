@@ -8,12 +8,17 @@ export class MessageObj {
 		this.timeout = undefined;
 		this.seenBy = new Set();
 		this.reacts = new Map();
-		this.downloaded = false;
-		this.fileSrc = '';
-		this.fileExt = '';
-		this.filename = '';
-		this.fileSize = 0;
-		this.duration = 0;
+		this.file = new FileObj();
+	}
+}
+
+class FileObj{
+	constructor(){
+		this.src = '';
+		this.name = '';
+		this.size = 0;
+		this.duration = 0.0;
+		this.loaded = false;
 		this.downloadLink = '';
 	}
 }
