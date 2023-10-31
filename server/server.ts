@@ -271,7 +271,7 @@ function approveNewChatRequest(req: any, res: any, data: { username: string, key
 	res.render('chat/chat', { myName: data.username, myKey: data.key, myId: uid, myAvatar: data.avatar, maxUser: data.max_users, ENV: ENVIRONMENT, hash: nonce, welcomeSticker: welcomeSticker, icon: data.icon, color: color});
 }
 
-app.get('/offline', (req, res) => {
+app.get('/offline', (req, res) => {	
 	blockNewChatRequest(req, res, { title: 'Offline', errorCode: 'Oops!', errorMessage: 'You are offline :(', buttonText: 'Refresh', icon: 'offline.png'});
 });
 

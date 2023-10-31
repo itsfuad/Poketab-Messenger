@@ -30,7 +30,7 @@ import { reactArray } from './../shared/Reacts.js';
 
 import { themeAccent } from './../shared/Themes.js';
 
-import { messageDatabase, MessageObj } from './utils/messageDatabase.js';
+import { AudioMessage, FileMessage, messageDatabase, MessageObj, TextMessage } from './utils/messageDatabase.js';
 
 const userMetadata = JSON.parse(document.getElementById('userMetaData').textContent);
 document.getElementById('userMetaData').remove();
@@ -530,7 +530,7 @@ function appHeight() {
  * @param {string} metadata.width Image width 
  * @param {string} metadata.name FIle name 
  * @param {string} metadata.size File size 
- * @param {number} metadata.duration number of seconds the audio file is
+ * @param {number} metadata.duration Audio duration
  * 
  */
 export function insertNewMessage(message, type, id, uid, reply, replyId, replyOptions, metadata) {
@@ -569,7 +569,7 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
  * @param {string} metadata.width Image width 
  * @param {string} metadata.name FIle name 
  * @param {string} metadata.size File size 
- * @param {number} metadata.duration number of seconds the audio file is
+ * @param {number} metadata.duration Audio duration
  * 
  */
 function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, metadata) {
@@ -660,11 +660,6 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 
 	const timeStamp = Date.now();
 
-	const messageObj = new MessageObj();
-	messageObj.type = type;
-	messageObj.sender = uid;
-	messageObj.replyTo = replyId;
-	messageObj.timeStamp = timeStamp;
 
 	if (replyOptions.reply) {
 		//check if the replyid is available in the message list
@@ -697,6 +692,16 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 
 	}
 
+	let messageObj;
+
+	/*
+	const messageObj = new MessageObj();
+	messageObj.type = type;
+	messageObj.sender = uid;
+	messageObj.replyTo = replyId;
+	messageObj.timeStamp = timeStamp;
+	*/
+
 	if (type === 'file') {
 		popupmsg = 'File';
 		html = parseTemplate(fileTemplate, {
@@ -712,9 +717,19 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 			time: getFormattedDate(timeStamp),
 		});
 
+		messageObj = new FileMessage();
+		messageObj.sender = uid;
+		messageObj.replyTo = replyId;
+		messageObj.timeStamp = timeStamp;
+		messageObj.src = message;
+		messageObj.name = metadata.name;
+		messageObj.size = metadata.size;
+
+		/*
 		messageObj.file.src = message;
 		messageObj.file.name = metadata.name;
 		messageObj.file.size = metadata.size;
+		*/
 
 	} else if (type == 'audio') {
 		popupmsg = 'Audio';
@@ -728,15 +743,25 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 			length: 'Play',
 			replyMsg: replyMsg,
 			time: getFormattedDate(timeStamp),
-			duration: metadata.duration,
 		});
 
+		messageObj = new AudioMessage();
+		messageObj.sender = uid;
+		messageObj.replyTo = replyId;
+		messageObj.timeStamp = timeStamp;
+		messageObj.src = message;
+		messageObj.name = metadata.name;
+		messageObj.size = metadata.size;
+		messageObj.duration = metadata.duration;
+
+		/*
 		messageObj.file.src = message;
 		messageObj.file.name = metadata.name;
 		messageObj.file.size = metadata.size;
 		messageObj.file.duration = metadata.duration;
+		*/
 
-	} else {
+	} else if (type == 'text') {
 		html = parseTemplate(messageTemplate, {
 			classList: classList,
 			avatarSrc: `/images/avatars/${avatar}(custom).webp`,
@@ -748,10 +773,34 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 			time: getFormattedDate(timeStamp),
 		});
 
-		if (type == 'image'){
-			messageObj.file.name = metadata.name;
-			messageObj.file.size = metadata.size;
-		}
+		messageObj = new TextMessage();
+		messageObj.sender = uid;
+		messageObj.replyTo = replyId;
+		messageObj.timeStamp = timeStamp;
+		messageObj.text = message;
+
+	} else if (type == 'image') {
+		/*
+		messageObj.file.name = metadata.name;
+		messageObj.file.size = metadata.size;
+		*/
+		html = parseTemplate(messageTemplate, {
+			classList: classList,
+			avatarSrc: `/images/avatars/${avatar}(custom).webp`,
+			messageId: id,
+			repId: replyId,
+			title: replyOptions.reply ? `${username} replied to ${repliedTo ? repliedTo : 'a message'}` : username,
+			message: message,
+			replyMsg: replyMsg,
+			time: getFormattedDate(timeStamp),
+		});
+
+		messageObj = new FileMessage();
+		messageObj.sender = uid;
+		messageObj.replyTo = replyId;
+		messageObj.timeStamp = timeStamp;
+		messageObj.name = metadata.name;
+		messageObj.size = metadata.size;
 	}
 
 	lastSeenMessage = id;
@@ -860,7 +909,7 @@ function showOptions(type, sender, target) {
 
 			//console.log(messageDatabase.get(messageId));
 
-			if (messageDatabase.get(messageId)?.file.loaded) {
+			if (messageDatabase.get(messageId)?.loaded) {
 				downloadOption.style.display = 'flex';
 			}
 		}
@@ -993,7 +1042,7 @@ export function deleteMessage(messageId, user) {
 
 			if (type == 'image' || type == 'file') {
 				//delete the image from the database
-				URL.revokeObjectURL(messageDatabase.get(messageId).file.src);
+				URL.revokeObjectURL(messageDatabase.get(messageId).src);
 				console.log('Revoked object url');
 			}
 		}
@@ -1058,7 +1107,7 @@ export function deleteMessage(messageId, user) {
  * Handles the download of the file
  */
 function downloadHandler() {
-	if (messageDatabase.get(targetMessage.id)?.file.loaded == false) {
+	if (messageDatabase.get(targetMessage.id)?.loaded == false) {
 		//if sender is me
 		if (targetMessage.sender == 'You') {
 			showPopupMessage('Not uploaded yet');
@@ -1085,7 +1134,7 @@ function saveImage() {
 		showPopupMessage('Preparing image...');
 		const a = document.createElement('a');
 		a.href = lightboxImage.querySelector('img').src;
-		a.download = messageDatabase.get(targetMessage.id).file.name;
+		a.download = messageDatabase.get(targetMessage.id).name;
 		//console.log(messageDatabase.get(targetMessage.id).filename);
 		document.body.appendChild(a);
 		a.click();
@@ -1105,7 +1154,7 @@ function downloadFile() {
 	//let filetype = filename.split('.').pop();
 	const a = document.createElement('a');
 	a.href = data;
-	a.download = messageDatabase.get(targetMessage.id).file.name;
+	a.download = messageDatabase.get(targetMessage.id).name;
 
 	document.body.appendChild(a);
 	a.click();
@@ -1710,7 +1759,7 @@ function OptionEventHandler(evt, popup = true) {
 				targetMessage.sender = 'You';
 			}
 			targetFile.fileName = targetMessage.message = 'Audio message';
-			targetFile.fileData = message.file.src;
+			targetFile.fileData = message.src;
 			targetMessage.type = type;
 			targetMessage.id = evt.target.closest('.message').id;
 		} else if (type == 'file') {
@@ -1719,8 +1768,8 @@ function OptionEventHandler(evt, popup = true) {
 			if (targetMessage.sender == myName) {
 				targetMessage.sender = 'You';
 			}
-			targetFile.fileName = message.file.name;
-			targetFile.fileData = message.file.src;
+			targetFile.fileName = message.name;
+			targetFile.fileData = message.src;
 			targetMessage.message = targetFile.fileName;
 			targetMessage.type = type;
 			targetMessage.id = evt.target.closest('.message').id;
@@ -2550,7 +2599,7 @@ messages.addEventListener('click', (evt) => {
 			evt.preventDefault();
 			evt.stopPropagation();
 
-			if (messageObj.file.loaded == false) {
+			if (messageObj.loaded == false) {
 				if (messageObj.sender == myId) {
 					showPopupMessage('Not sent yet');
 				} else {
@@ -2599,11 +2648,18 @@ messages.addEventListener('click', (evt) => {
 				return;
 			}
 
+			/**
+			 * @type {HTMLAudioElement}
+			 */
 			const audio = audioContainer.querySelector('audio');
 			const audioObj = messageDatabase.get(id);
 
 			if (!audioObj){
 				return;
+			}
+
+			if (!audioObj.duration && isFinite(audio.duration)) {
+				audioObj.duration = audio.duration;
 			}
 
 			//console.log(evt.target);
@@ -2613,12 +2669,12 @@ messages.addEventListener('click', (evt) => {
 					//if audio seek was within the area
 					if (evt.offsetX < audioContainer.offsetWidth && evt.offsetX > 0) {
 						//if duration is not finite, then set it to 0 and wait for it to be updated
-						if (!isFinite(audioObj.file.duration)) {
+						if (!isFinite(audioObj.duration)) {
 							showPopupMessage('Please wait for the audio to load');
 							return;
 						}
-						const duration = audioObj.file.duration;
 						//get the calculated time and seek to it
+						const duration = audioObj.duration;
 						const time = (evt.offsetX / audioContainer.offsetWidth) * duration;
 						seekAudioMessage(audio, time);
 					}
@@ -2822,14 +2878,14 @@ function playAudio(audioContainer) {
 		}
 		
 		// Check if the audio file is ready to be played
-		if (!messageObj.file.src) {
+		if (!messageObj.src) {
 			showPopupMessage('Audio is not ready to play');
 			return;
 		}
 
 		// If the audio file source is not set, set it to the container's data source
 		if (!audio.src) {
-			audio.src = messageObj.file.src;
+			audio.src = messageObj.src;
 		}
 
 		// Get the time element for the audio file
@@ -2848,7 +2904,7 @@ function playAudio(audioContainer) {
 		lastPlayedAudioMessage.ontimeupdate = () => {
 			//updateAudioMessageTime(audioMessage);
 			//if audio.duration is number
-			const percentage = updateAudioMessageTimer(audio, timeElement, messageObj.file.duration);
+			const percentage = updateAudioMessageTimer(audio, timeElement, messageObj.duration);
 			audioContainer.style.setProperty('--audioMessageProgress', `${percentage}%`);
 		};
 
@@ -3512,7 +3568,7 @@ async function sendImageStoreRequest() {
 				}
 				msg.classList.add('delevered');
 				const messageObj = messageDatabase.get(tempId);
-				messageObj.file.loaded = true;
+				messageObj.loaded = true;
 				msg.querySelector('.circleProgressLoader').remove();
 				playOutgoingSound();
 			} else {
@@ -3582,8 +3638,8 @@ async function sendImageStoreRequest() {
 								const downloadLink = JSON.parse(xhr.response).downlink;
 
 								const messageObj = messageDatabase.get(id);
-								messageObj.file.loaded = true;
-								messageObj.file.downloadLink = downloadLink;
+								messageObj.loaded = true;
+								messageObj.downloadLink = downloadLink;
 								fileSocket.emit('fileUploadEnd', id, myKey, downloadLink);
 							} else {
 								// Handle network errors or server unreachable errors
@@ -3638,9 +3694,9 @@ function sendFileStoreRequest(type = null) {
 		const fileUrl = URL.createObjectURL(fileData);
 
 		if (type && type == 'audio') {
-			insertNewMessage(fileUrl, 'audio', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { size: selectedFileArray[i].size, name: selectedFileArray[i].name, duration: selectedFileArray[i].duration });
+			insertNewMessage(fileUrl, 'audio', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { size: selectedFileArray[i].size, name: selectedFileArray[i].name, duration: selectedFileArray[i].duration});
 		} else {
-			insertNewMessage(fileUrl, 'file', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { size: selectedFileArray[i].size, name: selectedFileArray[i].name });
+			insertNewMessage(fileUrl, 'file', tempId, myId, { data: finalTarget?.message, type: finalTarget?.type }, finalTarget?.id, { reply: (finalTarget?.message ? true : false), title: (finalTarget?.message || maxUser > 2 ? true : false) }, { size: selectedFileArray[i].size, name: selectedFileArray[i].name});
 		}
 
 		if (Array.from(userInfoMap.keys()).length < 2) {
@@ -3651,7 +3707,7 @@ function sendFileStoreRequest(type = null) {
 			}
 			msg.classList.add('delevered');
 			const messageObj = messageDatabase.get(tempId);
-			messageObj.file.loaded = true;
+			messageObj.loaded = true;
 			msg.querySelector('.progress').style.visibility = 'hidden';
 			playOutgoingSound();
 		} else {
@@ -3699,8 +3755,8 @@ function sendFileStoreRequest(type = null) {
 						if (this.status == 200) {
 							const messageObj = messageDatabase.get(id);
 							if (messageObj) {
-								messageObj.file.loaded = true;
-								messageObj.file.downloadLink = JSON.parse(this.response).downlink;
+								messageObj.loaded = true;
+								messageObj.downloadLink = JSON.parse(this.response).downlink;
 								elem.querySelector('.progress').style.visibility = 'hidden';
 								fileSocket.emit('fileUploadEnd', id, myKey, JSON.parse(this.response).downlink);
 							}
@@ -4097,6 +4153,7 @@ function startRecordingAudio() {
 					recordedAudio.src = URL.createObjectURL(audioBlob);
 					recordedAudio.load();
 					recordedAudio.dataset.duration = timePassed;
+					
 					recordCancel = false;
 					showPopupMessage('Recorded!');
 					if (recordedAudio) {
@@ -4244,7 +4301,7 @@ function stopTimer() {
 }
 
 //clear the previous thumbnail when user gets the file completely
-export function clearDownload(element, fileURL, type) {
+export function clearDownload(element, fileSrc, type) {
 	playOutgoingSound();
 	const messageId = element.closest('.message').id;
 	if (!messageDatabase.has(messageId)) return;
@@ -4252,18 +4309,18 @@ export function clearDownload(element, fileURL, type) {
 	if (type === 'image') {
 		setTimeout(() => {
 			element.querySelector('.circleProgressLoader').remove();
-			element.querySelector('.image').src = fileURL;
-			messageObj.file.src = fileURL;
+			element.querySelector('.image').src = fileSrc;
+			messageObj.src = fileSrc;
 			element.querySelector('.image').alt = 'image';
 			element.querySelector('.image').style.filter = 'none';
 		}, 50);
 	} else if (type === 'file' || type === 'audio') {
 		setTimeout(() => {
-			messageObj.file.src = fileURL;
+			messageObj.src = fileSrc;
 			element.querySelector('.progress').style.visibility = 'hidden';
 		}, 50);
 	}
-	messageDatabase.get(messageId).file.loaded = true;
+	messageDatabase.get(messageId).loaded = true;
 }
 
 export let loginTimeout = undefined;
