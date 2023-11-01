@@ -50,7 +50,7 @@ export class Key{
 	}
 
 	hasUser(uid: string): boolean{
-		return this.users[uid] !== null;
+		return this.users[uid] != null;
 	}
 
 	isEmpty(): boolean{

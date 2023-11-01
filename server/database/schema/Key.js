@@ -39,7 +39,7 @@ export class Key {
         return users;
     }
     hasUser(uid) {
-        return this.users[uid] !== null;
+        return this.users[uid] != null;
     }
     isEmpty() {
         return this.activeUsers === 0;
