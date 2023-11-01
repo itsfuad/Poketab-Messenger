@@ -573,12 +573,12 @@ export function insertNewMessage(message, type, id, uid, reply, replyId, replyOp
  * 
  */
 function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, metadata) {
-
 	let classList = ''; //the class list for the message. Initially empty. 
 	const lastMsg = messages.querySelector('.message:last-child'); //the last message in the chat box
 	let popupmsg = ''; //the message to be displayed in the popup if user scrolled up
 	const messageIsEmoji = isEmoji(message); //if the message is an emoji
 	if (type === 'text') { //if the message is a text message
+		
 		message = `<div class="msg text">${messageparser.parse(message)}</div>`;
 		const fragment = document.createDocumentFragment();
 		const el = document.createElement('div');
@@ -610,6 +610,7 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		if (!stickerIsValid(message)) {
 			return;
 		}
+		console.log('Making sticker message');
 		message = `
 			<img class="msg sticker image" src='/stickers/${message}.webp' alt='sticker' height='${metadata.height}' width='${metadata.width}' />
 		`;
@@ -761,7 +762,7 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 		messageObj.file.duration = metadata.duration;
 		*/
 
-	} else if (type == 'text') {
+	} else if (type == 'text' || type === 'sticker') {
 		html = parseTemplate(messageTemplate, {
 			classList: classList,
 			avatarSrc: `/images/avatars/${avatar}(custom).webp`,
