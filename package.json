@@ -22,7 +22,7 @@
   "author": "Fuad Hasan",
   "license": "ISC",
   "dependencies": {
-    "async": "^3.2.4",
+    "async": "^3.2.5",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
