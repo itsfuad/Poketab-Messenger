@@ -1,4 +1,4 @@
-import path from 'node:path';
+import path from 'npm:path';
 import http from 'node:http';
 import express from 'npm:express';
 import { randomBytes } from 'node:crypto';
