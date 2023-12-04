@@ -22,7 +22,7 @@ const version = process.env.npm_package_version || 'Development';
 const DEVELOPER = 'Fuad Hasan';
 //console.log(__dirname);
 //console.log(publicPath);
-const port = process.env.PORT || 3823;
+const port = process.env.PORT || 52692;
 const ENVIRONMENT = process.env.BUILD_MODE == 'DEVELOPMENT' ? 'DEVELOPMENT' : 'PRODUCTION';
 const Icon = ENVIRONMENT == 'DEVELOPMENT' ? 'dev.png' : 'icon.png';
 const accessURL = ENVIRONMENT == 'DEVELOPMENT' ? `http://localhost:${port}` : '';

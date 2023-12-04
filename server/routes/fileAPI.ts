@@ -1,6 +1,6 @@
-import { Router } from 'express';
-import { access } from 'fs/promises';
-import fs from 'fs';
+import { Router } from 'npm:express';
+import { access } from 'node:fs/promises';
+import fs from 'node:fs';
 import crypto from 'crypto';
 
 import { keyStore } from '../database/db.js';

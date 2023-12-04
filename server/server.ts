@@ -1,9 +1,9 @@
 console.log('Initializing Server');
 
-import crypto from 'crypto';
-import rateLimit from 'express-rate-limit';
-import fs from 'fs';
-import os from 'os';
+import crypto from 'node:crypto';
+import rateLimit from 'npm:express-rate-limit';
+import fs from 'node:fs';
+import os from 'node:os';
 
 import { blockedMessage } from './utils/blockedMessage.js';
 
@@ -37,7 +37,7 @@ const DEVELOPER = 'Fuad Hasan';
 
 //console.log(publicPath);
 
-const port = process.env.PORT || 3823;
+const port = process.env.PORT || 52692;
 
 const ENVIRONMENT = process.env.BUILD_MODE == 'DEVELOPMENT' ? 'DEVELOPMENT' : 'PRODUCTION';
 
