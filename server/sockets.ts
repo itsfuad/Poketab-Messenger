@@ -1,4 +1,4 @@
-import { Server } from 'socket.io';
+import { Server } from 'npm:socket.io';
 import { httpServer } from './expressApp.js';
 
 const io = new Server(httpServer);

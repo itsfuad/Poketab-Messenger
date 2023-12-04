@@ -17,7 +17,7 @@ import { keyStore } from './database/db.js';
 import { themeAccent } from './../public/scripts/shared/Themes.js';
 
 //import .env variables
-import { config } from 'dotenv';
+import { config } from 'npm:dotenv';
 
 import { app, httpServer } from './expressApp.js';
 

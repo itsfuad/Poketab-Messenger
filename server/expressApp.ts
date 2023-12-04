@@ -1,7 +1,7 @@
 import path from 'node:path';
 import http from 'node:http';
 import express from 'npm:express';
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
 import compression from 'npm:compression';
 import cookieParser from 'npm:cookie-parser';
 import ejs from 'npm:ejs';
