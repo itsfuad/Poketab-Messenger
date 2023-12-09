@@ -1,4 +1,4 @@
-# Poketab Messenger (Will deprecate soon. New architecture is comming with svelte, deno and rust)
+# Poketab Messenger 
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/itsfuad/Poketab-Messenger?style=flat-square)
 ![GitHub repo size](https://img.shields.io/github/repo-size/itsfuad/Poketab-Messenger)
 ![GitHub contributors](https://img.shields.io/github/contributors/itsfuad/Poketab-Messenger?style=flat-square)
