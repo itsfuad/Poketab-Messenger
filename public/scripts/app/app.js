@@ -815,6 +815,7 @@ function makeMessgaes(message, type, id, uid, reply, replyId, replyOptions, meta
 	messages.style.height = 'auto';
 	messages.appendChild(fragment);
 
+	messageObj.type = type;
 	messageDatabase.set(id, messageObj);
 
 	const navbar = document.querySelector('.navbar');
@@ -1708,6 +1709,8 @@ function OptionEventHandler(evt, popup = true) {
 		const message = messageDatabase.get(evt.target.closest('.message')?.id);
 
 		const type = message.type;
+
+		//console.log(type);
 
 		if (!typeList[type] || !evt.target.closest('.msg')) {
 			return;
