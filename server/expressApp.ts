@@ -1,9 +1,8 @@
-import http from 'node:http';
-import express from 'npm:express';
-import { randomBytes } from 'node:crypto';
-import compression from 'npm:compression';
-import cookieParser from 'npm:cookie-parser';
-import ejs from 'npm:ejs';
+import http from 'http';
+import express from 'express';
+import { randomBytes } from 'crypto';
+import compression from 'compression';
+import cookieParser from 'cookie-parser';
 
 export const HMAC_KEY = randomBytes(64).toString('hex');
 

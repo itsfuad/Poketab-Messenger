@@ -1,9 +1,9 @@
 console.log('Initializing Server');
 
-import crypto from 'node:crypto';
-import rateLimit from 'npm:express-rate-limit';
-import fs from 'node:fs';
-import os from 'node:os';
+import crypto from 'crypto';
+import rateLimit from 'express-rate-limit';
+import fs from 'fs';
+import os from 'os';
 
 import { blockedMessage } from './utils/blockedMessage.js';
 
@@ -17,7 +17,7 @@ import { keyStore } from './database/db.js';
 import { themeAccent } from './../public/scripts/shared/Themes.js';
 
 //import .env variables
-import { config } from 'npm:dotenv';
+import { config } from 'dotenv';
 
 import { app, httpServer } from './expressApp.js';
 

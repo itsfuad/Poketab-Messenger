@@ -5,8 +5,8 @@
  * This helps us to make analytics about our system.
  */
 
-import { Router } from 'npm:express';
-import cookieParser from 'npm:cookie-parser';
+import { Router } from 'express';
+import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
 
 import { HMAC_KEY } from '../expressApp.js';

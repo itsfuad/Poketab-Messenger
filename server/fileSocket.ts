@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+import crypto from 'crypto';
 import { markForDelete } from './cleaner.js';
 
 import { fileSocket } from './sockets.js';

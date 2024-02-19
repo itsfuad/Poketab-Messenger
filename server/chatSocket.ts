@@ -5,7 +5,7 @@ import { keyStore, SocketIds } from './database/db.js';
 
 import { User } from './database/schema/User.js';
 
-import crypto from 'node:crypto';
+import crypto from 'crypto';
 
 import { cleanJunks, deleteFile } from './cleaner.js';
 

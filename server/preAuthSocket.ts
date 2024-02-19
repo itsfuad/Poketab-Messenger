@@ -1,9 +1,9 @@
 //buit in modules
-import crypto from 'node:crypto';
+import crypto from 'crypto';
 import { keyStore } from './database/db.js';
 import { validateKey } from './utils/validation.js';
 import { auth } from './sockets.js';
-import { Socket } from 'npm:socket.io';
+import { Socket } from 'socket.io';
 
 function keyCheck(key: string){
 	try{
