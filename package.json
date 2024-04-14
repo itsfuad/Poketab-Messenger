@@ -28,7 +28,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
     "ejs": "^3.1.9",
-    "express": "^4.17.3",
+    "express": "^4.19.2",
     "express-rate-limit": "^6.7.1",
     "socket.io": "^4.7.0"
   },
