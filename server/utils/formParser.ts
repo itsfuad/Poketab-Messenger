@@ -1,5 +1,3 @@
-import http from 'http';
-
 type Part = {
   contentDispositionHeader: string;
   contentTypeHeader: string;
